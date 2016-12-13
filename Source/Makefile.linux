@@ -1,0 +1,252 @@
+#
+# JoeQuake Makefile for Linux
+#
+# by Slawomir Mazurek <homer13@o2.pl>
+#
+
+CC 		:= gcc
+_E 		:= @
+
+################
+
+default_target: glx
+
+all: glx x11 svga
+
+################################
+# Directories for object files #
+################################
+
+GLX_DIR		:= release_glx
+X11_DIR		:= release_x11
+SVGA_DIR	:= release_svga
+
+################
+# Binary files #
+################
+
+GLX_TARGET	:= $(GLX_DIR)/joequake-gl.glx
+X11_TARGET	:= $(X11_DIR)/joequake.x11
+SVGA_TARGET	:= $(SVGA_DIR)/joequake.svga
+
+################
+
+C_BUILD = $(_E)$(CC) -c -o $@ $(_CFLAGS) $<
+S_BUILD = $(_E)$(CC) -c -o $@ $(_CFLAGS) -DELF -x assembler-with-cpp $<
+BUILD = $(_E)$(CC) -o $@ $(_OBJS) $(_LDFLAGS)
+MKDIR = $(_E)mkdir -p $@
+RM_FILES = $(_E)rm -f $(_FILES)
+RM_DIRS = $(_E)rm -fr $(_DIRS)
+
+################
+
+$(GLX_DIR) $(X11_DIR) $(SVGA_DIR):
+	$(MKDIR)
+
+CFLAGS += -Did386	-funsigned-char		-O6 \
+	-D__linux__	-march=pentiumpro	-Wall \
+	-funroll-loops	-fomit-frame-pointer	-DNDEBUG \
+	-ffast-math	-fno-strength-reduce	-fexpensive-optimizations \
+	-I/usr/include
+
+LDFLAGS := -lm
+
+#######
+# GLX #
+#######
+
+GLX_C_FILES := \
+	cd_linux	chase		cl_demo		cl_input \
+	cl_main		cl_parse	cl_tent		cmd \
+	common		console		crc		cvar \
+	\
+	gl_draw		gl_mesh		gl_model	gl_refrag \
+	gl_rlight	gl_rmain	gl_rmisc	gl_rpart \
+	gl_rsurf	gl_screen	gl_warp \
+	\
+	host		host_cmd	keys		mathlib \
+	menu		nehahra		net_bsd		net_dgrm \
+	net_loop	net_main	net_udp		net_vcr \
+	pr_cmds		pr_edict	pr_exec		r_part \
+	sbar		snd_dma		snd_linux	snd_mem \
+	snd_mix		sv_main		sv_move		sv_phys \
+	sv_user		sys_linux	vid_common_gl	vid_glx \
+	view		wad		world		zone \
+	image		version		security	iplog \
+	cl_slist
+
+GLX_S_FILES := \
+	math		snd_mixa	sys_x86
+
+GLX_C_OBJS := $(addprefix $(GLX_DIR)/, $(addsuffix .o, $(GLX_C_FILES)))
+GLX_S_OBJS := $(addprefix $(GLX_DIR)/, $(addsuffix .o, $(GLX_S_FILES)))
+
+GLX_CFLAGS := $(CFLAGS) \
+	-DGLQUAKE	-I/usr/X11R6/include
+
+GLX_LDFLAGS := $(LDFLAGS) \
+	-lGL		-L/usr/X11R6/lib	-lX11 \
+	-lXext		-lXxf86dga		-lXxf86vm \
+	-lpng		-ljpeg
+
+glx: _DIR := $(GLX_DIR)
+glx: _OBJS := $(GLX_C_OBJS) $(GLX_S_OBJS)
+glx: _LDFLAGS := $(GLX_LDFLAGS)
+glx: _CFLAGS := $(GLX_CFLAGS)
+glx: $(GLX_TARGET)
+
+$(GLX_TARGET): $(GLX_DIR) $(GLX_C_OBJS) $(GLX_S_OBJS)
+	$(BUILD)
+
+$(GLX_C_OBJS): $(GLX_DIR)/%.o: %.c quakedef.h
+	$(C_BUILD)
+
+$(GLX_S_OBJS): $(GLX_DIR)/%.o: %.s
+	$(S_BUILD)
+
+glxclean: _FILES += $(GLX_C_OBJS) $(GLX_S_OBJS)
+glxclean: _DIRS := $(GLX_DIR)
+glxclean:
+	$(RM_FILES)
+	$(RM_DIRS)
+
+glxclobber: _FILES := $(GLX_TARGET)
+glxclobber: glxclean
+
+#######
+# X11 #
+#######
+
+X11_C_FILES := \
+	cl_demo		cl_input	cl_main		cl_parse \
+	cl_tent		chase		cmd		common \
+	console		crc		cvar		d_edge \
+	d_fill		d_init		d_modech	d_polyse \
+	d_scan		d_sky		d_sprite	d_surf \
+	d_vars		d_zpoint	host		host_cmd \
+	keys		menu		mathlib		net_dgrm \
+	net_loop	net_main	net_vcr		net_udp \
+	net_bsd		pr_cmds		pr_edict	pr_exec \
+	r_aclip		r_alias		r_bsp		r_draw \
+	r_light		r_efrag		r_edge		r_main \
+	r_misc		r_model		r_rast		r_sky \
+	r_sprite	r_surf		r_part		r_vars \
+	r_screen	sbar		sv_main		sv_phys \
+	sv_move		sv_user		zone		view \
+	wad		world		cd_linux	sys_linux \
+	vid_x11		snd_dma		snd_mem		snd_mix \
+	snd_linux	image		version		security \
+	iplog		cl_slist
+
+X11_S_FILES := \
+	d_copy		d_draw		d_draw16	d_parta \
+	d_polysa	d_scana		d_spr8		d_varsa \
+	math		r_aclipa	r_aliasa	r_drawa \
+	r_edgea		r_varsa		snd_mixa	surf8 \
+	sys_x86
+
+X11_C_OBJS := $(addprefix $(X11_DIR)/, $(addsuffix .o, $(X11_C_FILES)))
+X11_S_OBJS := $(addprefix $(X11_DIR)/, $(addsuffix .o, $(X11_S_FILES)))
+
+X11_CFLAGS := $(CFLAGS)
+
+X11_LDFLAGS := $(LDFLAGS) \
+	-L/usr/X11R6/lib	-lX11		-lXext \
+	-lpng
+
+x11: _DIR := $(X11_DIR)
+x11: _OBJS := $(X11_C_OBJS) $(X11_S_OBJS)
+x11: _LDFLAGS := $(X11_LDFLAGS)
+x11: _CFLAGS := $(X11_CFLAGS)
+x11: $(X11_TARGET)
+
+$(X11_TARGET): $(X11_DIR) $(X11_C_OBJS) $(X11_S_OBJS)
+	$(BUILD)
+
+$(X11_C_OBJS): $(X11_DIR)/%.o: %.c quakedef.h
+	$(C_BUILD)
+
+$(X11_S_OBJS): $(X11_DIR)/%.o: %.s
+	$(S_BUILD)
+
+x11clean: _FILES += $(X11_C_OBJS) $(X11_S_OBJS)
+x11clean: _DIRS := $(X11_DIR)
+x11clean:
+	$(RM_FILES)
+	$(RM_DIRS)
+
+x11clobber: _FILES := $(X11_TARGET)
+x11clobber: x11clean
+
+########
+# SVGA #
+########
+
+SVGA_C_FILES := \
+	cl_demo		cl_input	cl_main		cl_parse \
+	cl_tent		chase		cmd		common \
+	console		crc		cvar		d_edge \
+	d_fill		d_init		d_modech	d_polyse \
+	d_scan		d_sky		d_sprite	d_surf \
+	d_vars		d_zpoint	host		host_cmd \
+	keys		menu		mathlib		net_dgrm \
+	net_loop	net_main	net_vcr		net_udp \
+	net_bsd		pr_cmds		pr_edict	pr_exec \
+	r_aclip		r_alias		r_bsp		r_draw \
+	r_light		r_efrag		r_edge		r_main \
+	r_misc		r_model		r_rast		r_sky \
+	r_sprite	r_surf		r_part		r_vars \
+	r_screen	sbar		sv_main		sv_phys \
+	sv_move		sv_user		zone		view \
+	wad		world		cd_linux	sys_linux \
+	vid_svgalib	snd_dma		snd_mem		snd_mix \
+	snd_linux	image		version		security \
+	iplog		cl_slist
+
+SVGA_S_FILES := \
+	d_copy		d_draw		d_draw16	d_parta \
+	d_polysa	d_scana		d_spr8		d_varsa \
+	math		r_aclipa	r_aliasa	r_drawa \
+	r_edgea		r_varsa		snd_mixa	surf8 \
+	sys_x86
+
+SVGA_C_OBJS := $(addprefix $(SVGA_DIR)/, $(addsuffix .o, $(SVGA_C_FILES)))
+SVGA_S_OBJS := $(addprefix $(SVGA_DIR)/, $(addsuffix .o, $(SVGA_S_FILES)))
+
+SVGA_CFLAGS := $(CFLAGS)
+
+SVGA_LDFLAGS := $(LDFLAGS) \
+	-L/usr/X11R6/lib	-lX11		-lpthread \
+	-lvga			-lpng
+
+svga: _DIR := $(SVGA_DIR)
+svga: _OBJS := $(SVGA_C_OBJS) $(SVGA_S_OBJS)
+svga: _LDFLAGS := $(SVGA_LDFLAGS)
+svga: _CFLAGS := $(SVGA_CFLAGS)
+svga: $(SVGA_TARGET)
+
+$(SVGA_TARGET): $(SVGA_DIR) $(SVGA_C_OBJS) $(SVGA_S_OBJS)
+	$(BUILD)
+
+$(SVGA_C_OBJS): $(SVGA_DIR)/%.o: %.c quakedef.h
+	$(C_BUILD)
+
+$(SVGA_S_OBJS): $(SVGA_DIR)/%.o: %.s
+	$(S_BUILD)
+
+svgaclean: _FILES += $(SVGA_C_OBJS) $(SVGA_S_OBJS)
+svgaclean: _DIRS := $(SVGA_DIR)
+svgaclean:
+	$(RM_FILES)
+	$(RM_DIRS)
+
+svgaclobber: _FILES := $(SVGA_TARGET)
+svgaclobber: svgaclean
+
+#################
+
+clean: glxclean x11clean svgaclean
+
+clobber: _DIRS := $(GLX_DIR) $(X11_DIR) $(SVGA_DIR)
+clobber:
+	$(RM_DIRS)

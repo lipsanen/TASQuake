@@ -1,0 +1,339 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>NeaQuakeGL</ProjectName>
+    <ProjectGuid>{8BAAFF94-EA92-4366-9B4F-B9E9F896CF1D}</ProjectGuid>
+    <RootNamespace>NeaQuake</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="PropertySheet.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="PropertySheet.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>14.0.25431.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <ExtensionsToDeleteOnClean>*.asm%3b*.obj%3b*.ilk%3b*.pdb%3b*.tlb%3b*.tli%3b*.tlh%3b*.tmp%3b*.rsp%3b*.bat%3b$(TargetPath)</ExtensionsToDeleteOnClean>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>$(ProjectName)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <ExtensionsToDeleteOnClean>*.asm%3b*.obj%3b*.ilk%3b*.pdb%3b*.tlb%3b*.tli%3b*.tlh%3b*.tmp%3b*.rsp%3b*.bat%3b$(TargetPath)</ExtensionsToDeleteOnClean>
+    <LinkIncremental>true</LinkIncremental>
+    <TargetName>$(ProjectName)</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;id386;GLQUAKE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(Configuration)\</AssemblerListingLocation>
+      <ObjectFileName>$(Configuration)\</ObjectFileName>
+      <ProgramDataBaseFileName>$(Configuration)\</ProgramDataBaseFileName>
+      <BrowseInformation />
+      <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>dxguid.lib;opengl32.lib;wsock32.lib;winmm.lib;libpng.lib;libjpeg.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(TargetPath)</OutputFile>
+      <Version />
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>LIBC.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ProgramDatabaseFile>$(OutputPath)$(ProjectName).pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <SetChecksum>true</SetChecksum>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(TargetPath)" "$(NQ_QUAKETESTDIR)" /Y /E</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;id386;GLQUAKE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>false</StringPooling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <SmallerTypeCheck>false</SmallerTypeCheck>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(Configuration)\</AssemblerListingLocation>
+      <ObjectFileName>$(Configuration)\</ObjectFileName>
+      <ProgramDataBaseFileName>$(Configuration)\</ProgramDataBaseFileName>
+      <BrowseInformation />
+      <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>dxguid.lib;opengl32.lib;wsock32.lib;winmm.lib;libpng.lib;libjpeg.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>NotSet</ShowProgress>
+      <OutputFile>$(TargetPath)</OutputFile>
+      <Version />
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>LIBC.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutputPath)$(ProjectName).pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <SetChecksum>false</SetChecksum>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(TargetPath)" "$(NQ_QUAKETESTDIR)" /Y /E</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ResourceCompile Include="neaquake.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cd_win.c" />
+    <ClCompile Include="chase.c" />
+    <ClCompile Include="cl_demo.c" />
+    <ClCompile Include="cl_input.c" />
+    <ClCompile Include="cl_main.c" />
+    <ClCompile Include="cl_parse.c" />
+    <ClCompile Include="cl_slist.c" />
+    <ClCompile Include="cl_tent.c" />
+    <ClCompile Include="cmd.c" />
+    <ClCompile Include="common.c" />
+    <ClCompile Include="conproc.c" />
+    <ClCompile Include="console.c" />
+    <ClCompile Include="crc.c" />
+    <ClCompile Include="cvar.c" />
+    <ClCompile Include="gl_decals.c" />
+    <ClCompile Include="gl_draw.c" />
+    <ClCompile Include="gl_mesh.c" />
+    <ClCompile Include="gl_model.c" />
+    <ClCompile Include="gl_refrag.c" />
+    <ClCompile Include="gl_rlight.c">
+      <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</OmitFramePointers>
+    </ClCompile>
+    <ClCompile Include="gl_rmain.c" />
+    <ClCompile Include="gl_rmisc.c" />
+    <ClCompile Include="gl_rpart.c" />
+    <ClCompile Include="gl_rsurf.c" />
+    <ClCompile Include="gl_screen.c" />
+    <ClCompile Include="gl_warp.c" />
+    <ClCompile Include="host.c" />
+    <ClCompile Include="host_cmd.c" />
+    <ClCompile Include="image.c" />
+    <ClCompile Include="in_win.c" />
+    <ClCompile Include="iplog.c" />
+    <ClCompile Include="keys.c" />
+    <ClCompile Include="mathlib.c" />
+    <ClCompile Include="menu.c" />
+    <ClCompile Include="movie.c" />
+    <ClCompile Include="movie_avi.c" />
+    <ClCompile Include="nehahra.c" />
+    <ClCompile Include="net_dgrm.c" />
+    <ClCompile Include="net_loop.c" />
+    <ClCompile Include="net_main.c" />
+    <ClCompile Include="net_vcr.c" />
+    <ClCompile Include="net_win.c" />
+    <ClCompile Include="net_wins.c" />
+    <ClCompile Include="net_wipx.c" />
+    <ClCompile Include="pr_cmds.c" />
+    <ClCompile Include="pr_edict.c" />
+    <ClCompile Include="pr_exec.c" />
+    <ClCompile Include="r_part.c" />
+    <ClCompile Include="sbar.c" />
+    <ClCompile Include="security.c" />
+    <ClCompile Include="snd_dma.c" />
+    <ClCompile Include="snd_mem.c" />
+    <ClCompile Include="snd_mix.c" />
+    <ClCompile Include="snd_win.c" />
+    <ClCompile Include="sv_main.c" />
+    <ClCompile Include="sv_move.c" />
+    <ClCompile Include="sv_phys.c" />
+    <ClCompile Include="sv_user.c" />
+    <ClCompile Include="sys_win.c" />
+    <ClCompile Include="version.c" />
+    <ClCompile Include="vid_common_gl.c" />
+    <ClCompile Include="vid_wgl.c" />
+    <ClCompile Include="view.c" />
+    <ClCompile Include="wad.c" />
+    <ClCompile Include="world.c" />
+    <ClCompile Include="zone.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="adivtab.h" />
+    <ClInclude Include="anorms.h" />
+    <ClInclude Include="anorm_dots.h" />
+    <ClInclude Include="bspfile.h" />
+    <ClInclude Include="cdaudio.h" />
+    <ClInclude Include="client.h" />
+    <ClInclude Include="cl_slist.h" />
+    <ClInclude Include="cmd.h" />
+    <ClInclude Include="common.h" />
+    <ClInclude Include="conproc.h" />
+    <ClInclude Include="console.h" />
+    <ClInclude Include="crc.h" />
+    <ClInclude Include="cvar.h" />
+    <ClInclude Include="draw.h" />
+    <ClInclude Include="d_iface.h" />
+    <ClInclude Include="d_ifacea.h" />
+    <ClInclude Include="d_local.h" />
+    <ClInclude Include="glquake.h" />
+    <ClInclude Include="gl_model.h" />
+    <ClInclude Include="image.h" />
+    <ClInclude Include="input.h" />
+    <ClInclude Include="iplog.h" />
+    <ClInclude Include="keys.h" />
+    <ClInclude Include="mathlib.h" />
+    <ClInclude Include="menu.h" />
+    <ClInclude Include="modelgen.h" />
+    <ClInclude Include="movie.h" />
+    <ClInclude Include="movie_avi.h" />
+    <ClInclude Include="nehahra.h" />
+    <ClInclude Include="net.h" />
+    <ClInclude Include="net_dgrm.h" />
+    <ClInclude Include="net_loop.h" />
+    <ClInclude Include="net_vcr.h" />
+    <ClInclude Include="net_wins.h" />
+    <ClInclude Include="net_wipx.h" />
+    <ClInclude Include="protocol.h" />
+    <ClInclude Include="quakedef.h" />
+    <ClInclude Include="render.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="r_local.h" />
+    <ClInclude Include="r_model.h" />
+    <ClInclude Include="r_shared.h" />
+    <ClInclude Include="sbar.h" />
+    <ClInclude Include="screen.h" />
+    <ClInclude Include="security.h" />
+    <ClInclude Include="server.h" />
+    <ClInclude Include="sound.h" />
+    <ClInclude Include="spritegn.h" />
+    <ClInclude Include="sys.h" />
+    <ClInclude Include="version.h" />
+    <ClInclude Include="vid.h" />
+    <ClInclude Include="view.h" />
+    <ClInclude Include="wad.h" />
+    <ClInclude Include="winquake.h" />
+    <ClInclude Include="world.h" />
+    <ClInclude Include="zone.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="quake.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="math.s">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cl /D "GLQUAKE" /nologo /EP &gt; "$(OutDir)%(Filename).spp" "%(FullPath)"
+gas2masm &lt; "$(OutDir)%(Filename).spp" &gt; "$(OutDir)%(Filename).asm"
+ml /nologo /c /Cp /coff /Fo "$(OutDir)%(Filename).obj" /Zm /Zi "$(OutDir)%(Filename).asm"
+del "$(OutDir)%(Filename).spp"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cl /D "GLQUAKE" /nologo /EP &gt; "$(OutDir)%(Filename).spp" "%(FullPath)"
+gas2masm &lt; "$(OutDir)%(Filename).spp" &gt; "$(OutDir)%(Filename).asm"
+ml /nologo /c /Cp /coff /Fo "$(OutDir)%(Filename).obj" /Zm /Zi "$(OutDir)%(Filename).asm"
+del "$(OutDir)%(Filename).spp"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="snd_mixa.s">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cl /D "GLQUAKE" /nologo /EP &gt; "$(OutDir)%(Filename).spp" "%(FullPath)"
+gas2masm &lt; "$(OutDir)%(Filename).spp" &gt; "$(OutDir)%(Filename).asm"
+ml /nologo /c /Cp /coff /Fo "$(OutDir)%(Filename).obj" /Zm /Zi "$(OutDir)%(Filename).asm"
+del "$(OutDir)%(Filename).spp"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cl /D "GLQUAKE" /nologo /EP &gt; "$(OutDir)%(Filename).spp" "%(FullPath)"
+gas2masm &lt; "$(OutDir)%(Filename).spp" &gt; "$(OutDir)%(Filename).asm"
+ml /nologo /c /Cp /coff /Fo "$(OutDir)%(Filename).obj" /Zm /Zi "$(OutDir)%(Filename).asm"
+del "$(OutDir)%(Filename).spp"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="sys_x86.s">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cl /D "GLQUAKE" /nologo /EP &gt; "$(OutDir)%(Filename).spp" "%(FullPath)"
+gas2masm &lt; "$(OutDir)%(Filename).spp" &gt; "$(OutDir)%(Filename).asm"
+ml /nologo /c /Cp /coff /Fo "$(OutDir)%(Filename).obj" /Zm /Zi "$(OutDir)%(Filename).asm"
+del "$(OutDir)%(Filename).spp"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cl /D "GLQUAKE" /nologo /EP &gt; "$(OutDir)%(Filename).spp" "%(FullPath)"
+gas2masm &lt; "$(OutDir)%(Filename).spp" &gt; "$(OutDir)%(Filename).asm"
+ml /nologo /c /Cp /coff /Fo "$(OutDir)%(Filename).obj" /Zm /Zi "$(OutDir)%(Filename).asm"
+del "$(OutDir)%(Filename).spp"
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
