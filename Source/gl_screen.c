@@ -777,7 +777,6 @@ SCR_BeginLoadingPlaque
 */
 void SCR_BeginLoadingPlaque (void)
 {
-	return;
 	S_StopAllSounds (true);
 
 	if (cls.state != ca_connected || cls.signon != SIGNONS)
