@@ -16,17 +16,17 @@ Changes in this binary:
 
 Startup parameters:
 
-* -window
+-window
 Start in windowed mode.
 
-* -borderless
+-borderless
 Have no borders around the window if window mode.
 
-* -width
+-width
 Width for window or display width in noscale.
 
-* -height
+-height
 Height for window or display height in noscale.
 
-* -noscale
+-noscale
 Do not scale to the highest 4:3 resolution available, use -width and -height to set the desired resolution. Only changes the display size of the game.
