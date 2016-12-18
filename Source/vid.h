@@ -76,6 +76,12 @@ typedef struct
 	qboolean borderless;
 
 	/*
+		Do not scale up in fullscreen and add vertical borders,
+		use the actual resolution
+	*/
+	qboolean noscale;
+
+	/*
 		Always set to the primary display device size.
 	*/
 	int desktopwidth;

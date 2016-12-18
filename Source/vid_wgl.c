@@ -43,17 +43,29 @@ void NQ_CalculateVirtualDisplaySize(void)
 {
 	const float aspect43 = 4.0f / 3.0f;
 
-	glwidth = nqvideo.displaywidth;
-	glheight = glwidth / aspect43;
-
-	if (glheight > nqvideo.displayheight)
+	if (nqvideo.noscale)
 	{
-		glwidth = nqvideo.displayheight * aspect43;
+		glwidth = nqvideo.displaywidth;
 		glheight = nqvideo.displayheight;
+
+		glx = (nqvideo.desktopwidth - glwidth) / 2;
+		gly = (nqvideo.desktopheight - glheight) / 2;
 	}
 
-	glx = (nqvideo.displaywidth - glwidth) / 2;
-	gly = (nqvideo.displayheight - glheight) / 2;
+	else
+	{
+		glwidth = nqvideo.displaywidth;
+		glheight = glwidth / aspect43;
+
+		if (glheight > nqvideo.displayheight)
+		{
+			glwidth = nqvideo.displayheight * aspect43;
+			glheight = nqvideo.displayheight;
+		}
+
+		glx = (nqvideo.displaywidth - glwidth) / 2;
+		gly = (nqvideo.displayheight - glheight) / 2;
+	}
 }
 
 qboolean	DDActive;
@@ -471,10 +483,8 @@ void AppActivate (BOOL fActive, BOOL minimize)
 				vid_wassuspended = false;
 				/*if (ChangeDisplaySettings (&gdevmode, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
 					Sys_Error ("Couldn't set fullscreen DIB mode");*/
-				ShowWindow (mainwindow, SW_SHOWNORMAL);
-
-				// Fix for alt-tab bug in NVidia drivers
-				MoveWindow (mainwindow, 0, 0, nqvideo.desktopwidth, nqvideo.displayheight, false);
+				
+				ShowWindow(mainwindow, SW_SHOWNORMAL);
 				
 				// scr_fullupdate = 0;
 				Sbar_Changed ();
@@ -842,6 +852,7 @@ void NQ_Init(void)
 
 	nqvideo.borderless = false;
 	nqvideo.fullscreen = false;
+	nqvideo.noscale = false;
 	
 	nqvideo.displaywidth = 1280;
 	nqvideo.displayheight = 960;
@@ -875,11 +886,31 @@ void NQ_Init(void)
 
 	else
 	{
+		nqvideo.noscale = COM_CheckParm("-noscale") > 0;
+
 		modestate = MS_FULLDIB;
 		nqvideo.fullscreen = true;
 
-		nqvideo.displaywidth = nqvideo.desktopwidth;
-		nqvideo.displayheight = nqvideo.desktopheight;
+		if (nqvideo.noscale)
+		{
+			int i;
+
+			if ((i = COM_CheckParm("-width")) && i + 1 < com_argc)
+			{
+				nqvideo.displaywidth = Q_atoi(com_argv[i + 1]);
+			}
+
+			if ((i = COM_CheckParm("-height")) && i + 1 < com_argc)
+			{
+				nqvideo.displayheight = Q_atoi(com_argv[i + 1]);
+			}
+		}
+
+		else
+		{
+			nqvideo.displaywidth = nqvideo.desktopwidth;
+			nqvideo.displayheight = nqvideo.desktopheight;
+		}
 	}
 
 	NQ_InitWindow();
