@@ -8,8 +8,25 @@ Changes in this binary:
 
 * Mouse handling has been redone, there is now only raw mouse input and no mouse acceleration. Mouse4 and Mouse5 are now also bindable
 
-* Window creation is new and properly handles fullscreen. Fullscreen mode will always open at the native primary monitor resolution and add vertical borders as necessary. For windowed mode, borderless mode has also been added. To start in windowed mode, use -window. If you wish to use borderless window mode you need -window and -borderless. In window mode you can specify a resolution you wish to open at with -width and -height. If no window flag is found, the game will open in fullscreen at your native resolution.
+* Window creation is new and properly handles fullscreen and windowed, with borderless if wanted.
 
 * The update rate of show_speed can now be controlled with show_speed_interval command.
 
 * Coop demos no longer get corrupt when any client starts recording and plays back.
+
+Startup parameters:
+
+* -window
+Start in windowed mode.
+
+* -borderless
+Have no borders around the window if window mode.
+
+* -width
+Width for window or display width in noscale.
+
+* -height
+Height for window or display height in noscale.
+
+* -noscale
+Do not scale to the highest 4:3 resolution available, use -width and -height to set the desired resolution. Only changes the display size of the game.
