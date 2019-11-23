@@ -728,7 +728,7 @@ void NQ_InitWindow(void)
 
 	wcex.cbSize = sizeof(WNDCLASSEX);
 	wcex.hInstance = global_hInstance;
-	wcex.lpszClassName = "App_NeaQuake";
+	wcex.lpszClassName = "App_TASQuake";
 	wcex.lpfnWndProc = MainWndProc;
 
 	/* 
@@ -792,7 +792,7 @@ void NQ_InitWindow(void)
 	(
 		0,
 		wcex.lpszClassName,
-		"NeaQuake",
+		"TASQuake",
 		style,
 		posx,
 		posy,

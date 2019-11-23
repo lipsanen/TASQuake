@@ -234,8 +234,8 @@ void SV_ConnectClient (int clientnum)
 
 	client = svs.clients + clientnum;
 
-	if (client->netconnection->mod == MOD_NEAQUAKE)
-		Con_DPrintf ("NeaQuake Client %s connected\n", client->netconnection->address);
+	if (client->netconnection->mod == MOD_TASQUAKE)
+		Con_DPrintf ("TASQuake Client %s connected\n", client->netconnection->address);
 	else
 		Con_DPrintf ("Client %s connected\n", client->netconnection->address);
 

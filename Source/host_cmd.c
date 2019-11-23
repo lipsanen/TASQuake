@@ -87,7 +87,7 @@ void Host_Status_f (void)
 	}
 
 	print ("host:    %s\n", hostname.string);
-	print ("version: NeaQuake %s\n", NEAQUAKE_VERSION);
+	print ("version: TASQuake %s\n", TASQUAKE_VERSION);
 	if (tcpipAvailable)
 		print ("tcp/ip:  %s\n", my_tcpip_address);
 	if (ipxAvailable)

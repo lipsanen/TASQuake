@@ -1278,10 +1278,10 @@ static qsocket_t *_Datagram_CheckNewConnections (void)
 	if (mod != MOD_QSMACK)
 	{
 		if (cl_password.value && (len <= 18 || cl_password.value != MSG_ReadLong()))
-			return Datagram_Reject (va("Óåòöåò éó ðáóó÷ïòä ðòïôåãôåäŸ\nYou must use NeaQuake v%s (build %i) or above\nand set cl_password to the server password\n", NEAQUAKE_VERSION, build_number()), acceptsock, &clientaddr);
+			return Datagram_Reject (va("Óåòöåò éó ðáóó÷ïòä ðòïôåãôåäŸ\nYou must use TASQuake v%s (build %i) or above\nand set cl_password to the server password\n", TASQUAKE_VERSION, build_number()), acceptsock, &clientaddr);
 
-		if (cl_cheatfree && (mod != MOD_NEAQUAKE || mod_version < 32))
-			return Datagram_Reject (va("Ôèéó éó á ãèåáô­æòåå óåòöåòŸ\nYou must use NeaQuake v%s (build %i) or above\n", NEAQUAKE_VERSION, build_number()), acceptsock, &clientaddr);
+		if (cl_cheatfree && (mod != MOD_TASQUAKE || mod_version < 32))
+			return Datagram_Reject (va("Ôèéó éó á ãèåáô­æòåå óåòöåòŸ\nYou must use TASQuake v%s (build %i) or above\n", TASQUAKE_VERSION, build_number()), acceptsock, &clientaddr);
 	}
 
 	// allocate a QSocket
@@ -1307,7 +1307,7 @@ static qsocket_t *_Datagram_CheckNewConnections (void)
 	sock->mod = mod;
 	sock->mod_version = mod_version;
 	sock->mod_flags = mod_flags;
-	if (mod == MOD_NEAQUAKE && mod_version >= 34)
+	if (mod == MOD_TASQUAKE && mod_version >= 34)
 		sock->net_wait = true;		// joe: NAT fix from ProQuake
 	sock->encrypt = 2;
 
@@ -1325,7 +1325,7 @@ static qsocket_t *_Datagram_CheckNewConnections (void)
 	dfunc.GetSocketAddr (newsock, &newaddr);
 	sock->client_port = dfunc.GetSocketPort(&newaddr);
 	MSG_WriteLong (&net_message, sock->client_port);
-	MSG_WriteByte (&net_message, MOD_NEAQUAKE);
+	MSG_WriteByte (&net_message, MOD_TASQUAKE);
 	MSG_WriteByte (&net_message, 10 * MOD_PROQUAKE_VERSION);
 	if (cl_cheatfree)
 	{
@@ -1509,7 +1509,7 @@ static qsocket_t *_Datagram_Connect (char *host)
 		MSG_WriteByte (&net_message, CCREQ_CONNECT);
 		MSG_WriteString (&net_message, "QUAKE");
 		MSG_WriteByte (&net_message, NET_PROTOCOL_VERSION);
-		MSG_WriteByte (&net_message, MOD_NEAQUAKE);
+		MSG_WriteByte (&net_message, MOD_TASQUAKE);
 		MSG_WriteByte (&net_message, MOD_PROQUAKE_VERSION * 10);
 		MSG_WriteByte (&net_message, 0);
 		MSG_WriteLong (&net_message, cl_password.value);	// joe: password protected servers from ProQuake
@@ -1618,7 +1618,7 @@ static qsocket_t *_Datagram_Connect (char *host)
 			sock->mod_flags = MSG_ReadByte ();
 		else
 			sock->mod_flags = 0;
-		if (sock->mod == MOD_NEAQUAKE && (sock->mod_flags & JQF_CHEATFREE))
+		if (sock->mod == MOD_TASQUAKE && (sock->mod_flags & JQF_CHEATFREE))
 		{
 			if (security_loaded)
 			{
@@ -1655,7 +1655,7 @@ static qsocket_t *_Datagram_Connect (char *host)
 	sock->lastMessageTime = SetNetTime ();
 
 	// joe, from ProQuake: make NAT work by opening a new socket
-	if (sock->mod == MOD_NEAQUAKE && sock->mod_version >= 34)
+	if (sock->mod == MOD_TASQUAKE && sock->mod_version >= 34)
 	{
 		clientsock = dfunc.OpenSocket(0);
 		if (clientsock == -1)

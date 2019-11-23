@@ -1119,7 +1119,7 @@ void Draw_ConsoleBackground (int lines)
 		Draw_AlphaPic (0, lines - vid.height, conback, bound(0, gl_conalpha.value, 1));
 
 end:
-	sprintf (ver, "NeaQuake %s", NEAQUAKE_VERSION);
+	sprintf (ver, "TASQuake %s", TASQUAKE_VERSION);
 	Draw_Alt_String (vid.conwidth - strlen(ver) * 8 - 8, lines - 10, ver);
 }
 

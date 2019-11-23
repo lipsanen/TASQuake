@@ -402,7 +402,7 @@ void SV_ReadClientMove (usercmd_t *move)
 	host_client->num_pings++;
 
 // read current angles
-	if (host_client->netconnection->mod == MOD_NEAQUAKE)
+	if (host_client->netconnection->mod == MOD_TASQUAKE)
 	{
 		for (i=0 ; i<3 ; i++)
 			angle[i] = MSG_ReadAngle16 ();

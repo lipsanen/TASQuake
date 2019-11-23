@@ -81,7 +81,7 @@ qsocket_t *Loop_Connect (char *host)
 	loop_client->receiveMessageLength = 0;
 	loop_client->sendMessageLength = 0;
 	loop_client->canSend = true;
-	loop_client->mod = MOD_NEAQUAKE;
+	loop_client->mod = MOD_TASQUAKE;
 	loop_client->client_port = 0;
 
 	if (!loop_server)
@@ -96,7 +96,7 @@ qsocket_t *Loop_Connect (char *host)
 	loop_server->receiveMessageLength = 0;
 	loop_server->sendMessageLength = 0;
 	loop_server->canSend = true;
-	loop_server->mod = MOD_NEAQUAKE;
+	loop_server->mod = MOD_TASQUAKE;
 	loop_server->client_port = 0;
 
 	loop_client->driverdata = (void *)loop_server;

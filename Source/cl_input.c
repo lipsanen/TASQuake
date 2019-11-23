@@ -409,7 +409,7 @@ void CL_SendMove (usercmd_t *cmd)
 	MSG_WriteByte (buf, clc_move);
 	MSG_WriteFloat (buf, cl.mtime[0]);	// so server can get ping times
 
-	if (!cls.demoplayback && (cls.netcon->mod == MOD_NEAQUAKE))
+	if (!cls.demoplayback && (cls.netcon->mod == MOD_TASQUAKE))
 	{
 		for (i = 0 ; i < 3 ; i++)
 			MSG_WriteAngle16 (buf, cl.viewangles[i]);

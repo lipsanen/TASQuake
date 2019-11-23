@@ -119,7 +119,7 @@ struct qsockaddr
 #define CCREP_RCON		0x86
 
 #define	MOD_NONE		0x00
-#define	MOD_NEAQUAKE		0x01
+#define	MOD_TASQUAKE		0x01
 #define MOD_QSMACK		0x02
 
 // joe: flags from ProQuake

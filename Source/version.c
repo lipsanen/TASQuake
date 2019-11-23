@@ -60,7 +60,7 @@ Host_Version_f
 */
 void Host_Version_f (void)
 {
-	Con_Printf ("NeaQuake version %s\n", VersionString());
+	Con_Printf ("TASQuake version %s\n", VersionString());
 	Con_Printf ("Exe: "__TIME__" "__DATE__"\n");
 }
 
@@ -73,7 +73,7 @@ char *VersionString (void)
 {
 	static	char	str[32];
 
-	Q_snprintfz (str, sizeof(str), "%s (build %i)", NEAQUAKE_VERSION, build_number());
+	Q_snprintfz (str, sizeof(str), "%s (build %i)", TASQUAKE_VERSION, build_number());
 
 	return str;
 }

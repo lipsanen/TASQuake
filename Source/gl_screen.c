@@ -747,7 +747,7 @@ void SCR_ScreenShot_f (void)
 
 		for (i=0 ; i<999 ; i++) 
 		{ 
-			Q_snprintfz (name, sizeof(name), "NeaQuake%03i.%s", i, ext);
+			Q_snprintfz (name, sizeof(name), "TASQuake%03i.%s", i, ext);
 			if (Sys_FileTime(va("%s/%s/%s", com_basedir, sshot_dir, name)) == -1)
 				break;	// file doesn't exist
 		} 

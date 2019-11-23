@@ -232,8 +232,8 @@ void CL_EstablishConnection (char *host)
 
 	Con_DPrintf ("CL_EstablishConnection: connected to %s\n", host);
 
-	if (cls.netcon->mod == MOD_NEAQUAKE && (deathmatch.value || coop.value))
-		Con_DPrintf ("Connected to NeaQuake server\n");
+	if (cls.netcon->mod == MOD_TASQUAKE && (deathmatch.value || coop.value))
+		Con_DPrintf ("Connected to TASQuake server\n");
 
 	cls.demonum = -1;			// not in the demo loop now
 	cls.state = ca_connected;
