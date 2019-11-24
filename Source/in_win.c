@@ -71,6 +71,9 @@ PDWORD	pdwRawValue[JOY_MAX_AXES];
 // each time.  this avoids any problems with getting back to a default usage
 // or when changing from one controller to another.  this way at least something
 // works.
+//
+// Jukspa: Could be a good idea to just remove all of these and fix them to some 
+// values to prevent the user from desyncing stuff by changing joystick cvars
 cvar_t	in_joystick = {"joystick", "0", CVAR_ARCHIVE};
 cvar_t	joy_name = {"joyname", "joystick"};
 cvar_t	joy_advanced = {"joyadvanced", "0"};
@@ -413,6 +416,8 @@ IN_MouseMove
 */
 void IN_MouseMove (usercmd_t *cmd)
 {
+	// TODO: Add overrides for manually setting the pitch/yaw
+
 	int mx, my;
 
 	if (!mouseactive)
@@ -735,6 +740,8 @@ IN_ReadJoystick
 */  
 qboolean IN_ReadJoystick (void)
 {
+	// TODO: Some code here to override reading the joystick.
+
 	memset (&ji, 0, sizeof(ji));
 	ji.dwSize = sizeof(ji);
 	ji.dwFlags = joy_flags;
@@ -777,6 +784,11 @@ void IN_JoyMove (usercmd_t *cmd)
 		joy_advancedinit = true;
 	}
 
+
+	// TODO: Add TAS overrides for setting the joystick input manually
+	// TAS OVERRIDE SECTION STARTS
+
+
 	// verify joystick is available and that the user wants to use it
 	if (!joy_avail || !in_joystick.value)
 		return; 
@@ -784,6 +796,9 @@ void IN_JoyMove (usercmd_t *cmd)
 	// collect the joystick data, if possible
 	if (IN_ReadJoystick () != true)
 		return;
+
+
+	// TAS OVERRIDE SECTION ENDS
 
 	speed = (in_speed.state & 1) ? cl_movespeedkey.value : 1;
 	aspeed = speed * host_frametime;
