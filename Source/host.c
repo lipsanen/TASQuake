@@ -27,6 +27,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "r_local.h"
 #endif
 
+#include "tas\hooks.h"
+
 /*
 
 A server can always be started, even if the system started out as a client
@@ -649,7 +651,7 @@ void _Host_Frame (double time)
 
 	if (setjmp(host_abortserver))
 		return;		// something bad happened, or the server disconnected
-
+	
 	// keep the random time dependent
 	rand ();
 
@@ -688,6 +690,9 @@ void _Host_Frame (double time)
 	if (!cl_independentphysics.value)
 	{
 #endif
+
+		_Host_Frame_Hook();
+
 		// get new key events
 		Sys_SendKeyEvents ();
 
@@ -1028,6 +1033,7 @@ void Host_Init (quakeparms_t *parms)
 		CDAudio_Init ();
 		Sbar_Init ();
 		CL_Init ();
+		TAS_Init();
 	}
 
 #ifdef GLQUAKE

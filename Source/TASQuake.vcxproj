@@ -228,6 +228,9 @@
     <ClCompile Include="sv_phys.c" />
     <ClCompile Include="sv_user.c" />
     <ClCompile Include="sys_win.c" />
+    <ClCompile Include="tas\afterframes.cpp" />
+    <ClCompile Include="tas\hooks.c" />
+    <ClCompile Include="tas\utils.c" />
     <ClCompile Include="version.c" />
     <ClCompile Include="vid_common_gl.c" />
     <ClCompile Include="vid_wgl.c" />
@@ -292,6 +295,9 @@
     <ClInclude Include="sound.h" />
     <ClInclude Include="spritegn.h" />
     <ClInclude Include="sys.h" />
+    <ClInclude Include="tas\afterframes.h" />
+    <ClInclude Include="tas\hooks.h" />
+    <ClInclude Include="tas\utils.h" />
     <ClInclude Include="version.h" />
     <ClInclude Include="vid.h" />
     <ClInclude Include="view.h" />
