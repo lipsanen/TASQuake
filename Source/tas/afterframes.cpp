@@ -1,6 +1,6 @@
-#include "afterframes.h"
+#include "cpp_quakedef.hpp"
+#include "afterframes.hpp"
 #include <vector>
-#include <string>
 
 const int BUFFER_SIZE = 1024;
 
@@ -20,6 +20,7 @@ static std::vector<AfterFrames> afterframesQueue;
 static char CmdBuffer[BUFFER_SIZE];
 static int bufferIndex;
 static bool afterFramesPaused = false;
+
 
 void AddAfterframes(int frames, char* cmd)
 {
@@ -85,4 +86,29 @@ void UnpauseAfterframes()
 void ClearAfterframes()
 {
 	afterframesQueue.clear();
+}
+
+void Cmd_TAS_AfterFrames(void)
+{
+	if (Cmd_Argc() != 3)
+	{
+		Con_Printf("Usage: tas_afterframes <frames> <command>");
+	}
+
+	int frames = atoi(Cmd_Argv(1));
+	char* cmd = Cmd_Argv(2);
+
+	if (developer.value)
+		Con_Printf("Adding command %s with delay %d\n", cmd, frames);
+	AddAfterframes(frames, cmd);
+}
+
+void Cmd_TAS_AfterFrames_Await_Load(void)
+{
+	PauseAfterframes();
+}
+
+void Cmd_TAS_AfterFrames_Clear(void)
+{
+	ClearAfterframes();
 }

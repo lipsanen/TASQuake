@@ -51,6 +51,7 @@ char	**com_argv;
 char	com_cmdline[CMDLINE_LENGTH];
 
 int	rogue = 0, hipnotic = 0, nehahra = 0, runequake = 0;
+searchpath_t	*com_searchpaths;
 
 void COM_Path_f (void);
 void COM_Gamedir_f (void);

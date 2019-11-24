@@ -1,33 +1,8 @@
+#include "cpp_quakedef.hpp"
 #include "hooks.h"
-#include "afterframes.h"
-#include "..\quakedef.h"
+#include "afterframes.hpp"
 
 cvar_t	tas_pause_onload = { "tas_pause_onload", "0" };
-
-void Cmd_TAS_AfterFrames(void)
-{
-	if (Cmd_Argc() != 3)
-	{
-		Con_Printf("Usage: tas_afterframes <frames> <command>");
-	}
-
-	int frames = atoi(Cmd_Argv(1));
-	char* cmd = Cmd_Argv(2);
-
-	if (developer.value)
-		Con_Printf("Adding command %s with delay %d\n", cmd, frames);
-	AddAfterframes(frames, cmd);
-}
-
-void Cmd_TAS_AfterFrames_Await_Load(void)
-{
-	PauseAfterframes();
-}
-
-void Cmd_TAS_AfterFrames_Clear(void)
-{
-	ClearAfterframes();
-}
 
 void TAS_Init()
 {

@@ -28,10 +28,15 @@ typedef unsigned char 		byte;
 #define BYTE_DEFINED 1
 #endif
 
+
+#ifdef __cplusplus
+typedef enum { qfalse, qtrue } qboolean;
+#else
 #undef	true
 #undef	false
 
 typedef enum {false, true}	qboolean;
+#endif
 
 #ifndef NULL
 #define NULL ((void *)0)
@@ -217,7 +222,7 @@ typedef struct searchpath_s
 	struct searchpath_s *next;
 } searchpath_t;
 
-searchpath_t	*com_searchpaths;
+extern searchpath_t	*com_searchpaths;
 
 void COM_ForceExtension (char *path, char *extension);
 int COM_FileLength (FILE *f);
