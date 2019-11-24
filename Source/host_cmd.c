@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // host_cmd.c
 
 #include "quakedef.h"
+#include "tas\hooks.h"
 
 extern	cvar_t	pausable;
 
@@ -436,6 +437,7 @@ void Host_Connect_f (void)
 	Host_Reconnect_f ();
 
 	Q_strncpyz (server_name, name, MAX_QPATH);	// added from ProQuake
+	Host_Connect_f_Hook();
 }
 
 /*

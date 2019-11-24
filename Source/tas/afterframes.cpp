@@ -16,10 +16,10 @@ struct AfterFrames
 	int frames;
 };
 
-std::vector<AfterFrames> afterframesQueue;
-char CmdBuffer[BUFFER_SIZE];
-int bufferIndex;
-
+static std::vector<AfterFrames> afterframesQueue;
+static char CmdBuffer[BUFFER_SIZE];
+static int bufferIndex;
+static bool afterFramesPaused = false;
 
 void AddAfterframes(int frames, char* cmd)
 {
@@ -46,16 +46,20 @@ void CopyToBuffer(const char* str)
 
 char* GetQueuedCommands()
 {
-	AdvanceCommands();
 	bufferIndex = 0;
 
-	for(int i=afterframesQueue.size() - 1; i >= 0; --i)
+	if (!afterFramesPaused)
 	{
-		auto& entry = afterframesQueue[i];
-		if (entry.frames <= 0)
+		AdvanceCommands();
+
+		for (int i = afterframesQueue.size() - 1; i >= 0; --i)
 		{
-			CopyToBuffer(entry.command.c_str());
-			afterframesQueue.erase(afterframesQueue.begin() + i);
+			auto& entry = afterframesQueue[i];
+			if (entry.frames <= 0)
+			{
+				CopyToBuffer(entry.command.c_str());
+				afterframesQueue.erase(afterframesQueue.begin() + i);
+			}
 		}
 	}
 
@@ -66,4 +70,19 @@ char* GetQueuedCommands()
 		CmdBuffer[bufferIndex++] = '\0';
 		return CmdBuffer;
 	}
+}
+
+void PauseAfterframes()
+{
+	afterFramesPaused = true;
+}
+
+void UnpauseAfterframes()
+{
+	afterFramesPaused = false;
+}
+
+void ClearAfterframes()
+{
+	afterframesQueue.clear();
 }
