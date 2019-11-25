@@ -240,3 +240,14 @@ void COM_LoadCacheFile (char *path, struct cache_user_s *cu);
 extern	struct	cvar_s	registered;
 
 extern	int	rogue, hipnotic, nehahra, runequake;
+
+#ifndef DISABLE_CUSTOM_RAND
+int tas_rand(void);
+void tas_srand(unsigned int seed);
+
+#undef rand
+#undef srand
+#define rand tas_rand
+#define srand tas_srand
+
+#endif

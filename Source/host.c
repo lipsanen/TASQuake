@@ -63,7 +63,8 @@ byte		*host_colormap;
 
 int		fps_count;
 
-cvar_t	host_framerate = {"host_framerate", "0"};	// set for slow motion
+float host_framerate = 1 / 72.0;
+//cvar_t	host_framerate = {"host_framerate", "0"};	// set for slow motion
 cvar_t	host_speeds = {"host_speeds", "0"};		// set for running times
 
 cvar_t	sys_ticrate = {"sys_ticrate", "0.05"};
@@ -215,7 +216,7 @@ void Host_InitLocal (void)
 {
 	Host_InitCommands ();
 
-	Cvar_Register (&host_framerate);
+	//Cvar_Register (&host_framerate);
 	Cvar_Register (&host_speeds);
 
 	Cvar_Register (&sys_ticrate);
@@ -554,8 +555,8 @@ qboolean Host_FilterTime (double time)
 		host_frametime *= bound(0, cl_demospeed.value, 20);
 	oldrealtime = realtime;
 
-	if (host_framerate.value > 0)
-		host_frametime = host_framerate.value;
+	if (host_framerate > 0)
+		host_frametime = host_framerate;
 	else
 	// don't allow really long or short frames
 		host_frametime = bound(0.001, host_frametime, 0.1);
@@ -658,10 +659,9 @@ void _Host_Frame (double time)
 	// decide the simulation time
 	if (!Host_FilterTime(time))
 	{
-		// joe, ProQuake fix: if we're not doing a frame, still check for lagged moves to send
-		if (!sv.active && (cl.movemessages > 2))
-			CL_SendLagMove ();
-		return;			// don't run too fast, or packets will flood out
+		Sys_Error("Exited out of Host_Frame too early!\n");
+		longjmp(host_abortserver, 1);
+		return;
 	}
 
 	if (cl_independentphysics.value)

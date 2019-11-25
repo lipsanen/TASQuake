@@ -701,8 +701,16 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 				SleepUntilInput (NOT_FOCUS_SLEEP);
 			}
 
-			newtime = Sys_DoubleTime ();
+			newtime = Sys_DoubleTime();
 			time = newtime - oldtime;
+
+			while (time < 1 / cl_maxfps.value)
+			{
+				Sys_Sleep();
+				newtime = Sys_DoubleTime();
+				time = newtime - oldtime;
+			}
+
 		}
 
 		Host_Frame (time);

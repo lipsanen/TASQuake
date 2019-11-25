@@ -1689,3 +1689,20 @@ void COM_InitFilesystem (void)
 	if ((i = COM_CheckParm("-game")) && i + 1 < com_argc)
         	COM_AddGameDirectory (va("%s/%s", com_basedir, com_argv[i+1]));
 }
+
+static unsigned long int next = 0;
+
+int tas_rand(void) // RAND_MAX assumed to be 32767
+{
+	next = next * 1103515245 + 12345;
+	int out = (unsigned int)(next / 65536) % 32768;
+	return out;
+}
+
+void tas_srand(unsigned int seed)
+{
+#ifdef TRACK_RANDOM
+	Con_Printf("RNG seed set to %u\n", seed);
+#endif
+	next = seed;
+}

@@ -2,7 +2,7 @@
 #include "afterframes.hpp"
 #include <vector>
 
-const int BUFFER_SIZE = 1024;
+const int BUFFER_SIZE = 8192;
 
 struct AfterFrames
 {
