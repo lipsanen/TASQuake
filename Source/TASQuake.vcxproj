@@ -122,7 +122,7 @@
       <StringPooling>false</StringPooling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <SmallerTypeCheck>false</SmallerTypeCheck>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StructMemberAlignment>Default</StructMemberAlignment>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -230,6 +230,7 @@
     <ClCompile Include="sys_win.c" />
     <ClCompile Include="tas\afterframes.cpp" />
     <ClCompile Include="tas\hooks.cpp" />
+    <ClCompile Include="tas\strafing.cpp" />
     <ClCompile Include="tas\utils.cpp" />
     <ClCompile Include="version.c" />
     <ClCompile Include="vid_common_gl.c" />
@@ -298,7 +299,8 @@
     <ClInclude Include="tas\afterframes.hpp" />
     <ClInclude Include="tas\cpp_quakedef.hpp" />
     <ClInclude Include="tas\hooks.h" />
-    <ClInclude Include="tas\utils.h" />
+    <ClInclude Include="tas\strafing.hpp" />
+    <ClInclude Include="tas\utils.hpp" />
     <ClInclude Include="version.h" />
     <ClInclude Include="vid.h" />
     <ClInclude Include="view.h" />

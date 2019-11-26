@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // rights reserved.
 
 #include "quakedef.h"
+#include "tas\hooks.h"
 
 cvar_t	cl_smartjump = {"cl_smartjump", "0"};
 cvar_t	cl_lag = {"cl_lag", "0"};
@@ -395,6 +396,7 @@ void CL_SendMove (usercmd_t *cmd)
 	float		lag;
 	sizebuf_t	*buf;
 
+	CL_SendMove_Hook(cmd);
 	lag = bound(0, cl_lag.value, 1000);
 
 	buf = &lag_buff[lag_head&31];
