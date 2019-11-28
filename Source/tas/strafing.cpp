@@ -12,6 +12,9 @@ cvar_t tas_strafe_yaw_offset = { "tas_strafe_yaw_offset", "0" };
 
 static bool shouldJump = false;
 static bool autojump = false;
+static bool print_origin = false;
+static bool print_vel = false;
+static bool print_moves = false;
 
 void IN_TAS_Jump_Down(void)
 {
@@ -23,6 +26,20 @@ void IN_TAS_Jump_Up(void)
 	autojump = false;
 }
 
+void Cmd_Print_Vel(void)
+{
+	print_vel = true;
+}
+
+void Cmd_Print_Origin(void)
+{
+	print_origin = true;
+}
+
+void Cmd_Print_Moves(void)
+{
+	print_moves = true;
+}
 
 struct PlayerData
 {
@@ -132,6 +149,7 @@ static void StrafeMaxAccel(usercmd_t* cmd)
 {
 	auto data = GetPlayerData();
 	double yaw = MaxAccelIntoYawAngle(data);
+
 	float lookdir = AngleModDeg(tas_strafe_yaw.value + tas_strafe_yaw_offset.value);
 
 	double vel_yaw;
@@ -171,6 +189,13 @@ void Strafe(usercmd_t* cmd)
 	{
 		StrafeStraight(cmd);
 	}
+
+	if (print_moves)
+	{
+		Con_Printf("fmove: %.3f, smove %.3f, yaw %.3f\n", cmd->forwardmove, cmd->sidemove, cmd->viewangles[PITCH]);
+		print_moves = false;
+	}
+
 }
 
 void Strafe_Jump_Check()
@@ -189,4 +214,18 @@ void Strafe_Jump_Check()
 		AddAfterframes(0, "-jump");
 		shouldJump = false;
 	}
+
+	if (print_vel)
+	{
+		print_vel = false;
+		Con_Printf("speed %.3f\n", data.vel2d);
+		Con_Printf("vel (%.3f, %.3f, %.3f)\n", data.velocity[0], data.velocity[1], data.velocity[2]);
+	}
+
+	if (print_origin)
+	{
+		print_origin = false;
+		Con_Printf("pos (%.3f, %.3f, %.3f)\n", data.origin[0], data.origin[1], data.origin[2]);
+	}
+
 }

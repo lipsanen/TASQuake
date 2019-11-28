@@ -18,14 +18,14 @@ void SV_Physics_Client_Hook()
 
 void CL_SendMove_Hook(usercmd_t* cmd)
 {
-	if (tas_strafe.value )
-	{
-		Strafe(cmd);
-	}
+	Strafe(cmd);
 }
 
 void TAS_Init()
 {
+	Cmd_AddCommand("tas_print_moves", Cmd_Print_Moves);
+	Cmd_AddCommand("tas_print_vel", Cmd_Print_Vel);
+	Cmd_AddCommand("tas_print_origin", Cmd_Print_Origin);
 	Cmd_AddCommand("tas_set_seed_onload", Cmd_TAS_Set_Seed_Onload);
 	Cmd_AddCommand("tas_afterframes", Cmd_TAS_AfterFrames);
 	Cmd_AddCommand("tas_afterframes_await_load", Cmd_TAS_AfterFrames_Await_Load);
