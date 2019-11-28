@@ -628,7 +628,7 @@ void Host_ServerFrame (double time)
 
 	// move things around and think
 	// always pause in single player if in console or menus
-	if (!sv.paused && (svs.maxclients > 1 || key_dest == key_game))
+	if (!sv.paused && (svs.maxclients > 1 || key_dest == key_game) && tas_pause == unpaused)
 		SV_Physics ();
 
 	// send all messages to the clients

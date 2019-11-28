@@ -31,6 +31,7 @@ typedef struct
 //=============================================================================
 
 typedef enum {ss_loading, ss_active} server_state_t;
+typedef enum {unpaused, paused} pause_state; 
 
 typedef struct
 {
@@ -205,6 +206,7 @@ extern	jmp_buf 	host_abortserver;
 extern	double		host_time;
 
 extern	edict_t		*sv_player;
+extern pause_state tas_pause;
 
 //===========================================================
 

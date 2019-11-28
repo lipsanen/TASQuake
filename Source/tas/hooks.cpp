@@ -21,8 +21,23 @@ void CL_SendMove_Hook(usercmd_t* cmd)
 	Strafe(cmd);
 }
 
+void Cmd_TAS_Pause(void)
+{
+	if (tas_pause == paused)
+	{
+		Con_Printf("TAS: Unpausing.\n");
+		tas_pause = unpaused;
+	}
+	else
+	{
+		Con_Printf("TAS: Pausing.\n");
+		tas_pause = paused;
+	}
+}
+
 void TAS_Init()
 {
+	Cmd_AddCommand("tas_pause", Cmd_TAS_Pause);
 	Cmd_AddCommand("tas_print_moves", Cmd_Print_Moves);
 	Cmd_AddCommand("tas_print_vel", Cmd_Print_Vel);
 	Cmd_AddCommand("tas_print_origin", Cmd_Print_Origin);

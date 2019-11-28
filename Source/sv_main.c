@@ -1090,6 +1090,7 @@ void SV_SpawnServer (char *server)
 
 	sv.state = ss_loading;
 	sv.paused = false;
+	tas_pause = unpaused;
 
 	sv.time = 1.0;
 

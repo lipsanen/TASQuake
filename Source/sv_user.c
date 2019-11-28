@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 
 edict_t	*sv_player;
+pause_state tas_pause;
 
 cvar_t	sv_edgefriction = {"edgefriction", "2"};
 
@@ -560,7 +561,8 @@ void SV_RunClients (void)
 		}
 
 	// always pause in single player if in console or menus
-		if (!sv.paused && (svs.maxclients > 1 || key_dest == key_game))
+		if (!sv.paused && (svs.maxclients > 1 || key_dest == key_game) &&
+		  tas_pause == unpaused)
 			SV_ClientThink ();
 	}
 }
