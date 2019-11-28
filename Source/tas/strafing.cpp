@@ -113,7 +113,7 @@ static PlayerData GetPlayerData()
 
 static double MaxAccelTheta(const PlayerData& data)
 {
-	double accelspeed = data.accelerate * data.wishspeed * data.entFriction * data.frameTime;
+	double accelspeed = data.accelerate * data.wishspeed * data.frameTime;
 	if (accelspeed <= 0)
 		return M_PI;
 
