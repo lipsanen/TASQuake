@@ -628,7 +628,7 @@ void Host_ServerFrame (double time)
 
 	// move things around and think
 	// always pause in single player if in console or menus
-	if (!sv.paused && (svs.maxclients > 1 || key_dest == key_game) && tas_pause == unpaused)
+	if (!sv.paused && (svs.maxclients > 1 || key_dest == key_game) && tas_gamestate == unpaused)
 		SV_Physics ();
 
 	// send all messages to the clients
@@ -653,6 +653,9 @@ void _Host_Frame (double time)
 	if (setjmp(host_abortserver))
 		return;		// something bad happened, or the server disconnected
 	
+	Frame_RNG_Seed();
+	_Host_Frame_Hook();
+
 	// keep the random time dependent
 	rand ();
 
@@ -690,8 +693,6 @@ void _Host_Frame (double time)
 	if (!cl_independentphysics.value)
 	{
 #endif
-
-		_Host_Frame_Hook();
 
 		// get new key events
 		Sys_SendKeyEvents ();

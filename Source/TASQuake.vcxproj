@@ -229,6 +229,7 @@
     <ClCompile Include="sv_user.c" />
     <ClCompile Include="sys_win.c" />
     <ClCompile Include="tas\afterframes.cpp" />
+    <ClCompile Include="tas\gamestate.cpp" />
     <ClCompile Include="tas\hooks.cpp" />
     <ClCompile Include="tas\strafing.cpp" />
     <ClCompile Include="tas\utils.cpp" />
@@ -298,6 +299,7 @@
     <ClInclude Include="sys.h" />
     <ClInclude Include="tas\afterframes.hpp" />
     <ClInclude Include="tas\cpp_quakedef.hpp" />
+    <ClInclude Include="tas\gamestate.hpp" />
     <ClInclude Include="tas\hooks.h" />
     <ClInclude Include="tas\strafing.hpp" />
     <ClInclude Include="tas\utils.hpp" />

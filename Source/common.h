@@ -242,6 +242,8 @@ extern	struct	cvar_s	registered;
 extern	int	rogue, hipnotic, nehahra, runequake;
 
 #ifndef DISABLE_CUSTOM_RAND
+void Frame_RNG_Seed(void);
+unsigned int Get_RNG_Seed(void);
 int tas_rand(void);
 void tas_srand(unsigned int seed);
 

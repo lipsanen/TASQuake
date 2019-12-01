@@ -448,7 +448,7 @@ void Host_Connect_f (void)
 ===============================================================================
 */
 
-#define	SAVEGAME_VERSION	5
+#define	SAVEGAME_VERSION	6
 
 /*
 ===============
@@ -538,6 +538,11 @@ void Host_Savegame_f (void)
 	}
 	
 	fprintf (f, "%i\n", SAVEGAME_VERSION);
+	// Jukspa: save RNG
+	int seed = Get_RNG_Seed();
+	fprintf(f, "%d\n", seed);
+	Con_Printf("Saving seed %d\n", seed);
+
 	Host_SavegameComment (comment);
 	fprintf (f, "%s\n", comment);
 	for (i=0 ; i<NUM_SPAWN_PARMS ; i++)
@@ -612,6 +617,9 @@ void Host_Loadgame_f (void)
 		Con_Printf ("Savegame is version %i, not %i\n", version, SAVEGAME_VERSION);
 		return;
 	}
+
+	int seed;
+	fscanf(f, "%d\n", &seed);
 
 	fscanf (f, "%s\n", str);
 	for (i=0 ; i<NUM_SPAWN_PARMS ; i++)
@@ -702,6 +710,7 @@ void Host_Loadgame_f (void)
 		CL_EstablishConnection ("local");
 		Host_Reconnect_f ();
 	}
+
 }
 
 //============================================================================

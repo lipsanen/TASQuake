@@ -14,6 +14,7 @@ extern "C"
 	void _Host_Frame_Hook();
 	void Host_Connect_f_Hook();
 	void TAS_Init();
+	void TAS_Set_Seed(int seed);
 #ifdef __cplusplus
 }
 #endif

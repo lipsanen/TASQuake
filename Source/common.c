@@ -1690,7 +1690,23 @@ void COM_InitFilesystem (void)
         	COM_AddGameDirectory (va("%s/%s", com_basedir, com_argv[i+1]));
 }
 
-static unsigned long int next = 0;
+static unsigned int next = 0;
+static unsigned int frame_seed = 0;
+
+#define TRACK_RANDOM
+
+void Frame_RNG_Seed(void)
+{
+	frame_seed = next;
+}
+
+unsigned int Get_RNG_Seed(void)
+{
+#ifdef TRACK_RANDOM
+	Con_Printf("RNG seed was retrieved at %u\n", frame_seed);
+#endif
+	return frame_seed;
+}
 
 int tas_rand(void) // RAND_MAX assumed to be 32767
 {
