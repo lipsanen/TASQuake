@@ -92,7 +92,7 @@ static PlayerData GetPlayerData()
 	float vel2d = std::sqrt(data.velocity[0] * data.velocity[0] + data.velocity[1] * data.velocity[1]);
 
 
-	if (data.onGround)
+	if (data.onGround && std::abs(vel2d) > 0)
 	{
 		float control = (vel2d < sv_stopspeed.value) ? sv_stopspeed.value : vel2d;
 		float newspeed = vel2d - data.frameTime * control * data.entFriction * sv_friction.value;
