@@ -145,7 +145,7 @@
     </ResourceCompile>
     <Link>
       <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>dxguid.lib;opengl32.lib;wsock32.lib;winmm.lib;libpng.lib;libjpeg.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dxguid.lib;opengl32.lib;wsock32.lib;winmm.lib;libjpeg.lib;legacy_stdio_definitions.lib;libpng.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>$(TargetPath)</OutputFile>
       <Version />
@@ -158,6 +158,7 @@
       <SubSystem>Windows</SubSystem>
       <SetChecksum>false</SetChecksum>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(TargetPath)" "$(NQ_QUAKETESTDIR)" /Y /E</Command>
@@ -229,7 +230,7 @@
     <ClCompile Include="sv_user.c" />
     <ClCompile Include="sys_win.c" />
     <ClCompile Include="tas\afterframes.cpp" />
-    <ClCompile Include="tas\gamestate.cpp" />
+    <ClCompile Include="tas\test.cpp" />
     <ClCompile Include="tas\hooks.cpp" />
     <ClCompile Include="tas\strafing.cpp" />
     <ClCompile Include="tas\utils.cpp" />
@@ -299,7 +300,7 @@
     <ClInclude Include="sys.h" />
     <ClInclude Include="tas\afterframes.hpp" />
     <ClInclude Include="tas\cpp_quakedef.hpp" />
-    <ClInclude Include="tas\gamestate.hpp" />
+    <ClInclude Include="tas\test.hpp" />
     <ClInclude Include="tas\hooks.h" />
     <ClInclude Include="tas\strafing.hpp" />
     <ClInclude Include="tas\utils.hpp" />

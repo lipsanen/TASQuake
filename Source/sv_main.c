@@ -1090,7 +1090,6 @@ void SV_SpawnServer (char *server)
 
 	sv.state = ss_loading;
 	sv.paused = false;
-	tas_gamestate = unpaused;
 
 	sv.time = 1.0;
 
@@ -1152,12 +1151,12 @@ void SV_SpawnServer (char *server)
 // all setup is completed, any further precache statements are errors
 	sv.state = ss_active;
 
-// run two frames to allow everything to settle
+	// run two frames to allow everything to settle
 	host_frametime += 0.1;
 	SV_Physics ();
-//	sv.time += 0.1;
+	//	sv.time += 0.1;
 	SV_Physics ();
-//	sv.time += 0.1;
+	//	sv.time += 0.1;
 
 // create a baseline for more efficient communications
 	SV_CreateBaseline ();

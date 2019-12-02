@@ -1693,7 +1693,6 @@ void COM_InitFilesystem (void)
 static unsigned int next = 0;
 static unsigned int frame_seed = 0;
 
-#define TRACK_RANDOM
 
 void Frame_RNG_Seed(void)
 {

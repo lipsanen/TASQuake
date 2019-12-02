@@ -2,10 +2,11 @@
 #include "hooks.h"
 #include "afterframes.hpp"
 #include "strafing.hpp"
-#include "gamestate.hpp"
+#include "test.hpp"
 
 cvar_t	tas_pause_onload = { "tas_pause_onload", "0" };
 static bool set_seed = false;
+static int unpause_countdown = -1;
 static unsigned int seed_number = 0;
 
 void Cmd_TAS_Set_Seed_Onload(void)
@@ -17,7 +18,7 @@ void Cmd_TAS_Set_Seed_Onload(void)
 	else
 	{
 		int seed = atoi(Cmd_Argv(1));
-		seed_number = 2347058289;
+		seed_number = seed;
 	}
 
 	set_seed = true;
@@ -62,8 +63,8 @@ void TAS_Set_Seed(int seed)
 
 void TAS_Init()
 {
-	Cmd_AddCommand("tas_save_state", Cmd_SaveState);
-	Cmd_AddCommand("tas_test_state", Cmd_TestState);
+	Cmd_AddCommand("tas_run_test", Cmd_Run_Test);
+	Cmd_AddCommand("tas_generate_test", Cmd_GenerateTest);
 	Cmd_AddCommand("tas_print_seed", Cmd_Print_Seed);
 	Cmd_AddCommand("tas_pause", Cmd_TAS_Pause);
 	Cmd_AddCommand("tas_print_moves", Cmd_Print_Moves);
@@ -82,6 +83,12 @@ void TAS_Init()
 	Cvar_Register(&tas_strafe_yaw_offset);
 }
 
+void TAS_Set_Seed(unsigned int seed)
+{
+	seed_number = seed;
+	set_seed = true;
+}
+
 void Host_Connect_f_Hook()
 {
 	if (tas_pause_onload.value)
@@ -92,18 +99,39 @@ void Host_Connect_f_Hook()
 	UnpauseAfterframes();
 }
 
+void CL_SignonReply_Hook()
+{
+	if(cls.signon == 4)
+		unpause_countdown = 3;
+}
+
 void _Host_Frame_Hook()
 {
-	if (set_seed)
-	{		
-		set_seed = false;
-		srand(seed_number);
-		tas_gamestate = unpaused;
+	if (unpause_countdown > 0)
+	{
+		--unpause_countdown;
+		if (unpause_countdown == 0)
+		{
+			tas_gamestate = unpaused;
+			unpause_countdown = -1;
+		}		
 	}
 
-	char* queued = GetQueuedCommands();
-	if (queued)
+	if (tas_gamestate == unpaused)
 	{
-		Cbuf_AddText(queued);
+		Test_Hook();
+
+		if (set_seed && tas_gamestate == unpaused)
+		{
+			set_seed = false;
+			srand(seed_number);
+		}
+
+		char* queued = GetQueuedCommands();
+		if (queued)
+		{
+			Cbuf_AddText(queued);
+		}
 	}
+
 }

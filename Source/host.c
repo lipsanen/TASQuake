@@ -657,7 +657,8 @@ void _Host_Frame (double time)
 	_Host_Frame_Hook();
 
 	// keep the random time dependent
-	rand ();
+	if(tas_gamestate == unpaused)
+		rand ();
 
 	// decide the simulation time
 	if (!Host_FilterTime(time))

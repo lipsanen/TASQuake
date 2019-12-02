@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // cl_main.c -- client main loop
 
 #include "quakedef.h"
+#include "tas/hooks.h"
 
 // we need to declare some mouse variables here, because the menu system
 // references them even when on a unix system.
@@ -254,6 +255,7 @@ An svc_signonnum has been received, perform a client side setup
 void CL_SignonReply (void)
 {
 	Con_DPrintf ("CL_SignonReply: %i\n", cls.signon);
+	CL_SignonReply_Hook();
 
 	switch (cls.signon)
 	{
