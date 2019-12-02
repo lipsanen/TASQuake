@@ -448,7 +448,7 @@ void Host_Connect_f (void)
 ===============================================================================
 */
 
-#define	SAVEGAME_VERSION	5
+#define	SAVEGAME_VERSION	6
 
 /*
 ===============
@@ -538,6 +538,10 @@ void Host_Savegame_f (void)
 	}
 	
 	fprintf (f, "%i\n", SAVEGAME_VERSION);
+	// Jukspa: save RNG
+	unsigned int seed = Get_RNG_Seed();
+	fprintf(f, "%u\n", seed);
+
 	Host_SavegameComment (comment);
 	fprintf (f, "%s\n", comment);
 	for (i=0 ; i<NUM_SPAWN_PARMS ; i++)
@@ -613,11 +617,15 @@ void Host_Loadgame_f (void)
 		return;
 	}
 
+	unsigned int seed;
+	fscanf(f, "%u\n", &seed);
+	TAS_Set_Seed(seed);
+
 	fscanf (f, "%s\n", str);
 	for (i=0 ; i<NUM_SPAWN_PARMS ; i++)
 		fscanf (f, "%f\n", &spawn_parms[i]);
 
-// this silliness is so we can load 1.06 save files, which have float skill values
+	// this silliness is so we can load 1.06 save files, which have float skill values
 	fscanf (f, "%f\n", &tfloat);
 	current_skill = (int)(tfloat + 0.1);
 	Cvar_SetValue (&skill, (float)current_skill);
@@ -635,6 +643,7 @@ void Host_Loadgame_f (void)
 	}
 	sv.paused = true;		// pause until all clients connect
 	sv.loadgame = true;
+	tas_gamestate = paused;
 
 // load the light styles
 	for (i=0 ; i<MAX_LIGHTSTYLES ; i++)

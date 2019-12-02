@@ -49,7 +49,7 @@ char* GetQueuedCommands()
 {
 	bufferIndex = 0;
 
-	if (!afterFramesPaused)
+	if (!afterFramesPaused && tas_gamestate == unpaused)
 	{
 		AdvanceCommands();
 
