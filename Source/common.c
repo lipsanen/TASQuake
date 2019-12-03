@@ -1347,7 +1347,7 @@ byte *COM_LoadFile (char *path, int usehunk)
 {
 	FILE	*h;
 	byte	*buf;
-	char	base[32];
+	char	base[256];
 	int	len;
 
 	buf = NULL;     // quiet compiler warning
