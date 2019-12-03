@@ -52,6 +52,7 @@ struct PlayerData
 	double wishspeed;
 	float vel2d;
 	double view_theta;
+	double vel_theta;
 };
 
 
@@ -107,6 +108,10 @@ static PlayerData GetPlayerData()
 	}
 
 	data.vel2d = std::sqrt(data.velocity[0] * data.velocity[0] + data.velocity[1] * data.velocity[1]);
+	if(!IsZero(data.vel2d))
+		data.vel_theta = NormalizeRad(std::atan2(data.velocity[1], data.velocity[0]));
+	else
+		data.vel_theta = NormalizeRad(tas_strafe_yaw.value);
 
 	return data;
 }
@@ -133,16 +138,12 @@ static double MaxAccelTheta(const PlayerData& data)
 
 static double MaxAccelIntoYawAngle(const PlayerData& data)
 {
-	double vel_theta = 0;
 	double target_theta = tas_strafe_yaw.value * M_DEG2RAD;
-	if (!IsZero(data.vel2d))
-		vel_theta = std::atan2(data.velocity[1], data.velocity[0]);
-	else
-		vel_theta = target_theta;
-
 	double theta = MaxAccelTheta(data);
+	double diff = NormalizeRad(target_theta - data.vel_theta);
+	double out = std::copysign(theta, diff) * M_RAD2DEG;
 
-	return std::copysign(theta, NormalizeRad(target_theta - vel_theta)) * M_RAD2DEG;
+	return out;
 }
 
 static void StrafeMaxAccel(usercmd_t* cmd)
@@ -150,16 +151,14 @@ static void StrafeMaxAccel(usercmd_t* cmd)
 	auto data = GetPlayerData();
 	double yaw = MaxAccelIntoYawAngle(data);
 
-	float lookdir = AngleModDeg(tas_strafe_yaw.value + tas_strafe_yaw_offset.value);
+	float lookdir = tas_strafe_yaw.value + tas_strafe_yaw_offset.value;
+	lookdir = NormalizeDeg(lookdir);
+	lookdir = AngleModDeg(lookdir);
 
-	double vel_yaw;
-	if (IsZero(data.vel2d))
-		vel_yaw = tas_strafe_yaw.value;
-	else
-		vel_yaw = std::atan2(data.velocity[1], data.velocity[0]) * M_RAD2DEG;
+	double vel_yaw = data.vel_theta * M_RAD2DEG;
 
-	yaw = NormalizeDeg(vel_yaw + yaw);
-	double diff = (lookdir - yaw) * M_DEG2RAD;
+	yaw = vel_yaw + yaw;
+	double diff = NormalizeDeg(lookdir - yaw) * M_DEG2RAD;
 
 	double fmove = std::cos(diff) * sv_maxspeed.value;
 	double smove = std::sin(diff) * sv_maxspeed.value;
@@ -167,14 +166,14 @@ static void StrafeMaxAccel(usercmd_t* cmd)
 
 	cmd->forwardmove = fmove;
 	cmd->sidemove = smove;
-	cl.viewangles[YAW] = lookdir;
+	cl.viewangles[YAW] = ToQuakeAngle(lookdir);
 }
 
 static void StrafeStraight(usercmd_t* cmd)
 {
 	cmd->forwardmove = sv_maxspeed.value;
 	cmd->sidemove = 0;
-	cl.viewangles[YAW] = tas_strafe_yaw.value;
+	cl.viewangles[YAW] = ToQuakeAngle(tas_strafe_yaw.value);
 }
 
 void Strafe(usercmd_t* cmd)

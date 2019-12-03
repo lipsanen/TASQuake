@@ -1,8 +1,9 @@
 #pragma once
 
 bool IsZero(double number);
-double NormalizeRad(double rad);
-double NormalizeDeg(double angle);
+double NormalizeRad(double rad); // [-pi, pi]
+double NormalizeDeg(double angle); // [-180, 180]
+double ToQuakeAngle(double angle); // [0, 360]
 float AngleModDeg(float deg);
 void ApproximateRatioWithIntegers(double& number1, double& number2, int max_int);
 
