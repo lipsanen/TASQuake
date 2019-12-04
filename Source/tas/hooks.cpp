@@ -3,6 +3,7 @@
 #include "afterframes.hpp"
 #include "strafing.hpp"
 #include "test.hpp"
+#include "reset.hpp"
 
 cvar_t	tas_pause_onload = { "tas_pause_onload", "0" };
 static bool set_seed = false;
@@ -63,6 +64,7 @@ void TAS_Set_Seed(int seed)
 
 void TAS_Init()
 {
+	Cmd_AddCommand("tas_reset", Cmd_TAS_Reset_f);
 	Cmd_AddCommand("tas_run_test", Cmd_Run_Test);
 	Cmd_AddCommand("tas_generate_test", Cmd_GenerateTest);
 	Cmd_AddCommand("tas_print_seed", Cmd_Print_Seed);

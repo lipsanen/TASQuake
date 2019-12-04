@@ -1,0 +1,1 @@
+void Cmd_TAS_Reset_f(void);

@@ -119,6 +119,7 @@ typedef struct cmd_function_s
 	xcommand_t		function;
 } cmd_function_t;
 
+extern cmd_function_t	*cmd_functions;
 void Cmd_StuffCmds_f (void);
 void Cbuf_AddEarlyCommands (void);
 void Cmd_Init (void);

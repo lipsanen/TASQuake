@@ -472,7 +472,7 @@ static qboolean Cmd_LegacyCommand (void)
 =============================================================================
 */
 
-static	cmd_function_t	*cmd_functions;		// possible commands to execute
+cmd_function_t	*cmd_functions;		// possible commands to execute
 
 #define	MAX_ARGS	80
 
