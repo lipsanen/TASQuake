@@ -714,7 +714,7 @@ void COM_FileBase (char *in, char *out)
 	while (s != in && *s != '.')
 		s--;
 	
-	for (s2 = s ; *s2 && *s2 != '/' ; s2--)
+	for (s2 = s ; s2 != in && *s2 != '/' ; s2--)
 		;
 	
 	if (s-s2 < 2)
@@ -1347,7 +1347,7 @@ byte *COM_LoadFile (char *path, int usehunk)
 {
 	FILE	*h;
 	byte	*buf;
-	char	base[256];
+	char	base[32];
 	int	len;
 
 	buf = NULL;     // quiet compiler warning
