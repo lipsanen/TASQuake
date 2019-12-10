@@ -4,18 +4,6 @@
 
 const int BUFFER_SIZE = 8192;
 
-struct AfterFrames
-{
-	AfterFrames(int numFrames, char* cmd)
-	{
-		command = cmd;
-		this->frames = numFrames;
-	}
-
-	std::string command;
-	int frames;
-};
-
 static std::vector<AfterFrames> afterframesQueue;
 static char CmdBuffer[BUFFER_SIZE];
 static int bufferIndex;
@@ -25,6 +13,11 @@ static bool afterFramesPaused = false;
 void AddAfterframes(int frames, char* cmd)
 {
 	afterframesQueue.push_back(AfterFrames(frames, cmd));
+}
+
+void AddAfterframes(const AfterFrames & af)
+{
+	afterframesQueue.push_back(af);
 }
 
 void AdvanceCommands()
@@ -97,9 +90,6 @@ void Cmd_TAS_AfterFrames(void)
 
 	int frames = atoi(Cmd_Argv(1));
 	char* cmd = Cmd_Argv(2);
-
-	if (developer.value)
-		Con_Printf("Adding command %s with delay %d\n", cmd, frames);
 	AddAfterframes(frames, cmd);
 }
 
@@ -111,4 +101,20 @@ void Cmd_TAS_AfterFrames_Await_Load(void)
 void Cmd_TAS_AfterFrames_Clear(void)
 {
 	ClearAfterframes();
+}
+
+AfterFrames::AfterFrames(int numFrames, const char * cmd)
+{
+	frames = numFrames;
+	command = cmd;
+}
+
+AfterFrames::AfterFrames(int numFrames, const std::string & str)
+{
+	frames = numFrames;
+	command = str;
+}
+
+AfterFrames::AfterFrames()
+{
 }

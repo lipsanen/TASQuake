@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstdint>
 #include <algorithm>
+#include <string>
 
 bool IsZero(double number)
 {
@@ -116,4 +117,21 @@ void ApproximateRatioWithIntegers(double& number1, double& number2, int max_int)
 	number1 *= num1Sign;
 	number2 *= num2Sign;
 
+}
+
+std::string& ltrim(std::string& s, const char* t)
+{
+	s.erase(0, s.find_first_not_of(t));
+	return s;
+}
+
+std::string& rtrim(std::string& s, const char* t)
+{
+	s.erase(s.find_last_not_of(t) + 1);
+	return s;
+}
+
+std::string& trim(std::string& s, const char* t)
+{
+	return ltrim(rtrim(s, t), t);
 }

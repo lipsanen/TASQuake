@@ -4,8 +4,10 @@
 #include "strafing.hpp"
 #include "test.hpp"
 #include "reset.hpp"
+#include "script.hpp"
 
 cvar_t	tas_pause_onload = { "tas_pause_onload", "0" };
+cvar_t tas_playing = { "tas_playing", "0" };
 static bool set_seed = false;
 static int unpause_countdown = -1;
 static unsigned int seed_number = 0;
@@ -64,6 +66,9 @@ void TAS_Set_Seed(int seed)
 
 void TAS_Init()
 {
+	Cmd_AddCommand("tas_stop", Cmd_TAS_Stop);
+	Cmd_AddCommand("tas_load", Cmd_TAS_Load);
+	Cmd_AddCommand("tas_run", Cmd_TAS_Run);
 	Cmd_AddCommand("tas_reset", Cmd_TAS_Reset_f);
 	Cmd_AddCommand("tas_run_test", Cmd_Run_Test);
 	Cmd_AddCommand("tas_generate_test", Cmd_GenerateTest);
@@ -78,9 +83,11 @@ void TAS_Init()
 	Cmd_AddCommand("tas_afterframes_clear", Cmd_TAS_AfterFrames_Clear);
 	Cmd_AddCommand("+tas_jump", IN_TAS_Jump_Down);
 	Cmd_AddCommand("-tas_jump", IN_TAS_Jump_Up);
+	Cmd_AddCommand("+tas_lgagst", IN_TAS_Lgagst_Down);
+	Cmd_AddCommand("-tas_lgagst", IN_TAS_Lgagst_Up);
+	Cvar_Register(&tas_playing);
 	Cvar_Register(&tas_pause_onload);
 	Cvar_Register(&tas_strafe);
-	Cvar_Register(&tas_strafe_lgagst);
 	Cvar_Register(&tas_strafe_yaw);
 	Cvar_Register(&tas_strafe_yaw_offset);
 }

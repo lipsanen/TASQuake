@@ -3,15 +3,13 @@
 #include "afterframes.hpp"
 #include "utils.hpp"
 
-enum class StrafeType { None = 0, MaxAccel, Straight };
-
-cvar_t tas_strafe_lgagst = {"tas_strafe_lgagst", "0"};
 cvar_t tas_strafe = { "tas_strafe", "0" };
 cvar_t tas_strafe_yaw = {"tas_strafe_yaw", "0"};
 cvar_t tas_strafe_yaw_offset = { "tas_strafe_yaw_offset", "0" };
 
 static bool shouldJump = false;
 static bool autojump = false;
+static bool tas_lgagst = false;
 static bool print_origin = false;
 static bool print_vel = false;
 static bool print_moves = false;
@@ -24,6 +22,16 @@ void IN_TAS_Jump_Down(void)
 void IN_TAS_Jump_Up(void)
 {
 	autojump = false;
+}
+
+void IN_TAS_Lgagst_Down(void)
+{
+	tas_lgagst = true;
+}
+
+void IN_TAS_Lgagst_Up(void)
+{
+	tas_lgagst = false;
 }
 
 void Cmd_Print_Vel(void)
@@ -201,7 +209,7 @@ void Strafe_Jump_Check()
 {
 	auto data = GetPlayerData();
 	const float lgagst = 460.0f;
-	bool wantsToJump = (data.vel2d > lgagst && tas_strafe.value == 1 && tas_strafe_lgagst.value) || autojump;
+	bool wantsToJump = (data.vel2d > lgagst && tas_strafe.value == 1 && tas_lgagst) || autojump;
 
 	if (wantsToJump && data.onGround)
 	{

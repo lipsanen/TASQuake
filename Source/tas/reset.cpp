@@ -1,6 +1,7 @@
 #include "reset.hpp"
 #include "afterframes.hpp"
 #include "cpp_quakedef.hpp"
+#include "script.hpp"
 
 static const char* const EXCLUDE_CVARS[] = {
 	"cl_rollangle",
@@ -8,7 +9,9 @@ static const char* const EXCLUDE_CVARS[] = {
 	"gl_texturemode",
 	"gl_consolefont",
 	"gl_gamma",
-	"gl_contrast"
+	"gl_contrast",
+	"tas_pause",
+	"tas_playing"
 };
 
 static const char* const INCLUDE_SUBSTR[] = {

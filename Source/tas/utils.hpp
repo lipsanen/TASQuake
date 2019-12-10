@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 bool IsZero(double number);
 double NormalizeRad(double rad); // [-pi, pi]
@@ -13,3 +14,7 @@ const double M_PI = 3.14159265358979323846;
 
 const double M_RAD2DEG = 180 / M_PI;
 const double M_DEG2RAD = M_PI / 180;
+
+std::string& ltrim(std::string& s, const char* t = " \t\n\r\f\v");
+std::string& rtrim(std::string& s, const char* t = " \t\n\r\f\v");
+std::string& trim(std::string& s, const char* t = " \t\n\r\f\v");
