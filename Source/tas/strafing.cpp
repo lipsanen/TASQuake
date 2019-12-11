@@ -2,10 +2,16 @@
 #include <cmath>
 #include "afterframes.hpp"
 #include "utils.hpp"
+#include "hooks.h"
+
+const float INVALID_ANGLE = -1;
 
 cvar_t tas_strafe = { "tas_strafe", "0" };
-cvar_t tas_strafe_yaw = {"tas_strafe_yaw", "0"};
+cvar_t tas_strafe_yaw = { "tas_strafe_yaw", "0" };
 cvar_t tas_strafe_yaw_offset = { "tas_strafe_yaw_offset", "0" };
+cvar_t tas_view_yaw = { "tas_view_yaw", "-1" };
+cvar_t tas_view_pitch = { "tas_view_pitch", "-1" };
+cvar_t tas_anglespeed = { "tas_anglespeed", "5" };
 
 static bool shouldJump = false;
 static bool autojump = false;
@@ -154,7 +160,7 @@ static double MaxAccelIntoYawAngle(const PlayerData& data)
 	return out;
 }
 
-static void StrafeMaxAccel(usercmd_t* cmd)
+static double StrafeMaxAccel()
 {
 	auto data = GetPlayerData();
 	double yaw = MaxAccelIntoYawAngle(data);
@@ -165,37 +171,101 @@ static void StrafeMaxAccel(usercmd_t* cmd)
 
 	double vel_yaw = data.vel_theta * M_RAD2DEG;
 
-	yaw = vel_yaw + yaw;
-	double diff = NormalizeDeg(lookdir - yaw) * M_DEG2RAD;
+	return vel_yaw + yaw;
+}
+
+static double StrafeStraight()
+{
+	return tas_strafe_yaw.value;
+}
+
+void StrafeInto(usercmd_t* cmd, double yaw)
+{
+	double lookyaw = NormalizeDeg(cl.viewangles[YAW]);
+	double diff = NormalizeDeg(lookyaw - yaw) * M_DEG2RAD;
 
 	double fmove = std::cos(diff) * sv_maxspeed.value;
 	double smove = std::sin(diff) * sv_maxspeed.value;
 	ApproximateRatioWithIntegers(fmove, smove, 32767);
-
 	cmd->forwardmove = fmove;
 	cmd->sidemove = smove;
-	cl.viewangles[YAW] = ToQuakeAngle(lookdir);
 }
 
-static void StrafeStraight(usercmd_t* cmd)
+float MoveViewTowards(float target, float current, bool yaw)
 {
-	cmd->forwardmove = sv_maxspeed.value;
-	cmd->sidemove = 0;
-	cl.viewangles[YAW] = ToQuakeAngle(tas_strafe_yaw.value);
+	float diff;
+	if(yaw)
+		diff = NormalizeDeg(target - current);
+	else
+		diff = target - current;
+	float abs_diff = std::abs(diff);
+
+	if(abs_diff < tas_anglespeed.value)
+		current = target;
+	else
+	{
+		abs_diff = min(abs_diff, tas_anglespeed.value);
+		current +=  std::copysign(abs_diff, diff);
+	}
+	
+	if (yaw)
+		return ToQuakeAngle(current);
+	else
+		return current;
+
+}
+
+void SetView()
+{
+	if(sv.paused || tas_gamestate == paused || key_dest != key_game)
+		return;
+
+
+	float pitch = cl.viewangles[PITCH];
+
+	if (tas_view_pitch.value != INVALID_ANGLE && tas_view_pitch.value != pitch)
+	{
+		cl.viewangles[PITCH] = MoveViewTowards(tas_view_pitch.value, pitch, false);
+	}
+
+	float yaw = NormalizeDeg(cl.viewangles[YAW]);
+	float tas_yaw = NormalizeDeg(tas_view_yaw.value);
+	float strafe_yaw = NormalizeDeg(tas_strafe_yaw.value);
+
+	if (tas_yaw != INVALID_ANGLE && tas_yaw != yaw)
+	{
+		cl.viewangles[YAW] = MoveViewTowards(tas_yaw, yaw, true);
+	}
+	else if (tas_strafe.value != 0 && tas_yaw == INVALID_ANGLE)
+	{
+		cl.viewangles[YAW] = MoveViewTowards(strafe_yaw, yaw, true);
+	}
 }
 
 void Strafe(usercmd_t* cmd)
 {
 	StrafeType strafeType = (StrafeType)static_cast<int>(tas_strafe.value);
+	double strafe_yaw = 0;
+	bool strafe = false;
+
+	SetView();
 
 	if (strafeType == StrafeType::MaxAccel)
 	{
-		StrafeMaxAccel(cmd);
+		strafe_yaw = StrafeMaxAccel();
+		strafe = true;
 	}
 	else if (strafeType == StrafeType::Straight)
 	{
-		StrafeStraight(cmd);
+		strafe_yaw = StrafeStraight();
+		strafe = true;
 	}
+
+	if (strafe)
+	{
+		StrafeInto(cmd, strafe_yaw);
+	}
+
 
 	if (print_moves)
 	{

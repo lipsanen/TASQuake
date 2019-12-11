@@ -191,13 +191,13 @@ void TASScript::Run()
 		last_frame = max(last_frame, af.frames);
 	}
 
-	AddAfterframes(last_frame, "tas_playing 0");
+	AddAfterframes(last_frame+1, "tas_playing 0;tas_reset_movement");
 }
 
 void Cmd_TAS_Stop(void)
 {
 	ClearAfterframes();
-	Cmd_TAS_Reset_f();
+	Cmd_TAS_Full_Reset_f();
 }
 
 void Cmd_TAS_Load(void)
@@ -212,5 +212,7 @@ void Cmd_TAS_Load(void)
 
 void Cmd_TAS_Run(void)
 {
+	Cmd_TAS_Load();
+	Cmd_TAS_Full_Reset_f();
 	script.Run();
 }

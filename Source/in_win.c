@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "quakedef.h"
 #include "winquake.h"
+#include "tas/hooks.h"
 
 // mouse variables
 cvar_t	m_filter = {"m_filter", "0"};
@@ -483,7 +484,7 @@ IN_Move
 */
 void IN_Move (usercmd_t *cmd)
 {
-	if (ActiveApp && !Minimized)
+	if (ActiveApp && !Minimized && tas_playing.value != 1)
 	{
 		IN_MouseMove (cmd);
 		IN_JoyMove (cmd);

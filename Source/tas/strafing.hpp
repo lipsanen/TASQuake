@@ -4,7 +4,9 @@
 
 extern cvar_t tas_strafe;
 extern cvar_t tas_strafe_yaw;
-extern cvar_t tas_strafe_yaw_offset;
+extern cvar_t tas_view_yaw;
+extern cvar_t tas_view_pitch;
+extern cvar_t tas_anglespeed;
 enum class StrafeType { None = 0, MaxAccel, Straight };
 
 void Strafe(usercmd_t* cmd);

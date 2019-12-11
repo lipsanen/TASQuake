@@ -30,6 +30,7 @@ void AdvanceCommands()
 
 void CopyToBuffer(const char* str)
 {
+	Con_DPrintf("Executing %s\n", str);
 	int len = strlen(str);
 	for (int i = 0; i < len; ++i)
 	{

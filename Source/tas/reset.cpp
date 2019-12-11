@@ -57,8 +57,9 @@ bool IsResettableCvar(cvar_t* var)
 }
 
 
-void Cmd_TAS_Reset_f(void)
+void Cmd_TAS_Full_Reset_f(void)
 {
+	sv.paused = qfalse;
 	cmd_function_t* func = cmd_functions;
 	while (func)
 	{
@@ -85,4 +86,30 @@ void Cmd_TAS_Reset_f(void)
 	tas_gamestate = unpaused;
 	ClearAfterframes();
 	UnpauseAfterframes();
+}
+
+void Cmd_TAS_Reset_Movement(void)
+{
+	cmd_function_t* func = cmd_functions;
+	while (func)
+	{
+		if (IsResettableCmd(func))
+		{
+			func->function();
+		}
+		func = func->next;
+	}
+
+	cvar_t* var = cvar_vars;
+
+	while (var)
+	{
+		float f;
+		if (strstr(var->name, "tas_") == var->name)
+		{
+			sscanf(var->defaultvalue, "%f", &f);
+			var->value = f;
+		}
+		var = var->next;
+	}
 }

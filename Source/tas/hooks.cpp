@@ -69,7 +69,8 @@ void TAS_Init()
 	Cmd_AddCommand("tas_stop", Cmd_TAS_Stop);
 	Cmd_AddCommand("tas_load", Cmd_TAS_Load);
 	Cmd_AddCommand("tas_run", Cmd_TAS_Run);
-	Cmd_AddCommand("tas_reset", Cmd_TAS_Reset_f);
+	Cmd_AddCommand("tas_full_reset", Cmd_TAS_Full_Reset_f);
+	Cmd_AddCommand("tas_reset_movement", Cmd_TAS_Reset_Movement);
 	Cmd_AddCommand("tas_run_test", Cmd_Run_Test);
 	Cmd_AddCommand("tas_generate_test", Cmd_GenerateTest);
 	Cmd_AddCommand("tas_print_seed", Cmd_Print_Seed);
@@ -89,7 +90,10 @@ void TAS_Init()
 	Cvar_Register(&tas_pause_onload);
 	Cvar_Register(&tas_strafe);
 	Cvar_Register(&tas_strafe_yaw);
-	Cvar_Register(&tas_strafe_yaw_offset);
+	Cvar_Register(&tas_view_pitch);
+	Cvar_Register(&tas_view_yaw);
+	Cvar_Register(&tas_anglespeed);
+
 }
 
 void TAS_Set_Seed(unsigned int seed)
