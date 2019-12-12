@@ -2396,6 +2396,7 @@ void R_Init (void)
 	Cvar_Register (&r_drawflame);
 	Cvar_Register (&r_skybox);
 	Cvar_Register (&r_farclip);
+	Cvar_Register (&r_norefresh);
 
 	Cvar_Register (&gl_finish);
 	Cvar_Register (&gl_clear);

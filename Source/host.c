@@ -63,8 +63,7 @@ byte		*host_colormap;
 
 int		fps_count;
 
-float host_framerate = 1 / 72.0;
-//cvar_t	host_framerate = {"host_framerate", "0"};	// set for slow motion
+cvar_t	host_framerate = {"host_framerate", "0"};	// set for slow motion
 cvar_t	host_speeds = {"host_speeds", "0"};		// set for running times
 
 cvar_t	sys_ticrate = {"sys_ticrate", "0.05"};
@@ -216,7 +215,7 @@ void Host_InitLocal (void)
 {
 	Host_InitCommands ();
 
-	//Cvar_Register (&host_framerate);
+	Cvar_Register (&host_framerate);
 	Cvar_Register (&host_speeds);
 
 	Cvar_Register (&sys_ticrate);
@@ -538,8 +537,16 @@ qboolean Host_FilterTime (double time)
 {
 	double	fps;
 
-	realtime += time;
+	if (tas_playing.value == 1)
+	{
+		float ft = (float)1 / 72.0;
+		realtime += ft;
+		oldrealtime = realtime;
+		host_frametime = ft;
+		return true;
+	}
 
+	realtime += time;
 	fps = max(10, cl_maxfps.value);
 
 	if (!cls.capturedemo && !cls.timedemo && realtime - oldrealtime < 1.0 / fps)
@@ -555,8 +562,8 @@ qboolean Host_FilterTime (double time)
 		host_frametime *= bound(0, cl_demospeed.value, 20);
 	oldrealtime = realtime;
 
-	if (host_framerate > 0)
-		host_frametime = host_framerate;
+	if (host_framerate.value > 0)
+		host_frametime = host_framerate.value;
 	else
 	// don't allow really long or short frames
 		host_frametime = bound(0.001, host_frametime, 0.1);
@@ -663,8 +670,6 @@ void _Host_Frame (double time)
 	// decide the simulation time
 	if (!Host_FilterTime(time))
 	{
-		Sys_Error("Exited out of Host_Frame too early!\n");
-		longjmp(host_abortserver, 1);
 		return;
 	}
 
@@ -857,9 +862,6 @@ void _Host_Frame (double time)
 		if (cls.demorecording)
 		{
 			Cvar_SetValue (&cl_truelightning, 0);
-		// don't allow higher than 72 fps during recording
-			if (cl_maxfps.value > 72)
-				Cvar_SetValue (&cl_maxfps, 72);
 		}
 	}
 

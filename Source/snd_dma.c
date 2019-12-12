@@ -170,10 +170,7 @@ void S_Init (void)
 	Cvar_Register (&s_mixahead);
 	Cvar_Register (&s_khz);
 
-	if (COM_CheckParm("-nosound"))
-		return;
-
-	if (COM_CheckParm("-simsound"))
+	if (!COM_CheckParm("-yessound"))
 		fakedma = true;
 
 	Cmd_AddCommand ("play", S_Play_f);

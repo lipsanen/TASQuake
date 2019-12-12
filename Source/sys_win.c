@@ -704,7 +704,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 			newtime = Sys_DoubleTime();
 			time = newtime - oldtime;
 
-			while (time < 1 / cl_maxfps.value)
+			while (cl_maxfps.value > 0 && time < 1 / cl_maxfps.value)
 			{
 				Sys_Sleep();
 				newtime = Sys_DoubleTime();

@@ -11,7 +11,8 @@ static const char* const EXCLUDE_CVARS[] = {
 	"gl_gamma",
 	"gl_contrast",
 	"tas_pause",
-	"tas_playing"
+	"tas_playing",
+	"cl_maxfps"
 };
 
 static const char* const INCLUDE_SUBSTR[] = {
