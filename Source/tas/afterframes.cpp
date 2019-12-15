@@ -10,7 +10,7 @@ static int bufferIndex;
 static bool afterFramesPaused = false;
 
 
-void AddAfterframes(int frames, char* cmd)
+void AddAfterframes(int frames, const char* cmd)
 {
 	afterframesQueue.push_back(AfterFrames(frames, cmd));
 }

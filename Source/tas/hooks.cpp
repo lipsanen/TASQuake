@@ -4,7 +4,7 @@
 #include "strafing.hpp"
 #include "test.hpp"
 #include "reset.hpp"
-#include "script.hpp"
+#include "script_playback.hpp"
 
 cvar_t	tas_pause_onload = { "tas_pause_onload", "0" };
 cvar_t tas_playing = { "tas_playing", "0" };
@@ -66,9 +66,15 @@ void TAS_Set_Seed(int seed)
 
 void TAS_Init()
 {
-	Cmd_AddCommand("tas_stop", Cmd_TAS_Stop);
-	Cmd_AddCommand("tas_load", Cmd_TAS_Load);
-	Cmd_AddCommand("tas_run", Cmd_TAS_Run);
+
+	Cmd_AddCommand("tas_script_stop", Cmd_TAS_Script_Stop);
+	Cmd_AddCommand("tas_script_play", Cmd_TAS_Script_Play);
+	Cmd_AddCommand("tas_script_load", Cmd_TAS_Script_Load);
+	Cmd_AddCommand("tas_script_skip", Cmd_TAS_Script_Skip);
+	Cmd_AddCommand("tas_script_skip_block", Cmd_TAS_Script_Skip_Block);
+	Cmd_AddCommand("tas_script_advance", Cmd_TAS_Script_Advance);
+	Cmd_AddCommand("tas_script_advance_block", Cmd_TAS_Script_Advance_Block);
+
 	Cmd_AddCommand("tas_full_reset", Cmd_TAS_Full_Reset_f);
 	Cmd_AddCommand("tas_reset_movement", Cmd_TAS_Reset_Movement);
 	Cmd_AddCommand("tas_run_test", Cmd_Run_Test);
@@ -130,9 +136,11 @@ void _Host_Frame_Hook()
 		}		
 	}
 
+	Script_Playback_Host_Frame_Hook();
+
 	if (tas_gamestate == unpaused)
 	{
-		Test_Hook();
+		Test_Host_Frame_Hook();
 
 		if (set_seed && tas_gamestate == unpaused)
 		{

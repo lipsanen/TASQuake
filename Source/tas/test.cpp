@@ -68,7 +68,7 @@ void Write_To_File()
 	rhsCase.SaveToFile();
 }
 
-void Test_Hook()
+void Test_Host_Frame_Hook()
 {
 	if (collecting_data)
 	{

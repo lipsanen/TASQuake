@@ -4,9 +4,10 @@
 #include <algorithm>
 #include <fstream>
 #include <regex>
+#include <sstream>
 
 #include "cpp_quakedef.hpp"
-#include "script.hpp"
+#include "script_parse.hpp"
 #include "strafing.hpp"
 #include "afterframes.hpp"
 #include "utils.hpp"
@@ -60,10 +61,32 @@ FrameBlock::FrameBlock()
 	parsed = false;
 }
 
+std::string FrameBlock::GetCommand()
+{
+	std::ostringstream oss;
+
+	for (auto& convar : convars)
+		oss << convar.first << ' ' << convar.second << ';';
+
+	for (auto& toggle : toggles)
+	{
+		if(toggle.second)
+			oss << '+';
+		else
+			oss << '-';
+		oss << toggle.first << ';';
+	}
+
+
+	for (auto& cmd : commands)
+		oss << cmd << ';';
+
+	return oss.str();
+}
+
 void FrameBlock::Add_Command(const std::string & line)
 {
-	commands += line;
-	commands.push_back(';');
+	commands.push_back(line);
 }
 
 void FrameBlock::Parse_Frame_No(const std::string & line, int& running_frame)
@@ -87,7 +110,6 @@ void FrameBlock::Parse_Convar(const std::string & line)
 	float val = std::stof(sm[2].str());
 
 	convars[cmd] = val;
-	Add_Command(line);
 }
 
 void FrameBlock::Parse_Toggle(const std::string & line)
@@ -104,7 +126,6 @@ void FrameBlock::Parse_Toggle(const std::string & line)
 	{
 		toggles[cmd] = false;
 	}
-	Add_Command(line);
 }
 
 void FrameBlock::Parse_Command(const std::string & line)
@@ -124,11 +145,6 @@ void FrameBlock::Parse_Line(const std::string & line, int& running_frame)
 		Parse_Toggle(line);
 	else
 		Parse_Command(line);
-}
-
-AfterFrames FrameBlock::Get_Afterframes()
-{
-	return AfterFrames(frame+1, commands.c_str());
 }
 
 void FrameBlock::Reset()
@@ -177,42 +193,4 @@ void TASScript::Load_From_File()
 		Con_Printf("Error parsing line %d: %s\n", line_number, e.what());
 	}
 
-}
-
-void TASScript::Run()
-{
-	Cmd_TAS_Stop();
-	tas_playing.value = 1;
-	int last_frame = 0;
-	for (auto& block : blocks)
-	{
-		AfterFrames af = block.Get_Afterframes();
-		AddAfterframes(af);
-		last_frame = max(last_frame, af.frames);
-	}
-
-	AddAfterframes(last_frame+1, "tas_playing 0;tas_reset_movement");
-}
-
-void Cmd_TAS_Stop(void)
-{
-	ClearAfterframes();
-	Cmd_TAS_Full_Reset_f();
-}
-
-void Cmd_TAS_Load(void)
-{
-	char name[256];
-	sprintf(name, "%s/tas/%s", com_gamedir, Cmd_Argv(1));
-	COM_ForceExtension(name, ".qtas");
-
-	script = TASScript(name);
-	script.Load_From_File();
-}
-
-void Cmd_TAS_Run(void)
-{
-	Cmd_TAS_Load();
-	Cmd_TAS_Full_Reset_f();
-	script.Run();
 }

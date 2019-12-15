@@ -16,7 +16,7 @@ struct AfterFrames
 void PauseAfterframes();
 void UnpauseAfterframes();
 void ClearAfterframes();
-void AddAfterframes(int frames, char* cmd);
+void AddAfterframes(int frames, const char* cmd);
 void AddAfterframes(const AfterFrames& af);
 char* GetQueuedCommands();
 

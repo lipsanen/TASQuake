@@ -1,7 +1,6 @@
 #include "reset.hpp"
 #include "afterframes.hpp"
 #include "cpp_quakedef.hpp"
-#include "script.hpp"
 
 static const char* const EXCLUDE_CVARS[] = {
 	"cl_rollangle",
@@ -12,7 +11,7 @@ static const char* const EXCLUDE_CVARS[] = {
 	"gl_contrast",
 	"tas_pause",
 	"tas_playing",
-	"cl_maxfps"
+	"cl_independentphysics"
 };
 
 static const char* const INCLUDE_SUBSTR[] = {
@@ -33,6 +32,9 @@ bool IsResettableCmd(cmd_function_t* func)
 
 bool IsResettableCvar(cvar_t* var)
 {
+	if(!var->defaultvalue || !var->defaultvalue[0])
+		return false;
+
 	bool match = false;
 
 	for (auto included : INCLUDE_SUBSTR)
@@ -66,20 +68,20 @@ void Cmd_TAS_Full_Reset_f(void)
 	{
 		if (IsResettableCmd(func))
 		{
-			func->function();
+			Cmd_ExecuteString(func->name, src_command);
 		}
 		func = func->next;
 	}
 
 	cvar_t* var = cvar_vars;
+	char BUFFER[256];
 
 	while (var)
 	{
-		float f;
 		if (IsResettableCvar(var))
 		{
-			sscanf(var->defaultvalue, "%f", &f);
-			var->value = f;
+			sprintf_s(BUFFER, 256, "%s %s", var->name, var->defaultvalue);
+			Cmd_ExecuteString(BUFFER, src_command);
 		}
 		var = var->next;
 	}

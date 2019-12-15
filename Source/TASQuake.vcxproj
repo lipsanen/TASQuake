@@ -231,7 +231,8 @@
     <ClCompile Include="sys_win.c" />
     <ClCompile Include="tas\afterframes.cpp" />
     <ClCompile Include="tas\reset.cpp" />
-    <ClCompile Include="tas\script.cpp" />
+    <ClCompile Include="tas\script_parse.cpp" />
+    <ClCompile Include="tas\script_playback.cpp" />
     <ClCompile Include="tas\test.cpp" />
     <ClCompile Include="tas\hooks.cpp" />
     <ClCompile Include="tas\strafing.cpp" />
@@ -303,7 +304,8 @@
     <ClInclude Include="tas\afterframes.hpp" />
     <ClInclude Include="tas\cpp_quakedef.hpp" />
     <ClInclude Include="tas\reset.hpp" />
-    <ClInclude Include="tas\script.hpp" />
+    <ClInclude Include="tas\script_parse.hpp" />
+    <ClInclude Include="tas\script_playback.hpp" />
     <ClInclude Include="tas\test.hpp" />
     <ClInclude Include="tas\hooks.h" />
     <ClInclude Include="tas\strafing.hpp" />

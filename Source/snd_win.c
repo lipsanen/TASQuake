@@ -600,6 +600,10 @@ int SNDDMA_GetDMAPos(void)
 	{
 		s = snd_sent * WAV_BUFFER_SIZE;
 	}
+	else
+	{
+		return (int)(realtime*shm->speed*shm->channels) & (shm->samples - 1);
+	}
 
 	s >>= sample16;
 
