@@ -7,8 +7,10 @@
 const float INVALID_ANGLE = -1;
 
 cvar_t tas_strafe = { "tas_strafe", "0" };
+cvar_t tas_strafe_type = { "tas_strafe_type", "1" };
 cvar_t tas_strafe_yaw = { "tas_strafe_yaw", "0" };
 cvar_t tas_strafe_yaw_offset = { "tas_strafe_yaw_offset", "0" };
+cvar_t tas_strafe_lgagst_speed = { "tas_strafe_lgagst_speed", "460" };
 cvar_t tas_view_yaw = { "tas_view_yaw", "-1" };
 cvar_t tas_view_pitch = { "tas_view_pitch", "-1" };
 cvar_t tas_anglespeed = { "tas_anglespeed", "5" };
@@ -244,7 +246,10 @@ void SetView()
 
 void Strafe(usercmd_t* cmd)
 {
-	StrafeType strafeType = (StrafeType)static_cast<int>(tas_strafe.value);
+	if(tas_strafe.value == 0)
+		return;
+
+	StrafeType strafeType = (StrafeType)static_cast<int>(tas_strafe_type.value);
 	double strafe_yaw = 0;
 	bool strafe = false;
 
@@ -278,8 +283,10 @@ void Strafe(usercmd_t* cmd)
 void Strafe_Jump_Check()
 {
 	auto data = GetPlayerData();
-	const float lgagst = 460.0f;
-	bool wantsToJump = (data.vel2d > lgagst && tas_strafe.value == 1 && tas_lgagst) || autojump;
+	float lgagst = tas_strafe_lgagst_speed.value;
+	bool wantsToJump = (data.vel2d > lgagst && tas_strafe.value == 1 && 
+					    tas_strafe_type.value == (int)StrafeType::MaxAccel && tas_lgagst) 
+						|| autojump;
 
 	if (wantsToJump && data.onGround)
 	{

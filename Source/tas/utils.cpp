@@ -135,3 +135,11 @@ std::string& trim(std::string& s, const char* t)
 {
 	return ltrim(rtrim(s, t), t);
 }
+
+float Round(double val, double acc)
+{
+	double multiple = std::round(val / acc);
+	val = multiple * acc;
+
+	return static_cast<float>(val);
+}

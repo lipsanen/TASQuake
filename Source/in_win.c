@@ -484,11 +484,13 @@ IN_Move
 */
 void IN_Move (usercmd_t *cmd)
 {
-	if (ActiveApp && !Minimized && tas_playing.value != 1)
+	if (ActiveApp && !Minimized && (tas_playing.value == 0 || tas_gamestate == paused))
 	{
 		IN_MouseMove (cmd);
 		IN_JoyMove (cmd);
 	}
+
+	IN_Move_Hook(cmd);
 }
 
 /*

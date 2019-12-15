@@ -3,11 +3,13 @@
 #include "cpp_quakedef.hpp"
 
 extern cvar_t tas_strafe;
+extern cvar_t tas_strafe_type;
 extern cvar_t tas_strafe_yaw;
+extern cvar_t tas_strafe_lgagst_speed;
 extern cvar_t tas_view_yaw;
 extern cvar_t tas_view_pitch;
 extern cvar_t tas_anglespeed;
-enum class StrafeType { None = 0, MaxAccel, Straight };
+enum class StrafeType { None = 0, MaxAccel = 1, Straight = 3 };
 
 void Strafe(usercmd_t* cmd);
 void Strafe_Jump_Check();

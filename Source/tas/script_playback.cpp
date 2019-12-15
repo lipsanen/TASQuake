@@ -1,19 +1,31 @@
+#include <algorithm>
+
 #include "script_playback.hpp"
 #include "script_parse.hpp"
 #include "reset.hpp"
 #include "afterframes.hpp"
+#include "utils.hpp"
 
 static TASScript current_script;
+static FrameBlock stacked;
 static int current_frame = 0;
 static int last_frame = 0;
 static int current_block = 0;
 static bool script_running = false;
 static bool should_unpause = false;
-const int LOWEST_FRAME = 2;
-const int LOWEST_BLOCK = 3;
+const int LOWEST_FRAME = 8;
+const int LOWEST_BLOCK = 2;
+static char BUFFER[256];
 
+enum class MouseState { Locked, Strafe, Yaw, Pitch, Mixed };
+static float old_yaw = 0;
+static float old_pitch = 0;
+static MouseState m_state = MouseState::Locked;
 
-void Run_Script(int frame, bool skip = false)
+cvar_t tas_edit_backups = { "tas_edit_backups", "100" };
+cvar_t tas_edit_snap_threshold = { "tas_edit_snap_threshold", "5" };
+
+static void Run_Script(int frame, bool skip = false)
 {
 	if (current_script.blocks.size() == 0)
 	{
@@ -23,6 +35,7 @@ void Run_Script(int frame, bool skip = false)
 
 	current_frame = 0;
 	current_block = 0;
+	stacked.Reset();
 
 	if (frame >= 0)
 	{
@@ -37,7 +50,7 @@ void Run_Script(int frame, bool skip = false)
 
 	if (last_frame < LOWEST_FRAME)
 	{
-		Con_Printf("Cannot go to frame below 2.\n");
+		Con_Printf("Cannot go to frame below %d.\n", LOWEST_FRAME);
 		return;
 	}
 
@@ -46,19 +59,105 @@ void Run_Script(int frame, bool skip = false)
 
 	if (skip)
 	{
-		AddAfterframes(0, "cl_maxfps 0");
-		AddAfterframes(frame, "cl_maxfps 72");
+		AddAfterframes(0, "vid_vsync 0; cl_maxfps 0");
+		AddAfterframes(last_frame-1, "cl_maxfps 72");
 	}
 
 	script_running = true;
 }
 
-void Continue_Script(int frames)
+static void Continue_Script(int frames)
 {
 	last_frame = current_frame + frames;
 	script_running = true;
 	should_unpause = true;
 }
+
+static FrameBlock* GetBlockForFrame()
+{
+	if (current_script.blocks.empty())
+	{
+		Con_Printf("Cannot add blocks to an empty script!\n");
+		return nullptr;
+	}
+		
+
+	if (current_block < current_script.blocks.size() && 
+		current_script.blocks[current_block].frame == current_frame)
+	{
+		return &current_script.blocks[current_block];
+	}
+
+	FrameBlock block;
+	block.frame = current_frame;
+	block.parsed = true;
+	current_script.blocks.insert(current_script.blocks.begin() + current_block, block);
+
+	return &current_script.blocks[current_block];
+}
+
+static float Get_Stacked_Value(const char* name)
+{
+	if (stacked.convars.find(name) != stacked.convars.end())
+	{
+		return stacked.convars[name];
+	}
+	else
+		return Get_Default_Value(name);
+}
+
+static float Get_Existing_Value(const char* name)
+{
+	auto curblock = GetBlockForFrame();
+
+	if (curblock->convars.find(name) != curblock->convars.end())
+	{
+		return curblock->convars[name];
+	}
+	else
+		return Get_Stacked_Value(name);
+}
+
+static bool Get_Stacked_Toggle(const char* cmd_name)
+{
+	if (stacked.toggles.find(cmd_name) != stacked.toggles.end())
+		return stacked.toggles[cmd_name];
+	else
+		return false;
+}
+
+static bool Get_Existing_Toggle(const char* cmd_name)
+{
+	auto curblock = GetBlockForFrame();
+
+	if (curblock->toggles.find(cmd_name) != curblock->toggles.end())
+		return curblock->toggles[cmd_name];
+	else
+		return Get_Stacked_Toggle(cmd_name);
+}
+
+static void SetConvar(const char* name, float new_val)
+{
+	float old_val = Get_Existing_Value(name);
+
+	auto block = GetBlockForFrame();
+	if (new_val == old_val)
+	{
+		Con_Printf("Value identical to old value.\n");
+		return;
+	}
+
+	sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "Block: Added %s %f", name, new_val);
+	SCR_CenterPrint(BUFFER);
+
+	if (Get_Stacked_Value(name) == new_val && block->convars.find(name) != block->convars.end())
+	{
+		block->convars.erase(name);
+		return;
+	}
+	block->convars[name] = new_val;
+}
+
 
 void Script_Playback_Host_Frame_Hook()
 {
@@ -68,12 +167,17 @@ void Script_Playback_Host_Frame_Hook()
 		should_unpause = false;
 	}
 
+	if (tas_gamestate == unpaused)
+		m_state = MouseState::Locked;
+
 	if(tas_gamestate == paused || !script_running)
 		return;
 	else if (current_frame == last_frame)
 	{
 		tas_gamestate = paused;
 		script_running = false;
+		old_yaw = cl.viewangles[YAW];
+		old_pitch = cl.viewangles[PITCH];
 		return;
 	}
 		
@@ -81,12 +185,63 @@ void Script_Playback_Host_Frame_Hook()
 	while (current_block < current_script.blocks.size() && current_script.blocks[current_block].frame <= current_frame)
 	{
 		auto& block = current_script.blocks[current_block];
+		stacked.Stack(block);
 		std::string cmd = block.GetCommand();
 		AddAfterframes(0, cmd.c_str());
 		++current_block;
 	}
 
 	++current_frame;
+}
+
+void Script_Playback_IN_Move_Hook(usercmd_t * cmd)
+{
+	if (tas_gamestate == unpaused || script_running)
+		return;
+
+	if(m_state == MouseState::Pitch || m_state == MouseState::Locked)
+	{
+		cl.viewangles[YAW] = old_yaw;
+	}
+	if (m_state == MouseState::Yaw || m_state == MouseState::Locked)
+	{
+		cl.viewangles[PITCH] = old_pitch;
+	}
+}
+
+void Cmd_TAS_Script_Init(void)
+{
+	if (Cmd_Argc() < 4)
+	{
+		Con_Print("Usage: tas_script_init <filename> <map> <difficulty>\n");
+		return;
+	}
+	
+	char name[256];
+	sprintf(name, "%s/tas/%s", com_gamedir, Cmd_Argv(1));
+	COM_ForceExtension(name, ".qtas");
+
+	current_script = TASScript(name);
+	FrameBlock b1;
+	b1.frame = 1;
+	b1.Add_Command("disconnect");
+	b1.Add_Command("tas_set_seed");
+	
+	FrameBlock b2;
+	b2.frame = 2;
+	std::string map = Cmd_Argv(2);
+	int difficulty = atoi(Cmd_Argv(3));
+	b2.Add_Command("skill " + std::to_string(difficulty));
+	b2.Add_Command("record demo " + map);
+	
+	FrameBlock b3;
+	b3.frame = 8;
+
+	current_script.blocks.push_back(b1);
+	current_script.blocks.push_back(b2);
+	current_script.blocks.push_back(b3);
+	current_script.Write_To_File();
+	Con_Printf("Initialized script into file %s, map %s and difficulty %d\n", name, map.c_str(), difficulty);
 }
 
 void Cmd_TAS_Script_Load(void)
@@ -229,3 +384,171 @@ void Cmd_TAS_Script_Advance_Block(void)
 	}
 }
 
+void Prune_Blocks()
+{
+	std::remove_if(current_script.blocks.begin(), current_script.blocks.end() - 1, [](const FrameBlock& element)
+	{
+		return element.commands.empty() && element.convars.empty() && element.toggles.empty();
+	});
+}
+
+void Cmd_TAS_Edit_Save(void)
+{
+	auto current_block = GetBlockForFrame();
+	Prune_Blocks();
+	current_script.Write_To_File();
+}
+
+void Cmd_TAS_Edit_Strafe(void)
+{
+	m_state = MouseState::Strafe;
+}
+
+void Cmd_TAS_Edit_Set_Pitch(void)
+{
+	m_state = MouseState::Pitch;
+}
+
+void Cmd_TAS_Edit_Set_Yaw(void)
+{
+	m_state = MouseState::Yaw;
+}
+
+void Cmd_TAS_Edit_Set_View(void)
+{
+	m_state = MouseState::Mixed;
+}
+
+void Cmd_TAS_Edit_Shrink(void)
+{
+	GetBlockForFrame();
+	current_script.blocks.resize(current_block);
+}
+
+void Cmd_TAS_Confirm(void)
+{
+	if (m_state == MouseState::Locked)
+		return;
+
+	if (m_state == MouseState::Strafe)
+	{
+		float yaw = Round(cl.viewangles[YAW], tas_edit_snap_threshold.value);
+		SetConvar("tas_strafe", 1);
+		SetConvar("tas_strafe_yaw", yaw);
+	}
+	else if (m_state == MouseState::Mixed || m_state == MouseState::Yaw)
+	{
+		SetConvar("tas_view_yaw", cl.viewangles[YAW]);
+	}
+	else if (m_state == MouseState::Mixed || m_state == MouseState::Pitch)
+	{
+		SetConvar("tas_view_pitch", cl.viewangles[PITCH]);
+	}
+
+	m_state = MouseState::Locked;
+}
+
+void Cmd_TAS_Cancel(void)
+{
+	if (m_state == MouseState::Locked)
+		return;
+
+	m_state = MouseState::Locked;
+}
+
+void Cmd_TAS_Revert(void)
+{
+	if (m_state == MouseState::Locked)
+		return;
+
+	if (m_state == MouseState::Strafe)
+	{
+		SetConvar("tas_strafe_yaw", Get_Stacked_Value("tas_strafe_yaw"));
+		SetConvar("tas_strafe", Get_Stacked_Value("tas_strafe"));
+	}
+	else if (m_state == MouseState::Mixed || m_state == MouseState::Yaw)
+	{
+		SetConvar("tas_view_yaw", Get_Stacked_Value("tas_view_yaw"));
+	}
+	else if (m_state == MouseState::Mixed || m_state == MouseState::Pitch)
+	{
+		SetConvar("tas_view_pitch", Get_Stacked_Value("tas_view_pitch"));
+	}
+	m_state = MouseState::Locked;
+}
+
+void Cmd_TAS_Reset(void)
+{
+	if (m_state == MouseState::Locked)
+		return;
+
+	if (m_state == MouseState::Strafe)
+	{
+		SetConvar("tas_strafe", 0);
+	}
+	else if (m_state == MouseState::Mixed || m_state == MouseState::Yaw)
+	{
+		SetConvar("tas_view_yaw", -1);
+	}
+	else if (m_state == MouseState::Mixed || m_state == MouseState::Pitch)
+	{
+		SetConvar("tas_view_pitch", -1);
+	}
+	m_state = MouseState::Locked;
+}
+
+qboolean Script_Playback_Cmd_ExecuteString_Hook(const char * text)
+{
+	if (script_running || tas_gamestate != paused)
+		return qfalse;
+
+	char* name = Cmd_Argv(0);
+
+	if (IsGameplayCvar(name))
+	{
+		if (Cmd_Argc() == 1)
+		{
+			Con_Printf("No argument for cvar given.\n");
+			return qfalse;
+		}
+
+		float new_val = atof(Cmd_Argv(1));
+		SetConvar(name, new_val);
+
+		return qtrue;
+	}
+	else if (IsDownCmd(name))
+	{
+		auto block = GetBlockForFrame();
+		auto cmd = name + 1;
+			
+		bool old_value = Get_Existing_Toggle(cmd);
+		bool new_value = !old_value;
+
+		sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "Block: Added %c%s", new_value ? '+' : '-', cmd);
+		SCR_CenterPrint(BUFFER);
+
+		if (Get_Stacked_Toggle(cmd) == new_value && block->toggles.find(cmd) != block->toggles.end())
+		{
+			block->toggles.erase(cmd);
+			return qtrue;
+		}
+
+		block->toggles[cmd] = new_value;
+
+		return qtrue;
+	}
+	else if (strstr(name, "impulse") == name)
+	{
+		auto block = GetBlockForFrame();
+		sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "Block: Added %s %s", name, Cmd_Argv(1));
+		SCR_CenterPrint(BUFFER);
+		block->commands.clear();
+		sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "Selected weapon %s", Cmd_Argv(1));
+		block->Add_Command(BUFFER);
+
+		return qtrue;
+	}
+
+	return qfalse;
+}

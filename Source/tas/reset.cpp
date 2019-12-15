@@ -3,8 +3,6 @@
 #include "cpp_quakedef.hpp"
 
 static const char* const EXCLUDE_CVARS[] = {
-	"cl_rollangle",
-	"cl_bob",
 	"gl_texturemode",
 	"gl_consolefont",
 	"gl_gamma",
@@ -22,7 +20,7 @@ static const char* const INCLUDE_SUBSTR[] = {
 	"r_"
 };
 
-bool IsResettableCmd(cmd_function_t* func)
+bool IsUpCmd(cmd_function_t* func)
 {
 	if (func->name[0] == '-')
 		return true;
@@ -30,7 +28,21 @@ bool IsResettableCmd(cmd_function_t* func)
 		return false;
 }
 
-bool IsResettableCvar(cvar_t* var)
+bool IsDownCmd(const char * text)
+{
+	auto cmd = Cmd_FindCommand(const_cast<char*>(text));
+	return cmd && IsDownCmd(cmd);
+}
+
+bool IsDownCmd(cmd_function_t* func)
+{
+	if (func->name[0] == '+')
+		return true;
+	else
+		return false;
+}
+
+bool IsGameplayCvar(cvar_t* var)
 {
 	if(!var->defaultvalue || !var->defaultvalue[0])
 		return false;
@@ -59,14 +71,29 @@ bool IsResettableCvar(cvar_t* var)
 	return true;
 }
 
+bool IsGameplayCvar(const char * text)
+{
+	auto cvar = Cvar_FindVar(const_cast<char*>(text));
+	return cvar && IsGameplayCvar(cvar);
+}
+
+bool IsUpCmd(const char * text)
+{
+	auto cmd = Cmd_FindCommand(const_cast<char*>(text));
+	return cmd && IsUpCmd(cmd);
+}
 
 void Cmd_TAS_Full_Reset_f(void)
 {
+	tas_gamestate = unpaused;
 	sv.paused = qfalse;
+	ClearAfterframes();
+	UnpauseAfterframes();
+
 	cmd_function_t* func = cmd_functions;
 	while (func)
 	{
-		if (IsResettableCmd(func))
+		if (IsUpCmd(func))
 		{
 			Cmd_ExecuteString(func->name, src_command);
 		}
@@ -78,17 +105,13 @@ void Cmd_TAS_Full_Reset_f(void)
 
 	while (var)
 	{
-		if (IsResettableCvar(var))
+		if (IsGameplayCvar(var))
 		{
 			sprintf_s(BUFFER, 256, "%s %s", var->name, var->defaultvalue);
 			Cmd_ExecuteString(BUFFER, src_command);
 		}
 		var = var->next;
 	}
-
-	tas_gamestate = unpaused;
-	ClearAfterframes();
-	UnpauseAfterframes();
 }
 
 void Cmd_TAS_Reset_Movement(void)
@@ -96,7 +119,7 @@ void Cmd_TAS_Reset_Movement(void)
 	cmd_function_t* func = cmd_functions;
 	while (func)
 	{
-		if (IsResettableCmd(func))
+		if (IsUpCmd(func))
 		{
 			func->function();
 		}
@@ -115,4 +138,16 @@ void Cmd_TAS_Reset_Movement(void)
 		}
 		var = var->next;
 	}
+}
+
+float Get_Default_Value(const char * name)
+{
+	float f;
+	auto var = Cvar_FindVar(const_cast<char*>(name));
+	if (!var)
+		return 0.0f;
+	
+	sscanf_s(var->defaultvalue, "%f", &f);
+
+	return f;
 }

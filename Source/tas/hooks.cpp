@@ -11,6 +11,7 @@ cvar_t tas_playing = { "tas_playing", "0" };
 static bool set_seed = false;
 static int unpause_countdown = -1;
 static unsigned int seed_number = 0;
+static bool should_prevent_unpause = false;
 
 void Cmd_TAS_Set_Seed_Onload(void)
 {
@@ -66,7 +67,7 @@ void TAS_Set_Seed(int seed)
 
 void TAS_Init()
 {
-
+	Cmd_AddCommand("tas_script_init", Cmd_TAS_Script_Init);
 	Cmd_AddCommand("tas_script_stop", Cmd_TAS_Script_Stop);
 	Cmd_AddCommand("tas_script_play", Cmd_TAS_Script_Play);
 	Cmd_AddCommand("tas_script_load", Cmd_TAS_Script_Load);
@@ -74,6 +75,18 @@ void TAS_Init()
 	Cmd_AddCommand("tas_script_skip_block", Cmd_TAS_Script_Skip_Block);
 	Cmd_AddCommand("tas_script_advance", Cmd_TAS_Script_Advance);
 	Cmd_AddCommand("tas_script_advance_block", Cmd_TAS_Script_Advance_Block);
+
+	Cmd_AddCommand("tas_edit_save", Cmd_TAS_Edit_Save);
+	Cmd_AddCommand("tas_edit_set_pitch", Cmd_TAS_Edit_Set_Pitch);
+	Cmd_AddCommand("tas_edit_set_yaw", Cmd_TAS_Edit_Set_Yaw);
+	Cmd_AddCommand("tas_edit_set_view", Cmd_TAS_Edit_Set_View);
+	Cmd_AddCommand("tas_edit_strafe", Cmd_TAS_Edit_Strafe);
+	Cmd_AddCommand("tas_edit_shrink", Cmd_TAS_Edit_Shrink);
+
+	Cmd_AddCommand("tas_cancel", Cmd_TAS_Cancel); // Keep as it is
+	Cmd_AddCommand("tas_confirm", Cmd_TAS_Confirm); // Confirm change
+	Cmd_AddCommand("tas_reset", Cmd_TAS_Reset); // Reset to default
+	Cmd_AddCommand("tas_revert", Cmd_TAS_Revert); // Revert to previous state
 
 	Cmd_AddCommand("tas_full_reset", Cmd_TAS_Full_Reset_f);
 	Cmd_AddCommand("tas_reset_movement", Cmd_TAS_Reset_Movement);
@@ -95,10 +108,14 @@ void TAS_Init()
 	Cvar_Register(&tas_playing);
 	Cvar_Register(&tas_pause_onload);
 	Cvar_Register(&tas_strafe);
+	Cvar_Register(&tas_strafe_type);
 	Cvar_Register(&tas_strafe_yaw);
+	Cvar_Register(&tas_strafe_lgagst_speed);
 	Cvar_Register(&tas_view_pitch);
 	Cvar_Register(&tas_view_yaw);
 	Cvar_Register(&tas_anglespeed);
+	Cvar_Register(&tas_edit_backups);
+	Cvar_Register(&tas_edit_snap_threshold);
 
 }
 
@@ -106,6 +123,16 @@ void TAS_Set_Seed(unsigned int seed)
 {
 	seed_number = seed;
 	set_seed = true;
+}
+
+qboolean Cmd_ExecuteString_Hook(const char * text)
+{
+	return Script_Playback_Cmd_ExecuteString_Hook(text);
+}
+
+void IN_Move_Hook(usercmd_t * cmd)
+{
+	Script_Playback_IN_Move_Hook(cmd);
 }
 
 void Host_Connect_f_Hook()

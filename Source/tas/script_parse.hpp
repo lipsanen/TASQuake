@@ -13,6 +13,7 @@ struct FrameBlock
 	std::map<std::string, bool> toggles;
 	std::vector<std::string> commands;
 
+	void Stack(const FrameBlock& new_block);
 	std::string GetCommand();
 	void Add_Command(const std::string& line);
 	void Parse_Frame_No(const std::string& line, int& running_frame);

@@ -61,6 +61,15 @@ FrameBlock::FrameBlock()
 	parsed = false;
 }
 
+void FrameBlock::Stack(const FrameBlock & new_block)
+{
+	for(auto& pair : new_block.toggles)
+		toggles[pair.first] = pair.second;
+
+	for(auto& pair : new_block.convars)
+		convars[pair.first] = pair.second;
+}
+
 std::string FrameBlock::GetCommand()
 {
 	std::ostringstream oss;
@@ -193,4 +202,35 @@ void TASScript::Load_From_File()
 		Con_Printf("Error parsing line %d: %s\n", line_number, e.what());
 	}
 
+}
+
+void TASScript::Write_To_File()
+{
+	if (blocks.empty())
+	{
+		Con_Printf("Cannot write an empty script to file!\n");
+		return;
+	}
+
+	std::ofstream os(file_name);
+
+	for (auto& block : blocks)
+	{
+		os << block.frame << ':' << '\n';
+
+		for (auto& cvar : block.convars)
+		{
+			os << '\t' << cvar.first << ' ' << cvar.second << '\n';
+		}
+
+		for (auto& toggle : block.toggles)
+		{
+			os << '\t' << (toggle.second ? '+' : '-') << toggle.first << '\n';
+		}
+
+		for (auto& cmd : block.commands)
+		{
+			os << '\t' << cmd << '\n';
+		}
+	}
 }

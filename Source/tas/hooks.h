@@ -17,6 +17,8 @@ extern "C"
 	void CL_SignonReply_Hook();
 	void TAS_Init();
 	void TAS_Set_Seed(unsigned int seed);
+	qboolean Cmd_ExecuteString_Hook(const char* text);
+	void IN_Move_Hook(usercmd_t *cmd);
 #ifdef __cplusplus
 }
 #endif

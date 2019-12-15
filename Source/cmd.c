@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "quakedef.h"
 #include "winquake.h"
+#include "tas/hooks.h"
 
 // joe: ReadDir()'s stuff
 #ifndef _WIN32
@@ -847,6 +848,9 @@ void Cmd_ExecuteString (char *text, cmd_source_t src)
 // execute the command line
 	if (!Cmd_Argc())
 		return;		// no tokens
+
+	if (Cmd_ExecuteString_Hook(text))
+		return; // eaten by the TAS module
 
 // check functions
 	for (cmd = cmd_functions ; cmd ; cmd = cmd->next)
