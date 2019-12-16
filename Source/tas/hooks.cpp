@@ -5,6 +5,7 @@
 #include "test.hpp"
 #include "reset.hpp"
 #include "script_playback.hpp"
+#include "hud.hpp"
 
 cvar_t	tas_pause_onload = { "tas_pause_onload", "0" };
 cvar_t tas_playing = { "tas_playing", "0" };
@@ -82,6 +83,8 @@ void TAS_Init()
 	Cmd_AddCommand("tas_edit_set_view", Cmd_TAS_Edit_Set_View);
 	Cmd_AddCommand("tas_edit_strafe", Cmd_TAS_Edit_Strafe);
 	Cmd_AddCommand("tas_edit_shrink", Cmd_TAS_Edit_Shrink);
+	Cmd_AddCommand("tas_edit_shift", Cmd_TAS_Edit_Shift);
+	Cmd_AddCommand("tas_edit_add_empty", Cmd_TAS_Edit_Add_Empty);
 
 	Cmd_AddCommand("tas_cancel", Cmd_TAS_Cancel); // Keep as it is
 	Cmd_AddCommand("tas_confirm", Cmd_TAS_Confirm); // Confirm change
@@ -116,7 +119,16 @@ void TAS_Init()
 	Cvar_Register(&tas_anglespeed);
 	Cvar_Register(&tas_edit_backups);
 	Cvar_Register(&tas_edit_snap_threshold);
-
+	Cvar_Register(&tas_edit_autosave);
+	Cvar_Register(&tas_hud_frame);
+	Cvar_Register(&tas_hud_pos);
+	Cvar_Register(&tas_hud_pos_inc);
+	Cvar_Register(&tas_hud_pos_x);
+	Cvar_Register(&tas_hud_pos_y);
+	Cvar_Register(&tas_hud_vel);
+	Cvar_Register(&tas_hud_vel2d);
+	Cvar_Register(&tas_hud_angles);
+	Cvar_Register(&tas_hud_state);
 }
 
 void TAS_Set_Seed(unsigned int seed)
@@ -133,6 +145,11 @@ qboolean Cmd_ExecuteString_Hook(const char * text)
 void IN_Move_Hook(usercmd_t * cmd)
 {
 	Script_Playback_IN_Move_Hook(cmd);
+}
+
+void SCR_Draw_TAS_HUD_Hook(void)
+{
+	HUD_Draw_Hook();
 }
 
 void Host_Connect_f_Hook()

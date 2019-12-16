@@ -44,6 +44,7 @@ void V_CalcBlend (void);
 char *LocalTime (char *format);
 void SCR_DrawClock (void);
 void SCR_DrawSpeed (void);
+void SCR_Draw_TAS_Hud (void);
 void SCR_DrawFPS (void);
 void SCR_DrawStats (void);
 void SCR_DrawVolume (void);

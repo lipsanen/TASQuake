@@ -9,7 +9,10 @@ static const char* const EXCLUDE_CVARS[] = {
 	"gl_contrast",
 	"tas_pause",
 	"tas_playing",
-	"cl_independentphysics"
+	"cl_independentphysics",
+	"tas_hud",
+	"tas_edit",
+	"tas_script"
 };
 
 static const char* const INCLUDE_SUBSTR[] = {

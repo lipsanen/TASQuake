@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "quakedef.h"
 #include <time.h>	// cl_clock
+#include "tas/hooks.h"
 
 /*
 
@@ -1373,6 +1374,11 @@ void SCR_DrawPlaybackStats (void)
 	Draw_String (vid.width - 136, yofs, va("demo speed: %.1lfx", cl_demospeed.value));
 	Draw_String (vid.width - 136, yofs + 8, va("playback mode: %s", cl_demorewind.value ? "rewind" : "forward"));
 #endif
+}
+
+void SCR_Draw_TAS_Hud(void)
+{
+	SCR_Draw_TAS_HUD_Hook();
 }
 
 void V_DropPunchAngle (void)

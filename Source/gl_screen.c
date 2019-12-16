@@ -968,12 +968,14 @@ void SCR_UpdateScreen (void)
 	{
 		Sbar_IntermissionOverlay ();
 		SCR_DrawVolume ();
+		SCR_Draw_TAS_Hud();
 	}
 	else if (cl.intermission == 2 && key_dest == key_game)
 	{
 		Sbar_FinaleOverlay ();
 		SCR_CheckDrawCenterString ();
 		SCR_DrawVolume ();
+		SCR_Draw_TAS_Hud();
 	}
 	else
 	{
@@ -992,6 +994,7 @@ void SCR_UpdateScreen (void)
 		SCR_DrawStats ();
 		SCR_DrawVolume ();
 		SCR_DrawPlaybackStats ();
+		SCR_Draw_TAS_Hud();
 		Sbar_Draw ();
 		SCR_DrawConsole ();
 		M_Draw ();

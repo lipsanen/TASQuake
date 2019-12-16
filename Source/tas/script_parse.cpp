@@ -5,6 +5,7 @@
 #include <fstream>
 #include <regex>
 #include <sstream>
+#include <experimental/filesystem>
 
 #include "cpp_quakedef.hpp"
 #include "script_parse.hpp"
@@ -13,6 +14,7 @@
 #include "utils.hpp"
 #include "reset.hpp"
 #include "hooks.h"
+#include "script_playback.hpp"
 
 std::regex FRAME_NO_REGEX(R"#((\+?)(\d+):)#");
 std::regex TOGGLE_REGEX(R"#(([\+\-])(\w+))#");
@@ -164,6 +166,16 @@ void FrameBlock::Reset()
 	commands.clear();
 }
 
+bool FrameBlock::HasToggle(const std::string & cmd)
+{
+	return toggles.find(cmd) != toggles.end();
+}
+
+bool FrameBlock::HasConvar(const std::string & cvar)
+{
+	return convars.find(cvar) != convars.end();
+}
+
 TASScript::TASScript()
 {
 }
@@ -204,11 +216,79 @@ void TASScript::Load_From_File()
 
 }
 
+static bool Get_Backup_Save(char* buffer, const char* file_name, int backup)
+{
+	if (backup == 0)
+	{
+		sprintf(buffer, "%s", file_name);
+		return true;
+	}
+
+	static char without_ext[256];
+	const char* ext = strrchr(file_name, '.');
+	if (!ext)
+		return false;
+	int sz = ext - file_name;
+	int i;
+
+	for (i = 0; i < sz && i < 255; ++i)
+	{
+		without_ext[i] = file_name[i];
+	}
+
+	without_ext[i] = '\0';
+	sprintf(buffer, "%s-%d.qtas", without_ext, backup);
+	return true;
+}
+
+static bool Move_Saves(const char* file_name)
+{
+	static char old_filename[256];
+	static char new_filename[256];
+	int backups = (int)tas_edit_backups.value;
+
+	if(backups <= 0)
+		return true;
+	
+	bool result = Get_Backup_Save(new_filename, file_name, backups - 1);
+	if (!result)
+	{
+		Con_Printf("Failed to move saves for file %s\n", file_name);
+		return false;
+	}
+
+	if(std::experimental::filesystem::exists(new_filename))
+		std::remove(new_filename);
+
+	for (int i = backups - 2; i >= 0; --i)
+	{
+		result = Get_Backup_Save(old_filename, file_name, i);
+		if (!result)
+		{
+			Con_Printf("Failed to move save %d for file %s\n", file_name);
+			return false;
+		}
+		if (std::experimental::filesystem::exists(old_filename))
+			std::rename(old_filename, new_filename);
+		std::strcpy(new_filename, old_filename);
+	}
+	
+	return true;
+}
+
+
 void TASScript::Write_To_File()
 {
 	if (blocks.empty())
 	{
 		Con_Printf("Cannot write an empty script to file!\n");
+		return;
+	}
+
+	bool result = Move_Saves(file_name.c_str());
+
+	if (!result)
+	{
 		return;
 	}
 

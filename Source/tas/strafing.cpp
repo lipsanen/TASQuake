@@ -57,21 +57,6 @@ void Cmd_Print_Moves(void)
 	print_moves = true;
 }
 
-struct PlayerData
-{
-	double accelerate;
-	bool onGround;
-	float origin[3];
-	float velocity[3];
-	double entFriction;
-	double frameTime;
-	double wishspeed;
-	float vel2d;
-	double view_theta;
-	double vel_theta;
-};
-
-
 static float Get_EntFriction(float* vel, float* player_origin)
 {
 	float	speed;
@@ -94,7 +79,7 @@ static float Get_EntFriction(float* vel, float* player_origin)
 		return 1;
 }
 
-static PlayerData GetPlayerData()
+PlayerData GetPlayerData()
 {
 	PlayerData data;
 	

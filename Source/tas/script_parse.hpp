@@ -22,6 +22,9 @@ struct FrameBlock
 	void Parse_Command(const std::string& line);
 	void Parse_Line(const std::string& line, int& running_frame);
 	void Reset();
+
+	bool HasToggle(const std::string& cmd);
+	bool HasConvar(const std::string& cvar);
 };
 
 class TASScript

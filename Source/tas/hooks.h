@@ -19,6 +19,7 @@ extern "C"
 	void TAS_Set_Seed(unsigned int seed);
 	qboolean Cmd_ExecuteString_Hook(const char* text);
 	void IN_Move_Hook(usercmd_t *cmd);
+	void SCR_Draw_TAS_HUD_Hook(void);
 #ifdef __cplusplus
 }
 #endif

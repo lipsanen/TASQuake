@@ -5,6 +5,7 @@
 #include "reset.hpp"
 #include "afterframes.hpp"
 #include "utils.hpp"
+#include "hooks.h"
 
 static TASScript current_script;
 static FrameBlock stacked;
@@ -22,6 +23,7 @@ static float old_yaw = 0;
 static float old_pitch = 0;
 static MouseState m_state = MouseState::Locked;
 
+cvar_t tas_edit_autosave = { "tas_edit_autosave", "1"};
 cvar_t tas_edit_backups = { "tas_edit_backups", "100" };
 cvar_t tas_edit_snap_threshold = { "tas_edit_snap_threshold", "5" };
 
@@ -71,6 +73,20 @@ static void Continue_Script(int frames)
 	last_frame = current_frame + frames;
 	script_running = true;
 	should_unpause = true;
+}
+
+static void Generic_Skip(int frame)
+{
+	if(frame > current_frame)
+		Continue_Script(frame - current_frame);
+	else if (frame < LOWEST_FRAME)
+	{
+		Con_Printf("Cannot skip to frame %d\n", LOWEST_FRAME);
+	}
+	else
+	{
+		Run_Script(frame, true);
+	}
 }
 
 static FrameBlock* GetBlockForFrame()
@@ -140,15 +156,17 @@ static void SetConvar(const char* name, float new_val)
 {
 	float old_val = Get_Existing_Value(name);
 
-	auto block = GetBlockForFrame();
 	if (new_val == old_val)
 	{
 		Con_Printf("Value identical to old value.\n");
 		return;
 	}
 
+	auto block = GetBlockForFrame();
 	sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "Block: Added %s %f", name, new_val);
 	SCR_CenterPrint(BUFFER);
+	if (tas_edit_autosave.value == 1)
+		Cmd_TAS_Edit_Save();
 
 	if (Get_Stacked_Value(name) == new_val && block->convars.find(name) != block->convars.end())
 	{
@@ -156,6 +174,24 @@ static void SetConvar(const char* name, float new_val)
 		return;
 	}
 	block->convars[name] = new_val;
+}
+
+void SetToggle(const char* cmd, bool new_value)
+{
+	auto block = GetBlockForFrame();
+
+	sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "Block: Added %c%s", new_value ? '+' : '-', cmd);
+	SCR_CenterPrint(BUFFER);
+	if (tas_edit_autosave.value == 1)
+		Cmd_TAS_Edit_Save();
+
+	if (Get_Stacked_Toggle(cmd) == new_value && block->toggles.find(cmd) != block->toggles.end())
+	{
+		block->toggles.erase(cmd);
+		return;
+	}
+
+	block->toggles[cmd] = new_value;
 }
 
 
@@ -180,13 +216,14 @@ void Script_Playback_Host_Frame_Hook()
 		old_pitch = cl.viewangles[PITCH];
 		return;
 	}
-		
+	
 
 	while (current_block < current_script.blocks.size() && current_script.blocks[current_block].frame <= current_frame)
 	{
 		auto& block = current_script.blocks[current_block];
-		stacked.Stack(block);
+
 		std::string cmd = block.GetCommand();
+		stacked.Stack(block);
 		AddAfterframes(0, cmd.c_str());
 		++current_block;
 	}
@@ -196,7 +233,7 @@ void Script_Playback_Host_Frame_Hook()
 
 void Script_Playback_IN_Move_Hook(usercmd_t * cmd)
 {
-	if (tas_gamestate == unpaused || script_running)
+	if (script_running || !tas_playing.value)
 		return;
 
 	if(m_state == MouseState::Pitch || m_state == MouseState::Locked)
@@ -208,6 +245,50 @@ void Script_Playback_IN_Move_Hook(usercmd_t * cmd)
 		cl.viewangles[PITCH] = old_pitch;
 	}
 }
+
+static int Get_Current_Frame()
+{
+	if (!tas_playing.value)
+		return 0;
+
+	return current_frame;
+}
+
+static int Get_Last_Frame()
+{
+	if (current_script.blocks.empty())
+		return 0;
+	else
+	{
+		return current_script.blocks[current_script.blocks.size() - 1].frame;
+	}
+}
+
+PlaybackInfo GetPlaybackInfo()
+{
+	PlaybackInfo info;
+	if(!tas_playing.value)
+		info.current_block = nullptr;
+	else
+	{
+		if (current_script.blocks.size() <= current_block || current_script.blocks[current_block].frame != current_frame)
+		{
+			info.current_block = nullptr;
+		}
+		else
+		{
+			info.current_block = &current_script.blocks[current_block];
+		}
+		info.stacked = &stacked;
+	}
+		
+	info.current_frame = Get_Current_Frame();
+	info.last_frame = Get_Last_Frame();
+
+	return info;
+}
+
+
 
 void Cmd_TAS_Script_Init(void)
 {
@@ -327,24 +408,8 @@ void Cmd_TAS_Script_Advance(void)
 	else
 		frames = 1;
 
-	if (frames > 0)
-	{
-		Continue_Script(frames);
-	}
-	else if (frames < 0)
-	{
-		int target_frame = current_frame + frames;
-		if (target_frame < LOWEST_FRAME)
-		{
-			Con_Printf("Cannot go back beyond frame %d.\n", LOWEST_FRAME);
-			return;
-		}
-		Run_Script(target_frame, true);
-	}
-	else
-	{
-		Con_Print("Can't advance by 0 frames.\n");
-	}
+	int target_frame = current_frame + frames;
+	Generic_Skip(target_frame);
 }
 
 void Cmd_TAS_Script_Advance_Block(void)
@@ -372,16 +437,7 @@ void Cmd_TAS_Script_Advance_Block(void)
 
 	auto& block = current_script.blocks[target_block];
 	int frame = block.frame;
-
-	if (frame > current_frame)
-	{
-		int diff = frame - current_frame;
-		Continue_Script(diff);
-	}
-	else
-	{
-		Run_Script(frame, true);
-	}
+	Generic_Skip(frame);
 }
 
 void Prune_Blocks()
@@ -394,7 +450,6 @@ void Prune_Blocks()
 
 void Cmd_TAS_Edit_Save(void)
 {
-	auto current_block = GetBlockForFrame();
 	Prune_Blocks();
 	current_script.Write_To_File();
 }
@@ -423,6 +478,74 @@ void Cmd_TAS_Edit_Shrink(void)
 {
 	GetBlockForFrame();
 	current_script.blocks.resize(current_block);
+}
+
+void Cmd_TAS_Edit_Shift(void)
+{
+	if (current_block >= current_script.blocks.size() ||
+		current_script.blocks[current_block].frame != current_frame)
+	{
+		Con_Printf("No block found on current frame, nothing to shift!\n");
+		return;
+	}
+	else if (Cmd_Argc() == 1)
+	{
+		Con_Printf("Usage: tas_edit_shift <frames>\n");
+		return;
+	}
+
+	int frames = atoi(Cmd_Argv(1));
+	int new_frame = current_frame + frames;
+
+	if (new_frame < LOWEST_FRAME)
+	{
+		Con_Printf("Cannot move frame past %d\n", LOWEST_FRAME);
+		return;
+	}
+
+	FrameBlock new_block = current_script.blocks[current_block];
+	new_block.frame = new_frame;
+	current_script.blocks.erase(current_script.blocks.begin() + current_block);
+	bool set = false;
+
+	for (auto i = 0; i < current_script.blocks.size(); ++i)
+	{
+		auto& block = current_script.blocks[i];
+
+		if (block.frame == new_frame)
+		{
+			for(auto& convar : block.convars)
+				block.convars[convar.first] = convar.second;
+			for (auto& toggle : block.toggles)
+				block.toggles[toggle.first] = toggle.second;
+			for (auto& cmd : block.commands)
+				block.commands.push_back(cmd);
+			set = true;
+			break;
+		}
+		else if (block.frame > new_frame)
+		{
+			current_script.blocks.insert(current_script.blocks.begin() + i, new_block);
+			set = true;
+			break;
+		}
+	}
+
+	if (!set)
+	{
+		current_script.blocks.push_back(new_block);
+	}
+
+	if(tas_edit_autosave.value == 1)
+		Cmd_TAS_Edit_Save();
+	Generic_Skip(new_frame);
+}
+
+void Cmd_TAS_Edit_Add_Empty(void)
+{
+	GetBlockForFrame();
+	if (tas_edit_autosave.value == 1)
+		Cmd_TAS_Edit_Save();
 }
 
 void Cmd_TAS_Confirm(void)
@@ -499,7 +622,8 @@ void Cmd_TAS_Reset(void)
 
 qboolean Script_Playback_Cmd_ExecuteString_Hook(const char * text)
 {
-	if (script_running || tas_gamestate != paused)
+	if (script_running || tas_gamestate != paused || !tas_playing.value
+		|| current_script.blocks.empty())
 		return qfalse;
 
 	char* name = Cmd_Argv(0);
@@ -519,22 +643,11 @@ qboolean Script_Playback_Cmd_ExecuteString_Hook(const char * text)
 	}
 	else if (IsDownCmd(name))
 	{
-		auto block = GetBlockForFrame();
 		auto cmd = name + 1;
 			
 		bool old_value = Get_Existing_Toggle(cmd);
 		bool new_value = !old_value;
-
-		sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "Block: Added %c%s", new_value ? '+' : '-', cmd);
-		SCR_CenterPrint(BUFFER);
-
-		if (Get_Stacked_Toggle(cmd) == new_value && block->toggles.find(cmd) != block->toggles.end())
-		{
-			block->toggles.erase(cmd);
-			return qtrue;
-		}
-
-		block->toggles[cmd] = new_value;
+		SetToggle(cmd, new_value);
 
 		return qtrue;
 	}
