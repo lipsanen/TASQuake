@@ -170,7 +170,10 @@ void S_Init (void)
 	Cvar_Register (&s_mixahead);
 	Cvar_Register (&s_khz);
 
-	if (!COM_CheckParm("-yessound"))
+	if (COM_CheckParm("-nosound"))
+		return;
+
+	if (COM_CheckParm("-simsound"))
 		fakedma = true;
 
 	Cmd_AddCommand ("play", S_Play_f);
@@ -470,7 +473,7 @@ void S_StartSound (int entnum, int entchannel, sfx_t *sfx, vec3_t origin, float 
 			continue;
 		if (check->sfx == sfx && !check->pos)
 		{
-			skip = rand () % (int)(0.1*shm->speed);
+			skip = (int)(0.05*shm->speed); // Jukspa: removed rng here - it's equivalent to having sound turned off
 			if (skip >= target_chan->end)
 				skip = target_chan->end - 1;
 			target_chan->pos += skip;
