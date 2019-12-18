@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "winquake.h"
 #include "resource.h"
 #include "conproc.h"
+#include "tas/hooks.h"
 #include <limits.h>
 #include <errno.h>
 #include <direct.h>		// _mkdir
@@ -703,8 +704,12 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 
 			newtime = Sys_DoubleTime();
 			time = newtime - oldtime;
+			float effective_fps = cl_maxfps.value;
 
-			while (cl_maxfps.value > 0 && time < 1 / cl_maxfps.value)
+			if (tas_playing.value)
+				effective_fps *= tas_timescale.value;
+
+			while (time < 1 / effective_fps)
 			{
 				Sys_Sleep();
 				newtime = Sys_DoubleTime();

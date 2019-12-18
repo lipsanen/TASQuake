@@ -12,7 +12,8 @@ static const char* const EXCLUDE_CVARS[] = {
 	"cl_independentphysics",
 	"tas_hud",
 	"tas_edit",
-	"tas_script"
+	"tas_script",
+	"tas_timescale"
 };
 
 static const char* const INCLUDE_SUBSTR[] = {
@@ -86,7 +87,7 @@ bool IsUpCmd(const char * text)
 	return cmd && IsUpCmd(cmd);
 }
 
-void Cmd_TAS_Full_Reset_f(void)
+void Cmd_TAS_Cmd_Reset_f(void)
 {
 	tas_gamestate = unpaused;
 	sv.paused = qfalse;

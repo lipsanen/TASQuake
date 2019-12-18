@@ -535,11 +535,12 @@ Returns false if the time is too short to run a frame
 */
 qboolean Host_FilterTime (double time)
 {
-	double	fps;
+	double	fps = max(10, cl_maxfps.value);
+	fps = min(72, fps);
 
-	if (tas_playing.value == 1)
+	if (!cls.demoplayback && !cls.timedemo)
 	{
-		float ft = (float)1 / 72.0;
+		float ft = (float)1 / fps;
 		realtime += ft;
 		oldrealtime = realtime;
 		host_frametime = ft;
@@ -547,7 +548,6 @@ qboolean Host_FilterTime (double time)
 	}
 
 	realtime += time;
-	fps = max(10, cl_maxfps.value);
 
 	if (!cls.capturedemo && !cls.timedemo && realtime - oldrealtime < 1.0 / fps)
 		return false;

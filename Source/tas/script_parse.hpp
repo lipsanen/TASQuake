@@ -4,6 +4,15 @@
 #include <vector>
 
 
+struct Bookmark
+{
+	Bookmark();
+	Bookmark(int index, bool frame);
+
+	int index;
+	bool frame;
+};
+
 struct FrameBlock
 {
 	FrameBlock();
@@ -35,6 +44,7 @@ public:
 	void Load_From_File();
 	void Write_To_File();
 	std::vector<FrameBlock> blocks;
+	std::map<std::string, Bookmark> bookmarks;
 private:
 	std::string file_name;
 };

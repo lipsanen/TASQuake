@@ -4,16 +4,15 @@
 #include "utils.hpp"
 #include "hooks.h"
 
-const float INVALID_ANGLE = -1;
-
 cvar_t tas_strafe = { "tas_strafe", "0" };
 cvar_t tas_strafe_type = { "tas_strafe_type", "1" };
 cvar_t tas_strafe_yaw = { "tas_strafe_yaw", "0" };
 cvar_t tas_strafe_yaw_offset = { "tas_strafe_yaw_offset", "0" };
 cvar_t tas_strafe_lgagst_speed = { "tas_strafe_lgagst_speed", "460" };
-cvar_t tas_view_yaw = { "tas_view_yaw", "-1" };
-cvar_t tas_view_pitch = { "tas_view_pitch", "-1" };
+cvar_t tas_view_yaw = { "tas_view_yaw", "999" };
+cvar_t tas_view_pitch = { "tas_view_pitch", "999" };
 cvar_t tas_anglespeed = { "tas_anglespeed", "5" };
+const float INVALID_ANGLE = 999;
 
 static bool shouldJump = false;
 static bool autojump = false;
@@ -192,7 +191,7 @@ float MoveViewTowards(float target, float current, bool yaw)
 	else
 	{
 		abs_diff = min(abs_diff, tas_anglespeed.value);
-		current +=  std::copysign(abs_diff, diff);
+		current += std::copysign(abs_diff, diff);
 	}
 	
 	if (yaw)
@@ -207,10 +206,9 @@ void SetView()
 	if(sv.paused || tas_gamestate == paused || key_dest != key_game)
 		return;
 
-
 	float pitch = cl.viewangles[PITCH];
 
-	if (tas_view_pitch.value != INVALID_ANGLE && tas_view_pitch.value != pitch)
+	if (tas_view_pitch.value != INVALID_ANGLE)
 	{
 		cl.viewangles[PITCH] = MoveViewTowards(tas_view_pitch.value, pitch, false);
 	}
@@ -219,11 +217,11 @@ void SetView()
 	float tas_yaw = NormalizeDeg(tas_view_yaw.value);
 	float strafe_yaw = NormalizeDeg(tas_strafe_yaw.value);
 
-	if (tas_yaw != INVALID_ANGLE && tas_yaw != yaw)
+	if (tas_view_yaw.value != INVALID_ANGLE)
 	{
 		cl.viewangles[YAW] = MoveViewTowards(tas_yaw, yaw, true);
 	}
-	else if (tas_strafe.value != 0 && tas_yaw == INVALID_ANGLE)
+	else if (tas_strafe.value != 0 && tas_view_yaw.value == INVALID_ANGLE)
 	{
 		cl.viewangles[YAW] = MoveViewTowards(strafe_yaw, yaw, true);
 	}
@@ -231,14 +229,14 @@ void SetView()
 
 void Strafe(usercmd_t* cmd)
 {
-	if(tas_strafe.value == 0)
-		return;
-
 	StrafeType strafeType = (StrafeType)static_cast<int>(tas_strafe_type.value);
 	double strafe_yaw = 0;
 	bool strafe = false;
 
 	SetView();
+
+	if (tas_strafe.value == 0)
+		return;
 
 	if (strafeType == StrafeType::MaxAccel)
 	{

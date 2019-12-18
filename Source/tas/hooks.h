@@ -10,6 +10,8 @@ extern "C"
 #include "..\quakedef.h"
 #endif
 	extern cvar_t tas_playing;
+	extern cvar_t tas_timescale;
+
 	void SV_Physics_Client_Hook();
 	void CL_SendMove_Hook(usercmd_t* cmd);
 	void _Host_Frame_Hook();

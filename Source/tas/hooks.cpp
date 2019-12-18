@@ -9,6 +9,7 @@
 
 cvar_t	tas_pause_onload = { "tas_pause_onload", "0" };
 cvar_t tas_playing = { "tas_playing", "0" };
+cvar_t tas_timescale = { "tas_timescale", "1"};
 static bool set_seed = false;
 static int unpause_countdown = -1;
 static unsigned int seed_number = 0;
@@ -84,6 +85,7 @@ void TAS_Init()
 	Cmd_AddCommand("tas_edit_strafe", Cmd_TAS_Edit_Strafe);
 	Cmd_AddCommand("tas_edit_shrink", Cmd_TAS_Edit_Shrink);
 	Cmd_AddCommand("tas_edit_shift", Cmd_TAS_Edit_Shift);
+	Cmd_AddCommand("tas_edit_shift_stack", Cmd_TAS_Edit_Shift_Stack);
 	Cmd_AddCommand("tas_edit_add_empty", Cmd_TAS_Edit_Add_Empty);
 
 	Cmd_AddCommand("tas_cancel", Cmd_TAS_Cancel); // Keep as it is
@@ -91,7 +93,11 @@ void TAS_Init()
 	Cmd_AddCommand("tas_reset", Cmd_TAS_Reset); // Reset to default
 	Cmd_AddCommand("tas_revert", Cmd_TAS_Revert); // Revert to previous state
 
-	Cmd_AddCommand("tas_full_reset", Cmd_TAS_Full_Reset_f);
+	Cmd_AddCommand("tas_bookmark_frame", Cmd_TAS_Bookmark_Frame);
+	Cmd_AddCommand("tas_bookmark_block", Cmd_TAS_Bookmark_Block);
+	Cmd_AddCommand("tas_bookmark_skip", Cmd_TAS_Bookmark_Skip);
+
+	Cmd_AddCommand("tas_cmd_reset", Cmd_TAS_Cmd_Reset_f);
 	Cmd_AddCommand("tas_reset_movement", Cmd_TAS_Reset_Movement);
 	Cmd_AddCommand("tas_run_test", Cmd_Run_Test);
 	Cmd_AddCommand("tas_generate_test", Cmd_GenerateTest);
@@ -128,7 +134,10 @@ void TAS_Init()
 	Cvar_Register(&tas_hud_vel);
 	Cvar_Register(&tas_hud_vel2d);
 	Cvar_Register(&tas_hud_angles);
+	Cvar_Register(&tas_hud_pflags);
+	Cvar_Register(&tas_hud_waterlevel);
 	Cvar_Register(&tas_hud_state);
+	Cvar_Register(&tas_timescale);
 }
 
 void TAS_Set_Seed(unsigned int seed)

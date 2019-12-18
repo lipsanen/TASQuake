@@ -36,6 +36,7 @@ void Cmd_TAS_Edit_Set_Yaw(void);
 void Cmd_TAS_Edit_Set_View(void);
 void Cmd_TAS_Edit_Shrink(void);
 void Cmd_TAS_Edit_Shift(void);
+void Cmd_TAS_Edit_Shift_Stack(void);
 void Cmd_TAS_Edit_Add_Empty(void);
 //void Cmd_TAS_Edit_Delete_Cmd(void);
 
@@ -44,3 +45,8 @@ void Cmd_TAS_Confirm(void);
 void Cmd_TAS_Cancel(void);
 void Cmd_TAS_Revert(void);
 void Cmd_TAS_Reset(void);
+
+void Clear_Bookmarks();
+void Cmd_TAS_Bookmark_Frame(void);
+void Cmd_TAS_Bookmark_Block(void);
+void Cmd_TAS_Bookmark_Skip(void);

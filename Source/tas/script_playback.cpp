@@ -6,6 +6,7 @@
 #include "afterframes.hpp"
 #include "utils.hpp"
 #include "hooks.h"
+#include "strafing.hpp"
 
 static TASScript current_script;
 static FrameBlock stacked;
@@ -56,13 +57,13 @@ static void Run_Script(int frame, bool skip = false)
 		return;
 	}
 
-	Cmd_TAS_Full_Reset_f();
+	Cmd_TAS_Cmd_Reset_f();
 	AddAfterframes(0, "tas_playing 1");
 
 	if (skip)
 	{
-		AddAfterframes(0, "vid_vsync 0; cl_maxfps 0");
-		AddAfterframes(last_frame-1, "cl_maxfps 72");
+		AddAfterframes(0, "vid_vsync 0; tas_timescale 999999");
+		AddAfterframes(last_frame-1, "tas_timescale 1");
 	}
 
 	script_running = true;
@@ -75,13 +76,13 @@ static void Continue_Script(int frames)
 	should_unpause = true;
 }
 
-static void Generic_Skip(int frame)
+static void Generic_Advance(int frame)
 {
 	if(frame > current_frame)
 		Continue_Script(frame - current_frame);
 	else if (frame < LOWEST_FRAME)
 	{
-		Con_Printf("Cannot skip to frame %d\n", LOWEST_FRAME);
+		Con_Printf("Cannot skip to frame %d\n", frame);
 	}
 	else
 	{
@@ -233,16 +234,16 @@ void Script_Playback_Host_Frame_Hook()
 
 void Script_Playback_IN_Move_Hook(usercmd_t * cmd)
 {
-	if (script_running || !tas_playing.value)
-		return;
-
-	if(m_state == MouseState::Pitch || m_state == MouseState::Locked)
+	if (tas_playing.value && tas_gamestate == paused)
 	{
-		cl.viewangles[YAW] = old_yaw;
-	}
-	if (m_state == MouseState::Yaw || m_state == MouseState::Locked)
-	{
-		cl.viewangles[PITCH] = old_pitch;
+		if(m_state == MouseState::Pitch || m_state == MouseState::Locked)
+		{
+			cl.viewangles[YAW] = old_yaw;
+		}
+		if (m_state == MouseState::Yaw || m_state == MouseState::Locked)
+		{
+			cl.viewangles[PITCH] = old_pitch;
+		}
 	}
 }
 
@@ -287,8 +288,6 @@ PlaybackInfo GetPlaybackInfo()
 
 	return info;
 }
-
-
 
 void Cmd_TAS_Script_Init(void)
 {
@@ -337,6 +336,7 @@ void Cmd_TAS_Script_Load(void)
 	sprintf(name, "%s/tas/%s", com_gamedir, Cmd_Argv(1));
 	COM_ForceExtension(name, ".qtas");
 
+	Clear_Bookmarks();
 	current_script = TASScript(name);
 	current_script.Load_From_File();
 	Con_Printf("Script %s loaded with %u blocks.\n", Cmd_Argv(1), current_script.blocks.size());
@@ -353,7 +353,7 @@ void Cmd_TAS_Script_Stop(void)
 {
 	script_running = false;
 	ClearAfterframes();
-	Cmd_TAS_Full_Reset_f();
+	Cmd_TAS_Cmd_Reset_f();
 }
 
 void Cmd_TAS_Script_Skip(void)
@@ -365,6 +365,20 @@ void Cmd_TAS_Script_Skip(void)
 	}
 
 	int frame = atoi(Cmd_Argv(1));
+	if (frame < 0)
+		frame = Get_Last_Frame() - frame - 1;
+	Run_Script(frame, true);
+}
+
+void Skip_To_Block(int block)
+{
+	if (block >= current_script.blocks.size() || block < LOWEST_BLOCK)
+	{
+		Con_Printf("Tried to move to block %d, which is out of bounds!\n", block);
+		return;
+	}
+
+	int frame = current_script.blocks[block].frame;
 	Run_Script(frame, true);
 }
 
@@ -388,9 +402,7 @@ void Cmd_TAS_Script_Skip_Block(void)
 		Con_Printf("Tried to move to block %d, which is out of bounds!\n", block);
 		return;
 	}
-
-	int frame = current_script.blocks[block].frame;
-	Run_Script(frame, true);
+	Skip_To_Block(block);
 }
 
 void Cmd_TAS_Script_Advance(void)
@@ -409,7 +421,7 @@ void Cmd_TAS_Script_Advance(void)
 		frames = 1;
 
 	int target_frame = current_frame + frames;
-	Generic_Skip(target_frame);
+	Generic_Advance(target_frame);
 }
 
 void Cmd_TAS_Script_Advance_Block(void)
@@ -437,7 +449,7 @@ void Cmd_TAS_Script_Advance_Block(void)
 
 	auto& block = current_script.blocks[target_block];
 	int frame = block.frame;
-	Generic_Skip(frame);
+	Generic_Advance(frame);
 }
 
 void Prune_Blocks()
@@ -480,6 +492,39 @@ void Cmd_TAS_Edit_Shrink(void)
 	current_script.blocks.resize(current_block);
 }
 
+void Shift_Block(const FrameBlock& new_block)
+{
+	bool set = false;
+
+	for (auto i = 0; i < current_script.blocks.size(); ++i)
+	{
+		auto& block = current_script.blocks[i];
+
+		if (block.frame == new_block.frame)
+		{
+			for (auto& convar : block.convars)
+				block.convars[convar.first] = convar.second;
+			for (auto& toggle : block.toggles)
+				block.toggles[toggle.first] = toggle.second;
+			for (auto& cmd : block.commands)
+				block.commands.push_back(cmd);
+			set = true;
+			break;
+		}
+		else if (block.frame > new_block.frame)
+		{
+			current_script.blocks.insert(current_script.blocks.begin() + i, new_block);
+			set = true;
+			break;
+		}
+	}
+
+	if (!set)
+	{
+		current_script.blocks.push_back(new_block);
+	}
+}
+
 void Cmd_TAS_Edit_Shift(void)
 {
 	if (current_block >= current_script.blocks.size() ||
@@ -503,42 +548,60 @@ void Cmd_TAS_Edit_Shift(void)
 		return;
 	}
 
-	FrameBlock new_block = current_script.blocks[current_block];
-	new_block.frame = new_frame;
+	auto block = current_script.blocks[current_block];
+	block.frame = new_frame;
 	current_script.blocks.erase(current_script.blocks.begin() + current_block);
-	bool set = false;
-
-	for (auto i = 0; i < current_script.blocks.size(); ++i)
-	{
-		auto& block = current_script.blocks[i];
-
-		if (block.frame == new_frame)
-		{
-			for(auto& convar : block.convars)
-				block.convars[convar.first] = convar.second;
-			for (auto& toggle : block.toggles)
-				block.toggles[toggle.first] = toggle.second;
-			for (auto& cmd : block.commands)
-				block.commands.push_back(cmd);
-			set = true;
-			break;
-		}
-		else if (block.frame > new_frame)
-		{
-			current_script.blocks.insert(current_script.blocks.begin() + i, new_block);
-			set = true;
-			break;
-		}
-	}
-
-	if (!set)
-	{
-		current_script.blocks.push_back(new_block);
-	}
+	Shift_Block(block);
 
 	if(tas_edit_autosave.value == 1)
 		Cmd_TAS_Edit_Save();
-	Generic_Skip(new_frame);
+	Generic_Advance(new_frame);
+}
+
+void Cmd_TAS_Edit_Shift_Stack(void)
+{
+	if (current_block >= current_script.blocks.size() ||
+		current_script.blocks[current_block].frame != current_frame)
+	{
+		Con_Printf("No block found on current frame, nothing to shift!\n");
+		return;
+	}
+	else if (Cmd_Argc() == 1)
+	{
+		Con_Printf("Usage: tas_edit_shift <frames>\n");
+		return;
+	}
+
+	int frames = atoi(Cmd_Argv(1));
+	std::vector<FrameBlock> insert_blocks;
+
+	// Frame check
+	for (int i = current_script.blocks.size() - 1; i >= current_block; --i)
+	{
+		auto& block = current_script.blocks[i];
+		int new_frame = block.frame + frames;
+
+		if (new_frame < LOWEST_FRAME)
+		{
+			Con_Printf("Cannot move frame past %d\n", LOWEST_FRAME);
+			return;
+		}
+	}
+
+	for (int i = current_script.blocks.size() - 1; i >= current_block; --i)
+	{
+		auto block = current_script.blocks[i];
+		block.frame += frames;
+		current_script.blocks.pop_back();
+		insert_blocks.push_back(block);
+	}
+
+	for(auto& block : insert_blocks)
+		Shift_Block(block);
+	
+	if (tas_edit_autosave.value == 1)
+		Cmd_TAS_Edit_Save();
+	Generic_Advance(current_frame + frames);
 }
 
 void Cmd_TAS_Edit_Add_Empty(void)
@@ -611,13 +674,73 @@ void Cmd_TAS_Reset(void)
 	}
 	else if (m_state == MouseState::Mixed || m_state == MouseState::Yaw)
 	{
-		SetConvar("tas_view_yaw", -1);
+		SetConvar("tas_view_yaw", INVALID_ANGLE);
 	}
 	else if (m_state == MouseState::Mixed || m_state == MouseState::Pitch)
 	{
 		SetConvar("tas_view_pitch", -1);
 	}
 	m_state = MouseState::Locked;
+}
+
+void Clear_Bookmarks()
+{
+	current_script.bookmarks.clear();
+}
+
+void Cmd_TAS_Bookmark_Frame(void)
+{
+	if (Cmd_Argc() == 1)
+	{
+		Con_Print("Usage: tas_bookmark_frame <bookmark name>\n");
+		return;
+	}
+
+	std::string name = Cmd_Argv(1);
+	current_script.bookmarks[name] = Bookmark(current_frame, true);
+}
+
+void Cmd_TAS_Bookmark_Block(void)
+{
+	if (Cmd_Argc() == 1)
+	{
+		Con_Print("Usage: tas_bookmark_block <bookmark name>\n");
+		return;
+	}
+	else if (current_block >= current_script.blocks.size() || current_script.blocks[current_block].frame != current_frame)
+	{
+		Con_Print("Current frame has no block.\n");
+		return;
+	}
+
+	std::string name = Cmd_Argv(1);
+	current_script.bookmarks[name] = Bookmark(current_block, false);
+}
+
+void Cmd_TAS_Bookmark_Skip(void)
+{
+	if (Cmd_Argc() == 1)
+	{
+		Con_Print("Usage: tas_bookmark_block <bookmark name>\n");
+		return;
+	}
+
+	std::string name = Cmd_Argv(1);
+	if (current_script.bookmarks.find(name) == current_script.bookmarks.end())
+	{
+		Con_Printf("Usage: No bookmark with name %s\n", Cmd_Argv(1));
+		return;
+	}
+
+	auto& bookmark = current_script.bookmarks[name];
+	if (bookmark.frame)
+	{
+		Run_Script(bookmark.index, true);
+	}
+	else
+	{
+		Skip_To_Block(bookmark.index);
+	}
 }
 
 qboolean Script_Playback_Cmd_ExecuteString_Hook(const char * text)

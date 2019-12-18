@@ -23,6 +23,7 @@ extern cvar_t tas_strafe_lgagst_speed;
 extern cvar_t tas_view_yaw;
 extern cvar_t tas_view_pitch;
 extern cvar_t tas_anglespeed;
+extern const float INVALID_ANGLE;
 enum class StrafeType { None = 0, MaxAccel = 1, Straight = 3 };
 
 PlayerData GetPlayerData();

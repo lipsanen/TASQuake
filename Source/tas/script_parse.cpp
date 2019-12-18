@@ -293,10 +293,13 @@ void TASScript::Write_To_File()
 	}
 
 	std::ofstream os(file_name);
+	int current_frame = 0;
 
 	for (auto& block : blocks)
 	{
-		os << block.frame << ':' << '\n';
+		int diff = block.frame - current_frame;
+		os << '+' << diff << ':' << '\n';
+		current_frame = block.frame;
 
 		for (auto& cvar : block.convars)
 		{
@@ -313,4 +316,13 @@ void TASScript::Write_To_File()
 			os << '\t' << cmd << '\n';
 		}
 	}
+}
+
+Bookmark::Bookmark()
+{
+}
+
+Bookmark::Bookmark(int index, bool frame)
+{
+	this->index = index; this->frame = frame;
 }
