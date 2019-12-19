@@ -29,6 +29,15 @@ void Draw(int& y, cvar_t* cvar, const char* format, ...)
 	y += tas_hud_pos_inc.value;
 }
 
+bool Should_Print_Cvar(const std::string& name, float value)
+{
+	auto cvar = Cvar_FindVar(const_cast<char*>(name.c_str()));
+	float default_value;
+	sscanf(cvar->defaultvalue, "%f", &default_value);
+
+	return cvar != NULL && default_value != value;
+}
+
 void DrawFrameState(int& y, const PlaybackInfo& info)
 {
 	if(!tas_hud_state.value || info.last_frame == 0 || !tas_playing.value)
@@ -45,7 +54,8 @@ void DrawFrameState(int& y, const PlaybackInfo& info)
 		}
 		else
 		{
-			Draw(y, &tas_hud_state, "%s %.3f", cvar.first.c_str(), cvar.second);
+			if(Should_Print_Cvar(cvar.first, cvar.second))
+				Draw(y, &tas_hud_state, "%s %.3f", cvar.first.c_str(), cvar.second);
 		}
 	}
 
@@ -53,7 +63,7 @@ void DrawFrameState(int& y, const PlaybackInfo& info)
 	{
 		for (auto& cvar : info.current_block->convars)
 		{
-			if (!info.stacked->HasConvar(cvar.first))
+			if (!info.stacked->HasConvar(cvar.first) && Should_Print_Cvar(cvar.first, cvar.second))
 			{
 				Draw(y, &tas_hud_state, "%s -> %.3f", cvar.first.c_str(), cvar.second);
 			}

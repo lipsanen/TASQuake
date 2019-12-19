@@ -97,7 +97,7 @@ static FrameBlock* GetBlockForFrame()
 		Con_Printf("Cannot add blocks to an empty script!\n");
 		return nullptr;
 	}
-		
+
 
 	if (current_block < current_script.blocks.size() && 
 		current_script.blocks[current_block].frame == current_frame)
