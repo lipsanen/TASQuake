@@ -136,6 +136,39 @@ static double MaxAccelTheta(const PlayerData& data)
 	return 0.0;
 }
 
+static double MaxAngleTheta(const PlayerData& data)
+{
+	double accelspeed = data.accelerate * data.wishspeed * data.frameTime;
+	if (accelspeed <= 0)
+	{
+		accelspeed *= -1;
+		double wishspeed_capped = data.onGround ? data.wishspeed : 30;
+
+		if (accelspeed >= data.vel2d)
+		{
+			if(wishspeed_capped >= data.vel2d)
+				return 0;
+			else
+				return std::acos(wishspeed_capped / data.vel2d);
+		}
+		else
+		{
+			if (wishspeed_capped >= data.vel2d)
+				return std::acos(accelspeed / data.vel2d);
+			else {
+				return std::acos(min(accelspeed, wishspeed_capped) / data.vel2d);
+			}
+		}
+	}
+	else
+	{
+		if (accelspeed >= data.vel2d)
+			return M_PI;
+		else
+			return std::acos(-1 * accelspeed / data.vel2d);
+	}
+}
+
 static double MaxAccelIntoYawAngle(const PlayerData& data)
 {
 	double target_theta = tas_strafe_yaw.value * M_DEG2RAD;
@@ -146,10 +179,34 @@ static double MaxAccelIntoYawAngle(const PlayerData& data)
 	return out;
 }
 
+static double MaxAngleIntoYawAngle(const PlayerData& data)
+{
+	double target_theta = tas_strafe_yaw.value * M_DEG2RAD;
+	double theta = MaxAngleTheta(data);
+	double diff = NormalizeRad(target_theta - data.vel_theta);
+	double out = std::copysign(theta, diff) * M_RAD2DEG;
+
+	return out;
+}
+
 static double StrafeMaxAccel()
 {
 	auto data = GetPlayerData();
 	double yaw = MaxAccelIntoYawAngle(data);
+
+	float lookdir = tas_strafe_yaw.value + tas_strafe_yaw_offset.value;
+	lookdir = NormalizeDeg(lookdir);
+	lookdir = AngleModDeg(lookdir);
+
+	double vel_yaw = data.vel_theta * M_RAD2DEG;
+
+	return vel_yaw + yaw;
+}
+
+static double StrafeMaxAngle()
+{
+	auto data = GetPlayerData();
+	double yaw = MaxAngleIntoYawAngle(data);
 
 	float lookdir = tas_strafe_yaw.value + tas_strafe_yaw_offset.value;
 	lookdir = NormalizeDeg(lookdir);
@@ -235,25 +292,30 @@ void Strafe(usercmd_t* cmd)
 
 	SetView();
 
-	if (tas_strafe.value == 0)
-		return;
-
-	if (strafeType == StrafeType::MaxAccel)
+	if(tas_strafe.value)
 	{
-		strafe_yaw = StrafeMaxAccel();
-		strafe = true;
-	}
-	else if (strafeType == StrafeType::Straight)
-	{
-		strafe_yaw = StrafeStraight();
-		strafe = true;
-	}
+		if (strafeType == StrafeType::MaxAccel)
+		{
+			strafe_yaw = StrafeMaxAccel();
+			strafe = true;
+		}
+		else if (strafeType == StrafeType::MaxAngle)
+		{
+			strafe_yaw = StrafeMaxAngle();
+			strafe = true;
+		}
+		else if (strafeType == StrafeType::Straight)
+		{
+			strafe_yaw = StrafeStraight();
+			strafe = true;
+		}
 
-	if (strafe)
-	{
-		StrafeInto(cmd, strafe_yaw);
-	}
+		if (strafe)
+		{
+			StrafeInto(cmd, strafe_yaw);
+		}
 
+	}
 
 	if (print_moves)
 	{
