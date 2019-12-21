@@ -938,8 +938,9 @@ void SCR_UpdateScreen (void)
 	SCR_SetUpToDrawConsole ();
 
 	V_RenderView ();
-
+	
 	SCR_SetupAutoID ();
+	R_RenderOverlay();
 
 	GL_Set2D ();
 

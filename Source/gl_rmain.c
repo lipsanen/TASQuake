@@ -93,6 +93,10 @@ cvar_t	r_drawflame = {"r_drawflame", "1"};
 cvar_t	r_farclip = {"r_farclip", "4096"};
 qboolean OnChange_r_skybox (cvar_t *var, char *string);
 cvar_t	r_skybox = {"r_skybox", "", 0, OnChange_r_skybox};
+cvar_t  r_overlay = { "r_overlay", "0" };
+cvar_t  r_overlay_pos = { "r_overlay_pos", "0" };
+cvar_t  r_overlay_width = { "r_overlay_width", "320" };
+cvar_t  r_overlay_mode = { "r_overlay_mode", "0"};
 
 cvar_t	gl_clear = {"gl_clear", "0"};
 cvar_t	gl_cull = {"gl_cull", "1"};
@@ -141,6 +145,7 @@ cvar_t	gl_decal_sparks = {"gl_decal_sparks", "0"};
 cvar_t	gl_decal_explosions = {"gl_decal_explosions", "0"};
 
 int		lightmode = 2;
+static qboolean in_overlay = false;
 
 void R_MarkLeaves (void);
 void R_InitBubble (void);
@@ -2331,7 +2336,8 @@ void R_SetupGL (void)
 
 	w = x2 - x;
 	h = y - y2;
-
+	
+	if(!in_overlay)
 	{
 		NQ_CalculateVirtualDisplaySize();
 		glViewport(glx, gly, glwidth, glheight);
@@ -2396,6 +2402,10 @@ void R_Init (void)
 	Cvar_Register (&r_drawflame);
 	Cvar_Register (&r_skybox);
 	Cvar_Register (&r_farclip);
+	Cvar_Register (&r_overlay);
+	Cvar_Register (&r_overlay_mode);
+	Cvar_Register (&r_overlay_pos);
+	Cvar_Register (&r_overlay_width);
 
 	Cvar_Register (&gl_finish);
 	Cvar_Register (&gl_clear);
@@ -2512,7 +2522,7 @@ void R_Clear (void)
 
 	if (gl_ztrick.value)
 	{
-		if (clearbits)
+		if (clearbits && !in_overlay)
 			glClear (clearbits);
 
 		gl_ztrickframe = !gl_ztrickframe;
@@ -2532,18 +2542,27 @@ void R_Clear (void)
 	else
 	{
 		clearbits |= GL_DEPTH_BUFFER_BIT;
-		glClear (clearbits);
-		gldepthmin = 0;
+		if (!in_overlay)
+			glClear (clearbits);
+		gldepthmin = 0.5;
 		gldepthmax = 1;
 		glDepthFunc (GL_LEQUAL);
 	}
 
-	glDepthRange (gldepthmin, gldepthmax);
+	if (in_overlay)
+	{
+		float range = gldepthmax - gldepthmin;
+		float offs = 0.5;
+		glDepthRange(gldepthmin - offs, gldepthmin - offs + range);
+	}	
+	else
+		glDepthRange (gldepthmin, gldepthmax);
 
 	if (r_shadows.value == 2)
 	{
 		glClearStencil (GL_TRUE);
-		glClear (GL_STENCIL_BUFFER_BIT);
+		if (!in_overlay)
+			glClear (GL_STENCIL_BUFFER_BIT);
 	}
 }
 
@@ -2586,4 +2605,135 @@ void R_RenderView (void)
 		time2 = Sys_DoubleTime ();
 		Con_Printf ("%3i ms  %4i wpoly %4i epoly %4i md3poly\n", (int)((time2 - time1) * 1000), c_brush_polys, c_alias_polys, c_md3_polys);
 	}
+}
+
+static void Clear_Screen()
+{
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0, vid.width, vid.height, 0, -99999, 99999);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_BLEND);
+	glEnable(GL_ALPHA_TEST);
+
+	glColor3ubv(color_white);
+	Draw_Fill(0, 0, vid.width, vid.height, 0);
+
+	glDisable(GL_BLEND);
+	glDisable(GL_ALPHA_TEST);
+	glEnable(GL_DEPTH_TEST);
+}
+
+static void Draw_Overlay_Crosshair(void)
+{
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0, vid.width, vid.height, 0, -99999, 99999);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_BLEND);
+	glEnable(GL_ALPHA_TEST);
+
+	glColor3ubv(color_white);
+
+	const float xhair_w = 4;
+	const float xhair_h = 4;
+	Draw_Fill(vid.width / 2 - xhair_w / 2, vid.height / 2 - xhair_h / 2, xhair_w, xhair_h, 10);
+
+	glDisable(GL_BLEND);
+	glDisable(GL_ALPHA_TEST);
+	glEnable(GL_DEPTH_TEST);
+}
+
+static void Setup_Overlay_Viewport(vec3_t orig_vieworg)
+{
+	vec3_t fwd;
+	vec3_t endp;
+	vec3_t lgfwd;
+	vec3_t origin;
+
+	VectorCopy(r_refdef.vieworg, origin);
+	origin[2] -= 6;
+
+	float asp = (float)glwidth / glheight;
+	int width = (int)r_overlay_width.value;
+	int height = (int)(width / asp);
+	int position = (int)r_overlay_pos.value;
+
+	VectorCopy(r_refdef.vieworg, orig_vieworg);
+	AngleVectors(cl.viewangles, fwd, NULL, NULL);
+	VectorScale(fwd, 600, lgfwd);
+	VectorCopy(origin, endp);
+	VectorAdd(endp, lgfwd, endp);
+	vec3_t diff;
+	trace_t tr = SV_Move(origin, vec3_origin, vec3_origin, endp, 0, sv_player);
+
+	if (tr.fraction < 1)
+	{
+		VectorCopy(tr.endpos, endp);
+	}
+
+	VectorScale(fwd, 4, fwd);
+	VectorAdd(endp, fwd, endp);
+	VectorSubtract(endp, origin, diff);
+	float length = VectorLength(diff);
+
+	if (r_overlay_mode.value == 0)
+	{
+		r_refdef.vieworg[0] = origin[0] - diff[1] * 16;
+		r_refdef.vieworg[1] = origin[1] - diff[1] * 16;
+		r_refdef.vieworg[2] = origin[2];
+	}
+	else
+	{
+		r_refdef.vieworg[0] = origin[0] + diff[1] * 16;
+		r_refdef.vieworg[1] = origin[1] + diff[1] * 16;
+		r_refdef.vieworg[2] = origin[2];
+	}
+
+
+	switch (position)
+	{
+	case 0:
+		glViewport(0, 0, width, height);
+		break;
+	case 1:
+		glViewport(glwidth - width, 0, width, height);
+		break;
+	case 2:
+		glViewport(glwidth - width, glheight - height, width, height);
+		break;
+	case 3:
+		glViewport(0, glheight - height, width, height);
+		break;
+	default:
+		glViewport(0, 0, width, height);
+		break;
+	}
+}
+
+void R_RenderOverlay(void)
+{
+	if (cls.state != ca_connected || !r_overlay.value)
+		return;
+
+	in_overlay = true;
+	vec3_t orig_vieworg;
+	Setup_Overlay_Viewport(orig_vieworg);
+	
+	Clear_Screen();
+
+	R_RenderView();
+	VectorCopy(orig_vieworg, r_refdef.vieworg);
+	in_overlay = false;
+	Draw_Overlay_Crosshair();
 }
