@@ -47,6 +47,7 @@ void SV_Init (void)
 	Cvar_Register (&sv_idealpitchscale);
 	Cvar_Register (&sv_aim);
 	Cvar_Register (&sv_nostep);
+	Cvar_Register (&r_nopvs);
 
 	for (i=0 ; i<MAX_MODELS ; i++)
 		sprintf (localmodels[i], "*%i", i);
@@ -335,6 +336,7 @@ crosses a waterline.
 
 int	fatbytes;
 byte	fatpvs[MAX_MAP_LEAFS/8];
+cvar_t  r_nopvs = {"r_nopvs", "0"};
 
 void SV_AddToFatPVS (vec3_t org, mnode_t *node)
 {
@@ -359,7 +361,13 @@ void SV_AddToFatPVS (vec3_t org, mnode_t *node)
 	
 		plane = node->plane;
 		d = PlaneDiff (org, plane);
-		if (d > 8)
+
+		if (r_nopvs.value)
+		{
+			SV_AddToFatPVS(org, node->children[0]);
+			node = node->children[1];
+		}
+		else if (d > 8)
 			node = node->children[0];
 		else if (d < -8)
 			node = node->children[1];

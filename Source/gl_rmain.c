@@ -2689,14 +2689,14 @@ static void Setup_Overlay_Viewport(vec3_t orig_vieworg)
 
 	if (r_overlay_mode.value == 0)
 	{
-		r_refdef.vieworg[0] = origin[0] - diff[1] * 16;
-		r_refdef.vieworg[1] = origin[1] - diff[1] * 16;
+		r_refdef.vieworg[0] = bound(-4096, origin[0] - diff[1] * 16, 4096);
+		r_refdef.vieworg[1] = bound(-4096, origin[1] - diff[1] * 16, 4096);
 		r_refdef.vieworg[2] = origin[2];
 	}
 	else
 	{
-		r_refdef.vieworg[0] = origin[0] + diff[1] * 16;
-		r_refdef.vieworg[1] = origin[1] + diff[1] * 16;
+		r_refdef.vieworg[0] = bound(-4096, origin[0] + diff[1] * 16, 4096);
+		r_refdef.vieworg[1] = bound(-4096, origin[1] + diff[1] * 16, 4096);
 		r_refdef.vieworg[2] = origin[2];
 	}
 
