@@ -111,7 +111,7 @@ PlayerData GetPlayerData()
 	if(!IsZero(data.vel2d))
 		data.vel_theta = NormalizeRad(std::atan2(data.velocity[1], data.velocity[0]));
 	else
-		data.vel_theta = NormalizeRad(tas_strafe_yaw.value);
+		data.vel_theta = NormalizeRad(tas_strafe_yaw.value * M_DEG2RAD);
 
 	return data;
 }
