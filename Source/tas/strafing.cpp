@@ -85,7 +85,7 @@ StrafeVars Get_Default_Vars()
 	vars.host_frametime = host_frametime;
 	vars.tas_anglespeed = tas_anglespeed.value;
 	vars.tas_strafe = (int)tas_strafe.value;
-	vars.tas_strafe_type = (StrafeType)tas_strafe_type.value;
+	vars.tas_strafe_type = static_cast<StrafeType>((int)tas_strafe_type.value);
 	vars.tas_strafe_yaw = (float)tas_strafe_yaw.value;
 	vars.tas_view_pitch = (float)tas_view_pitch.value;
 	vars.tas_view_yaw = (float)tas_view_yaw.value;
@@ -295,7 +295,7 @@ void SetView(float* yaw, float* pitch, const StrafeVars& vars)
 
 	*yaw = NormalizeDeg(*yaw);
 	float tas_yaw = NormalizeDeg(vars.tas_view_yaw);
-	float strafe_yaw = NormalizeDeg(strafe_yaw);
+	float strafe_yaw = NormalizeDeg(vars.tas_strafe_yaw);
 
 	if (vars.tas_view_yaw != INVALID_ANGLE)
 	{
@@ -310,16 +310,16 @@ void SetView(float* yaw, float* pitch, const StrafeVars& vars)
 void Strafe(usercmd_t* cmd)
 {
 	auto vars = Get_Default_Vars();
-	StrafeSim(cmd, &cl.viewangles[PITCH], &cl.viewangles[YAW], vars);
+	StrafeSim(cmd, &cl.viewangles[YAW], &cl.viewangles[PITCH], vars);
 }
 
-void StrafeSim(usercmd_t* cmd, float *pitch, float *yaw, const StrafeVars& vars)
+void StrafeSim(usercmd_t* cmd, float *yaw, float *pitch, const StrafeVars& vars)
 {
 	double strafe_yaw = 0;
 	bool strafe = false;
-	SetView(pitch, yaw, vars);
+	SetView(yaw, pitch, vars);
 
-	if(strafe)
+	if(vars.tas_strafe)
 	{
 		if (vars.tas_strafe_type == StrafeType::MaxAccel)
 		{

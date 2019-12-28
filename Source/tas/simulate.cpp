@@ -60,6 +60,8 @@ trace_t SV_PushEntity(edict_t *ent, vec3_t push)
 	return trace;
 }
 
+int SV_FlyMove(edict_t *ent, float time, trace_t *steptrace);
+
 int SV_TryUnstick(edict_t *ent, vec3_t oldvel)
 {
 	int	i, clip;
@@ -620,11 +622,7 @@ void PlayerPhysics(SimulationInfo& info)
 
 void Simulate_SV_ClientThink(SimulationInfo& info)
 {
-	vec3_t v_angle;
-	vec3_t origin;
-	bool onground;
 	usercmd_t cmd;
-	float angles[3];
 
 	info.ent.v.v_angle[ROLL] = 0;
 	info.ent.v.v_angle[PITCH] = info.pitch;

@@ -42,7 +42,7 @@ struct StrafeVars
 
 PlayerData GetPlayerData();
 PlayerData GetPlayerData(edict_t* player, const StrafeVars& vars);
-void StrafeSim(usercmd_t* cmd, float *pitch, float *yaw, const StrafeVars& vars);
+void StrafeSim(usercmd_t* cmd, float *yaw, float *pitch, const StrafeVars& vars);
 void Strafe(usercmd_t* cmd);
 void Strafe_Jump_Check();
 void IN_TAS_Jump_Down(void);
