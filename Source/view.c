@@ -63,9 +63,9 @@ cvar_t	show_stats_small = {"show_stats_small", "0"};
 cvar_t	show_stats_length = {"show_stats_length", "0.5"};
 
 cvar_t	cl_rollspeed = {"cl_rollspeed", "200"};
-cvar_t	cl_rollangle = {"cl_rollangle", "2.0"};
+cvar_t	cl_rollangle = {"cl_rollangle", "0"};
 
-cvar_t	cl_bob = {"cl_bob", "0.02"};
+cvar_t	cl_bob = {"cl_bob", "0"};
 cvar_t	cl_bobcycle = {"cl_bobcycle", "0.6"};
 cvar_t	cl_bobup = {"cl_bobup", "0.5"};
 
