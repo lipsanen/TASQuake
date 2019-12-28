@@ -12,6 +12,7 @@ cvar_t tas_strafe_lgagst_speed = { "tas_strafe_lgagst_speed", "460" };
 cvar_t tas_view_yaw = { "tas_view_yaw", "999" };
 cvar_t tas_view_pitch = { "tas_view_pitch", "999" };
 cvar_t tas_anglespeed = { "tas_anglespeed", "5" };
+cvar_t tas_strafe_version = { "tas_strafe_version", "2"};
 const float INVALID_ANGLE = 999;
 
 static bool shouldJump = false;
@@ -111,7 +112,13 @@ PlayerData GetPlayerData()
 	if(!IsZero(data.vel2d))
 		data.vel_theta = NormalizeRad(std::atan2(data.velocity[1], data.velocity[0]));
 	else
-		data.vel_theta = NormalizeRad(tas_strafe_yaw.value * M_DEG2RAD);
+	{
+		if(tas_strafe_version.value == 1)
+			data.vel_theta = NormalizeRad(tas_strafe_yaw.value); // Old bugged vel theta calculation
+		else
+			data.vel_theta = NormalizeRad(tas_strafe_yaw.value * M_DEG2RAD);
+	}
+		
 
 	return data;
 }
