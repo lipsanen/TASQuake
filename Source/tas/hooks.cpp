@@ -134,6 +134,7 @@ void TAS_Init()
 	Cvar_Register(&tas_hud_pos_y);
 	Cvar_Register(&tas_hud_vel);
 	Cvar_Register(&tas_hud_vel2d);
+	Cvar_Register(&tas_hud_vel3d);
 	Cvar_Register(&tas_hud_angles);
 	Cvar_Register(&tas_hud_pflags);
 	Cvar_Register(&tas_hud_waterlevel);

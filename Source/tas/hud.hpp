@@ -5,6 +5,7 @@
 extern cvar_t tas_hud_pos;
 extern cvar_t tas_hud_vel;
 extern cvar_t tas_hud_vel2d;
+extern cvar_t tas_hud_vel3d;
 extern cvar_t tas_hud_angles;
 extern cvar_t tas_hud_pflags;
 extern cvar_t tas_hud_frame;
