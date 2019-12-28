@@ -26,7 +26,22 @@ extern cvar_t tas_anglespeed;
 extern const float INVALID_ANGLE;
 enum class StrafeType { None = 0, MaxAccel = 1, MaxAngle = 2, Straight = 3 };
 
+struct StrafeVars
+{
+	float tas_view_yaw;
+	float tas_view_pitch;
+	int tas_strafe;
+	float tas_strafe_yaw;
+	StrafeType tas_strafe_type;
+	float tas_anglespeed;
+	double host_frametime;
+
+	StrafeVars();
+};
+
 PlayerData GetPlayerData();
+PlayerData GetPlayerData(edict_t* player, const StrafeVars& vars);
+void StrafeSim(usercmd_t* cmd, float *pitch, float *yaw, const StrafeVars& vars);
 void Strafe(usercmd_t* cmd);
 void Strafe_Jump_Check();
 void IN_TAS_Jump_Down(void);

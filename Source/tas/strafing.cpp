@@ -78,17 +78,36 @@ static float Get_EntFriction(float* vel, float* player_origin)
 		return 1;
 }
 
+StrafeVars Get_Default_Vars()
+{
+	StrafeVars vars;
+	vars.host_frametime = host_frametime;
+	vars.tas_anglespeed = tas_anglespeed.value;
+	vars.tas_strafe = (int)tas_strafe.value;
+	vars.tas_strafe_type = (StrafeType)tas_strafe_type.value;
+	vars.tas_strafe_yaw = (float)tas_strafe_yaw.value;
+	vars.tas_view_pitch = (float)tas_view_pitch.value;
+	vars.tas_view_yaw = (float)tas_view_yaw.value;
+	return vars;
+}
+
 PlayerData GetPlayerData()
+{
+	StrafeVars vars = Get_Default_Vars();
+	return GetPlayerData(sv_player, vars);
+}
+
+PlayerData GetPlayerData(edict_t* player, const StrafeVars& vars)
 {
 	PlayerData data;
 	
-	memcpy(data.origin, sv_player->v.origin, sizeof(float) * 3);
-	memcpy(data.velocity, sv_player->v.velocity, sizeof(float) * 3);
+	memcpy(data.origin, player->v.origin, sizeof(float) * 3);
+	memcpy(data.velocity, player->v.velocity, sizeof(float) * 3);
 
-	data.onGround = ((int)sv_player->v.flags & FL_ONGROUND) != 0;
+	data.onGround = ((int)player->v.flags & FL_ONGROUND) != 0;
 	data.accelerate = sv_accelerate.value;
 	data.entFriction = Get_EntFriction(data.velocity, data.origin);
-	data.frameTime = host_frametime;
+	data.frameTime = vars.host_frametime;
 	data.wishspeed = sv_maxspeed.value;
 	float vel2d = std::sqrt(data.velocity[0] * data.velocity[0] + data.velocity[1] * data.velocity[1]);
 
@@ -111,12 +130,12 @@ PlayerData GetPlayerData()
 	if(!IsZero(data.vel2d))
 		data.vel_theta = NormalizeRad(std::atan2(data.velocity[1], data.velocity[0]));
 	else
-		data.vel_theta = NormalizeRad(tas_strafe_yaw.value * M_DEG2RAD);
+		data.vel_theta = NormalizeRad(vars.tas_strafe_yaw * M_DEG2RAD);
 
 	return data;
 }
 
-static double MaxAccelTheta(const PlayerData& data)
+static double MaxAccelTheta(const PlayerData& data, const StrafeVars& vars)
 {
 	double accelspeed = data.accelerate * data.wishspeed * data.frameTime;
 	if (accelspeed <= 0)
@@ -136,7 +155,7 @@ static double MaxAccelTheta(const PlayerData& data)
 	return 0.0;
 }
 
-static double MaxAngleTheta(const PlayerData& data)
+static double MaxAngleTheta(const PlayerData& data, const StrafeVars& vars)
 {
 	double accelspeed = data.accelerate * data.wishspeed * data.frameTime;
 	if (accelspeed <= 0)
@@ -169,62 +188,62 @@ static double MaxAngleTheta(const PlayerData& data)
 	}
 }
 
-static double MaxAccelIntoYawAngle(const PlayerData& data)
+static double MaxAccelIntoYawAngle(const PlayerData& data, const StrafeVars& vars)
 {
-	double target_theta = tas_strafe_yaw.value * M_DEG2RAD;
-	double theta = MaxAccelTheta(data);
+	double target_theta = vars.tas_strafe_yaw * M_DEG2RAD;
+	double theta = MaxAccelTheta(data, vars);
 	double diff = NormalizeRad(target_theta - data.vel_theta);
 	double out = std::copysign(theta, diff) * M_RAD2DEG;
 
 	return out;
 }
 
-static double MaxAngleIntoYawAngle(const PlayerData& data)
+static double MaxAngleIntoYawAngle(const PlayerData& data, const StrafeVars& vars)
 {
-	double target_theta = tas_strafe_yaw.value * M_DEG2RAD;
-	double theta = MaxAngleTheta(data);
+	double target_theta = vars.tas_strafe_yaw * M_DEG2RAD;
+	double theta = MaxAngleTheta(data, vars);
 	double diff = NormalizeRad(target_theta - data.vel_theta);
 	double out = std::copysign(theta, diff) * M_RAD2DEG;
 
 	return out;
 }
 
-static double StrafeMaxAccel()
+static double StrafeMaxAccel(const StrafeVars& vars)
 {
-	auto data = GetPlayerData();
-	double yaw = MaxAccelIntoYawAngle(data);
+	auto data = GetPlayerData(sv_player, vars);
+	double yaw = MaxAccelIntoYawAngle(data, vars);
 
-	float lookdir = tas_strafe_yaw.value + tas_strafe_yaw_offset.value;
-	lookdir = NormalizeDeg(lookdir);
-	lookdir = AngleModDeg(lookdir);
+	float target_dir = vars.tas_strafe_yaw;
+	target_dir = NormalizeDeg(target_dir);
+	target_dir = AngleModDeg(target_dir);
 
 	double vel_yaw = data.vel_theta * M_RAD2DEG;
 
 	return vel_yaw + yaw;
 }
 
-static double StrafeMaxAngle()
+static double StrafeMaxAngle(const StrafeVars& vars)
 {
-	auto data = GetPlayerData();
-	double yaw = MaxAngleIntoYawAngle(data);
+	auto data = GetPlayerData(sv_player, vars);
+	double yaw = MaxAngleIntoYawAngle(data, vars);
 
-	float lookdir = tas_strafe_yaw.value + tas_strafe_yaw_offset.value;
-	lookdir = NormalizeDeg(lookdir);
-	lookdir = AngleModDeg(lookdir);
+	float target_dir = vars.tas_strafe_yaw;
+	target_dir = NormalizeDeg(target_dir);
+	target_dir = AngleModDeg(target_dir);
 
 	double vel_yaw = data.vel_theta * M_RAD2DEG;
 
 	return vel_yaw + yaw;
 }
 
-static double StrafeStraight()
+static double StrafeStraight(const StrafeVars& vars)
 {
-	return tas_strafe_yaw.value;
+	return vars.tas_strafe_yaw;
 }
 
-void StrafeInto(usercmd_t* cmd, double yaw)
+void StrafeInto(usercmd_t* cmd, double yaw, float view_yaw)
 {
-	double lookyaw = NormalizeDeg(cl.viewangles[YAW]);
+	double lookyaw = NormalizeDeg(view_yaw);
 	double diff = NormalizeDeg(lookyaw - yaw) * M_DEG2RAD;
 
 	double fmove = std::cos(diff) * sv_maxspeed.value;
@@ -234,7 +253,7 @@ void StrafeInto(usercmd_t* cmd, double yaw)
 	cmd->sidemove = smove;
 }
 
-float MoveViewTowards(float target, float current, bool yaw)
+float MoveViewTowards(float target, float current, bool yaw, const StrafeVars& vars)
 {
 	float diff;
 	if(yaw)
@@ -243,11 +262,11 @@ float MoveViewTowards(float target, float current, bool yaw)
 		diff = target - current;
 	float abs_diff = std::abs(diff);
 
-	if(abs_diff < tas_anglespeed.value)
+	if(abs_diff < vars.tas_anglespeed)
 		current = target;
 	else
 	{
-		abs_diff = min(abs_diff, tas_anglespeed.value);
+		abs_diff = min(abs_diff, vars.tas_anglespeed);
 		current += std::copysign(abs_diff, diff);
 	}
 	
@@ -258,71 +277,66 @@ float MoveViewTowards(float target, float current, bool yaw)
 
 }
 
-void SetView()
+void SetView(float* yaw, float* pitch, const StrafeVars& vars)
 {
 	if(sv.paused || tas_gamestate == paused || key_dest != key_game)
 		return;
 
-	float pitch = cl.viewangles[PITCH];
-
-	if (tas_view_pitch.value != INVALID_ANGLE)
+	if (vars.tas_view_pitch != INVALID_ANGLE)
 	{
-		cl.viewangles[PITCH] = MoveViewTowards(tas_view_pitch.value, pitch, false);
+		*pitch = MoveViewTowards(vars.tas_view_pitch, *pitch, false, vars);
 	}
 
-	float yaw = NormalizeDeg(cl.viewangles[YAW]);
-	float tas_yaw = NormalizeDeg(tas_view_yaw.value);
-	float strafe_yaw = NormalizeDeg(tas_strafe_yaw.value);
+	*yaw = NormalizeDeg(*yaw);
+	float tas_yaw = NormalizeDeg(vars.tas_view_yaw);
+	float strafe_yaw = NormalizeDeg(strafe_yaw);
 
-	if (tas_view_yaw.value != INVALID_ANGLE)
+	if (vars.tas_view_yaw != INVALID_ANGLE)
 	{
-		cl.viewangles[YAW] = MoveViewTowards(tas_yaw, yaw, true);
+		*yaw = MoveViewTowards(tas_yaw, *yaw, true, vars);
 	}
-	else if (tas_strafe.value != 0 && tas_view_yaw.value == INVALID_ANGLE)
+	else if (vars.tas_strafe != 0 && vars.tas_view_yaw == INVALID_ANGLE)
 	{
-		cl.viewangles[YAW] = MoveViewTowards(strafe_yaw, yaw, true);
+		*yaw = MoveViewTowards(strafe_yaw, *yaw, true, vars);
 	}
 }
 
 void Strafe(usercmd_t* cmd)
 {
-	StrafeType strafeType = (StrafeType)static_cast<int>(tas_strafe_type.value);
+	auto vars = Get_Default_Vars();
+	StrafeSim(cmd, &cl.viewangles[PITCH], &cl.viewangles[YAW], vars);
+}
+
+void StrafeSim(usercmd_t* cmd, float *pitch, float *yaw, const StrafeVars& vars)
+{
 	double strafe_yaw = 0;
 	bool strafe = false;
+	SetView(pitch, yaw, vars);
 
-	SetView();
-
-	if(tas_strafe.value)
+	if(strafe)
 	{
-		if (strafeType == StrafeType::MaxAccel)
+		if (vars.tas_strafe_type == StrafeType::MaxAccel)
 		{
-			strafe_yaw = StrafeMaxAccel();
+			strafe_yaw = StrafeMaxAccel(vars);
 			strafe = true;
 		}
-		else if (strafeType == StrafeType::MaxAngle)
+		else if (vars.tas_strafe_type == StrafeType::MaxAngle)
 		{
-			strafe_yaw = StrafeMaxAngle();
+			strafe_yaw = StrafeMaxAngle(vars);
 			strafe = true;
 		}
-		else if (strafeType == StrafeType::Straight)
+		else if (vars.tas_strafe_type == StrafeType::Straight)
 		{
-			strafe_yaw = StrafeStraight();
+			strafe_yaw = StrafeStraight(vars);
 			strafe = true;
 		}
 
 		if (strafe)
 		{
-			StrafeInto(cmd, strafe_yaw);
+			StrafeInto(cmd, strafe_yaw, *yaw);
 		}
 
 	}
-
-	if (print_moves)
-	{
-		Con_Printf("fmove: %.3f, smove %.3f, yaw %.3f\n", cmd->forwardmove, cmd->sidemove, cmd->viewangles[PITCH]);
-		print_moves = false;
-	}
-
 }
 
 void Strafe_Jump_Check()
@@ -357,4 +371,8 @@ void Strafe_Jump_Check()
 		Con_Printf("pos (%.3f, %.3f, %.3f)\n", data.origin[0], data.origin[1], data.origin[2]);
 	}
 
+}
+
+StrafeVars::StrafeVars()
+{
 }
