@@ -39,7 +39,7 @@ double ToQuakeAngle(double a)
 
 float AngleModDeg(float deg)
 {
-	int number = static_cast<int>(deg * 65536.0 / 360.0) & 65535;
+	short number = Q_rint(deg * 65536.0 / 360.0) & 65535;
 	return number * (360.0 / 65536);
 }
 

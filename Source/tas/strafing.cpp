@@ -1,8 +1,9 @@
-#include "strafing.hpp"
+﻿#include "strafing.hpp"
 #include <cmath>
 #include "afterframes.hpp"
 #include "utils.hpp"
 #include "hooks.h"
+#include "simulate.hpp"
 
 cvar_t tas_strafe = { "tas_strafe", "0" };
 cvar_t tas_strafe_type = { "tas_strafe_type", "1" };
@@ -79,7 +80,7 @@ static float Get_EntFriction(float* vel, float* player_origin)
 		return 1;
 }
 
-StrafeVars Get_Default_Vars()
+StrafeVars Get_Current_Vars()
 {
 	StrafeVars vars;
 	vars.host_frametime = host_frametime;
@@ -94,7 +95,7 @@ StrafeVars Get_Default_Vars()
 
 PlayerData GetPlayerData()
 {
-	StrafeVars vars = Get_Default_Vars();
+	StrafeVars vars = Get_Current_Vars();
 	return GetPlayerData(sv_player, vars);
 }
 
@@ -214,9 +215,9 @@ static double MaxAngleIntoYawAngle(const PlayerData& data, const StrafeVars& var
 	return out;
 }
 
-static double StrafeMaxAccel(const StrafeVars& vars)
+static double StrafeMaxAccel(edict_t* player, const StrafeVars& vars)
 {
-	auto data = GetPlayerData(sv_player, vars);
+	auto data = GetPlayerData(player, vars);
 	double yaw = MaxAccelIntoYawAngle(data, vars);
 
 	float target_dir = vars.tas_strafe_yaw;
@@ -228,9 +229,9 @@ static double StrafeMaxAccel(const StrafeVars& vars)
 	return vel_yaw + yaw;
 }
 
-static double StrafeMaxAngle(const StrafeVars& vars)
+static double StrafeMaxAngle(edict_t* player, const StrafeVars& vars)
 {
-	auto data = GetPlayerData(sv_player, vars);
+	auto data = GetPlayerData(player, vars);
 	double yaw = MaxAngleIntoYawAngle(data, vars);
 
 	float target_dir = vars.tas_strafe_yaw;
@@ -307,13 +308,33 @@ void SetView(float* yaw, float* pitch, const StrafeVars& vars)
 	}
 }
 
+/*
+static SimulationInfo past;
+static SimulationInfo present;*/
+
+
 void Strafe(usercmd_t* cmd)
 {
-	auto vars = Get_Default_Vars();
-	StrafeSim(cmd, &cl.viewangles[YAW], &cl.viewangles[PITCH], vars);
+	auto vars = Get_Current_Vars();
+	StrafeSim(cmd, sv_player, &cl.viewangles[YAW], &cl.viewangles[PITCH], vars);
+	/*
+	present = Get_Current_Status();
+	past.jump = (in_jump.state & 3) || (in_jump.state & 1);
+	present.jump = (in_jump.state & 3) || (in_jump.state & 1);
+	past.fmove = cmd->forwardmove;
+	present.fmove = cmd->forwardmove;
+	past.smove = cmd->sidemove;
+	present.smove = cmd->sidemove;
+	past.upmove = cmd->upmove;
+	present.upmove = cmd->upmove;
+
+	VectorCopy(cl.viewangles, past.angles);
+	VectorCopy(cl.viewangles, present.angles);
+	SimulateFrame(past);
+	SimulateFrame(present);*/
 }
 
-void StrafeSim(usercmd_t* cmd, float *yaw, float *pitch, const StrafeVars& vars)
+void StrafeSim(usercmd_t* cmd, edict_t* player, float *yaw, float *pitch, const StrafeVars& vars)
 {
 	double strafe_yaw = 0;
 	bool strafe = false;
@@ -323,12 +344,12 @@ void StrafeSim(usercmd_t* cmd, float *yaw, float *pitch, const StrafeVars& vars)
 	{
 		if (vars.tas_strafe_type == StrafeType::MaxAccel)
 		{
-			strafe_yaw = StrafeMaxAccel(vars);
+			strafe_yaw = StrafeMaxAccel(player, vars);
 			strafe = true;
 		}
 		else if (vars.tas_strafe_type == StrafeType::MaxAngle)
 		{
-			strafe_yaw = StrafeMaxAngle(vars);
+			strafe_yaw = StrafeMaxAngle(player, vars);
 			strafe = true;
 		}
 		else if (vars.tas_strafe_type == StrafeType::Straight)
@@ -345,20 +366,65 @@ void StrafeSim(usercmd_t* cmd, float *yaw, float *pitch, const StrafeVars& vars)
 	}
 }
 
+/*
+void CheckDiff(vec3_t orig, vec3_t pred, const char* name)
+{
+	vec3_t vel_diff;
+	VectorCopy(orig, vel_diff);
+	VectorScale(vel_diff, -1, vel_diff);
+	VectorAdd(vel_diff, pred, vel_diff);
+	float length = VectorLength(vel_diff);
+
+	if (length > 0.01)
+	{
+		Con_Printf("%s off by %.3f\n", name, length);
+	}
+}*/
+
+
 void Strafe_Jump_Check()
 {
 	auto data = GetPlayerData();
-	float lgagst = tas_strafe_lgagst_speed.value;
-	bool wantsToJump = (data.vel2d > lgagst && tas_strafe.value == 1 && 
-					    tas_strafe_type.value == (int)StrafeType::MaxAccel && tas_lgagst) 
-						|| autojump;
+	bool wantsToJump = false;
+	/*
+	CheckDiff(sv_player->v.velocity, past.ent.v.velocity, "vel");
+	CheckDiff(sv_player->v.angles, past.ent.v.angles, "angles");
+	past = present;*/
+
+	if (tas_strafe_version.value <= 1)
+	{ // small 🧠 lgagst
+		float lgagst = tas_strafe_lgagst_speed.value;
+		bool wantsToJump = (data.vel2d > lgagst && tas_strafe.value == 1 &&
+			tas_strafe_type.value == (int)StrafeType::MaxAccel);
+	}
+	else
+	{ // big 🧠 lgagst
+		auto vars = Get_Current_Vars();
+		auto jump = Get_Current_Status();
+		auto nojump = jump;
+		jump.jump = true;
+		nojump.jump = false;
+
+		SimulateWithStrafe(jump, vars);
+		SimulateWithStrafe(jump, vars);
+		SimulateWithStrafe(nojump, vars);
+		SimulateWithStrafe(nojump, vars);
+
+		float jumpSpeed = VectorLength2D(jump.ent.v.velocity);
+		float nojumpSpeed = VectorLength2D(nojump.ent.v.velocity);
+
+		wantsToJump = jumpSpeed >= nojumpSpeed;
+	}
+
+	wantsToJump = (wantsToJump && tas_lgagst) || autojump;
+	wantsToJump = wantsToJump && (in_jump.state & 1) == 0 && (in_jump.state & 3) == 0;
 
 	if (wantsToJump && data.onGround)
 	{
 		AddAfterframes(0, "+jump");
 		shouldJump = true;
 	}
-	else if(shouldJump)
+	else if (shouldJump)
 	{
 		AddAfterframes(0, "-jump");
 		shouldJump = false;

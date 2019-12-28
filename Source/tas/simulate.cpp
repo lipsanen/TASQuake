@@ -1,4 +1,6 @@
 #include "simulate.hpp"
+#include "strafing.hpp"
+#include "utils.hpp"
 
 trace_t SV_Move_Proxy(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int type, edict_t *passedict)
 {
@@ -623,13 +625,25 @@ void PlayerPhysics(SimulationInfo& info)
 void Simulate_SV_ClientThink(SimulationInfo& info)
 {
 	usercmd_t cmd;
+	float* angles;
+	float* v_angle;
 
-	info.ent.v.v_angle[ROLL] = 0;
-	info.ent.v.v_angle[PITCH] = info.pitch;
-	info.ent.v.v_angle[YAW] = info.yaw;
+	VectorCopy(info.angles, info.ent.v.v_angle);
 	cmd.forwardmove = info.fmove;
 	cmd.sidemove = info.smove;
 	cmd.upmove = info.upmove;
+
+	
+	angles = info.ent.v.angles;
+	v_angle = info.ent.v.v_angle;
+
+	//VectorAdd(v_angle, info.ent.v.punchangle, v_angle);
+	//angles[ROLL] = V_CalcRoll(info.ent.v.angles, info.ent.v.velocity) * 4;
+	if (!info.ent.v.fixangle)
+	{
+		angles[PITCH] = -v_angle[PITCH] / 3;
+		angles[YAW] = v_angle[YAW];
+	}
 
 	if ((int)info.ent.v.flags & FL_WATERJUMP)
 	{
@@ -646,23 +660,151 @@ void Simulate_SV_ClientThink(SimulationInfo& info)
 	SV_AirMove(&info.ent, cmd, info.hfr, info.time);
 }
 
-SimulationInfo GetCurrentStatus()
+SimulationInfo Get_Current_Status()
 {
 	SimulationInfo info;
 	info.hfr = host_frametime;
 	info.ent = *sv_player;
 	info.time = sv.time;
+	info.jumpflag = sv_player->v.velocity[2];
 	return info;
 }
 
-void SetStrafe(SimulationInfo& info)
+void WaterMove(SimulationInfo& info)
 {
+	if (!info.ent.v.waterlevel)
+	{
+		if(((int)info.ent.v.flags & FL_INWATER) != 0)
+			info.ent.v.flags = (int)info.ent.v.flags - FL_INWATER;
+		return;
+	}
+
+	if (((int)info.ent.v.flags & FL_INWATER) == 0)
+	{
+		info.ent.v.flags = (int)info.ent.v.flags + FL_INWATER;
+	}
+
+	if (((int)info.ent.v.flags & FL_WATERJUMP) == 0)
+	{
+		vec3_t sub;
+		VectorCopy(info.ent.v.velocity, sub);
+		VectorScale(sub, -0.8 * info.ent.v.waterlevel * info.hfr, sub);
+		VectorAdd(info.ent.v.velocity, sub, info.ent.v.velocity);
+	}
+}
+
+void CheckWaterJump(SimulationInfo& info)
+{
+	vec3_t start, end, forward;
+	trace_t trace;
+	AngleVectors(info.ent.v.angles, forward, NULL, NULL);
+
+	VectorCopy(info.ent.v.origin, start);
+	start[2] += 8;
+	forward[2] = 0;
+	VectorNormalize(forward);
+	VectorScale(forward, 24, forward);
+	VectorAdd(start, forward, end);
+	trace = SV_Move_Proxy(start, vec3_origin, vec3_origin, end, MOVE_NOMONSTERS, NULL);
+
+	if (trace.fraction < 1)
+	{ // solid at waist
+		start[2] += info.ent.v.maxs[2] - 8;
+		VectorAdd(start, forward, end);
+		VectorCopy(trace.plane.normal, info.ent.v.movedir);
+		VectorScale(info.ent.v.movedir, -50, info.ent.v.movedir);
+
+		trace = SV_Move_Proxy(start, vec3_origin, vec3_origin, end, MOVE_NOMONSTERS, NULL);
+		if (trace.fraction == 1)
+		{
+			info.ent.v.flags = (int)info.ent.v.flags | FL_WATERJUMP;
+			info.ent.v.velocity[2] = 225;
+			info.ent.v.flags -= (int)info.ent.v.flags & FL_JUMPRELEASED;
+			info.ent.v.teleport_time += 2;
+		}
+	}
 
 }
 
-void SimulateFrame(SimulationInfo & info)
+void PlayerJump(SimulationInfo& info)
 {
+	int flags = info.ent.v.flags;
+
+	if((flags & FL_WATERJUMP) == 1)
+		return;
+
+	if (info.ent.v.waterlevel >= 2)
+	{
+		if(info.ent.v.watertype == CONTENTS_WATER)
+			info.ent.v.velocity[2] = 100;
+		else if (info.ent.v.watertype == CONTENTS_SLIME)
+			info.ent.v.velocity[2] = 80;
+		else
+			info.ent.v.velocity[2] = 50;
+
+		return;
+	}
+
+	if((flags & FL_ONGROUND) == 0 || (flags & FL_JUMPRELEASED) == 0)
+		return;
+	info.ent.v.flags -= flags & FL_JUMPRELEASED;
+	info.ent.v.flags -= FL_ONGROUND;
+	info.ent.v.velocity[2] += 270;
+}
+
+void PlayerPreThink(SimulationInfo& info)
+{
+	WaterMove(info);
+
+	if (info.ent.v.waterlevel == 2)
+	{
+		CheckWaterJump(info);
+		return;
+	}
+
+	if (info.jump)
+	{
+		PlayerJump(info);
+	}
+	else
+	{
+		info.ent.v.flags = (int)info.ent.v.flags | FL_JUMPRELEASED;
+	}
+}
+
+void PlayerPostThink(SimulationInfo& info)
+{
+}
+
+void SetStrafe(SimulationInfo& info, const StrafeVars& vars)
+{
+	usercmd_t cmd;
+
+	StrafeSim(&cmd, &info.ent, &info.angles[YAW], &info.angles[PITCH], vars);
+	info.fmove = cmd.forwardmove;
+	info.smove = cmd.sidemove;
+	info.upmove = cmd.upmove;
+	info.angles[ROLL] = 0;
+}
+
+void SimulateFrame(SimulationInfo& info)
+{
+	for (int i = 0; i < 3; ++i)
+	{
+		info.angles[i] = AngleModDeg(info.angles[i]);
+	}
+
+	VectorCopy(info.angles, info.ent.v.angles);
+
 	info.time += info.hfr;
 	Simulate_SV_ClientThink(info);
+	PlayerPreThink(info);
 	PlayerPhysics(info);
+	PlayerPostThink(info);
+}
+
+void SimulateWithStrafe(SimulationInfo & info, const StrafeVars & vars)
+{
+	SetStrafe(info, vars);
+	SimulateFrame(info);
 }
