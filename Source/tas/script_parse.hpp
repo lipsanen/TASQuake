@@ -45,6 +45,5 @@ public:
 	void Write_To_File();
 	std::vector<FrameBlock> blocks;
 	std::map<std::string, Bookmark> bookmarks;
-private:
 	std::string file_name;
 };

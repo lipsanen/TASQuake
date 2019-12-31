@@ -78,12 +78,14 @@ void TAS_Init()
 	Cmd_AddCommand("tas_script_advance", Cmd_TAS_Script_Advance);
 	Cmd_AddCommand("tas_script_advance_block", Cmd_TAS_Script_Advance_Block);
 
+	Cmd_AddCommand("tas_edit_prune", Cmd_TAS_Edit_Prune);
 	Cmd_AddCommand("tas_edit_save", Cmd_TAS_Edit_Save);
 	Cmd_AddCommand("tas_edit_set_pitch", Cmd_TAS_Edit_Set_Pitch);
 	Cmd_AddCommand("tas_edit_set_yaw", Cmd_TAS_Edit_Set_Yaw);
 	Cmd_AddCommand("tas_edit_set_view", Cmd_TAS_Edit_Set_View);
 	Cmd_AddCommand("tas_edit_strafe", Cmd_TAS_Edit_Strafe);
 	Cmd_AddCommand("tas_edit_shrink", Cmd_TAS_Edit_Shrink);
+	Cmd_AddCommand("tas_edit_delete", Cmd_TAS_Edit_Delete);
 	Cmd_AddCommand("tas_edit_shift", Cmd_TAS_Edit_Shift);
 	Cmd_AddCommand("tas_edit_shift_stack", Cmd_TAS_Edit_Shift_Stack);
 	Cmd_AddCommand("tas_edit_add_empty", Cmd_TAS_Edit_Add_Empty);
@@ -126,8 +128,8 @@ void TAS_Init()
 	Cvar_Register(&tas_anglespeed);
 	Cvar_Register(&tas_edit_backups);
 	Cvar_Register(&tas_edit_snap_threshold);
-	Cvar_Register(&tas_edit_autosave);
 	Cvar_Register(&tas_hud_frame);
+	Cvar_Register(&tas_hud_block);
 	Cvar_Register(&tas_hud_pos);
 	Cvar_Register(&tas_hud_pos_inc);
 	Cvar_Register(&tas_hud_pos_x);

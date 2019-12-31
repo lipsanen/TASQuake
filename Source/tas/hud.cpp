@@ -9,6 +9,7 @@ cvar_t tas_hud_vel = {"tas_hud_vel", "0"};
 cvar_t tas_hud_vel2d = {"tas_hud_vel2d", "0"};
 cvar_t tas_hud_vel3d = {"tas_hud_vel3d", "0"};
 cvar_t tas_hud_frame = {"tas_hud_frame", "0"};
+cvar_t tas_hud_block = {"tas_hud_block", "0"};
 cvar_t tas_hud_state = {"tas_hud_state", "0"};
 cvar_t tas_hud_pflags = {"tas_hud_pflags", "0"};
 cvar_t tas_hud_waterlevel = {"tas_hud_waterlevel", "0"};
@@ -89,7 +90,7 @@ void DrawFrameState(int& y, const PlaybackInfo& info)
 	{
 		for (auto& toggle : info.current_block->toggles)
 		{
-			if (!info.stacked->HasToggle(toggle.first))
+			if (toggle.second)
 			{
 				Draw(y, &tas_hud_state, "-%s -> +%s", toggle.first.c_str(), toggle.first.c_str());
 			}
@@ -136,6 +137,7 @@ void HUD_Draw_Hook()
 	Draw(y, &tas_hud_vel2d, "vel2d: %.3f", player_data.vel2d);
 	Draw(y, &tas_hud_vel3d, "vel3d: %.3f", VectorLength(player_data.velocity));
 	Draw(y, &tas_hud_frame, "frame: %d / %d", info.current_frame, info.last_frame);
+	Draw(y, &tas_hud_block, "block: %d / %d", info.current_block_no, info.blocks - 1);
 	Draw(y, &tas_hud_waterlevel, "waterlevel: %d", (int)sv_player->v.waterlevel);
 	Draw_PFlags(y);
 	DrawFrameState(y, info);

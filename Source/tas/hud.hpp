@@ -9,6 +9,7 @@ extern cvar_t tas_hud_vel3d;
 extern cvar_t tas_hud_angles;
 extern cvar_t tas_hud_pflags;
 extern cvar_t tas_hud_frame;
+extern cvar_t tas_hud_block;
 extern cvar_t tas_hud_pos_x;
 extern cvar_t tas_hud_pos_y;
 extern cvar_t tas_hud_pos_inc;

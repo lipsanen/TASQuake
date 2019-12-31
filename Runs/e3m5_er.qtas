@@ -1,0 +1,194 @@
++1:
+	disconnect
+	tas_set_seed
++1:
+	skill 0
+	record demo e3m5
++6:
+	cl_bob 0.02
+	cl_rollangle 2
+	tas_strafe 1
+	tas_strafe_type 1
+	tas_strafe_version 1
+	tas_strafe_yaw 90
+	tas_view_yaw 999
++83:
+	+tas_lgagst
++131:
+	tas_strafe_yaw 101
++71:
+	tas_strafe_yaw 90
+	-tas_lgagst
++31:
+	+tas_lgagst
++50:
+	tas_strafe_yaw 135
++113:
+	tas_strafe_yaw 225
++69:
+	tas_strafe_yaw 155
++69:
+	tas_strafe_yaw 205
++41:
+	tas_strafe_yaw 220
++17:
+	tas_strafe_yaw 0
++14:
+	tas_view_pitch 12
+	tas_view_yaw 327.6
++11:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++32:
+	tas_strafe_yaw 250
++39:
+	tas_strafe_yaw 310
++15:
+	tas_strafe_yaw 180
++50:
+	tas_strafe_yaw 50
++43:
+	tas_strafe_yaw 360
++23:
+	tas_strafe_yaw 0
++13:
+	tas_strafe_type 3
+	tas_strafe_yaw 180
+	tas_view_yaw 0
++3:
+	tas_strafe_yaw 0
+	tas_view_pitch 999
+	tas_view_yaw 999
++43:
+	tas_strafe_yaw 180
+	tas_view_yaw 0
++6:
+	tas_strafe 0
+	tas_view_yaw 999
++13:
+	tas_strafe 1
+	tas_view_yaw 0
++4:
+	tas_strafe_type 1
++16:
+	tas_strafe_type 3
+	tas_strafe_yaw 0
++8:
+	tas_strafe_type 1
++24:
+	tas_strafe_yaw 335
++5:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	+jump
+	-tas_lgagst
++29:
+	tas_strafe_yaw 215
+	-jump
++36:
+	tas_strafe 0
+	+back
++21:
+	-back
++20:
+	tas_strafe 1
+	tas_strafe_type 3
++1:
+	tas_strafe_type 1
++33:
+	+jump
++11:
+	tas_strafe_yaw 0
++44:
+	tas_strafe 0
+	+moveright
++68:
+	tas_strafe 1
+	tas_strafe_type 3
+	tas_strafe_yaw 215
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-jump
+	-moveright
++30:
+	tas_strafe_type 1
+	tas_strafe_yaw 90
++59:
+	tas_strafe_yaw 190
++56:
+	tas_strafe_type 3
+	tas_strafe_yaw 0
++3:
+	tas_strafe_type 1
++6:
+	tas_strafe_yaw 5
+	+tas_lgagst
++120:
+	tas_strafe_yaw 90
++57:
+	tas_strafe_yaw 180
++33:
+	tas_strafe_yaw 172.5
++76:
+	tas_strafe_type 0
+	+back
+	-tas_lgagst
++24:
+	tas_view_yaw 180
+	-back
+	+movedown
+	+speed
++122:
+	+forward
+	-movedown
++166:
+	-forward
+	+moveup
++59:
+	+back
+	+moveright
++50:
+	-moveup
++19:
+	tas_anglespeed 360
+	tas_view_yaw 57.7112
+	-back
+	+forward
+	-moveright
+	tas_view_pitch -28
++87:
+	tas_view_yaw 180
+	tas_view_pitch -50
++19:
+	+moveright
++31:
+	tas_anglespeed 5
+	tas_strafe_type 1
+	tas_strafe_yaw 120
+	tas_view_pitch 0
+	tas_view_yaw 999
++60:
+	+tas_jump
++15:
+	tas_view_pitch 999
+	tas_view_yaw 0.170288
+	-forward
+	-moveright
+	-speed
+	-tas_jump
++40:
+	tas_strafe_type 3
+	tas_strafe_yaw 180
+	tas_view_yaw 999
++60:
+	tas_strafe_type 1
+	tas_strafe_yaw 270
++0:
+	tas_view_yaw 180
++11:
+	tas_strafe_type 1
+	tas_strafe_yaw 180
++95:

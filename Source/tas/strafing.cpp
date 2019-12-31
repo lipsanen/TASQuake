@@ -394,7 +394,7 @@ void Strafe_Jump_Check()
 	if (tas_strafe_version.value <= 1)
 	{ // small 🧠 lgagst
 		float lgagst = tas_strafe_lgagst_speed.value;
-		bool wantsToJump = (data.vel2d > lgagst && tas_strafe.value == 1 &&
+		wantsToJump = (data.vel2d > lgagst && tas_strafe.value != 0 &&
 			tas_strafe_type.value == (int)StrafeType::MaxAccel);
 	}
 	else

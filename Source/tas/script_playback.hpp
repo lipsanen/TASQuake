@@ -8,6 +8,8 @@ struct PlaybackInfo
 	FrameBlock* current_block;
 	FrameBlock* stacked;
 	int current_frame;
+	int current_block_no;
+	int blocks;
 	int last_frame;
 };
 
@@ -27,14 +29,15 @@ void Cmd_TAS_Script_Advance_Block(void);
 
 extern cvar_t tas_edit_backups;
 extern cvar_t tas_edit_snap_threshold;
-extern cvar_t tas_edit_autosave;
 
+void Cmd_TAS_Edit_Prune(void);
 void Cmd_TAS_Edit_Save(void);
 void Cmd_TAS_Edit_Strafe(void);
 void Cmd_TAS_Edit_Set_Pitch(void);
 void Cmd_TAS_Edit_Set_Yaw(void);
 void Cmd_TAS_Edit_Set_View(void);
 void Cmd_TAS_Edit_Shrink(void);
+void Cmd_TAS_Edit_Delete(void);
 void Cmd_TAS_Edit_Shift(void);
 void Cmd_TAS_Edit_Shift_Stack(void);
 void Cmd_TAS_Edit_Add_Empty(void);
