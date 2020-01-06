@@ -502,6 +502,12 @@ qboolean OnChange_r_skybox (cvar_t *var, char *string)
 	return R_SetSky (string);
 }
 
+qboolean OnChange_r_norefresh(cvar_t * var, char * string)
+{
+	vid.recalc_refdef = 1;
+	return false;
+}
+
 static	vec3_t	skyclip[6] = {
 	{1, 1, 0},
 	{1, -1, 0},

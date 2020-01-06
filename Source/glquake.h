@@ -174,6 +174,7 @@ extern  cvar_t  r_overlay_width;
 extern  cvar_t  r_overlay_mode;
 extern  cvar_t  r_overlay_pos;
 extern  cvar_t  r_nopvs;
+extern  cvar_t  r_norefresh;
 
 extern	cvar_t	gl_clear;
 extern	cvar_t	gl_cull;

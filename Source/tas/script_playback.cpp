@@ -59,8 +59,8 @@ static void Run_Script(int frame, bool skip = false)
 
 	if (skip)
 	{
-		AddAfterframes(0, "vid_vsync 0; tas_timescale 999999");
-		AddAfterframes(pause_frame-1, "tas_timescale 1");
+		AddAfterframes(0, "tas_timescale 999999; r_norefresh 1");
+		AddAfterframes(pause_frame-1-current_frame, "tas_timescale 1; r_norefresh 0");
 	}
 
 	script_running = true;

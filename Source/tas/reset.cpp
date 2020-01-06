@@ -13,7 +13,9 @@ static const char* const EXCLUDE_CVARS[] = {
 	"tas_hud",
 	"tas_edit",
 	"tas_script",
-	"tas_timescale"
+	"tas_timescale",
+	"r_norefresh",
+	"r_overlay"
 };
 
 static const char* const INCLUDE_SUBSTR[] = {

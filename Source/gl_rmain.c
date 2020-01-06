@@ -97,6 +97,9 @@ cvar_t  r_overlay = { "r_overlay", "0" };
 cvar_t  r_overlay_pos = { "r_overlay_pos", "0" };
 cvar_t  r_overlay_width = { "r_overlay_width", "320" };
 cvar_t  r_overlay_mode = { "r_overlay_mode", "0"};
+qboolean OnChange_r_norefresh(cvar_t *var, char *string);
+cvar_t  r_norefresh = { "r_norefresh", "0", 0, OnChange_r_norefresh};
+
 
 cvar_t	gl_clear = {"gl_clear", "0"};
 cvar_t	gl_cull = {"gl_cull", "1"};
@@ -2406,6 +2409,7 @@ void R_Init (void)
 	Cvar_Register (&r_overlay_mode);
 	Cvar_Register (&r_overlay_pos);
 	Cvar_Register (&r_overlay_width);
+	Cvar_Register (&r_norefresh);
 
 	Cvar_Register (&gl_finish);
 	Cvar_Register (&gl_clear);
