@@ -230,6 +230,8 @@
     <ClCompile Include="sv_user.c" />
     <ClCompile Include="sys_win.c" />
     <ClCompile Include="tas\afterframes.cpp" />
+    <ClCompile Include="tas\cpp_quakedef.cpp" />
+    <ClCompile Include="tas\draw.cpp" />
     <ClCompile Include="tas\hud.cpp" />
     <ClCompile Include="tas\reset.cpp" />
     <ClCompile Include="tas\script_parse.cpp" />
@@ -305,6 +307,7 @@
     <ClInclude Include="sys.h" />
     <ClInclude Include="tas\afterframes.hpp" />
     <ClInclude Include="tas\cpp_quakedef.hpp" />
+    <ClInclude Include="tas\draw.hpp" />
     <ClInclude Include="tas\hud.hpp" />
     <ClInclude Include="tas\reset.hpp" />
     <ClInclude Include="tas\script_parse.hpp" />

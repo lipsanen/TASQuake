@@ -6,6 +6,7 @@
 #include "reset.hpp"
 #include "script_playback.hpp"
 #include "hud.hpp"
+#include "draw.hpp"
 
 cvar_t	tas_pause_onload = { "tas_pause_onload", "0" };
 cvar_t tas_playing = { "tas_playing", "0" };
@@ -163,6 +164,11 @@ void IN_Move_Hook(usercmd_t * cmd)
 void SCR_Draw_TAS_HUD_Hook(void)
 {
 	HUD_Draw_Hook();
+}
+
+void Draw_Lines_Hook(void)
+{
+	Draw_Lines();
 }
 
 void Host_Connect_f_Hook()
