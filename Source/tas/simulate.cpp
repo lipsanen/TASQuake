@@ -617,9 +617,9 @@ void SV_AirMove(edict_t* ent, const usercmd_t& cmd, double hfr, double time)
 void PlayerPhysics(SimulationInfo& info)
 {
 	if (!SV_CheckWater(&info.ent) && !((int)info.ent.v.flags & FL_WATERJUMP))
-		SV_AddGravity(&info.ent, info.hfr);
+		SV_AddGravity(&info.ent, info.host_frametime);
 	SV_CheckStuck(&info.ent);
-	SV_WalkMove(&info.ent, info.hfr);
+	SV_WalkMove(&info.ent, info.host_frametime);
 }
 
 void Simulate_SV_ClientThink(SimulationInfo& info)
@@ -653,21 +653,124 @@ void Simulate_SV_ClientThink(SimulationInfo& info)
 	// walk
 	if ((info.ent.v.waterlevel >= 2) && (info.ent.v.movetype != MOVETYPE_NOCLIP))
 	{
-		SV_WaterMove(&info.ent, cmd, info.hfr);
+		SV_WaterMove(&info.ent, cmd, info.host_frametime);
 		return;
 	}
 
-	SV_AirMove(&info.ent, cmd, info.hfr, info.time);
+	SV_AirMove(&info.ent, cmd, info.host_frametime, info.time);
 }
+
+#define READ_KEY(name) info.key_##name.state = in_##name.prev
+#define READ_CVAR(name) info.##name = ##name.value
 
 SimulationInfo Get_Current_Status()
 {
 	SimulationInfo info;
-	info.hfr = host_frametime;
+	info.host_frametime = host_frametime;
 	info.ent = *sv_player;
 	info.time = sv.time;
 	info.jumpflag = sv_player->v.velocity[2];
+
+	READ_CVAR(cl_forwardspeed);
+	READ_CVAR(cl_movespeedkey);
+	READ_CVAR(cl_sidespeed);
+	READ_CVAR(cl_upspeed);
+
+	READ_KEY(forward);
+	READ_KEY(back);
+	READ_KEY(moveleft);
+	READ_KEY(moveright);
+	READ_KEY(up);
+	READ_KEY(down);
+	READ_KEY(speed);
+	info.vars = Get_Current_Vars();
+
 	return info;
+}
+
+#define CHECK_INPUT(name, member_name) \
+if (block.toggles.find(#name) != block.toggles.end()) \
+{ \
+	if (info.##member_name.state == 0 && block.toggles.at(#name)) \
+		info.##member_name.state = 0.5; \
+	else if (info.##member_name.state > 0 && !block.toggles.at(#name)) \
+		info.##member_name.state = 0; \
+} \
+else if (info.##member_name.state == 0.5) \
+	info.##member_name.state = 1;
+
+static void ApplyToggles(SimulationInfo & info, const FrameBlock & block)
+{
+	CHECK_INPUT(forward, key_forward);
+	CHECK_INPUT(back, key_back);
+	CHECK_INPUT(moveleft, key_moveleft);
+	CHECK_INPUT(moveright, key_moveright);
+	CHECK_INPUT(moveup, key_up);
+	CHECK_INPUT(movedown, key_down);
+	CHECK_INPUT(speed, key_speed);
+	CHECK_INPUT(jump, key_jump);
+}
+
+#define CHECK_CVAR(name, member_name) \
+if (block.convars.find(#name) != block.convars.end()) \
+{ \
+	info.##member_name = block.convars.at(#name); \
+}
+
+static void ApplyCvars(SimulationInfo & info, const FrameBlock & block)
+{
+	CHECK_CVAR(cl_forwardspeed, cl_forwardspeed);
+	CHECK_CVAR(cl_sidespeed, cl_sidespeed);
+	CHECK_CVAR(cl_upspeed, cl_upspeed);
+	CHECK_CVAR(cl_movespeedkey, cl_movespeedkey);
+	CHECK_CVAR(tas_view_yaw, vars.tas_view_yaw);
+	CHECK_CVAR(tas_view_pitch, vars.tas_view_pitch);
+	CHECK_CVAR(tas_strafe, vars.tas_strafe);
+	CHECK_CVAR(tas_strafe_yaw, vars.tas_strafe_yaw);
+	CHECK_CVAR(tas_anglespeed, vars.tas_anglespeed);
+
+	if (block.convars.find("cl_maxfps") != block.convars.end())
+	{
+		info.host_frametime = 1.0 / block.convars.at("cl_maxfps");
+		info.vars.host_frametime = info.host_frametime;
+	}
+
+	if (block.convars.find("tas_strafe_type") != block.convars.end())
+	{
+		int number = static_cast<int>(block.convars.at("tas_strafe_type"));
+		info.vars.tas_strafe_type = static_cast<StrafeType>(number);
+	}
+}
+
+static void CalculateMoves(SimulationInfo & info, const FrameBlock & block)
+{
+	float factor = info.key_speed.state > 0 ? info.cl_movespeedkey : 1;
+	info.fmove += info.key_forward.state * info.cl_forwardspeed * factor;
+	info.fmove -= info.key_back.state * info.cl_forwardspeed * factor;
+	info.smove += info.key_moveright.state * info.cl_sidespeed * factor;
+	info.smove -= info.key_moveleft.state * info.cl_sidespeed * factor;
+	info.upmove += info.key_up.state * info.cl_upspeed * factor;
+	info.upmove -= info.key_down.state * info.cl_upspeed * factor;
+}
+
+static void SetStrafe(SimulationInfo& info, const StrafeVars& vars)
+{
+	usercmd_t cmd;
+
+	StrafeSim(&cmd, &info.ent, &info.angles[YAW], &info.angles[PITCH], vars);
+	info.fmove = cmd.forwardmove;
+	info.smove = cmd.sidemove;
+	info.upmove = cmd.upmove;
+	info.angles[ROLL] = 0;
+}
+
+void ApplyFrameblock(SimulationInfo & info, const FrameBlock & block)
+{
+	ApplyToggles(info, block);
+	ApplyCvars(info, block);
+	SetStrafe(info, info.vars);
+	if(!info.vars.tas_strafe)
+		CalculateMoves(info, block);
 }
 
 void WaterMove(SimulationInfo& info)
@@ -688,7 +791,7 @@ void WaterMove(SimulationInfo& info)
 	{
 		vec3_t sub;
 		VectorCopy(info.ent.v.velocity, sub);
-		VectorScale(sub, -0.8 * info.ent.v.waterlevel * info.hfr, sub);
+		VectorScale(sub, -0.8 * info.ent.v.waterlevel * info.host_frametime, sub);
 		VectorAdd(info.ent.v.velocity, sub, info.ent.v.velocity);
 	}
 }
@@ -762,7 +865,7 @@ void PlayerPreThink(SimulationInfo& info)
 		return;
 	}
 
-	if (info.jump)
+	if (info.key_jump.state > 0)
 	{
 		PlayerJump(info);
 	}
@@ -776,17 +879,6 @@ void PlayerPostThink(SimulationInfo& info)
 {
 }
 
-void SetStrafe(SimulationInfo& info, const StrafeVars& vars)
-{
-	usercmd_t cmd;
-
-	StrafeSim(&cmd, &info.ent, &info.angles[YAW], &info.angles[PITCH], vars);
-	info.fmove = cmd.forwardmove;
-	info.smove = cmd.sidemove;
-	info.upmove = cmd.upmove;
-	info.angles[ROLL] = 0;
-}
-
 void SimulateFrame(SimulationInfo& info)
 {
 	for (int i = 0; i < 3; ++i)
@@ -796,7 +888,7 @@ void SimulateFrame(SimulationInfo& info)
 
 	VectorCopy(info.angles, info.ent.v.angles);
 
-	info.time += info.hfr;
+	info.time += info.host_frametime;
 	Simulate_SV_ClientThink(info);
 	PlayerPreThink(info);
 	PlayerPhysics(info);

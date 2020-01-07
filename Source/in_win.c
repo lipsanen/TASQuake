@@ -787,11 +787,6 @@ void IN_JoyMove (usercmd_t *cmd)
 		joy_advancedinit = true;
 	}
 
-
-	// TODO: Add TAS overrides for setting the joystick input manually
-	// TAS OVERRIDE SECTION STARTS
-
-
 	// verify joystick is available and that the user wants to use it
 	if (!joy_avail || !in_joystick.value)
 		return; 
@@ -799,9 +794,6 @@ void IN_JoyMove (usercmd_t *cmd)
 	// collect the joystick data, if possible
 	if (IN_ReadJoystick () != true)
 		return;
-
-
-	// TAS OVERRIDE SECTION ENDS
 
 	speed = (in_speed.state & 1) ? cl_movespeedkey.value : 1;
 	aspeed = speed * host_frametime;

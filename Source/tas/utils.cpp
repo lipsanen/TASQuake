@@ -143,3 +143,15 @@ float Round(double val, double acc)
 
 	return static_cast<float>(val);
 }
+
+float Get_Default_Value(const char * name)
+{
+	float f;
+	auto var = Cvar_FindVar(const_cast<char*>(name));
+	if (!var)
+		return 0.0f;
+
+	sscanf_s(var->defaultvalue, "%f", &f);
+
+	return f;
+}

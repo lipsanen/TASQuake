@@ -166,12 +166,12 @@ void FrameBlock::Reset()
 	commands.clear();
 }
 
-bool FrameBlock::HasToggle(const std::string & cmd)
+bool FrameBlock::HasToggle(const std::string & cmd) const
 {
 	return toggles.find(cmd) != toggles.end();
 }
 
-bool FrameBlock::HasConvar(const std::string & cvar)
+bool FrameBlock::HasConvar(const std::string & cvar) const
 {
 	return convars.find(cvar) != convars.end();
 }

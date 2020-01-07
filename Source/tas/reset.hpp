@@ -3,7 +3,6 @@
 
 void Cmd_TAS_Cmd_Reset_f(void);
 void Cmd_TAS_Reset_Movement(void);
-float Get_Default_Value(const char* name);
 bool IsGameplayCvar(cvar_t* var);
 bool IsGameplayCvar(const char* text);
 bool IsUpCmd(const char* text);

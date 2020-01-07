@@ -399,11 +399,12 @@ void Strafe_Jump_Check()
 	}
 	else
 	{ // big 🧠 lgagst
-		auto vars = Get_Current_Vars();
+		
 		auto jump = Get_Current_Status();
+		auto vars = jump.vars;
 		auto nojump = jump;
-		jump.jump = true;
-		nojump.jump = false;
+		jump.key_jump.state = 1;
+		nojump.key_jump.state = 0;
 
 		SimulateWithStrafe(jump, vars);
 		SimulateWithStrafe(jump, vars);

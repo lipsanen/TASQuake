@@ -5,18 +5,27 @@
 
 struct PlaybackInfo 
 {
-	FrameBlock* current_block;
-	FrameBlock* stacked;
+	PlaybackInfo();
+
+	int pause_frame;
 	int current_frame;
-	int current_block_no;
-	int blocks;
-	int last_frame;
+	bool script_running;
+	bool should_unpause;
+
+	FrameBlock stacked;
+	TASScript current_script;
+
+	const FrameBlock* Get_Stacked_Block() const;
+	const FrameBlock* Get_Current_Block() const;
+	int Get_Current_Block_Number() const;
+	int Get_Number_Of_Blocks() const;
+	int Get_Last_Frame() const;
 };
 
 void Script_Playback_Host_Frame_Hook();
 qboolean Script_Playback_Cmd_ExecuteString_Hook(const char* text);
 void Script_Playback_IN_Move_Hook(usercmd_t* cmd);
-PlaybackInfo GetPlaybackInfo();
+const PlaybackInfo& GetPlaybackInfo();
 
 void Cmd_TAS_Script_Init(void);
 void Cmd_TAS_Script_Load(void);

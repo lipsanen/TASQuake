@@ -42,17 +42,18 @@ bool Should_Print_Cvar(const std::string& name, float value)
 
 void DrawFrameState(int& y, const PlaybackInfo& info)
 {
-	if(!tas_hud_state.value || info.last_frame == 0 || !tas_playing.value)
+	if(!tas_hud_state.value || info.Get_Last_Frame() == 0 || !tas_playing.value)
 		return;
 
+	auto current_block = info.Get_Current_Block();
 	Draw(y, &tas_hud_state, "");
 	Draw(y, &tas_hud_state, "Cvars:");
-	for (auto& cvar : info.stacked->convars)
+	for (auto& cvar : info.stacked.convars)
 	{
-		if (info.current_block && info.current_block->HasConvar(cvar.first)
-			&& info.current_block->convars[cvar.first] != cvar.second)
+		if (current_block && current_block->HasConvar(cvar.first)
+			&& current_block->convars.at(cvar.first) != cvar.second)
 		{
-			Draw(y, &tas_hud_state, "%s %.3f -> %.3f", cvar.first.c_str(), cvar.second, info.current_block->convars[cvar.first]);
+			Draw(y, &tas_hud_state, "%s %.3f -> %.3f", cvar.first.c_str(), cvar.second, current_block->convars.at(cvar.first));
 		}
 		else
 		{
@@ -61,11 +62,11 @@ void DrawFrameState(int& y, const PlaybackInfo& info)
 		}
 	}
 
-	if (info.current_block)
+	if (current_block)
 	{
-		for (auto& cvar : info.current_block->convars)
+		for (auto& cvar : current_block->convars)
 		{
-			if (!info.stacked->HasConvar(cvar.first) && Should_Print_Cvar(cvar.first, cvar.second))
+			if (!info.stacked.HasConvar(cvar.first) && Should_Print_Cvar(cvar.first, cvar.second))
 			{
 				Draw(y, &tas_hud_state, "%s -> %.3f", cvar.first.c_str(), cvar.second);
 			}
@@ -74,11 +75,11 @@ void DrawFrameState(int& y, const PlaybackInfo& info)
 
 	Draw(y, &tas_hud_state, "");
 	Draw(y, &tas_hud_state, "Toggles:");
-	for (auto& toggle : info.stacked->toggles)
+	for (auto& toggle : info.stacked.toggles)
 	{
 		if (toggle.second)
 		{
-			if (info.current_block && info.current_block->HasToggle(toggle.first))
+			if (current_block && current_block->HasToggle(toggle.first))
 				Draw(y, &tas_hud_state, "+%s -> -%s", toggle.first.c_str(), toggle.first.c_str());
 			else
 				Draw(y, &tas_hud_state, "+%s", toggle.first.c_str());
@@ -86,9 +87,9 @@ void DrawFrameState(int& y, const PlaybackInfo& info)
 		}
 	}
 
-	if (info.current_block)
+	if (current_block)
 	{
-		for (auto& toggle : info.current_block->toggles)
+		for (auto& toggle : current_block->toggles)
 		{
 			if (toggle.second)
 			{
@@ -130,14 +131,17 @@ void HUD_Draw_Hook()
 	
 	auto player_data = GetPlayerData();
 	auto info = GetPlaybackInfo();
+	int last_frame = info.Get_Last_Frame();
+	int current_block_no = info.Get_Current_Block_Number();
+	int blocks = info.Get_Number_Of_Blocks();
 
 	Draw(y, &tas_hud_pos, "pos: (%.3f, %.3f, %.3f)", player_data.origin[0], player_data.origin[1], player_data.origin[2]);
 	Draw(y, &tas_hud_angles, "ang: (%.3f, %.3f, %.3f)", cl.viewangles[0], cl.viewangles[1], cl.viewangles[2]);
 	Draw(y, &tas_hud_vel, "vel: (%.3f, %.3f, %.3f)", player_data.velocity[0], player_data.velocity[1], player_data.velocity[2]);
 	Draw(y, &tas_hud_vel2d, "vel2d: %.3f", player_data.vel2d);
 	Draw(y, &tas_hud_vel3d, "vel3d: %.3f", VectorLength(player_data.velocity));
-	Draw(y, &tas_hud_frame, "frame: %d / %d", info.current_frame, info.last_frame);
-	Draw(y, &tas_hud_block, "block: %d / %d", info.current_block_no, info.blocks - 1);
+	Draw(y, &tas_hud_frame, "frame: %d / %d", info.current_frame, last_frame);
+	Draw(y, &tas_hud_block, "block: %d / %d", current_block_no, blocks - 1);
 	Draw(y, &tas_hud_waterlevel, "waterlevel: %d", (int)sv_player->v.waterlevel);
 	Draw_PFlags(y);
 	DrawFrameState(y, info);

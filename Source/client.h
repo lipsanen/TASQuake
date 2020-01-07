@@ -329,12 +329,15 @@ typedef struct
 {
 	int		down[2];		// key nums holding it down
 	int		state;			// low bit is down state
+	float   prev;			// Previous value
 } kbutton_t;
 
 extern	kbutton_t	in_mlook, in_klook;
 extern 	kbutton_t 	in_strafe;
 extern 	kbutton_t 	in_speed;
-extern  kbutton_t in_jump;
+extern  kbutton_t   in_jump;
+extern  kbutton_t	in_forward, in_back, in_moveleft, in_moveright, in_speed, in_up, in_down;
+
 
 void CL_InitInput (void);
 void CL_SendCmd (void);

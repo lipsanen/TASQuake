@@ -1,4 +1,5 @@
 #include "reset.hpp"
+#include "utils.hpp"
 #include "afterframes.hpp"
 #include "cpp_quakedef.hpp"
 
@@ -144,16 +145,4 @@ void Cmd_TAS_Reset_Movement(void)
 		}
 		var = var->next;
 	}
-}
-
-float Get_Default_Value(const char * name)
-{
-	float f;
-	auto var = Cvar_FindVar(const_cast<char*>(name));
-	if (!var)
-		return 0.0f;
-	
-	sscanf_s(var->defaultvalue, "%f", &f);
-
-	return f;
 }
