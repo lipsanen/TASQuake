@@ -63,9 +63,9 @@ trace_t SV_PushEntity(edict_t *ent, vec3_t push)
 	return trace;
 }
 
-int SV_FlyMove(edict_t *ent, float time, trace_t *steptrace);
+int SV_FlyMove(edict_t *ent, float time, trace_t *steptrace, SimulationInfo& info);
 
-int SV_TryUnstick(edict_t *ent, vec3_t oldvel)
+int SV_TryUnstick(edict_t *ent, vec3_t oldvel, SimulationInfo& info)
 {
 	int	i, clip;
 	vec3_t	oldorg, dir;
@@ -95,7 +95,7 @@ int SV_TryUnstick(edict_t *ent, vec3_t oldvel)
 		ent->v.velocity[0] = oldvel[0];
 		ent->v.velocity[1] = oldvel[1];
 		ent->v.velocity[2] = 0;
-		clip = SV_FlyMove(ent, 0.1, &steptrace);
+		clip = SV_FlyMove(ent, 0.1, &steptrace, info);
 
 		if (fabs(oldorg[1] - ent->v.origin[1]) > 4 || fabs(oldorg[0] - ent->v.origin[0]) > 4)
 		{
@@ -133,7 +133,7 @@ void SV_WallFriction(edict_t *ent, trace_t *trace)
 }
 
 #define	MAX_CLIP_PLANES	5
-int SV_FlyMove(edict_t *ent, float time, trace_t *steptrace)
+int SV_FlyMove(edict_t *ent, float time, trace_t *steptrace, SimulationInfo& info)
 {
 	int			i, j, bumpcount, numbumps, numplanes, blocked;
 	float		d, time_left;
@@ -186,6 +186,10 @@ int SV_FlyMove(edict_t *ent, float time, trace_t *steptrace)
 				ent->v.flags = (int)ent->v.flags | FL_ONGROUND;
 				ent->v.groundentity = EDICT_TO_PROG(trace.ent);
 			}
+		}
+		else
+		{
+			info.collision = true;
 		}
 		if (!trace.plane.normal[2])
 		{
@@ -255,11 +259,12 @@ int SV_FlyMove(edict_t *ent, float time, trace_t *steptrace)
 }
 
 #define	STEPSIZE	18
-void SV_WalkMove(edict_t *ent, double hfr, bool nostep=false)
+void SV_WalkMove(edict_t *ent, double hfr, SimulationInfo& info, bool nostep=false)
 {
 	int		clip, oldonground;
 	vec3_t		upmove, downmove, oldorg, oldvel, nosteporg, nostepvel;
 	trace_t		steptrace, downtrace;
+	bool oldcollision = info.collision;
 
 	// do a regular slide move unless it looks like you ran into a step
 	oldonground = (int)ent->v.flags & FL_ONGROUND;
@@ -268,7 +273,7 @@ void SV_WalkMove(edict_t *ent, double hfr, bool nostep=false)
 	VectorCopy(ent->v.origin, oldorg);
 	VectorCopy(ent->v.velocity, oldvel);
 
-	clip = SV_FlyMove(ent, hfr, &steptrace);
+	clip = SV_FlyMove(ent, hfr, &steptrace, info);
 
 	if (!(clip & 2))
 		return;		// move didn't block on a step
@@ -285,6 +290,8 @@ void SV_WalkMove(edict_t *ent, double hfr, bool nostep=false)
 	if ((int)ent->v.flags & FL_WATERJUMP)
 		return;
 
+	if(!oldcollision && info.collision)
+		info.collision = false;
 	VectorCopy(ent->v.origin, nosteporg);
 	VectorCopy(ent->v.velocity, nostepvel);
 
@@ -303,7 +310,7 @@ void SV_WalkMove(edict_t *ent, double hfr, bool nostep=false)
 	ent->v.velocity[0] = oldvel[0];
 	ent->v.velocity[1] = oldvel[1];
 	ent->v.velocity[2] = 0;
-	clip = SV_FlyMove(ent, hfr, &steptrace);
+	clip = SV_FlyMove(ent, hfr, &steptrace, info);
 
 	// check for stuckness, possibly due to the limited precision of floats
 	// in the clipping hulls
@@ -311,7 +318,7 @@ void SV_WalkMove(edict_t *ent, double hfr, bool nostep=false)
 	{
 		if (fabs(oldorg[1] - ent->v.origin[1]) < 0.03125 && fabs(oldorg[0] - ent->v.origin[0]) < 0.03125)
 		{	// stepping up didn't make any progress
-			clip = SV_TryUnstick(ent, oldvel);
+			clip = SV_TryUnstick(ent, oldvel, info);
 		}
 	}
 
@@ -620,7 +627,7 @@ void PlayerPhysics(SimulationInfo& info)
 	if (!SV_CheckWater(&info.ent) && !((int)info.ent.v.flags & FL_WATERJUMP))
 		SV_AddGravity(&info.ent, info.host_frametime);
 	SV_CheckStuck(&info.ent);
-	SV_WalkMove(&info.ent, info.host_frametime);
+	SV_WalkMove(&info.ent, info.host_frametime, info);
 }
 
 void Simulate_SV_ClientThink(SimulationInfo& info)
@@ -676,6 +683,7 @@ SimulationInfo Get_Sim_Info()
 	info.upmove = 0;
 	info.tas_jump = Is_TAS_Jump_Down();
 	info.tas_lgagst = Is_TAS_Lgagst_Down();
+	info.collision = false;
 
 	VectorCopy(cl.prev_viewangles, info.viewangles);
 
@@ -872,6 +880,7 @@ void PlayerJump(SimulationInfo& info)
 	info.ent.v.flags -= flags & FL_JUMPRELEASED;
 	info.ent.v.flags -= FL_ONGROUND;
 	info.ent.v.velocity[2] += 270;
+	info.collision = false;
 }
 
 void PlayerPreThink(SimulationInfo& info)
@@ -971,7 +980,7 @@ void SimulateWithStrafe(SimulationInfo & info)
 	SimulateFrame(info);
 }
 
-cvar_t tas_predict_freq{ "tas_predict_freq", "0.1" }; // How often the prediction should be refreshed
+cvar_t tas_predict_per_frame{ "tas_predict_per_frame", "0.01" }; // How long the prediction should run per frame
 cvar_t tas_predict{ "tas_predict", "1" }; // Should predict player path in edit mode?
 cvar_t tas_predict_max{ "tas_predict_max", "3" }; // Maximum length of path to predict
 cvar_t tas_predict_min{ "tas_predict_min", "3" }; // Minimum length of path to predict
@@ -993,25 +1002,38 @@ void Simulate_Frame_Hook()
 		return;
 	}
 
+	
 	double currentTime = Sys_DoubleTime();
+	static int frame = 0;
+	static SimulationInfo info;
+	static double simulationStartTime = 0;
 
-	if (currentTime - last_updated < tas_predict_freq.value || last_updated > playback.last_edited)
+	if (last_updated < playback.last_edited)
 	{
-		return;
+		points.clear();
+		last_updated = currentTime;
+		frame = playback.current_frame;
+		info = Get_Sim_Info();
+		simulationStartTime = info.time;
 	}
 
-	points.clear();
-	last_updated = currentTime;
-
-	SimulationInfo info = Get_Sim_Info();
-	double simulationStartTime = info.time;
+	double realTimeStart = Sys_DoubleTime();
 	int last_frame = playback.Get_Last_Frame();
 
-	for (int frame = playback.current_frame; (info.time <= simulationStartTime + tas_predict_min.value) ||
-	(info.time < simulationStartTime + tas_predict_max.value && frame <= last_frame); ++frame)
+	for (; Sys_DoubleTime() - realTimeStart < tas_predict_per_frame.value &&
+	((info.time <= simulationStartTime + tas_predict_min.value) ||
+	(info.time < simulationStartTime + tas_predict_max.value && frame <= last_frame)); ++frame)
 	{
 		PathPoint vec;
-		vec.color[0] = 0, vec.color[1] = 1, vec.color[2] = 0;
+		VectorCopy(vec3_origin, vec.color);
+		if (info.collision)
+		{
+			vec.color[0] = 1;
+		}
+		else
+		{
+			vec.color[1] = 1;
+		}
 		VectorCopy(info.ent.v.origin, vec.point);
 		points.push_back(vec);
 

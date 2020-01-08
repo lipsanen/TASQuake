@@ -183,19 +183,21 @@ static bool Get_Existing_Toggle(const char* cmd_name)
 		return Get_Stacked_Toggle(cmd_name);
 }
 
-static void SetConvar(const char* name, float new_val)
+static void SetConvar(const char* name, float new_val, bool silent=false)
 {
-	playback.last_edited = Sys_DoubleTime();
 	float old_val = Get_Existing_Value(name);
 
 	if (new_val == old_val)
 	{
-		Con_Printf("Value identical to old value.\n");
+		if(!silent)
+			Con_Printf("Value identical to old value.\n");
 		return;
 	}
 
+	playback.last_edited = Sys_DoubleTime();
 	auto block = GetBlockForFrame();
-	sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "Block: Added %s %f", name, new_val);
+	if (!silent)
+		sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "Block: Added %s %f", name, new_val);
 	SCR_CenterPrint(BUFFER);
 
 	if (Get_Stacked_Value(name) == new_val && block->convars.find(name) != block->convars.end())
@@ -226,6 +228,12 @@ void SetToggle(const char* cmd, bool new_value)
 
 void Script_Playback_Host_Frame_Hook()
 {
+	if (playback.In_Edit_Mode() && m_state == MouseState::Strafe)
+	{
+		float yaw = Round(cl.viewangles[YAW], tas_edit_snap_threshold.value);
+		SetConvar("tas_strafe_yaw", yaw, true);
+	}
+
 	if (tas_gamestate == paused && playback.should_unpause)
 	{
 		tas_gamestate = unpaused;
@@ -474,6 +482,7 @@ void Cmd_TAS_Edit_Save(void)
 
 void Cmd_TAS_Edit_Strafe(void)
 {
+	SetConvar("tas_strafe", 1, true);
 	m_state = MouseState::Strafe;
 }
 
@@ -682,6 +691,8 @@ void Cmd_TAS_Cancel(void)
 		return;
 
 	m_state = MouseState::Locked;
+	SetConvar("tas_strafe", Get_Stacked_Value("tas_strafe"));
+	SetConvar("tas_strafe_yaw", Get_Stacked_Value("tas_strafe_yaw"));
 }
 
 void Cmd_TAS_Revert(void)

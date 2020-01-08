@@ -27,8 +27,8 @@ void Draw_Lines()
 		{
 			auto& vec1 = pair.second->at(i);
 			auto& vec2 = pair.second->at(i+1);
-			glColor3f(0, 1, 0);
-			//glColor3fv(vec.color.Get_Array());
+
+			glColor3fv(vec1.color.Get_Array());
 			glVertex3fv(vec1.point.Get_Array());
 			glVertex3fv(vec2.point.Get_Array());
 		}

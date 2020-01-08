@@ -145,7 +145,7 @@ void TAS_Init()
 	Cvar_Register(&tas_hud_state);
 	Cvar_Register(&tas_timescale);
 	Cvar_Register(&tas_predict);
-	Cvar_Register(&tas_predict_freq);
+	Cvar_Register(&tas_predict_per_frame);
 	Cvar_Register(&tas_predict_min);
 	Cvar_Register(&tas_predict_max);
 }
