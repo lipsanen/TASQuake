@@ -22,11 +22,15 @@ struct SimulationInfo
 	float smove;
 	float fmove;
 	float upmove;
-	vec3_t angles;
+	vec3_t viewangles;
 
 	// Input stuff
 	StrafeVars vars;
 	double host_frametime;
+
+	// Jump toggles
+	bool tas_lgagst;
+	bool tas_jump;
 
 	// Raw cvars
 	float cl_forwardspeed;
@@ -44,7 +48,9 @@ struct SimulationInfo
 	KeyState key_speed;
 };
 
-SimulationInfo Get_Current_Status();
-void ApplyFrameblock(SimulationInfo& info, const FrameBlock& block);
+SimulationInfo Get_Sim_Info();
 void SimulateFrame(SimulationInfo& info);
-void SimulateWithStrafe(SimulationInfo& info, const StrafeVars& vars);
+void SimulateWithStrafe(SimulationInfo& info);
+bool Should_Jump(const SimulationInfo& info);
+void Simulate_Frame_Hook();
+extern cvar_t tas_predict_freq, tas_predict, tas_predict_max, tas_predict_min;

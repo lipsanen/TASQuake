@@ -36,10 +36,13 @@ struct StrafeVars
 	StrafeType tas_strafe_type;
 	float tas_anglespeed;
 	double host_frametime;
+	int tas_strafe_version;
 
 	StrafeVars();
 };
 
+bool Is_TAS_Jump_Down();
+bool Is_TAS_Lgagst_Down();
 StrafeVars Get_Current_Vars();
 PlayerData GetPlayerData();
 PlayerData GetPlayerData(edict_t* player, const StrafeVars& vars);

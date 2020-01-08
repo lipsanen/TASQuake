@@ -7,5 +7,10 @@ float* Vector3f::Get_Array()
 
 float & Vector3f::operator[](int index)
 {
-	return Get_Array()[index];
+	if(index == 0)
+		return x;
+	else if(index == 1)
+		return y;
+	else
+		return z;
 }

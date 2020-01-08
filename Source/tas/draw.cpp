@@ -3,10 +3,10 @@
 #include <map>
 #include "strafing.hpp"
 
-static std::map<std::string, std::vector<Vector3f>*> lines;
+static std::map<std::string, std::vector<PathPoint>*> lines;
 static byte	color_green[4] = { 0, 255, 0, 0 };
 
-void AddCurve(std::vector<Vector3f>* points, const std::string & name)
+void AddCurve(std::vector<PathPoint>* points, const std::string & name)
 {
 	lines[name] = points;
 }
@@ -23,11 +23,14 @@ void Draw_Lines()
 	{
 		glDisable(GL_TEXTURE_2D);
 		glBegin(GL_LINES);
-		for (int i=0; i < pair.second->size(); ++i)
+		for (int i=0; i < pair.second->size() - 1; ++i)
 		{
-			auto& point = pair.second->at(i);
-			glColor3f(0, 1.f, 0);
-			glVertex3fv(point.Get_Array());
+			auto& vec1 = pair.second->at(i);
+			auto& vec2 = pair.second->at(i+1);
+			glColor3f(0, 1, 0);
+			//glColor3fv(vec.color.Get_Array());
+			glVertex3fv(vec1.point.Get_Array());
+			glVertex3fv(vec2.point.Get_Array());
 		}
 		glEnd();
 		glEnable(GL_TEXTURE_2D);

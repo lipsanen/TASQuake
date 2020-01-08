@@ -132,7 +132,7 @@ void HUD_Draw_Hook()
 	auto player_data = GetPlayerData();
 	auto info = GetPlaybackInfo();
 	int last_frame = info.Get_Last_Frame();
-	int current_block_no = info.Get_Current_Block_Number();
+	int current_block_no = info.GetCurrentBlockNumber();
 	int blocks = info.Get_Number_Of_Blocks();
 
 	Draw(y, &tas_hud_pos, "pos: (%.3f, %.3f, %.3f)", player_data.origin[0], player_data.origin[1], player_data.origin[2]);

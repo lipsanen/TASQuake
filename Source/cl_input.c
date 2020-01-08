@@ -231,7 +231,8 @@ float CL_KeyState (kbutton_t *key)
 		val = down ? 0.75 : 0.25;
 
 	key->state &= 1;		// clear impulses
-	key->prev = val;
+	if (tas_gamestate != paused)
+		key->prev = val;
 	
 	return val;
 }
@@ -411,6 +412,9 @@ void CL_SendMove (usercmd_t *cmd)
 // send the movement message
 	MSG_WriteByte (buf, clc_move);
 	MSG_WriteFloat (buf, cl.mtime[0]);	// so server can get ping times
+	
+	if(tas_gamestate != paused)
+		VectorCopy(cl.viewangles, cl.prev_viewangles);
 
 	if (!cls.demoplayback && (cls.netcon->mod == MOD_TASQUAKE))
 	{

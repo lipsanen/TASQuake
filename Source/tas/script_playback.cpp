@@ -1,5 +1,6 @@
 #include <algorithm>
 
+#include "cpp_quakedef.hpp"
 #include "script_playback.hpp"
 #include "script_parse.hpp"
 #include "reset.hpp"
@@ -82,19 +83,6 @@ static void Generic_Advance(int frame)
 	}
 }
 
-static int GetCurrentBlockNumber()
-{
-	for (int i = 0; i < playback.current_script.blocks.size(); ++i)
-	{
-		if (playback.current_script.blocks[i].frame >= playback.current_frame)
-		{
-			return i;
-		}
-	}
-
-	return playback.current_script.blocks.size() - 1;
-}
-
 static bool CurrentFrameHasBlock()
 {
 	for (int i = 0; i < playback.current_script.blocks.size(); ++i)
@@ -148,7 +136,7 @@ static FrameBlock* GetBlockForFrame()
 
 	if (CurrentFrameHasBlock())
 	{
-		return &playback.current_script.blocks[GetCurrentBlockNumber()];
+		return &playback.current_script.blocks[playback.GetCurrentBlockNumber()];
 	}
 
 	int block = AddBlock(playback.current_frame);
@@ -197,6 +185,7 @@ static bool Get_Existing_Toggle(const char* cmd_name)
 
 static void SetConvar(const char* name, float new_val)
 {
+	playback.last_edited = Sys_DoubleTime();
 	float old_val = Get_Existing_Value(name);
 
 	if (new_val == old_val)
@@ -219,6 +208,7 @@ static void SetConvar(const char* name, float new_val)
 
 void SetToggle(const char* cmd, bool new_value)
 {
+	playback.last_edited = Sys_DoubleTime();
 	auto block = GetBlockForFrame();
 
 	sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "Block: Added %c%s", new_value ? '+' : '-', cmd);
@@ -256,7 +246,7 @@ void Script_Playback_Host_Frame_Hook()
 		return;
 	}
 
-	int current_block = GetCurrentBlockNumber();
+	int current_block = playback.GetCurrentBlockNumber();
 
 	while (current_block < playback.current_script.blocks.size() && playback.current_script.blocks[current_block].frame <= playback.current_frame)
 	{
@@ -268,6 +258,7 @@ void Script_Playback_Host_Frame_Hook()
 		++current_block;
 	}
 
+	playback.last_edited = Sys_DoubleTime();
 	++playback.current_frame;
 }
 
@@ -349,6 +340,7 @@ void Cmd_TAS_Script_Load(void)
 	Clear_Bookmarks();
 	playback.current_script = TASScript(name);
 	playback.current_script.Load_From_File();
+	playback.last_edited = Sys_DoubleTime();
 	Con_Printf("Script %s loaded with %u blocks.\n", Cmd_Argv(1), playback.current_script.blocks.size());
 }
 
@@ -449,7 +441,7 @@ void Cmd_TAS_Script_Advance_Block(void)
 	else
 		blocks = 1;
 
-	int target_block = GetCurrentBlockNumber() + blocks;
+	int target_block = playback.GetCurrentBlockNumber() + blocks;
 
 	if (target_block < LOWEST_BLOCK || target_block >= playback.current_script.blocks.size())
 	{
@@ -502,7 +494,7 @@ void Cmd_TAS_Edit_Set_View(void)
 
 void Cmd_TAS_Edit_Shrink(void)
 {
-	int current_block = GetCurrentBlockNumber();
+	int current_block = playback.GetCurrentBlockNumber();
 	if (current_block >= playback.current_script.blocks.size())
 	{
 		Con_Printf("Already beyond last block.\n");
@@ -533,7 +525,7 @@ void Cmd_TAS_Edit_Shrink(void)
 
 void Cmd_TAS_Edit_Delete(void)
 {
-	int current_block = GetCurrentBlockNumber();
+	int current_block = playback.GetCurrentBlockNumber();
 	if (current_block <= LOWEST_BLOCK)
 	{
 		Con_Print("Cannot delete first block.\n");
@@ -598,7 +590,7 @@ void Cmd_TAS_Edit_Shift(void)
 		return;
 	}
 
-	int current_block = GetCurrentBlockNumber();
+	int current_block = playback.GetCurrentBlockNumber();
 	auto block = playback.current_script.blocks[current_block];
 	block.frame = new_frame;
 	playback.current_script.blocks.erase(playback.current_script.blocks.begin() + current_block);
@@ -616,7 +608,7 @@ void Cmd_TAS_Edit_Shift_Stack(void)
 	}
 
 	int frames = atoi(Cmd_Argv(1));
-	int current_block = GetCurrentBlockNumber();
+	int current_block = playback.GetCurrentBlockNumber();
 
 	if (current_block == playback.current_script.blocks.size() - 1)
 	{
@@ -752,7 +744,7 @@ void Cmd_TAS_Bookmark_Frame(void)
 
 void Cmd_TAS_Bookmark_Block(void)
 {
-	int current_block = GetCurrentBlockNumber();
+	int current_block = playback.GetCurrentBlockNumber();
 
 	if (Cmd_Argc() == 1)
 	{
@@ -797,8 +789,7 @@ void Cmd_TAS_Bookmark_Skip(void)
 
 qboolean Script_Playback_Cmd_ExecuteString_Hook(const char * text)
 {
-	if (playback.script_running || tas_gamestate != paused || !tas_playing.value
-		|| playback.current_script.blocks.empty())
+	if (!playback.In_Edit_Mode())
 		return qfalse;
 
 	char* name = Cmd_Argv(0);
@@ -828,6 +819,7 @@ qboolean Script_Playback_Cmd_ExecuteString_Hook(const char * text)
 	}
 	else if (strstr(name, "impulse") == name)
 	{
+		playback.last_edited = Sys_DoubleTime();
 		auto block = GetBlockForFrame();
 		sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "Block: Added %s %s", name, Cmd_Argv(1));
 		SCR_CenterPrint(BUFFER);
@@ -849,9 +841,9 @@ PlaybackInfo::PlaybackInfo()
 	should_unpause = false;
 }
 
-const FrameBlock* PlaybackInfo::Get_Current_Block() const
+const FrameBlock* PlaybackInfo::Get_Current_Block(int frame) const
 {
-	int blck = Get_Current_Block_Number();
+	int blck = GetCurrentBlockNumber(frame);
 
 	if(blck >= playback.current_script.blocks.size())
 		return nullptr;
@@ -865,9 +857,20 @@ const FrameBlock* PlaybackInfo::Get_Stacked_Block() const
 }
 
 
-int PlaybackInfo::Get_Current_Block_Number() const
+int PlaybackInfo::GetCurrentBlockNumber(int frame) const
 {
-	return GetCurrentBlockNumber();
+	if(frame == -1)
+		frame = current_frame;
+
+	for (int i = 0; i < current_script.blocks.size(); ++i)
+	{
+		if (current_script.blocks[i].frame >= frame)
+		{
+			return i;
+		}
+	}
+
+	return current_script.blocks.size() - 1;
 }
 
 int PlaybackInfo::Get_Number_Of_Blocks() const
@@ -883,4 +886,10 @@ int PlaybackInfo::Get_Last_Frame() const
 	{
 		return playback.current_script.blocks[playback.current_script.blocks.size() - 1].frame;
 	}
+}
+
+bool PlaybackInfo::In_Edit_Mode() const
+{
+	return !script_running && tas_gamestate == paused && tas_playing.value
+		&& !current_script.blocks.empty();
 }

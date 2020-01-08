@@ -1,6 +1,7 @@
 #include "simulate.hpp"
 #include "strafing.hpp"
 #include "utils.hpp"
+#include "draw.hpp"
 
 trace_t SV_Move_Proxy(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int type, edict_t *passedict)
 {
@@ -628,7 +629,7 @@ void Simulate_SV_ClientThink(SimulationInfo& info)
 	float* angles;
 	float* v_angle;
 
-	VectorCopy(info.angles, info.ent.v.v_angle);
+	VectorCopy(info.viewangles, info.ent.v.v_angle);
 	cmd.forwardmove = info.fmove;
 	cmd.sidemove = info.smove;
 	cmd.upmove = info.upmove;
@@ -663,13 +664,20 @@ void Simulate_SV_ClientThink(SimulationInfo& info)
 #define READ_KEY(name) info.key_##name.state = in_##name.prev
 #define READ_CVAR(name) info.##name = ##name.value
 
-SimulationInfo Get_Current_Status()
+SimulationInfo Get_Sim_Info()
 {
 	SimulationInfo info;
 	info.host_frametime = host_frametime;
 	info.ent = *sv_player;
 	info.time = sv.time;
 	info.jumpflag = sv_player->v.velocity[2];
+	info.smove = 0;
+	info.fmove = 0;
+	info.upmove = 0;
+	info.tas_jump = Is_TAS_Jump_Down();
+	info.tas_lgagst = Is_TAS_Lgagst_Down();
+
+	VectorCopy(cl.prev_viewangles, info.viewangles);
 
 	READ_CVAR(cl_forwardspeed);
 	READ_CVAR(cl_movespeedkey);
@@ -683,23 +691,24 @@ SimulationInfo Get_Current_Status()
 	READ_KEY(up);
 	READ_KEY(down);
 	READ_KEY(speed);
+	READ_KEY(jump);
 	info.vars = Get_Current_Vars();
 
 	return info;
 }
 
 #define CHECK_INPUT(name, member_name) \
-if (block.toggles.find(#name) != block.toggles.end()) \
+if (block->toggles.find(#name) != block->toggles.end()) \
 { \
-	if (info.##member_name.state == 0 && block.toggles.at(#name)) \
+	if (info.##member_name.state == 0 && block->toggles.at(#name)) \
 		info.##member_name.state = 0.5; \
-	else if (info.##member_name.state > 0 && !block.toggles.at(#name)) \
+	else if (info.##member_name.state > 0 && !block->toggles.at(#name)) \
 		info.##member_name.state = 0; \
 } \
 else if (info.##member_name.state == 0.5) \
 	info.##member_name.state = 1;
 
-static void ApplyToggles(SimulationInfo & info, const FrameBlock & block)
+static void ApplyToggles(SimulationInfo & info, const FrameBlock* block)
 {
 	CHECK_INPUT(forward, key_forward);
 	CHECK_INPUT(back, key_back);
@@ -712,12 +721,12 @@ static void ApplyToggles(SimulationInfo & info, const FrameBlock & block)
 }
 
 #define CHECK_CVAR(name, member_name) \
-if (block.convars.find(#name) != block.convars.end()) \
+if (block->convars.find(#name) != block->convars.end()) \
 { \
-	info.##member_name = block.convars.at(#name); \
+	info.##member_name = block->convars.at(#name); \
 }
 
-static void ApplyCvars(SimulationInfo & info, const FrameBlock & block)
+static void ApplyCvars(SimulationInfo & info, const FrameBlock* block)
 {
 	CHECK_CVAR(cl_forwardspeed, cl_forwardspeed);
 	CHECK_CVAR(cl_sidespeed, cl_sidespeed);
@@ -727,24 +736,29 @@ static void ApplyCvars(SimulationInfo & info, const FrameBlock & block)
 	CHECK_CVAR(tas_view_pitch, vars.tas_view_pitch);
 	CHECK_CVAR(tas_strafe, vars.tas_strafe);
 	CHECK_CVAR(tas_strafe_yaw, vars.tas_strafe_yaw);
+	CHECK_CVAR(tas_strafe_version, vars.tas_strafe_version);
 	CHECK_CVAR(tas_anglespeed, vars.tas_anglespeed);
 
-	if (block.convars.find("cl_maxfps") != block.convars.end())
+	if (block->convars.find("cl_maxfps") != block->convars.end())
 	{
-		info.host_frametime = 1.0 / block.convars.at("cl_maxfps");
+		info.host_frametime = 1.0 / block->convars.at("cl_maxfps");
 		info.vars.host_frametime = info.host_frametime;
 	}
 
-	if (block.convars.find("tas_strafe_type") != block.convars.end())
+	if (block->convars.find("tas_strafe_type") != block->convars.end())
 	{
-		int number = static_cast<int>(block.convars.at("tas_strafe_type"));
+		int number = static_cast<int>(block->convars.at("tas_strafe_type"));
 		info.vars.tas_strafe_type = static_cast<StrafeType>(number);
 	}
 }
 
-static void CalculateMoves(SimulationInfo & info, const FrameBlock & block)
+static void CalculateMoves(SimulationInfo & info, const FrameBlock* block)
 {
 	float factor = info.key_speed.state > 0 ? info.cl_movespeedkey : 1;
+	info.fmove = 0;
+	info.smove = 0;
+	info.upmove = 0;
+
 	info.fmove += info.key_forward.state * info.cl_forwardspeed * factor;
 	info.fmove -= info.key_back.state * info.cl_forwardspeed * factor;
 	info.smove += info.key_moveright.state * info.cl_sidespeed * factor;
@@ -753,22 +767,27 @@ static void CalculateMoves(SimulationInfo & info, const FrameBlock & block)
 	info.upmove -= info.key_down.state * info.cl_upspeed * factor;
 }
 
-static void SetStrafe(SimulationInfo& info, const StrafeVars& vars)
+static void SetStrafe(SimulationInfo& info)
 {
 	usercmd_t cmd;
+	cmd.forwardmove = 0;
+	cmd.upmove = 0;
+	cmd.sidemove = 0;
 
-	StrafeSim(&cmd, &info.ent, &info.angles[YAW], &info.angles[PITCH], vars);
-	info.fmove = cmd.forwardmove;
-	info.smove = cmd.sidemove;
-	info.upmove = cmd.upmove;
-	info.angles[ROLL] = 0;
+	StrafeSim(&cmd, &info.ent, &info.viewangles[YAW], &info.viewangles[PITCH], info.vars);
+	if (info.vars.tas_strafe)
+	{
+		info.fmove = cmd.forwardmove;
+		info.smove = cmd.sidemove;
+		info.upmove = cmd.upmove;
+		info.viewangles[ROLL] = 0;
+	}
 }
 
-void ApplyFrameblock(SimulationInfo & info, const FrameBlock & block)
+void ApplyFrameblock(SimulationInfo & info, const FrameBlock* block)
 {
 	ApplyToggles(info, block);
 	ApplyCvars(info, block);
-	SetStrafe(info, info.vars);
 	if(!info.vars.tas_strafe)
 		CalculateMoves(info, block);
 }
@@ -879,14 +898,65 @@ void PlayerPostThink(SimulationInfo& info)
 {
 }
 
+bool Should_Jump(const SimulationInfo& info)
+{
+	if (!info.tas_lgagst && !info.tas_jump)
+		return false;
+
+	auto data = GetPlayerData(const_cast<edict_t*>(&info.ent), info.vars);
+
+	if (!data.onGround)
+		return false;
+
+	if (info.vars.tas_strafe_version <= 1)
+	{
+		float lgagst = tas_strafe_lgagst_speed.value; // fuck anyone who changes this value and uses the old strafing version
+		return data.vel2d > lgagst && info.vars.tas_strafe && info.vars.tas_strafe_type == StrafeType::MaxAccel;
+	}
+	else
+	{
+		auto jump = info;
+		auto nojump = info;
+		jump.key_jump.state = 1;
+		nojump.key_jump.state = 0;
+
+		SimulateWithStrafe(jump);
+		SimulateWithStrafe(jump);
+		SimulateWithStrafe(nojump);
+		SimulateWithStrafe(nojump);
+
+		float jumpSpeed = VectorLength2D(jump.ent.v.velocity);
+		float nojumpSpeed = VectorLength2D(nojump.ent.v.velocity);
+
+		return jumpSpeed >= nojumpSpeed;
+	}
+}
+
+
+static void SimulateWithStrafePlusJump(SimulationInfo& info)
+{
+	SetStrafe(info);
+	SimulateFrame(info);
+
+	bool jump = Should_Jump(info);
+	if (!jump && info.key_jump.state > 0 && (info.tas_jump || info.tas_lgagst))
+	{
+		info.key_jump.state = 0;
+	}
+	else if (jump && info.key_jump.state == 0)
+	{
+		info.key_jump.state = 1;
+	}
+}
+
 void SimulateFrame(SimulationInfo& info)
 {
 	for (int i = 0; i < 3; ++i)
 	{
-		info.angles[i] = AngleModDeg(info.angles[i]);
+		info.viewangles[i] = AngleModDeg(info.viewangles[i]);
 	}
 
-	VectorCopy(info.angles, info.ent.v.angles);
+	VectorCopy(info.viewangles, info.ent.v.angles);
 
 	info.time += info.host_frametime;
 	Simulate_SV_ClientThink(info);
@@ -895,8 +965,65 @@ void SimulateFrame(SimulationInfo& info)
 	PlayerPostThink(info);
 }
 
-void SimulateWithStrafe(SimulationInfo & info, const StrafeVars & vars)
+void SimulateWithStrafe(SimulationInfo & info)
 {
-	SetStrafe(info, vars);
+	SetStrafe(info);
 	SimulateFrame(info);
+}
+
+cvar_t tas_predict_freq{ "tas_predict_freq", "0.1" }; // How often the prediction should be refreshed
+cvar_t tas_predict{ "tas_predict", "1" }; // Should predict player path in edit mode?
+cvar_t tas_predict_max{ "tas_predict_max", "3" }; // Maximum length of path to predict
+cvar_t tas_predict_min{ "tas_predict_min", "3" }; // Minimum length of path to predict
+
+void Simulate_Frame_Hook()
+{
+	static double last_updated = 0;
+	static bool path_assigned = false;
+	const std::string pathName = "predict";
+	static std::vector<PathPoint> points;
+
+	if(cls.state != ca_connected)
+		return;
+	auto& playback = GetPlaybackInfo();
+	if (!playback.In_Edit_Mode() || !tas_predict.value)
+	{
+		RemoveCurve(pathName);
+		path_assigned = false;
+		return;
+	}
+
+	double currentTime = Sys_DoubleTime();
+
+	if (currentTime - last_updated < tas_predict_freq.value || last_updated > playback.last_edited)
+	{
+		return;
+	}
+
+	points.clear();
+	last_updated = currentTime;
+
+	SimulationInfo info = Get_Sim_Info();
+	double simulationStartTime = info.time;
+	int last_frame = playback.Get_Last_Frame();
+
+	for (int frame = playback.current_frame; (info.time <= simulationStartTime + tas_predict_min.value) ||
+	(info.time < simulationStartTime + tas_predict_max.value && frame <= last_frame); ++frame)
+	{
+		PathPoint vec;
+		vec.color[0] = 0, vec.color[1] = 1, vec.color[2] = 0;
+		VectorCopy(info.ent.v.origin, vec.point);
+		points.push_back(vec);
+
+		auto block = playback.Get_Current_Block(frame);
+		if(block->frame == frame)
+			ApplyFrameblock(info, block);
+		SimulateWithStrafePlusJump(info);
+	}
+
+	if (!path_assigned)
+	{
+		AddCurve(&points, pathName);
+		path_assigned = true;
+	}
 }

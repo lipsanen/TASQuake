@@ -7,6 +7,7 @@
 #include "script_playback.hpp"
 #include "hud.hpp"
 #include "draw.hpp"
+#include "simulate.hpp"
 
 cvar_t	tas_pause_onload = { "tas_pause_onload", "0" };
 cvar_t tas_playing = { "tas_playing", "0" };
@@ -143,6 +144,10 @@ void TAS_Init()
 	Cvar_Register(&tas_hud_waterlevel);
 	Cvar_Register(&tas_hud_state);
 	Cvar_Register(&tas_timescale);
+	Cvar_Register(&tas_predict);
+	Cvar_Register(&tas_predict_freq);
+	Cvar_Register(&tas_predict_min);
+	Cvar_Register(&tas_predict_max);
 }
 
 void TAS_Set_Seed(unsigned int seed)
@@ -199,6 +204,7 @@ void _Host_Frame_Hook()
 		}		
 	}
 
+	Simulate_Frame_Hook();
 	Script_Playback_Host_Frame_Hook();
 
 	if (tas_gamestate == unpaused)

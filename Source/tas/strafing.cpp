@@ -16,7 +16,6 @@ cvar_t tas_anglespeed = { "tas_anglespeed", "5" };
 cvar_t tas_strafe_version = { "tas_strafe_version", "2"};
 const float INVALID_ANGLE = 999;
 
-static bool shouldJump = false;
 static bool autojump = false;
 static bool tas_lgagst = false;
 static bool print_origin = false;
@@ -80,6 +79,16 @@ static float Get_EntFriction(float* vel, float* player_origin)
 		return 1;
 }
 
+bool Is_TAS_Jump_Down()
+{
+	return autojump;
+}
+
+bool Is_TAS_Lgagst_Down()
+{
+	return tas_lgagst;
+}
+
 StrafeVars Get_Current_Vars()
 {
 	StrafeVars vars;
@@ -90,6 +99,7 @@ StrafeVars Get_Current_Vars()
 	vars.tas_strafe_yaw = (float)tas_strafe_yaw.value;
 	vars.tas_view_pitch = (float)tas_view_pitch.value;
 	vars.tas_view_yaw = (float)tas_view_yaw.value;
+	vars.tas_strafe_version = (int)tas_strafe_version.value;
 	return vars;
 }
 
@@ -133,10 +143,10 @@ PlayerData GetPlayerData(edict_t* player, const StrafeVars& vars)
 		data.vel_theta = NormalizeRad(std::atan2(data.velocity[1], data.velocity[0]));
 	else
 	{
-		if (tas_strafe_version.value == 1)
-			data.vel_theta = NormalizeRad(tas_strafe_yaw.value); // Old bugged vel theta calculation
+		if (vars.tas_strafe_version == 1)
+			data.vel_theta = NormalizeRad(vars.tas_strafe_yaw); // Old bugged vel theta calculation
 		else
-			data.vel_theta = NormalizeRad(tas_strafe_yaw.value * M_DEG2RAD);
+			data.vel_theta = NormalizeRad(vars.tas_strafe_yaw * M_DEG2RAD);
 	}
 
 	return data;
@@ -317,21 +327,6 @@ void Strafe(usercmd_t* cmd)
 {
 	auto vars = Get_Current_Vars();
 	StrafeSim(cmd, sv_player, &cl.viewangles[YAW], &cl.viewangles[PITCH], vars);
-	/*
-	present = Get_Current_Status();
-	past.jump = (in_jump.state & 3) || (in_jump.state & 1);
-	present.jump = (in_jump.state & 3) || (in_jump.state & 1);
-	past.fmove = cmd->forwardmove;
-	present.fmove = cmd->forwardmove;
-	past.smove = cmd->sidemove;
-	present.smove = cmd->sidemove;
-	past.upmove = cmd->upmove;
-	present.upmove = cmd->upmove;
-
-	VectorCopy(cl.viewangles, past.angles);
-	VectorCopy(cl.viewangles, present.angles);
-	SimulateFrame(past);
-	SimulateFrame(present);*/
 }
 
 void StrafeSim(usercmd_t* cmd, edict_t* player, float *yaw, float *pitch, const StrafeVars& vars)
@@ -384,52 +379,19 @@ void CheckDiff(vec3_t orig, vec3_t pred, const char* name)
 
 void Strafe_Jump_Check()
 {
-	auto data = GetPlayerData();
-	bool wantsToJump = false;
-	/*
-	CheckDiff(sv_player->v.velocity, past.ent.v.velocity, "vel");
-	CheckDiff(sv_player->v.angles, past.ent.v.angles, "angles");
-	past = present;*/
+	auto sim = Get_Sim_Info();
+	bool jump = Should_Jump(sim);
 
-	if (tas_strafe_version.value <= 1)
-	{ // small 🧠 lgagst
-		float lgagst = tas_strafe_lgagst_speed.value;
-		wantsToJump = (data.vel2d > lgagst && tas_strafe.value != 0 &&
-			tas_strafe_type.value == (int)StrafeType::MaxAccel);
-	}
-	else
-	{ // big 🧠 lgagst
-		
-		auto jump = Get_Current_Status();
-		auto vars = jump.vars;
-		auto nojump = jump;
-		jump.key_jump.state = 1;
-		nojump.key_jump.state = 0;
-
-		SimulateWithStrafe(jump, vars);
-		SimulateWithStrafe(jump, vars);
-		SimulateWithStrafe(nojump, vars);
-		SimulateWithStrafe(nojump, vars);
-
-		float jumpSpeed = VectorLength2D(jump.ent.v.velocity);
-		float nojumpSpeed = VectorLength2D(nojump.ent.v.velocity);
-
-		wantsToJump = jumpSpeed >= nojumpSpeed;
-	}
-
-	wantsToJump = (wantsToJump && tas_lgagst) || autojump;
-	wantsToJump = wantsToJump && (in_jump.state & 1) == 0 && (in_jump.state & 3) == 0;
-
-	if (wantsToJump && data.onGround)
-	{
-		AddAfterframes(0, "+jump");
-		shouldJump = true;
-	}
-	else if (shouldJump)
+	if (!jump && (in_jump.state & 1) == 1 && (sim.tas_jump || sim.tas_lgagst))
 	{
 		AddAfterframes(0, "-jump");
-		shouldJump = false;
 	}
+	else if (jump && (in_jump.state & 1) == 0)
+	{
+		AddAfterframes(0, "+jump");
+	}
+
+	auto data = GetPlayerData();
 
 	if (print_vel)
 	{
