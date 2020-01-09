@@ -173,6 +173,7 @@ extern  cvar_t  r_overlay;
 extern  cvar_t  r_overlay_width;
 extern  cvar_t  r_overlay_mode;
 extern  cvar_t  r_overlay_pos;
+extern  cvar_t  r_overlay_offset;
 extern  cvar_t  r_nopvs;
 extern  cvar_t  r_norefresh;
 

@@ -98,6 +98,8 @@ cvar_t  r_overlay = { "r_overlay", "0" };
 cvar_t  r_overlay_pos = { "r_overlay_pos", "0" };
 cvar_t  r_overlay_width = { "r_overlay_width", "320" };
 cvar_t  r_overlay_mode = { "r_overlay_mode", "0"};
+qboolean OnChange_r_overlay_offset(cvar_t *var, char *string);
+cvar_t  r_overlay_offset = {"r_overlay_offset", "0 0 300", 0, OnChange_r_overlay_offset};
 qboolean OnChange_r_norefresh(cvar_t *var, char *string);
 cvar_t  r_norefresh = { "r_norefresh", "0", 0, OnChange_r_norefresh};
 
@@ -2410,6 +2412,7 @@ void R_Init (void)
 	Cvar_Register (&r_overlay_mode);
 	Cvar_Register (&r_overlay_pos);
 	Cvar_Register (&r_overlay_width);
+	Cvar_Register (&r_overlay_offset);
 	Cvar_Register (&r_norefresh);
 
 	Cvar_Register (&gl_finish);
@@ -2660,7 +2663,24 @@ static void Draw_Overlay_Crosshair(void)
 	glEnable(GL_DEPTH_TEST);
 }
 
-static void Setup_Overlay_Viewport(vec3_t orig_vieworg)
+vec3_t r_overlay_offset_vec;
+qboolean r_overlay_offset_init = false;
+
+static void Setup_Overlay_Overhead()
+{
+	if (!r_overlay_offset_init)
+	{
+		OnChange_r_overlay_offset(&r_overlay_offset, r_overlay_offset.string);
+		r_overlay_offset_init = true;
+	}
+
+	VectorAdd(r_refdef.vieworg, r_overlay_offset_vec, r_refdef.vieworg);
+	r_refdef.viewangles[0] = 90;
+	r_refdef.viewangles[1] = 0;
+	r_refdef.viewangles[2] = 0;
+}
+
+static void Setup_Overlay_Lbug()
 {
 	vec3_t fwd;
 	vec3_t endp;
@@ -2670,12 +2690,6 @@ static void Setup_Overlay_Viewport(vec3_t orig_vieworg)
 	VectorCopy(r_refdef.vieworg, origin);
 	origin[2] -= 6;
 
-	float asp = (float)glwidth / glheight;
-	int width = (int)r_overlay_width.value;
-	int height = (int)(width / asp);
-	int position = (int)r_overlay_pos.value;
-
-	VectorCopy(r_refdef.vieworg, orig_vieworg);
 	AngleVectors(cl.viewangles, fwd, NULL, NULL);
 	VectorScale(fwd, 600, lgfwd);
 	VectorCopy(origin, endp);
@@ -2707,6 +2721,16 @@ static void Setup_Overlay_Viewport(vec3_t orig_vieworg)
 	}
 
 
+
+}
+
+static void Set_Overlay_Viewport()
+{
+	float asp = (float)glwidth / glheight;
+	int width = (int)r_overlay_width.value;
+	int height = (int)(width / asp);
+	int position = (int)r_overlay_pos.value;
+
 	switch (position)
 	{
 	case 0:
@@ -2734,12 +2758,38 @@ void R_RenderOverlay(void)
 
 	in_overlay = true;
 	vec3_t orig_vieworg;
-	Setup_Overlay_Viewport(orig_vieworg);
+	vec3_t orig_viewangles;
+
+	VectorCopy(r_refdef.vieworg, orig_vieworg);
+	VectorCopy(r_refdef.viewangles, orig_viewangles);
+
+	if(r_overlay_mode.value <= 1)
+		Setup_Overlay_Lbug();
+	else if(r_overlay_mode.value == 2)
+		Setup_Overlay_Overhead();
+	Set_Overlay_Viewport();
 	
 	Clear_Screen();
 
 	R_RenderView();
+
 	VectorCopy(orig_vieworg, r_refdef.vieworg);
+	VectorCopy(orig_viewangles, r_refdef.viewangles);
 	in_overlay = false;
-	Draw_Overlay_Crosshair();
+	if (r_overlay_mode.value <= 1)
+		Draw_Overlay_Crosshair();
+}
+
+
+qboolean OnChange_r_overlay_offset(cvar_t * var, char * string)
+{
+	float x = 0, y = 0, z = 0;
+
+	sscanf(string, "%f %f %f", &x, &y, &z);
+	r_overlay_offset_vec[0] = x;
+	r_overlay_offset_vec[1] = y;
+	r_overlay_offset_vec[2] = z;
+	r_overlay_offset_init = true;
+
+	return false;
 }

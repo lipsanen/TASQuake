@@ -28,6 +28,11 @@ int ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce)
 
 	backoff = DotProduct(in, normal) * overbounce;
 
+	if (backoff > 0)
+	{
+		int a = 0;
+	}
+
 	for (i = 0; i < 3; i++)
 	{
 		change = normal[i] * backoff;
@@ -428,200 +433,6 @@ void SV_CheckStuck(edict_t *ent)
 	VectorCopy(org, ent->v.origin);
 }
 
-
-void Simulate_SV_WaterJump(edict_t* ent)
-{
-	if (sv.time > ent->v.teleport_time || !ent->v.waterlevel)
-	{
-		ent->v.flags = (int)ent->v.flags & ~FL_WATERJUMP;
-		ent->v.teleport_time = 0;
-	}
-	ent->v.velocity[0] = ent->v.movedir[0];
-	ent->v.velocity[1] = ent->v.movedir[1];
-}
-
-void SV_WaterMove(edict_t* ent, const usercmd_t& cmd, double hfr)
-{
-	int	i;
-	vec3_t	wishvel, forward, right, up;
-	float	speed, newspeed, wishspeed, addspeed, accelspeed;
-
-	// user intentions
-	AngleVectors(ent->v.v_angle, forward, right, up);
-
-	for (i = 0; i < 3; i++)
-		wishvel[i] = forward[i] * cmd.forwardmove + right[i] * cmd.sidemove;
-
-	if (!cmd.forwardmove && !cmd.sidemove && !cmd.upmove)
-		wishvel[2] -= 60;		// drift towards bottom
-	else
-		wishvel[2] += cmd.upmove;
-
-	wishspeed = VectorLength(wishvel);
-	if (wishspeed > sv_maxspeed.value)
-	{
-		VectorScale(wishvel, sv_maxspeed.value / wishspeed, wishvel);
-		wishspeed = sv_maxspeed.value;
-	}
-	wishspeed *= 0.7;
-
-	// water friction
-	speed = VectorLength(ent->v.velocity);
-	if (speed)
-	{
-		newspeed = speed - hfr * speed * sv_friction.value;
-		if (newspeed < 0)
-			newspeed = 0;
-		VectorScale(ent->v.velocity, newspeed / speed, ent->v.velocity);
-	}
-	else
-	{
-		newspeed = 0;
-	}
-
-	// water acceleration
-	if (!wishspeed)
-		return;
-
-	addspeed = wishspeed - newspeed;
-	if (addspeed <= 0)
-		return;
-
-	VectorNormalize(wishvel);
-	accelspeed = sv_accelerate.value * wishspeed * hfr;
-	if (accelspeed > addspeed)
-		accelspeed = addspeed;
-
-	for (i = 0; i < 3; i++)
-		ent->v.velocity[i] += accelspeed * wishvel[i];
-}
-
-void SV_UserFriction(edict_t* ent, double hfr)
-{
-	float	*vel, speed, newspeed, control, friction;
-	vec3_t	start, stop;
-	trace_t	trace;
-
-	vel = ent->v.velocity;
-
-	speed = sqrt(vel[0] * vel[0] + vel[1] * vel[1]);
-	if (!speed)
-		return;
-
-	// if the leading edge is over a dropoff, increase friction
-	start[0] = stop[0] = ent->v.origin[0] + vel[0] / speed * 16;
-	start[1] = stop[1] = ent->v.origin[1] + vel[1] / speed * 16;
-	start[2] = ent->v.origin[2] + ent->v.mins[2];
-	stop[2] = start[2] - 34;
-
-	trace = SV_Move_Proxy(start, vec3_origin, vec3_origin, stop, true, ent);
-
-	if (trace.fraction == 1.0)
-		friction = sv_friction.value * sv_edgefriction.value;
-	else
-		friction = sv_friction.value;
-
-	// apply friction	
-	control = speed < sv_stopspeed.value ? sv_stopspeed.value : speed;
-	newspeed = speed - hfr * control * friction;
-
-	if (newspeed < 0)
-		newspeed = 0;
-	newspeed /= speed;
-
-	vel[0] = vel[0] * newspeed;
-	vel[1] = vel[1] * newspeed;
-	vel[2] = vel[2] * newspeed;
-}
-
-void SV_Accelerate(edict_t* ent, vec3_t wishdir, double wishspeed, double hfr)
-{
-	int	i;
-	float	addspeed, accelspeed, currentspeed;
-
-	currentspeed = DotProduct(ent->v.velocity, wishdir);
-	addspeed = wishspeed - currentspeed;
-	if (addspeed <= 0)
-		return;
-	accelspeed = sv_accelerate.value*hfr*wishspeed;
-	if (accelspeed > addspeed)
-		accelspeed = addspeed;
-
-	for (i = 0; i < 3; i++)
-		ent->v.velocity[i] += accelspeed * wishdir[i];
-}
-
-
-void SV_AirAccelerate(edict_t* ent, vec3_t wishveloc, double wishspeed, double hfr)
-{
-	int	i;
-	float	addspeed, wishspd, accelspeed, currentspeed;
-
-	wishspd = VectorNormalize(wishveloc);
-	if (wishspd > 30)
-		wishspd = 30;
-	currentspeed = DotProduct(ent->v.velocity, wishveloc);
-	addspeed = wishspd - currentspeed;
-	if (addspeed <= 0)
-		return;
-	//	accelspeed = sv_accelerate.value * host_frametime;
-	accelspeed = sv_accelerate.value*wishspeed * hfr;
-	if (accelspeed > addspeed)
-		accelspeed = addspeed;
-
-	for (i = 0; i < 3; i++)
-		ent->v.velocity[i] += accelspeed * wishveloc[i];
-}
-
-
-
-void SV_AirMove(edict_t* ent, const usercmd_t& cmd, double hfr, double time)
-{
-	int	i;
-	vec3_t	wishvel, wishdir, forward, right, up;
-	float	fmove, smove;
-	float wishspeed;
-
-	AngleVectors(ent->v.angles, forward, right, up);
-
-	fmove = cmd.forwardmove;
-	smove = cmd.sidemove;
-
-	// hack to not let you back into teleporter
-	if (time < ent->v.teleport_time && fmove < 0)
-		fmove = 0;
-
-	for (i = 0; i < 3; i++)
-		wishvel[i] = forward[i] * fmove + right[i] * smove;
-
-	if ((int)ent->v.movetype != MOVETYPE_WALK)
-		wishvel[2] = cmd.upmove;
-	else
-		wishvel[2] = 0;
-
-	VectorCopy(wishvel, wishdir);
-	wishspeed = VectorNormalize(wishdir);
-	if (wishspeed > sv_maxspeed.value)
-	{
-		VectorScale(wishvel, sv_maxspeed.value / wishspeed, wishvel);
-		wishspeed = sv_maxspeed.value;
-	}
-
-	if (ent->v.movetype == MOVETYPE_NOCLIP)
-	{	// noclip
-		VectorCopy(wishvel, ent->v.velocity);
-	}
-	else if ((int)ent->v.flags & FL_ONGROUND)
-	{
-		SV_UserFriction(ent, hfr);
-		SV_Accelerate(ent, wishdir, wishspeed, hfr);
-	}
-	else
-	{	// not on ground, so little effect on velocity
-		SV_AirAccelerate(ent, wishvel, wishspeed, hfr);
-	}
-}
-
 void PlayerPhysics(SimulationInfo& info)
 {
 	if (!SV_CheckWater(&info.ent) && !((int)info.ent.v.flags & FL_WATERJUMP))
@@ -632,40 +443,21 @@ void PlayerPhysics(SimulationInfo& info)
 
 void Simulate_SV_ClientThink(SimulationInfo& info)
 {
-	usercmd_t cmd;
-	float* angles;
-	float* v_angle;
+	client_t t;
+	t.cmd.forwardmove = info.fmove;
+	t.cmd.sidemove = info.smove;
+	t.cmd.upmove = info.upmove;
 
-	VectorCopy(info.viewangles, info.ent.v.v_angle);
-	cmd.forwardmove = info.fmove;
-	cmd.sidemove = info.smove;
-	cmd.upmove = info.upmove;
+	edict_t* ply = sv_player;
+	client_t* host = host_client;
 
-	
-	angles = info.ent.v.angles;
-	v_angle = info.ent.v.v_angle;
+	host_client = &t;
+	sv_player = &info.ent;
 
-	//VectorAdd(v_angle, info.ent.v.punchangle, v_angle);
-	//angles[ROLL] = V_CalcRoll(info.ent.v.angles, info.ent.v.velocity) * 4;
-	if (!info.ent.v.fixangle)
-	{
-		angles[PITCH] = -v_angle[PITCH] / 3;
-		angles[YAW] = v_angle[YAW];
-	}
+	SV_ClientThink();
 
-	if ((int)info.ent.v.flags & FL_WATERJUMP)
-	{
-		Simulate_SV_WaterJump(&info.ent);
-		return;
-	}
-	// walk
-	if ((info.ent.v.waterlevel >= 2) && (info.ent.v.movetype != MOVETYPE_NOCLIP))
-	{
-		SV_WaterMove(&info.ent, cmd, info.host_frametime);
-		return;
-	}
-
-	SV_AirMove(&info.ent, cmd, info.host_frametime, info.time);
+	sv_player = ply;
+	host_client = host;
 }
 
 #define READ_KEY(name) info.key_##name.state = in_##name.prev
@@ -686,6 +478,8 @@ SimulationInfo Get_Sim_Info()
 	info.collision = false;
 
 	VectorCopy(cl.prev_viewangles, info.viewangles);
+	for(int i=0; i < 3; ++i)
+		info.ent.v.v_angle[i] = AngleModDeg(cl.prev_viewangles[i]);
 
 	READ_CVAR(cl_forwardspeed);
 	READ_CVAR(cl_movespeedkey);
@@ -716,6 +510,8 @@ if (block->toggles.find(#name) != block->toggles.end()) \
 else if (info.##member_name.state == 0.5) \
 	info.##member_name.state = 1;
 
+#define TOGGLE_BOOL(name) block->toggles.find(#name) != block->toggles.end()
+
 static void ApplyToggles(SimulationInfo & info, const FrameBlock* block)
 {
 	CHECK_INPUT(forward, key_forward);
@@ -726,6 +522,12 @@ static void ApplyToggles(SimulationInfo & info, const FrameBlock* block)
 	CHECK_INPUT(movedown, key_down);
 	CHECK_INPUT(speed, key_speed);
 	CHECK_INPUT(jump, key_jump);
+
+	if(TOGGLE_BOOL(tas_lgagst))
+		info.tas_lgagst = block->toggles.at("tas_lgagst");
+
+	if (TOGGLE_BOOL(tas_jump))
+		info.tas_jump = block->toggles.at("tas_jump");
 }
 
 #define CHECK_CVAR(name, member_name) \
@@ -962,10 +764,8 @@ void SimulateFrame(SimulationInfo& info)
 {
 	for (int i = 0; i < 3; ++i)
 	{
-		info.viewangles[i] = AngleModDeg(info.viewangles[i]);
+		info.ent.v.v_angle[i] = AngleModDeg(info.viewangles[i]);
 	}
-
-	VectorCopy(info.viewangles, info.ent.v.angles);
 
 	info.time += info.host_frametime;
 	Simulate_SV_ClientThink(info);
@@ -991,6 +791,7 @@ void Simulate_Frame_Hook()
 	static bool path_assigned = false;
 	const std::string pathName = "predict";
 	static std::vector<PathPoint> points;
+	static std::vector<Vector3f> vels;
 
 	if(cls.state != ca_connected)
 		return;
@@ -1005,16 +806,21 @@ void Simulate_Frame_Hook()
 	
 	double currentTime = Sys_DoubleTime();
 	static int frame = 0;
+	static int startFrame = 0;
 	static SimulationInfo info;
 	static double simulationStartTime = 0;
+	static int printed_index = -1;
 
 	if (last_updated < playback.last_edited)
 	{
+		vels.clear();
 		points.clear();
 		last_updated = currentTime;
+		startFrame = playback.current_frame;
 		frame = playback.current_frame;
 		info = Get_Sim_Info();
 		simulationStartTime = info.time;
+		printed_index = -1;
 	}
 
 	double realTimeStart = Sys_DoubleTime();
@@ -1037,11 +843,35 @@ void Simulate_Frame_Hook()
 		VectorCopy(info.ent.v.origin, vec.point);
 		points.push_back(vec);
 
+		Vector3f vel;
+		VectorCopy(info.ent.v.velocity, vel);
+		vels.push_back(vel);
+
 		auto block = playback.Get_Current_Block(frame);
 		if(block->frame == frame)
 			ApplyFrameblock(info, block);
 		SimulateWithStrafePlusJump(info);
 	}
+
+	/*
+	int current_index = playback.current_frame - startFrame;
+
+	if (current_index < points.size())
+	{
+		vec3_t diff;
+		VectorCopy(sv_player->v.origin, diff);
+		VectorSubtract(diff, points[current_index].point, diff);
+		float len = VectorLength(diff);
+		if (len > 0.01 && printed_index != current_index)
+		{
+			auto& expected = vels[current_index];
+			auto actual = sv_player->v.velocity;
+
+			Con_Printf("Error %f, expected vel (%f, %f, %f), actual (%f, %f, %f)\n", len, expected[0], expected[1], expected[2], actual[0], actual[1], actual[2]);
+			printed_index = current_index;
+		}
+	}*/
+
 
 	if (!path_assigned)
 	{

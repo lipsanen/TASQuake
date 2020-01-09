@@ -20,7 +20,7 @@ static float old_pitch = 0;
 static MouseState m_state = MouseState::Locked;
 
 cvar_t tas_edit_backups = { "tas_edit_backups", "100" };
-cvar_t tas_edit_snap_threshold = { "tas_edit_snap_threshold", "5" };
+cvar_t tas_edit_snap_threshold = { "tas_edit_snap_threshold", "0.001" };
 
 static void Run_Script(int frame, bool skip = false)
 {
@@ -60,6 +60,7 @@ static void Run_Script(int frame, bool skip = false)
 	}
 
 	playback.script_running = true;
+	playback.last_edited = Sys_DoubleTime();
 }
 
 static void Continue_Script(int frames)
@@ -573,6 +574,7 @@ void Shift_Block(const FrameBlock& new_block)
 
 	if (!set)
 	{
+		playback.last_edited = Sys_DoubleTime();
 		playback.current_script.blocks.push_back(new_block);
 	}
 }
