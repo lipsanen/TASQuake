@@ -173,7 +173,7 @@ void SCR_Draw_TAS_HUD_Hook(void)
 
 void Draw_Lines_Hook(void)
 {
-	Draw_Lines();
+	Draw_Elements();
 }
 
 void Host_Connect_f_Hook()

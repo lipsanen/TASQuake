@@ -798,7 +798,8 @@ void Simulate_Frame_Hook()
 	auto& playback = GetPlaybackInfo();
 	if (!playback.In_Edit_Mode() || !tas_predict.value)
 	{
-		RemoveCurve(pathName);
+		RemoveCurve(PREDICTION_ID);
+		RemoveRectangles(PREDICTION_ID);
 		path_assigned = false;
 		return;
 	}
@@ -813,12 +814,14 @@ void Simulate_Frame_Hook()
 
 	if (last_updated < playback.last_edited)
 	{
+		RemoveRectangles(PREDICTION_ID);
 		vels.clear();
 		points.clear();
 		last_updated = currentTime;
 		startFrame = playback.current_frame;
 		frame = playback.current_frame;
 		info = Get_Sim_Info();
+		info.vars.simulated = true;
 		simulationStartTime = info.time;
 		printed_index = -1;
 	}
@@ -848,34 +851,25 @@ void Simulate_Frame_Hook()
 		vels.push_back(vel);
 
 		auto block = playback.Get_Current_Block(frame);
-		if(block->frame == frame)
+		if (block->frame == frame)
+		{
 			ApplyFrameblock(info, block);
+			Rect rect;
+			rect.id = PREDICTION_ID;
+			VectorCopy(vec3_origin, rect.color);
+			rect.color[2] = 1;
+			VectorCopy(info.ent.v.origin, rect.center);
+			rect.width = 10;
+			rect.height = 10;
+			AddRectangle(rect);
+		}
+
 		SimulateWithStrafePlusJump(info);
 	}
 
-	/*
-	int current_index = playback.current_frame - startFrame;
-
-	if (current_index < points.size())
-	{
-		vec3_t diff;
-		VectorCopy(sv_player->v.origin, diff);
-		VectorSubtract(diff, points[current_index].point, diff);
-		float len = VectorLength(diff);
-		if (len > 0.01 && printed_index != current_index)
-		{
-			auto& expected = vels[current_index];
-			auto actual = sv_player->v.velocity;
-
-			Con_Printf("Error %f, expected vel (%f, %f, %f), actual (%f, %f, %f)\n", len, expected[0], expected[1], expected[2], actual[0], actual[1], actual[2]);
-			printed_index = current_index;
-		}
-	}*/
-
-
 	if (!path_assigned)
 	{
-		AddCurve(&points, pathName);
+		AddCurve(&points, PREDICTION_ID);
 		path_assigned = true;
 	}
 }

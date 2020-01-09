@@ -226,13 +226,29 @@ void SetToggle(const char* cmd, bool new_value)
 	block->toggles[cmd] = new_value;
 }
 
+static void ApplyMouseStuff()
+{
+	if (m_state == MouseState::Strafe)
+	{
+		float yaw = Round(cl.viewangles[YAW], tas_edit_snap_threshold.value);
+		SetConvar("tas_strafe", 1, true);
+		SetConvar("tas_strafe_yaw", yaw, true);
+	}
+	else if (m_state == MouseState::Mixed || m_state == MouseState::Yaw)
+	{
+		SetConvar("tas_view_yaw", cl.viewangles[YAW], true);
+	}
+	else if (m_state == MouseState::Mixed || m_state == MouseState::Pitch)
+	{
+		SetConvar("tas_view_pitch", cl.viewangles[PITCH], true);
+	}
+}
 
 void Script_Playback_Host_Frame_Hook()
 {
-	if (playback.In_Edit_Mode() && m_state == MouseState::Strafe)
+	if (playback.In_Edit_Mode() && m_state != MouseState::Locked)
 	{
-		float yaw = Round(cl.viewangles[YAW], tas_edit_snap_threshold.value);
-		SetConvar("tas_strafe_yaw", yaw, true);
+		ApplyMouseStuff();
 	}
 
 	if (tas_gamestate == paused && playback.should_unpause)
@@ -668,22 +684,6 @@ void Cmd_TAS_Confirm(void)
 {
 	if (m_state == MouseState::Locked)
 		return;
-
-	if (m_state == MouseState::Strafe)
-	{
-		float yaw = Round(cl.viewangles[YAW], tas_edit_snap_threshold.value);
-		SetConvar("tas_strafe", 1);
-		SetConvar("tas_strafe_yaw", yaw);
-	}
-	else if (m_state == MouseState::Mixed || m_state == MouseState::Yaw)
-	{
-		SetConvar("tas_view_yaw", cl.viewangles[YAW]);
-	}
-	else if (m_state == MouseState::Mixed || m_state == MouseState::Pitch)
-	{
-		SetConvar("tas_view_pitch", cl.viewangles[PITCH]);
-	}
-
 	m_state = MouseState::Locked;
 }
 
@@ -693,8 +693,19 @@ void Cmd_TAS_Cancel(void)
 		return;
 
 	m_state = MouseState::Locked;
-	SetConvar("tas_strafe", Get_Stacked_Value("tas_strafe"));
-	SetConvar("tas_strafe_yaw", Get_Stacked_Value("tas_strafe_yaw"));
+	if (m_state == MouseState::Strafe)
+	{
+		SetConvar("tas_strafe_yaw", Get_Stacked_Value("tas_strafe_yaw"), true);
+		SetConvar("tas_strafe", Get_Stacked_Value("tas_strafe"), true);
+	}
+	else if (m_state == MouseState::Mixed || m_state == MouseState::Yaw)
+	{
+		SetConvar("tas_view_yaw", Get_Stacked_Value("tas_view_yaw"), true);
+	}
+	else if (m_state == MouseState::Mixed || m_state == MouseState::Pitch)
+	{
+		SetConvar("tas_view_pitch", Get_Stacked_Value("tas_view_pitch"), true);
+	}
 }
 
 void Cmd_TAS_Revert(void)
@@ -704,16 +715,16 @@ void Cmd_TAS_Revert(void)
 
 	if (m_state == MouseState::Strafe)
 	{
-		SetConvar("tas_strafe_yaw", Get_Stacked_Value("tas_strafe_yaw"));
-		SetConvar("tas_strafe", Get_Stacked_Value("tas_strafe"));
+		SetConvar("tas_strafe_yaw", Get_Stacked_Value("tas_strafe_yaw"), true);
+		SetConvar("tas_strafe", Get_Stacked_Value("tas_strafe"), true);
 	}
 	else if (m_state == MouseState::Mixed || m_state == MouseState::Yaw)
 	{
-		SetConvar("tas_view_yaw", Get_Stacked_Value("tas_view_yaw"));
+		SetConvar("tas_view_yaw", Get_Stacked_Value("tas_view_yaw"), true);
 	}
 	else if (m_state == MouseState::Mixed || m_state == MouseState::Pitch)
 	{
-		SetConvar("tas_view_pitch", Get_Stacked_Value("tas_view_pitch"));
+		SetConvar("tas_view_pitch", Get_Stacked_Value("tas_view_pitch"), true);
 	}
 	m_state = MouseState::Locked;
 }
@@ -725,15 +736,15 @@ void Cmd_TAS_Reset(void)
 
 	if (m_state == MouseState::Strafe)
 	{
-		SetConvar("tas_strafe", 0);
+		SetConvar("tas_strafe", 0, true);
 	}
 	else if (m_state == MouseState::Mixed || m_state == MouseState::Yaw)
 	{
-		SetConvar("tas_view_yaw", INVALID_ANGLE);
+		SetConvar("tas_view_yaw", INVALID_ANGLE, true);
 	}
 	else if (m_state == MouseState::Mixed || m_state == MouseState::Pitch)
 	{
-		SetConvar("tas_view_pitch", -1);
+		SetConvar("tas_view_pitch", INVALID_ANGLE, true);
 	}
 	m_state = MouseState::Locked;
 }

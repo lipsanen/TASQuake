@@ -37,6 +37,7 @@ struct StrafeVars
 	float tas_anglespeed;
 	double host_frametime;
 	int tas_strafe_version;
+	bool simulated;
 
 	StrafeVars();
 };

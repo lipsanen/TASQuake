@@ -46,6 +46,10 @@ void DrawFrameState(int& y, const PlaybackInfo& info)
 		return;
 
 	auto current_block = info.Get_Current_Block();
+
+	if(current_block->frame != info.current_frame)
+		return;
+
 	Draw(y, &tas_hud_state, "");
 	Draw(y, &tas_hud_state, "Cvars:");
 	for (auto& cvar : info.stacked.convars)

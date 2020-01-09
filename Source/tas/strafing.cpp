@@ -100,6 +100,7 @@ StrafeVars Get_Current_Vars()
 	vars.tas_view_pitch = (float)tas_view_pitch.value;
 	vars.tas_view_yaw = (float)tas_view_yaw.value;
 	vars.tas_strafe_version = (int)tas_strafe_version.value;
+	vars.simulated = false;
 	return vars;
 }
 
@@ -258,9 +259,15 @@ static double StrafeStraight(const StrafeVars& vars)
 	return vars.tas_strafe_yaw;
 }
 
-void StrafeInto(usercmd_t* cmd, double yaw, float view_yaw)
+void StrafeInto(usercmd_t* cmd, double yaw, float view_yaw, const StrafeVars& vars)
 {
-	double lookyaw = NormalizeDeg(view_yaw);
+	double lookyaw;
+
+	if (vars.tas_strafe_version <= 1)
+		lookyaw = NormalizeDeg(view_yaw);
+	else
+		lookyaw = NormalizeDeg(AngleModDeg(view_yaw));
+
 	double diff = NormalizeDeg(lookyaw - yaw) * M_DEG2RAD;
 
 	double fmove = std::cos(diff) * sv_maxspeed.value;
@@ -296,7 +303,7 @@ float MoveViewTowards(float target, float current, bool yaw, const StrafeVars& v
 
 void SetView(float* yaw, float* pitch, const StrafeVars& vars)
 {
-	if(sv.paused || tas_gamestate == paused || key_dest != key_game)
+	if(!vars.simulated && (sv.paused || tas_gamestate == paused || key_dest != key_game))
 		return;
 
 	if (vars.tas_view_pitch != INVALID_ANGLE)
@@ -355,7 +362,7 @@ void StrafeSim(usercmd_t* cmd, edict_t* player, float *yaw, float *pitch, const 
 
 		if (strafe)
 		{
-			StrafeInto(cmd, strafe_yaw, *yaw);
+			StrafeInto(cmd, strafe_yaw, *yaw, vars);
 		}
 
 	}
