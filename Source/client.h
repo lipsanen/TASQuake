@@ -330,7 +330,6 @@ typedef struct
 {
 	int		down[2];		// key nums holding it down
 	int		state;			// low bit is down state
-	float   prev;			// Previous value
 } kbutton_t;
 
 extern	kbutton_t	in_mlook, in_klook;

@@ -460,7 +460,8 @@ void Simulate_SV_ClientThink(SimulationInfo& info)
 	host_client = host;
 }
 
-#define READ_KEY(name) info.key_##name.state = in_##name.prev
+#define READ_KEY(name) if ((in_##name.state & 1) != 0) info.key_##name.state = 1;\
+else info.key_##name.state = 0;
 #define READ_CVAR(name) info.##name = ##name.value
 
 SimulationInfo Get_Sim_Info()
@@ -506,9 +507,7 @@ if (block->toggles.find(#name) != block->toggles.end()) \
 		info.##member_name.state = 0.5; \
 	else if (info.##member_name.state > 0 && !block->toggles.at(#name)) \
 		info.##member_name.state = 0; \
-} \
-else if (info.##member_name.state == 0.5) \
-	info.##member_name.state = 1;
+}
 
 #define TOGGLE_BOOL(name) block->toggles.find(#name) != block->toggles.end()
 
@@ -562,7 +561,23 @@ static void ApplyCvars(SimulationInfo & info, const FrameBlock* block)
 	}
 }
 
-static void CalculateMoves(SimulationInfo & info, const FrameBlock* block)
+#define CHECK_HALF_PRESS(member_name) \
+if (info.##member_name.state == 0.5) \
+	info.##member_name.state = 1
+
+static void CheckHalfPresses(SimulationInfo& info)
+{
+	CHECK_HALF_PRESS(key_forward);
+	CHECK_HALF_PRESS(key_back);
+	CHECK_HALF_PRESS(key_moveleft);
+	CHECK_HALF_PRESS(key_moveright);
+	CHECK_HALF_PRESS(key_up);
+	CHECK_HALF_PRESS(key_down);
+	CHECK_HALF_PRESS(key_speed);
+	CHECK_HALF_PRESS(key_jump);
+}
+
+static void CalculateMoves(SimulationInfo & info)
 {
 	float factor = info.key_speed.state > 0 ? info.cl_movespeedkey : 1;
 	info.fmove = 0;
@@ -585,6 +600,7 @@ static void SetStrafe(SimulationInfo& info)
 	cmd.sidemove = 0;
 
 	StrafeSim(&cmd, &info.ent, &info.viewangles[YAW], &info.viewangles[PITCH], info.vars);
+
 	if (info.vars.tas_strafe)
 	{
 		info.fmove = cmd.forwardmove;
@@ -592,14 +608,16 @@ static void SetStrafe(SimulationInfo& info)
 		info.upmove = cmd.upmove;
 		info.viewangles[ROLL] = 0;
 	}
+	else
+	{
+		CalculateMoves(info);
+	}
 }
 
 void ApplyFrameblock(SimulationInfo & info, const FrameBlock* block)
 {
 	ApplyToggles(info, block);
 	ApplyCvars(info, block);
-	if(!info.vars.tas_strafe)
-		CalculateMoves(info, block);
 }
 
 void WaterMove(SimulationInfo& info)
@@ -629,7 +647,7 @@ void CheckWaterJump(SimulationInfo& info)
 {
 	vec3_t start, end, forward;
 	trace_t trace;
-	AngleVectors(info.ent.v.angles, forward, NULL, NULL);
+	AngleVectors(info.ent.v.v_angle, forward, NULL, NULL);
 
 	VectorCopy(info.ent.v.origin, start);
 	start[2] += 8;
@@ -637,16 +655,16 @@ void CheckWaterJump(SimulationInfo& info)
 	VectorNormalize(forward);
 	VectorScale(forward, 24, forward);
 	VectorAdd(start, forward, end);
-	trace = SV_Move_Proxy(start, vec3_origin, vec3_origin, end, MOVE_NOMONSTERS, NULL);
+	trace = SV_Move_Proxy(start, vec3_origin, vec3_origin, end, MOVE_NOMONSTERS, sv_player);
 
 	if (trace.fraction < 1)
 	{ // solid at waist
-		start[2] += info.ent.v.maxs[2] - 8;
+		start[2] += (info.ent.v.maxs[2] - info.ent.v.origin[2]) - 8;
 		VectorAdd(start, forward, end);
 		VectorCopy(trace.plane.normal, info.ent.v.movedir);
 		VectorScale(info.ent.v.movedir, -50, info.ent.v.movedir);
 
-		trace = SV_Move_Proxy(start, vec3_origin, vec3_origin, end, MOVE_NOMONSTERS, NULL);
+		trace = SV_Move_Proxy(start, vec3_origin, vec3_origin, end, MOVE_NOMONSTERS, sv_player);
 		if (trace.fraction == 1)
 		{
 			info.ent.v.flags = (int)info.ent.v.flags | FL_WATERJUMP;
@@ -772,6 +790,7 @@ void SimulateFrame(SimulationInfo& info)
 	PlayerPreThink(info);
 	PlayerPhysics(info);
 	PlayerPostThink(info);
+	CheckHalfPresses(info);
 }
 
 void SimulateWithStrafe(SimulationInfo & info)
@@ -791,13 +810,27 @@ void Simulate_Frame_Hook()
 	static bool path_assigned = false;
 	const std::string pathName = "predict";
 	static std::vector<PathPoint> points;
-	static std::vector<Vector3f> vels;
+	static int startFrame = 0;
 
 	if(cls.state != ca_connected)
 		return;
 	auto& playback = GetPlaybackInfo();
 	if (!playback.In_Edit_Mode() || !tas_predict.value)
 	{
+		int index = playback.current_frame - startFrame;
+
+		if (index < points.size() && index > 0)
+		{
+			vec3_t diff;
+			VectorCopy(sv_player->v.origin, diff);
+			VectorSubtract(diff, points[index].point, diff);
+			float len = VectorLength(diff);
+			if (len > 0.001)
+			{
+				Con_Printf("diff %f\n", len);
+			}
+		}
+
 		RemoveCurve(PREDICTION_ID);
 		RemoveRectangles(PREDICTION_ID);
 		path_assigned = false;
@@ -807,7 +840,6 @@ void Simulate_Frame_Hook()
 	
 	double currentTime = Sys_DoubleTime();
 	static int frame = 0;
-	static int startFrame = 0;
 	static SimulationInfo info;
 	static double simulationStartTime = 0;
 	static int printed_index = -1;
@@ -815,7 +847,6 @@ void Simulate_Frame_Hook()
 	if (last_updated < playback.last_edited)
 	{
 		RemoveRectangles(PREDICTION_ID);
-		vels.clear();
 		points.clear();
 		last_updated = currentTime;
 		startFrame = playback.current_frame;
@@ -846,10 +877,6 @@ void Simulate_Frame_Hook()
 		VectorCopy(info.ent.v.origin, vec.point);
 		points.push_back(vec);
 
-		Vector3f vel;
-		VectorCopy(info.ent.v.velocity, vel);
-		vels.push_back(vel);
-
 		auto block = playback.Get_Current_Block(frame);
 		if (block->frame == frame)
 		{
@@ -866,6 +893,7 @@ void Simulate_Frame_Hook()
 
 		SimulateWithStrafePlusJump(info);
 	}
+
 
 	if (!path_assigned)
 	{
