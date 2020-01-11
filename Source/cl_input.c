@@ -231,8 +231,6 @@ float CL_KeyState (kbutton_t *key)
 		val = down ? 0.75 : 0.25;
 
 	key->state &= 1;		// clear impulses
-	if (tas_gamestate != paused)
-		key->prev = val;
 	
 	return val;
 }

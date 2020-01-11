@@ -48,7 +48,7 @@ void DrawFrameState(int& y, const PlaybackInfo& info)
 	auto current_block = info.Get_Current_Block();
 
 	if(current_block->frame != info.current_frame)
-		return;
+		current_block = nullptr;
 
 	Draw(y, &tas_hud_state, "");
 	Draw(y, &tas_hud_state, "Cvars:");
@@ -99,6 +99,17 @@ void DrawFrameState(int& y, const PlaybackInfo& info)
 			{
 				Draw(y, &tas_hud_state, "-%s -> +%s", toggle.first.c_str(), toggle.first.c_str());
 			}
+		}
+	}
+
+	Draw(y, &tas_hud_state, "");
+	Draw(y, &tas_hud_state, "Commands:");
+
+	if (current_block)
+	{
+		for (auto& cmd : current_block->commands)
+		{
+			Draw(y, &tas_hud_state, "%s", cmd.c_str());
 		}
 	}
 

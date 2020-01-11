@@ -398,13 +398,25 @@ void SV_AddGravity(edict_t *ent, double hfr)
 }
 
 
+edict_t	*Simulate_SV_TestEntityPosition(edict_t *ent)
+{
+	trace_t	trace;
+
+	trace = SV_Move_Proxy(ent->v.origin, ent->v.mins, ent->v.maxs, ent->v.origin, 0, ent);
+
+	if (trace.startsolid)
+		return sv.edicts;
+
+	return NULL;
+}
+
 void SV_CheckStuck(edict_t *ent)
 {
 	int		i, j;
 	int		z;
 	vec3_t	org;
 
-	if (!SV_TestEntityPosition(ent))
+	if (!Simulate_SV_TestEntityPosition(ent))
 	{
 		VectorCopy(ent->v.origin, ent->v.oldorigin);
 		return;
@@ -412,7 +424,7 @@ void SV_CheckStuck(edict_t *ent)
 
 	VectorCopy(ent->v.origin, org);
 	VectorCopy(ent->v.oldorigin, ent->v.origin);
-	if (!SV_TestEntityPosition(ent))
+	if (!Simulate_SV_TestEntityPosition(ent))
 	{
 		return;
 	}
@@ -424,7 +436,7 @@ void SV_CheckStuck(edict_t *ent)
 				ent->v.origin[0] = org[0] + i;
 				ent->v.origin[1] = org[1] + j;
 				ent->v.origin[2] = org[2] + z;
-				if (!SV_TestEntityPosition(ent))
+				if (!Simulate_SV_TestEntityPosition(ent))
 				{
 					return;
 				}
@@ -443,10 +455,21 @@ void PlayerPhysics(SimulationInfo& info)
 
 void Simulate_SV_ClientThink(SimulationInfo& info)
 {
+	for (int i = 0; i < 3; ++i)
+	{
+		info.ent.v.v_angle[i] = AngleModDeg(info.viewangles[i]);
+	}
+
+	info.time += info.host_frametime;
+
 	client_t t;
 	t.cmd.forwardmove = info.fmove;
 	t.cmd.sidemove = info.smove;
 	t.cmd.upmove = info.upmove;
+
+	server_t backup = sv;
+	sv.time = info.time;
+	sv.paused = qfalse;
 
 	edict_t* ply = sv_player;
 	client_t* host = host_client;
@@ -458,9 +481,11 @@ void Simulate_SV_ClientThink(SimulationInfo& info)
 
 	sv_player = ply;
 	host_client = host;
+	sv = backup;
 }
 
-#define READ_KEY(name) info.key_##name.state = in_##name.prev
+#define READ_KEY(name) if ((in_##name.state & 1) != 0) info.key_##name.state = 1;\
+else info.key_##name.state = 0;
 #define READ_CVAR(name) info.##name = ##name.value
 
 SimulationInfo Get_Sim_Info()
@@ -506,9 +531,7 @@ if (block->toggles.find(#name) != block->toggles.end()) \
 		info.##member_name.state = 0.5; \
 	else if (info.##member_name.state > 0 && !block->toggles.at(#name)) \
 		info.##member_name.state = 0; \
-} \
-else if (info.##member_name.state == 0.5) \
-	info.##member_name.state = 1;
+}
 
 #define TOGGLE_BOOL(name) block->toggles.find(#name) != block->toggles.end()
 
@@ -562,7 +585,23 @@ static void ApplyCvars(SimulationInfo & info, const FrameBlock* block)
 	}
 }
 
-static void CalculateMoves(SimulationInfo & info, const FrameBlock* block)
+#define CHECK_HALF_PRESS(member_name) \
+if (info.##member_name.state == 0.5) \
+	info.##member_name.state = 1
+
+static void CheckHalfPresses(SimulationInfo& info)
+{
+	CHECK_HALF_PRESS(key_forward);
+	CHECK_HALF_PRESS(key_back);
+	CHECK_HALF_PRESS(key_moveleft);
+	CHECK_HALF_PRESS(key_moveright);
+	CHECK_HALF_PRESS(key_up);
+	CHECK_HALF_PRESS(key_down);
+	CHECK_HALF_PRESS(key_speed);
+	CHECK_HALF_PRESS(key_jump);
+}
+
+static void CalculateMoves(SimulationInfo & info)
 {
 	float factor = info.key_speed.state > 0 ? info.cl_movespeedkey : 1;
 	info.fmove = 0;
@@ -585,6 +624,7 @@ static void SetStrafe(SimulationInfo& info)
 	cmd.sidemove = 0;
 
 	StrafeSim(&cmd, &info.ent, &info.viewangles[YAW], &info.viewangles[PITCH], info.vars);
+
 	if (info.vars.tas_strafe)
 	{
 		info.fmove = cmd.forwardmove;
@@ -592,14 +632,16 @@ static void SetStrafe(SimulationInfo& info)
 		info.upmove = cmd.upmove;
 		info.viewangles[ROLL] = 0;
 	}
+	else
+	{
+		CalculateMoves(info);
+	}
 }
 
 void ApplyFrameblock(SimulationInfo & info, const FrameBlock* block)
 {
 	ApplyToggles(info, block);
 	ApplyCvars(info, block);
-	if(!info.vars.tas_strafe)
-		CalculateMoves(info, block);
 }
 
 void WaterMove(SimulationInfo& info)
@@ -629,7 +671,7 @@ void CheckWaterJump(SimulationInfo& info)
 {
 	vec3_t start, end, forward;
 	trace_t trace;
-	AngleVectors(info.ent.v.angles, forward, NULL, NULL);
+	AngleVectors(info.ent.v.v_angle, forward, NULL, NULL);
 
 	VectorCopy(info.ent.v.origin, start);
 	start[2] += 8;
@@ -637,7 +679,7 @@ void CheckWaterJump(SimulationInfo& info)
 	VectorNormalize(forward);
 	VectorScale(forward, 24, forward);
 	VectorAdd(start, forward, end);
-	trace = SV_Move_Proxy(start, vec3_origin, vec3_origin, end, MOVE_NOMONSTERS, NULL);
+	trace = SV_Move_Proxy(start, vec3_origin, vec3_origin, end, MOVE_NOMONSTERS, sv_player);
 
 	if (trace.fraction < 1)
 	{ // solid at waist
@@ -646,7 +688,7 @@ void CheckWaterJump(SimulationInfo& info)
 		VectorCopy(trace.plane.normal, info.ent.v.movedir);
 		VectorScale(info.ent.v.movedir, -50, info.ent.v.movedir);
 
-		trace = SV_Move_Proxy(start, vec3_origin, vec3_origin, end, MOVE_NOMONSTERS, NULL);
+		trace = SV_Move_Proxy(start, vec3_origin, vec3_origin, end, MOVE_NOMONSTERS, sv_player);
 		if (trace.fraction == 1)
 		{
 			info.ent.v.flags = (int)info.ent.v.flags | FL_WATERJUMP;
@@ -662,7 +704,7 @@ void PlayerJump(SimulationInfo& info)
 {
 	int flags = info.ent.v.flags;
 
-	if((flags & FL_WATERJUMP) == 1)
+	if((flags & FL_WATERJUMP) != 0)
 		return;
 
 	if (info.ent.v.waterlevel >= 2)
@@ -692,7 +734,6 @@ void PlayerPreThink(SimulationInfo& info)
 	if (info.ent.v.waterlevel == 2)
 	{
 		CheckWaterJump(info);
-		return;
 	}
 
 	if (info.key_jump.state > 0)
@@ -721,7 +762,7 @@ bool Should_Jump(const SimulationInfo& info)
 
 	if (info.vars.tas_strafe_version <= 1)
 	{
-		float lgagst = tas_strafe_lgagst_speed.value; // fuck anyone who changes this value and uses the old strafing version
+		float lgagst = tas_strafe_lgagst_speed.value;
 		return data.vel2d > lgagst && info.vars.tas_strafe && info.vars.tas_strafe_type == StrafeType::MaxAccel;
 	}
 	else
@@ -762,16 +803,11 @@ static void SimulateWithStrafePlusJump(SimulationInfo& info)
 
 void SimulateFrame(SimulationInfo& info)
 {
-	for (int i = 0; i < 3; ++i)
-	{
-		info.ent.v.v_angle[i] = AngleModDeg(info.viewangles[i]);
-	}
-
-	info.time += info.host_frametime;
 	Simulate_SV_ClientThink(info);
 	PlayerPreThink(info);
 	PlayerPhysics(info);
 	PlayerPostThink(info);
+	CheckHalfPresses(info);
 }
 
 void SimulateWithStrafe(SimulationInfo & info)
@@ -791,13 +827,31 @@ void Simulate_Frame_Hook()
 	static bool path_assigned = false;
 	const std::string pathName = "predict";
 	static std::vector<PathPoint> points;
-	static std::vector<Vector3f> vels;
+	//static std::vector<SimulationInfo> infos;
+	static int startFrame = 0;
 
 	if(cls.state != ca_connected)
 		return;
 	auto& playback = GetPlaybackInfo();
 	if (!playback.In_Edit_Mode() || !tas_predict.value)
 	{
+		int index = playback.current_frame - startFrame;
+
+		if (index < points.size() && index >= 0)
+		{
+			vec3_t diff;
+			VectorCopy(sv_player->v.origin, diff);
+			VectorSubtract(diff, points[index].point, diff);
+			float len = VectorLength(diff);
+			//auto& player = infos[index];
+			auto info = Get_Sim_Info();
+			SetStrafe(info);
+			if (len > 0.001)
+			{
+				Con_Printf("Prediction error: %f\n", len);		
+			}
+		}
+
 		RemoveCurve(PREDICTION_ID);
 		RemoveRectangles(PREDICTION_ID);
 		path_assigned = false;
@@ -807,7 +861,6 @@ void Simulate_Frame_Hook()
 	
 	double currentTime = Sys_DoubleTime();
 	static int frame = 0;
-	static int startFrame = 0;
 	static SimulationInfo info;
 	static double simulationStartTime = 0;
 	static int printed_index = -1;
@@ -815,8 +868,8 @@ void Simulate_Frame_Hook()
 	if (last_updated < playback.last_edited)
 	{
 		RemoveRectangles(PREDICTION_ID);
-		vels.clear();
 		points.clear();
+		//infos.clear();
 		last_updated = currentTime;
 		startFrame = playback.current_frame;
 		frame = playback.current_frame;
@@ -845,10 +898,7 @@ void Simulate_Frame_Hook()
 		}
 		VectorCopy(info.ent.v.origin, vec.point);
 		points.push_back(vec);
-
-		Vector3f vel;
-		VectorCopy(info.ent.v.velocity, vel);
-		vels.push_back(vel);
+		//infos.push_back(info);
 
 		auto block = playback.Get_Current_Block(frame);
 		if (block->frame == frame)

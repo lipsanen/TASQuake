@@ -147,9 +147,13 @@ PlayerData GetPlayerData(edict_t* player, const StrafeVars& vars)
 		if (vars.tas_strafe_version == 1)
 			data.vel_theta = NormalizeRad(vars.tas_strafe_yaw); // Old bugged vel theta calculation
 		else
+		{
 			data.vel_theta = NormalizeRad(vars.tas_strafe_yaw * M_DEG2RAD);
+			// this is a bit stupid but it makes the rounding errors in prediction go away and the speed loss should be basically 0
+			int places = 10000;
+			data.vel_theta = static_cast<int>(data.vel_theta * places) / static_cast<double>(places);
+		}
 	}
-
 	return data;
 }
 
@@ -259,9 +263,9 @@ static double StrafeStraight(const StrafeVars& vars)
 	return vars.tas_strafe_yaw;
 }
 
-void StrafeInto(usercmd_t* cmd, double yaw, float view_yaw, const StrafeVars& vars)
+void StrafeInto(usercmd_t* cmd, double yaw, float view_yaw, float view_pitch, const StrafeVars& vars)
 {
-	double lookyaw;
+	float lookyaw;
 
 	if (vars.tas_strafe_version <= 1)
 		lookyaw = NormalizeDeg(view_yaw);
@@ -270,7 +274,27 @@ void StrafeInto(usercmd_t* cmd, double yaw, float view_yaw, const StrafeVars& va
 
 	double diff = NormalizeDeg(lookyaw - yaw) * M_DEG2RAD;
 
-	double fmove = std::cos(diff) * sv_maxspeed.value;
+
+	double fmove;
+	if (vars.tas_strafe_version <= 1)
+	{
+		fmove = std::cos(diff) * sv_maxspeed.value;
+	}
+	else
+	{
+		vec3_t angles;
+		vec3_t fwd;
+		angles[PITCH] = AngleModDeg(view_pitch);
+		angles[PITCH] = -angles[PITCH] / 3;
+		angles[YAW] = view_yaw;
+		angles[ROLL] = 0;
+		AngleVectors(angles, fwd, NULL, NULL);
+		fwd[2] = 0;
+		float scaleFactor = VectorLength(fwd);
+		fmove = std::cos(diff) * sv_maxspeed.value / scaleFactor;
+	}
+
+	
 	double smove = std::sin(diff) * sv_maxspeed.value;
 	ApproximateRatioWithIntegers(fmove, smove, 32767);
 	cmd->forwardmove = fmove;
@@ -332,6 +356,9 @@ static SimulationInfo present;*/
 
 void Strafe(usercmd_t* cmd)
 {
+	if(tas_gamestate == paused)
+		return;
+
 	auto vars = Get_Current_Vars();
 	StrafeSim(cmd, sv_player, &cl.viewangles[YAW], &cl.viewangles[PITCH], vars);
 }
@@ -362,27 +389,11 @@ void StrafeSim(usercmd_t* cmd, edict_t* player, float *yaw, float *pitch, const 
 
 		if (strafe)
 		{
-			StrafeInto(cmd, strafe_yaw, *yaw, vars);
+			StrafeInto(cmd, strafe_yaw, *yaw, *pitch, vars);
 		}
 
 	}
 }
-
-/*
-void CheckDiff(vec3_t orig, vec3_t pred, const char* name)
-{
-	vec3_t vel_diff;
-	VectorCopy(orig, vel_diff);
-	VectorScale(vel_diff, -1, vel_diff);
-	VectorAdd(vel_diff, pred, vel_diff);
-	float length = VectorLength(vel_diff);
-
-	if (length > 0.01)
-	{
-		Con_Printf("%s off by %.3f\n", name, length);
-	}
-}*/
-
 
 void Strafe_Jump_Check()
 {

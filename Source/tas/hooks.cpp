@@ -94,8 +94,6 @@ void TAS_Init()
 
 	Cmd_AddCommand("tas_cancel", Cmd_TAS_Cancel); // Keep as it is
 	Cmd_AddCommand("tas_confirm", Cmd_TAS_Confirm); // Confirm change
-	Cmd_AddCommand("tas_reset", Cmd_TAS_Reset); // Reset to default
-	Cmd_AddCommand("tas_revert", Cmd_TAS_Revert); // Revert to previous state
 
 	Cmd_AddCommand("tas_bookmark_frame", Cmd_TAS_Bookmark_Frame);
 	Cmd_AddCommand("tas_bookmark_block", Cmd_TAS_Bookmark_Block);

@@ -18,7 +18,7 @@
 
 std::regex FRAME_NO_REGEX(R"#((\+?)(\d+):)#");
 std::regex TOGGLE_REGEX(R"#(([\+\-])(\w+))#");
-std::regex CONVAR_REGEX(R"#((\w+) "?(\d+(\.\d+)?)"?)#");
+std::regex CONVAR_REGEX(R"#((\w+) "?(-?\d+(\.\d+)?)"?)#");
 
 static TASScript script;
 

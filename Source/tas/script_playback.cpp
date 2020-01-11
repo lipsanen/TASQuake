@@ -15,6 +15,12 @@ const int LOWEST_BLOCK = 2;
 static char BUFFER[256];
 
 enum class MouseState { Locked, Strafe, Yaw, Pitch, Mixed };
+
+static float current_strafeyaw = 0;
+static float current_yaw = 0;
+static float current_pitch = 0;
+static int current_strafe = 0;
+
 static float old_yaw = 0;
 static float old_pitch = 0;
 static MouseState m_state = MouseState::Locked;
@@ -234,13 +240,18 @@ static void ApplyMouseStuff()
 		SetConvar("tas_strafe", 1, true);
 		SetConvar("tas_strafe_yaw", yaw, true);
 	}
-	else if (m_state == MouseState::Mixed || m_state == MouseState::Yaw)
+	else if (m_state == MouseState::Mixed)
 	{
 		SetConvar("tas_view_yaw", cl.viewangles[YAW], true);
+		SetConvar("tas_view_pitch", cl.viewangles[PITCH], true);
 	}
-	else if (m_state == MouseState::Mixed || m_state == MouseState::Pitch)
+	else if (m_state == MouseState::Pitch)
 	{
 		SetConvar("tas_view_pitch", cl.viewangles[PITCH], true);
+	}
+	else if (m_state == MouseState::Yaw)
+	{
+		SetConvar("tas_view_yaw", cl.viewangles[YAW], true);
 	}
 }
 
@@ -332,6 +343,8 @@ void Cmd_TAS_Script_Init(void)
 	b1.frame = 1;
 	b1.Add_Command("disconnect");
 	b1.Add_Command("tas_set_seed");
+	sprintf_s(BUFFER, "tas_strafe_version %s", tas_strafe_version.defaultvalue);
+	b1.Add_Command(BUFFER);
 	
 	FrameBlock b2;
 	b2.frame = 2;
@@ -499,6 +512,8 @@ void Cmd_TAS_Edit_Save(void)
 
 void Cmd_TAS_Edit_Strafe(void)
 {
+	current_strafe = Get_Existing_Value("tas_strafe");
+	current_strafeyaw = Get_Existing_Value("tas_strafe_yaw");
 	SetConvar("tas_strafe", 1, true);
 	m_state = MouseState::Strafe;
 }
@@ -506,16 +521,20 @@ void Cmd_TAS_Edit_Strafe(void)
 void Cmd_TAS_Edit_Set_Pitch(void)
 {
 	m_state = MouseState::Pitch;
+	current_pitch = Get_Existing_Value("tas_view_pitch");
 }
 
 void Cmd_TAS_Edit_Set_Yaw(void)
 {
 	m_state = MouseState::Yaw;
+	current_yaw = Get_Existing_Value("tas_view_yaw");
 }
 
 void Cmd_TAS_Edit_Set_View(void)
 {
 	m_state = MouseState::Mixed;
+	current_pitch = Get_Existing_Value("tas_view_pitch");
+	current_yaw = Get_Existing_Value("tas_view_yaw");
 }
 
 void Cmd_TAS_Edit_Shrink(void)
@@ -684,6 +703,15 @@ void Cmd_TAS_Confirm(void)
 {
 	if (m_state == MouseState::Locked)
 		return;
+
+	if (m_state == MouseState::Strafe)
+		SCR_CenterPrint("Set strafe");
+	else if (m_state == MouseState::Mixed)
+		SCR_CenterPrint("Set view");
+	else if (m_state == MouseState::Yaw)
+		SCR_CenterPrint("Set yaw");
+	else
+		SCR_CenterPrint("Set pitch");
 	m_state = MouseState::Locked;
 }
 
@@ -695,58 +723,17 @@ void Cmd_TAS_Cancel(void)
 	m_state = MouseState::Locked;
 	if (m_state == MouseState::Strafe)
 	{
-		SetConvar("tas_strafe_yaw", Get_Stacked_Value("tas_strafe_yaw"), true);
-		SetConvar("tas_strafe", Get_Stacked_Value("tas_strafe"), true);
+		SetConvar("tas_strafe_yaw", current_strafeyaw, true);
+		SetConvar("tas_strafe", current_strafe, true);
 	}
 	else if (m_state == MouseState::Mixed || m_state == MouseState::Yaw)
 	{
-		SetConvar("tas_view_yaw", Get_Stacked_Value("tas_view_yaw"), true);
+		SetConvar("tas_view_yaw", current_yaw, true);
 	}
 	else if (m_state == MouseState::Mixed || m_state == MouseState::Pitch)
 	{
-		SetConvar("tas_view_pitch", Get_Stacked_Value("tas_view_pitch"), true);
+		SetConvar("tas_view_pitch", current_pitch, true);
 	}
-}
-
-void Cmd_TAS_Revert(void)
-{
-	if (m_state == MouseState::Locked)
-		return;
-
-	if (m_state == MouseState::Strafe)
-	{
-		SetConvar("tas_strafe_yaw", Get_Stacked_Value("tas_strafe_yaw"), true);
-		SetConvar("tas_strafe", Get_Stacked_Value("tas_strafe"), true);
-	}
-	else if (m_state == MouseState::Mixed || m_state == MouseState::Yaw)
-	{
-		SetConvar("tas_view_yaw", Get_Stacked_Value("tas_view_yaw"), true);
-	}
-	else if (m_state == MouseState::Mixed || m_state == MouseState::Pitch)
-	{
-		SetConvar("tas_view_pitch", Get_Stacked_Value("tas_view_pitch"), true);
-	}
-	m_state = MouseState::Locked;
-}
-
-void Cmd_TAS_Reset(void)
-{
-	if (m_state == MouseState::Locked)
-		return;
-
-	if (m_state == MouseState::Strafe)
-	{
-		SetConvar("tas_strafe", 0, true);
-	}
-	else if (m_state == MouseState::Mixed || m_state == MouseState::Yaw)
-	{
-		SetConvar("tas_view_yaw", INVALID_ANGLE, true);
-	}
-	else if (m_state == MouseState::Mixed || m_state == MouseState::Pitch)
-	{
-		SetConvar("tas_view_pitch", INVALID_ANGLE, true);
-	}
-	m_state = MouseState::Locked;
 }
 
 void Clear_Bookmarks()
@@ -848,7 +835,7 @@ qboolean Script_Playback_Cmd_ExecuteString_Hook(const char * text)
 		sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "Block: Added %s %s", name, Cmd_Argv(1));
 		SCR_CenterPrint(BUFFER);
 		block->commands.clear();
-		sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "Selected weapon %s", Cmd_Argv(1));
+		sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "impulse %s", Cmd_Argv(1));
 		block->Add_Command(BUFFER);
 
 		return qtrue;

@@ -160,7 +160,7 @@ float V_CalcBob (void)
 //=============================================================================
 
 cvar_t	v_centermove = {"v_centermove", "0.15"};
-cvar_t	v_centerspeed = {"v_centerspeed", "500"};
+cvar_t	v_centerspeed = {"v_centerspeed", "0"};
 
 void V_StartPitchDrift (void)
 {
