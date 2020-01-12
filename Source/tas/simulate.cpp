@@ -569,6 +569,7 @@ static void ApplyCvars(SimulationInfo & info, const FrameBlock* block)
 	CHECK_CVAR(tas_view_pitch, vars.tas_view_pitch);
 	CHECK_CVAR(tas_strafe, vars.tas_strafe);
 	CHECK_CVAR(tas_strafe_yaw, vars.tas_strafe_yaw);
+	CHECK_CVAR(tas_strafe_pitch, vars.tas_strafe_pitch);
 	CHECK_CVAR(tas_strafe_version, vars.tas_strafe_version);
 	CHECK_CVAR(tas_anglespeed, vars.tas_anglespeed);
 

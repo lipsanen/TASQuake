@@ -86,6 +86,7 @@ void TAS_Init()
 	Cmd_AddCommand("tas_edit_set_yaw", Cmd_TAS_Edit_Set_Yaw);
 	Cmd_AddCommand("tas_edit_set_view", Cmd_TAS_Edit_Set_View);
 	Cmd_AddCommand("tas_edit_strafe", Cmd_TAS_Edit_Strafe);
+	Cmd_AddCommand("tas_edit_swim", Cmd_TAS_Edit_Swim);
 	Cmd_AddCommand("tas_edit_shrink", Cmd_TAS_Edit_Shrink);
 	Cmd_AddCommand("tas_edit_delete", Cmd_TAS_Edit_Delete);
 	Cmd_AddCommand("tas_edit_shift", Cmd_TAS_Edit_Shift);
@@ -121,6 +122,7 @@ void TAS_Init()
 	Cvar_Register(&tas_strafe);
 	Cvar_Register(&tas_strafe_type);
 	Cvar_Register(&tas_strafe_yaw);
+	Cvar_Register(&tas_strafe_pitch);
 	Cvar_Register(&tas_strafe_lgagst_speed);
 	Cvar_Register(&tas_strafe_version);
 	Cvar_Register(&tas_view_pitch);
@@ -137,6 +139,7 @@ void TAS_Init()
 	Cvar_Register(&tas_hud_vel);
 	Cvar_Register(&tas_hud_vel2d);
 	Cvar_Register(&tas_hud_vel3d);
+	Cvar_Register(&tas_hud_velang);
 	Cvar_Register(&tas_hud_angles);
 	Cvar_Register(&tas_hud_pflags);
 	Cvar_Register(&tas_hud_waterlevel);

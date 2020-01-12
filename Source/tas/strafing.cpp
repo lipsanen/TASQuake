@@ -8,6 +8,7 @@
 cvar_t tas_strafe = { "tas_strafe", "0" };
 cvar_t tas_strafe_type = { "tas_strafe_type", "1" };
 cvar_t tas_strafe_yaw = { "tas_strafe_yaw", "0" };
+cvar_t tas_strafe_pitch = { "tas_strafe_pitch", "0" };
 cvar_t tas_strafe_yaw_offset = { "tas_strafe_yaw_offset", "0" };
 cvar_t tas_strafe_lgagst_speed = { "tas_strafe_lgagst_speed", "460" };
 cvar_t tas_view_yaw = { "tas_view_yaw", "999" };
@@ -97,6 +98,7 @@ StrafeVars Get_Current_Vars()
 	vars.tas_strafe = (int)tas_strafe.value;
 	vars.tas_strafe_type = static_cast<StrafeType>((int)tas_strafe_type.value);
 	vars.tas_strafe_yaw = (float)tas_strafe_yaw.value;
+	vars.tas_strafe_pitch = (float)tas_strafe_pitch.value;
 	vars.tas_view_pitch = (float)tas_view_pitch.value;
 	vars.tas_view_yaw = (float)tas_view_yaw.value;
 	vars.tas_strafe_version = (int)tas_strafe_version.value;
@@ -299,15 +301,66 @@ void StrafeInto(usercmd_t* cmd, double yaw, float view_yaw, float view_pitch, co
 	ApproximateRatioWithIntegers(fmove, smove, 32767);
 	cmd->forwardmove = fmove;
 	cmd->sidemove = smove;
+	cmd->upmove = 0;
+}
+
+void SwimInto(usercmd_t* cmd, float view_yaw, float view_pitch, const StrafeVars& vars)
+{
+	double yaw = vars.tas_strafe_yaw;
+	double pitch = vars.tas_strafe_pitch;
+
+	if (pitch >= 90)
+	{
+		cmd->upmove = -sv_maxspeed.value;
+		cmd->sidemove = 0;
+		cmd->forwardmove = 0;
+		return;
+	}
+	else if(pitch <= -90)
+	{
+		cmd->upmove = sv_maxspeed.value;
+		cmd->sidemove = 0;
+		cmd->forwardmove = 0;
+		return;
+	}
+
+	float lookyaw = NormalizeDeg(AngleModDeg(view_yaw));
+	double yawdiff = NormalizeDeg(lookyaw - yaw) * M_DEG2RAD;
+
+	vec3_t angles;
+	vec3_t fwd;
+	angles[PITCH] = AngleModDeg(view_pitch);
+	angles[YAW] = view_yaw;
+	angles[ROLL] = 0;
+	AngleVectors(angles, fwd, NULL, NULL);
+
+	double fwd_zlen = fwd[2] * std::cos(yawdiff);
+	fwd[2] = 0;
+	double scaleFactor = VectorLength(fwd);
+	fwd_zlen /= scaleFactor;
+
+	double fmove = std::cos(yawdiff) / scaleFactor;
+	double smove = std::sin(yawdiff);
+	double upmove = std::tan(-pitch * M_DEG2RAD) - fwd_zlen;
+
+	ApproximateRatioWithIntegers(fmove, smove, upmove, 32767);
+	cmd->forwardmove = fmove;
+	cmd->sidemove = smove;
+	cmd->upmove = upmove;
 }
 
 float MoveViewTowards(float target, float current, bool yaw, const StrafeVars& vars)
 {
 	float diff;
-	if(yaw)
+	if (yaw)
+	{
 		diff = NormalizeDeg(target - current);
+	}	
 	else
+	{
+		target = bound(-70, target, 80);
 		diff = target - current;
+	}
 	float abs_diff = std::abs(diff);
 
 	if(abs_diff < vars.tas_anglespeed)
@@ -334,6 +387,10 @@ void SetView(float* yaw, float* pitch, const StrafeVars& vars)
 	{
 		*pitch = MoveViewTowards(vars.tas_view_pitch, *pitch, false, vars);
 	}
+	else if (vars.tas_strafe != 0 && vars.tas_strafe_version >= 2)
+	{
+		*pitch = MoveViewTowards(vars.tas_strafe_pitch, *pitch, false, vars);
+	}
 
 	*yaw = NormalizeDeg(*yaw);
 	float tas_yaw = NormalizeDeg(vars.tas_view_yaw);
@@ -343,7 +400,7 @@ void SetView(float* yaw, float* pitch, const StrafeVars& vars)
 	{
 		*yaw = MoveViewTowards(tas_yaw, *yaw, true, vars);
 	}
-	else if (vars.tas_strafe != 0 && vars.tas_view_yaw == INVALID_ANGLE)
+	else if (vars.tas_strafe != 0)
 	{
 		*yaw = MoveViewTowards(strafe_yaw, *yaw, true, vars);
 	}
@@ -374,24 +431,22 @@ void StrafeSim(usercmd_t* cmd, edict_t* player, float *yaw, float *pitch, const 
 		if (vars.tas_strafe_type == StrafeType::MaxAccel)
 		{
 			strafe_yaw = StrafeMaxAccel(player, vars);
-			strafe = true;
+			StrafeInto(cmd, strafe_yaw, *yaw, *pitch, vars);
 		}
 		else if (vars.tas_strafe_type == StrafeType::MaxAngle)
 		{
 			strafe_yaw = StrafeMaxAngle(player, vars);
-			strafe = true;
+			StrafeInto(cmd, strafe_yaw, *yaw, *pitch, vars);
 		}
 		else if (vars.tas_strafe_type == StrafeType::Straight)
 		{
 			strafe_yaw = StrafeStraight(vars);
-			strafe = true;
-		}
-
-		if (strafe)
-		{
 			StrafeInto(cmd, strafe_yaw, *yaw, *pitch, vars);
 		}
-
+		else if (vars.tas_strafe_type == StrafeType::Swim)
+		{
+			SwimInto(cmd, *yaw, *pitch, vars);
+		}
 	}
 }
 

@@ -7,6 +7,7 @@ double NormalizeDeg(double angle); // [-180, 180]
 double ToQuakeAngle(double angle); // [0, 360]
 float AngleModDeg(float deg);
 void ApproximateRatioWithIntegers(double& number1, double& number2, int max_int);
+void ApproximateRatioWithIntegers(double& number1, double& number2, double& number3, int max_int);
 
 #ifndef M_PI
 const double M_PI = 3.14159265358979323846;

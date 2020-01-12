@@ -8,6 +8,7 @@ cvar_t tas_hud_angles = {"tas_hud_angles", "0"};
 cvar_t tas_hud_vel = {"tas_hud_vel", "0"};
 cvar_t tas_hud_vel2d = {"tas_hud_vel2d", "0"};
 cvar_t tas_hud_vel3d = {"tas_hud_vel3d", "0"};
+cvar_t tas_hud_velang = {"tas_hud_velang", "0"};
 cvar_t tas_hud_frame = {"tas_hud_frame", "0"};
 cvar_t tas_hud_block = {"tas_hud_block", "0"};
 cvar_t tas_hud_state = {"tas_hud_state", "0"};
@@ -136,6 +137,16 @@ void Draw_PFlags(int& y)
 	Draw(y, &tas_hud_pflags, "       RJGGTTMOWLOWL");
 }
 
+void Draw_VelAngle(int& y, const PlayerData& player_data)
+{
+	if(!tas_hud_velang.value)
+		return;
+
+	vec3_t ang;
+	vectoangles((vec_t*)player_data.velocity, ang);
+	Draw(y, &tas_hud_velang, "velang: (%.3f, %.3f)", -ang[PITCH], ang[YAW]);
+}
+
 void HUD_Draw_Hook()
 {
 	if(!sv.active)
@@ -155,6 +166,7 @@ void HUD_Draw_Hook()
 	Draw(y, &tas_hud_vel, "vel: (%.3f, %.3f, %.3f)", player_data.velocity[0], player_data.velocity[1], player_data.velocity[2]);
 	Draw(y, &tas_hud_vel2d, "vel2d: %.3f", player_data.vel2d);
 	Draw(y, &tas_hud_vel3d, "vel3d: %.3f", VectorLength(player_data.velocity));
+	Draw_VelAngle(y, player_data);
 	Draw(y, &tas_hud_frame, "frame: %d / %d", info.current_frame, last_frame);
 	Draw(y, &tas_hud_block, "block: %d / %d", current_block_no, blocks - 1);
 	Draw(y, &tas_hud_waterlevel, "waterlevel: %d", (int)sv_player->v.waterlevel);

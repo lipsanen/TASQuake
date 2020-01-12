@@ -19,13 +19,14 @@ struct PlayerData
 extern cvar_t tas_strafe;
 extern cvar_t tas_strafe_type;
 extern cvar_t tas_strafe_yaw;
+extern cvar_t tas_strafe_pitch;
 extern cvar_t tas_strafe_lgagst_speed;
 extern cvar_t tas_view_yaw;
 extern cvar_t tas_view_pitch;
 extern cvar_t tas_anglespeed;
 extern cvar_t tas_strafe_version;
 extern const float INVALID_ANGLE;
-enum class StrafeType { None = 0, MaxAccel = 1, MaxAngle = 2, Straight = 3 };
+enum class StrafeType { None = 0, MaxAccel = 1, MaxAngle = 2, Straight = 3, Swim = 4 };
 
 struct StrafeVars
 {
@@ -33,6 +34,7 @@ struct StrafeVars
 	float tas_view_pitch;
 	int tas_strafe;
 	float tas_strafe_yaw;
+	float tas_strafe_pitch;
 	StrafeType tas_strafe_type;
 	float tas_anglespeed;
 	double host_frametime;

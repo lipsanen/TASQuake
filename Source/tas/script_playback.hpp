@@ -44,6 +44,7 @@ extern cvar_t tas_edit_snap_threshold;
 void Cmd_TAS_Edit_Prune(void);
 void Cmd_TAS_Edit_Save(void);
 void Cmd_TAS_Edit_Strafe(void);
+void Cmd_TAS_Edit_Swim(void);
 void Cmd_TAS_Edit_Set_Pitch(void);
 void Cmd_TAS_Edit_Set_Yaw(void);
 void Cmd_TAS_Edit_Set_View(void);

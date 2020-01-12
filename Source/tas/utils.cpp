@@ -119,6 +119,35 @@ void ApproximateRatioWithIntegers(double& number1, double& number2, int max_int)
 
 }
 
+// Caveman algorithm for approximating three floating point numbers with integers
+void ApproximateRatioWithIntegers(double & number1, double & number2, double & number3, int max_int)
+{
+	if (number1 == 0 && number2 == 0)
+	{
+		number3 = std::copysign(max_int, number3);
+		return;
+	}
+
+	bool swap = std::abs(number1) > std::abs(number2);
+	if(swap)
+		std::swap(number1, number2);
+
+	double ratio = number3 / number2;
+	double max12 = max(std::abs(number1), std::abs(number2));
+
+	if (std::abs(number3) > max12)
+	{
+		double ratio = max12 / std::abs(number3);
+		max_int *= ratio;
+	}
+
+	ApproximateRatioWithIntegers(number1, number2, max_int);
+	number3 = static_cast<int>(ratio * number2);
+
+	if (swap)
+		std::swap(number1, number2);
+}
+
 std::string& ltrim(std::string& s, const char* t)
 {
 	s.erase(0, s.find_first_not_of(t));

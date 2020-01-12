@@ -14,9 +14,10 @@ const int LOWEST_FRAME = 8;
 const int LOWEST_BLOCK = 2;
 static char BUFFER[256];
 
-enum class MouseState { Locked, Strafe, Yaw, Pitch, Mixed };
+enum class MouseState { Locked, Strafe, Yaw, Pitch, Mixed, Swim };
 
 static float current_strafeyaw = 0;
+static float current_strafepitch = 0;
 static float current_yaw = 0;
 static float current_pitch = 0;
 static int current_strafe = 0;
@@ -252,6 +253,11 @@ static void ApplyMouseStuff()
 	else if (m_state == MouseState::Yaw)
 	{
 		SetConvar("tas_view_yaw", cl.viewangles[YAW], true);
+	}
+	else if (m_state == MouseState::Swim)
+	{
+		SetConvar("tas_strafe_yaw", cl.viewangles[YAW], true);
+		SetConvar("tas_strafe_pitch", cl.viewangles[PITCH], true);
 	}
 }
 
@@ -518,6 +524,16 @@ void Cmd_TAS_Edit_Strafe(void)
 	m_state = MouseState::Strafe;
 }
 
+void Cmd_TAS_Edit_Swim(void)
+{
+	current_strafe = Get_Existing_Value("tas_strafe");
+	current_strafeyaw = Get_Existing_Value("tas_strafe_yaw");
+	current_strafepitch = Get_Existing_Value("tas_strafe_pitch");
+	SetConvar("tas_strafe", 1, true);
+	SetConvar("tas_strafe_type", 4, true);
+	m_state = MouseState::Swim;
+}
+
 void Cmd_TAS_Edit_Set_Pitch(void)
 {
 	m_state = MouseState::Pitch;
@@ -710,8 +726,10 @@ void Cmd_TAS_Confirm(void)
 		SCR_CenterPrint("Set view");
 	else if (m_state == MouseState::Yaw)
 		SCR_CenterPrint("Set yaw");
-	else
+	else if (m_state == MouseState::Pitch)
 		SCR_CenterPrint("Set pitch");
+	else
+		SCR_CenterPrint("Set swimming");
 	m_state = MouseState::Locked;
 }
 
@@ -733,6 +751,12 @@ void Cmd_TAS_Cancel(void)
 	else if (m_state == MouseState::Mixed || m_state == MouseState::Pitch)
 	{
 		SetConvar("tas_view_pitch", current_pitch, true);
+	}
+	else if (m_state == MouseState::Swim)
+	{
+		SetConvar("tas_strafe_yaw", current_strafeyaw, true);
+		SetConvar("tas_strafe_pitch", current_strafepitch, true);
+		SetConvar("tas_strafe", current_strafe, true);
 	}
 }
 
