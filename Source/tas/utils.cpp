@@ -119,15 +119,20 @@ void ApproximateRatioWithIntegers(double& number1, double& number2, int max_int)
 
 }
 
-// 1 - cosine similarity of vectors
-inline static double Cosine_Dissimilarity(double* old, double* v2, double length1)
+inline static double distance(double* old, double* v1)
 {
-	double length2 = std::sqrt(v2[0] * v2[0] + v2[1] * v2[1] + v2[2] * v2[2]);
-	double dot = old[0] * v2[0] + old[1] * v2[1] + old[2] * v2[2];
-
-	return 1 - dot / (length1 * length2);
+	return (1.0 - old[0] * old[0]) * v1[0] * v1[0] +
+		(1.0 - old[1] * old[1]) * v1[1] * v1[1] +
+		(1.0 - old[2] * old[2]) * v1[2] * v1[2] -
+		2.0 * old[0] * old[1] * v1[0] * v1[1] -
+		2.0 * old[0] * old[2] * v1[0] * v1[2] -
+		2.0 * old[1] * old[2] * v1[1] * v1[2];
 }
 
+inline static double Round(double d)
+{
+	return static_cast<int>(d + 0.5);
+}
 
 void ApproximateRatioWithIntegers(double* numbers, int max_int)
 {
@@ -157,11 +162,16 @@ void ApproximateRatioWithIntegers(double* numbers, int max_int)
 	for (int i = 0; i < 3; ++i)
 	{
 		length += numbers[i] * numbers[i];
-		old[i] = numbers[i];
 		ratios[i] = numbers[i] / biggest;
 	}
 
 	length = std::sqrt(length);
+
+	for (int i = 0; i < 3; ++i)
+	{
+		old[i] = numbers[i] / length;
+	}
+
 	int best_index = max_int;
 	double best_error = 1;
 
@@ -169,11 +179,11 @@ void ApproximateRatioWithIntegers(double* numbers, int max_int)
 	// Iterate through all possible values for the vector
 	for (int i = max_int / 2; i <= max_int; ++i)
 	{
-		numbers[0] = std::round(ratios[0] * i);
-		numbers[1] = std::round(ratios[1] * i);
-		numbers[2] = std::round(ratios[2] * i);
+		numbers[0] = Round(ratios[0] * i);
+		numbers[1] = Round(ratios[1] * i);
+		numbers[2] = Round(ratios[2] * i);
 
-		double err = Cosine_Dissimilarity(old, numbers, length);
+		double err = std::abs(distance(old, numbers));
 
 		if (err < best_error)
 		{
@@ -182,9 +192,9 @@ void ApproximateRatioWithIntegers(double* numbers, int max_int)
 		}
 	}
 
-	numbers[0] = std::round(ratios[0] * best_index);
-	numbers[1] = std::round(ratios[1] * best_index);
-	numbers[2] = std::round(ratios[2] * best_index);
+	numbers[0] = Round(ratios[0] * best_index);
+	numbers[1] = Round(ratios[1] * best_index);
+	numbers[2] = Round(ratios[2] * best_index);
 }
 
 void ApproximateRatioWithIntegers(double& number1, double& number2, double& number3, int max_int)
