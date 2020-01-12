@@ -119,33 +119,84 @@ void ApproximateRatioWithIntegers(double& number1, double& number2, int max_int)
 
 }
 
-// Caveman algorithm for approximating three floating point numbers with integers
-void ApproximateRatioWithIntegers(double & number1, double & number2, double & number3, int max_int)
+// 1 - cosine similarity of vectors
+inline static double Cosine_Dissimilarity(double* old, double* v2, double length1)
 {
-	if (number1 == 0 && number2 == 0)
+	double length2 = std::sqrt(v2[0] * v2[0] + v2[1] * v2[1] + v2[2] * v2[2]);
+	double dot = old[0] * v2[0] + old[1] * v2[1] + old[2] * v2[2];
+
+	return 1 - dot / (length1 * length2);
+}
+
+
+void ApproximateRatioWithIntegers(double* numbers, int max_int)
+{
+	// Find biggest index in terms of absolute length
+	int biggest_index = -1;
+	double biggest = std::numeric_limits<double>::epsilon();
+
+	for (int i = 0; i < 3; ++i)
 	{
-		number3 = std::copysign(max_int, number3);
+		double absNumber = std::abs(numbers[i]);
+		if (absNumber > biggest)
+		{
+			biggest = absNumber;
+			biggest_index = i;
+		}
+	}
+
+	// All zero, exit
+	if (biggest_index == -1)
 		return;
-	}
 
-	bool swap = std::abs(number1) > std::abs(number2);
-	if(swap)
-		std::swap(number1, number2);
+	// Store old values and ratios to biggest absolute value
+	double old[3];
+	double ratios[3];
+	double length = 0;
 
-	double ratio = number3 / number2;
-	double max12 = max(std::abs(number1), std::abs(number2));
-
-	if (std::abs(number3) > max12)
+	for (int i = 0; i < 3; ++i)
 	{
-		double ratio = max12 / std::abs(number3);
-		max_int *= ratio;
+		length += numbers[i] * numbers[i];
+		old[i] = numbers[i];
+		ratios[i] = numbers[i] / biggest;
 	}
 
-	ApproximateRatioWithIntegers(number1, number2, max_int);
-	number3 = static_cast<int>(ratio * number2);
+	length = std::sqrt(length);
+	int best_index = max_int;
+	double best_error = 1;
 
-	if (swap)
-		std::swap(number1, number2);
+
+	// Iterate through all possible values for the vector
+	for (int i = max_int / 2; i <= max_int; ++i)
+	{
+		numbers[0] = std::round(ratios[0] * i);
+		numbers[1] = std::round(ratios[1] * i);
+		numbers[2] = std::round(ratios[2] * i);
+
+		double err = Cosine_Dissimilarity(old, numbers, length);
+
+		if (err < best_error)
+		{
+			best_error = err;
+			best_index = i;
+		}
+	}
+
+	numbers[0] = std::round(ratios[0] * best_index);
+	numbers[1] = std::round(ratios[1] * best_index);
+	numbers[2] = std::round(ratios[2] * best_index);
+}
+
+void ApproximateRatioWithIntegers(double& number1, double& number2, double& number3, int max_int)
+{
+	double numbers[3];
+	numbers[0] = number1;
+	numbers[1] = number2;
+	numbers[2] = number3;
+	ApproximateRatioWithIntegers(numbers, max_int);
+	number1 = numbers[0];
+	number2 = numbers[1];
+	number3 = numbers[2];
 }
 
 std::string& ltrim(std::string& s, const char* t)
