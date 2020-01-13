@@ -131,7 +131,8 @@ inline static double distance(double* old, double* v1)
 
 inline static double Round(double d)
 {
-	return static_cast<int>(d + 0.5);
+	d += 0.5;
+	return static_cast<int>(d) - (d < static_cast<int>(d));
 }
 
 void ApproximateRatioWithIntegers(double* numbers, int max_int)
