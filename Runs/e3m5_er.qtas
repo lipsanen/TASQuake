@@ -12,6 +12,7 @@
 	tas_strafe_version 1
 	tas_strafe_yaw 90
 	tas_view_yaw 999
+	v_centerspeed 500
 +83:
 	+tas_lgagst
 +131:

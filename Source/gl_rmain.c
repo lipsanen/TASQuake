@@ -100,6 +100,8 @@ cvar_t  r_overlay_width = { "r_overlay_width", "320" };
 cvar_t  r_overlay_mode = { "r_overlay_mode", "0"};
 qboolean OnChange_r_overlay_offset(cvar_t *var, char *string);
 cvar_t  r_overlay_offset = {"r_overlay_offset", "0 0 300", 0, OnChange_r_overlay_offset};
+qboolean OnChange_r_overlay_angles(cvar_t *var, char *string);
+cvar_t  r_overlay_angles = { "r_overlay_angles", "90 0 0", 0, OnChange_r_overlay_angles };
 qboolean OnChange_r_norefresh(cvar_t *var, char *string);
 cvar_t  r_norefresh = { "r_norefresh", "0", 0, OnChange_r_norefresh};
 
@@ -2413,6 +2415,7 @@ void R_Init (void)
 	Cvar_Register (&r_overlay_pos);
 	Cvar_Register (&r_overlay_width);
 	Cvar_Register (&r_overlay_offset);
+	Cvar_Register (&r_overlay_angles);
 	Cvar_Register (&r_norefresh);
 
 	Cvar_Register (&gl_finish);
@@ -2664,6 +2667,7 @@ static void Draw_Overlay_Crosshair(void)
 }
 
 vec3_t r_overlay_offset_vec;
+vec3_t r_overlay_offset_angles;
 qboolean r_overlay_offset_init = false;
 
 static void Setup_Overlay_Overhead()
@@ -2671,13 +2675,15 @@ static void Setup_Overlay_Overhead()
 	if (!r_overlay_offset_init)
 	{
 		OnChange_r_overlay_offset(&r_overlay_offset, r_overlay_offset.string);
+		OnChange_r_overlay_angles(&r_overlay_angles, r_overlay_angles.string);
 		r_overlay_offset_init = true;
 	}
 
-	VectorAdd(r_refdef.vieworg, r_overlay_offset_vec, r_refdef.vieworg);
-	r_refdef.viewangles[0] = 90;
-	r_refdef.viewangles[1] = 0;
-	r_refdef.viewangles[2] = 0;
+	if(r_overlay_mode.value == 2)
+		VectorAdd(r_refdef.vieworg, r_overlay_offset_vec, r_refdef.vieworg);
+	else
+		VectorCopy(r_overlay_offset_vec, r_refdef.vieworg);
+	VectorCopy(r_overlay_offset_angles, r_refdef.viewangles);
 }
 
 static void Setup_Overlay_Lbug()
@@ -2765,7 +2771,7 @@ void R_RenderOverlay(void)
 
 	if(r_overlay_mode.value <= 1)
 		Setup_Overlay_Lbug();
-	else if(r_overlay_mode.value == 2)
+	else if(r_overlay_mode.value >= 2)
 		Setup_Overlay_Overhead();
 	Set_Overlay_Viewport();
 	
@@ -2790,6 +2796,18 @@ qboolean OnChange_r_overlay_offset(cvar_t * var, char * string)
 	r_overlay_offset_vec[1] = y;
 	r_overlay_offset_vec[2] = z;
 	r_overlay_offset_init = true;
+
+	return false;
+}
+
+qboolean OnChange_r_overlay_angles(cvar_t * var, char * string)
+{
+	float x = 0, y = 0, z = 0;
+
+	sscanf(string, "%f %f %f", &x, &y, &z);
+	r_overlay_offset_angles[0] = x;
+	r_overlay_offset_angles[1] = y;
+	r_overlay_offset_angles[2] = z;
 
 	return false;
 }

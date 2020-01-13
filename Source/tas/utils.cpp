@@ -131,18 +131,20 @@ inline static double distance(double* old, double* v1)
 
 inline static double Round(double d)
 {
-	d += 0.5;
-	return static_cast<int>(d) - (d < static_cast<int>(d));
+	return static_cast<int>(d + 0.5);
 }
 
-void ApproximateRatioWithIntegers(double* numbers, int max_int)
+static void ApproximateRatioWithIntegers(double* numbers, int max_int)
 {
 	// Find biggest index in terms of absolute length
 	int biggest_index = -1;
 	double biggest = std::numeric_limits<double>::epsilon();
+	int signs[3];
 
 	for (int i = 0; i < 3; ++i)
 	{
+		signs[i] = numbers[i] >= 0 ? 1 : -1;
+		numbers[i] = std::abs(numbers[i]);
 		double absNumber = std::abs(numbers[i]);
 		if (absNumber > biggest)
 		{
@@ -166,7 +168,7 @@ void ApproximateRatioWithIntegers(double* numbers, int max_int)
 		ratios[i] = numbers[i] / biggest;
 	}
 
-	length = std::sqrt(length);
+	length = sqrt(length);
 
 	for (int i = 0; i < 3; ++i)
 	{
@@ -175,16 +177,16 @@ void ApproximateRatioWithIntegers(double* numbers, int max_int)
 
 	int best_index = max_int;
 	double best_error = 1;
+	double err;
 
 
-	// Iterate through all possible values for the vector
 	for (int i = max_int / 2; i <= max_int; ++i)
 	{
 		numbers[0] = Round(ratios[0] * i);
 		numbers[1] = Round(ratios[1] * i);
 		numbers[2] = Round(ratios[2] * i);
 
-		double err = std::abs(distance(old, numbers));
+		err = std::abs(distance(old, numbers));
 
 		if (err < best_error)
 		{
@@ -193,9 +195,9 @@ void ApproximateRatioWithIntegers(double* numbers, int max_int)
 		}
 	}
 
-	numbers[0] = Round(ratios[0] * best_index);
-	numbers[1] = Round(ratios[1] * best_index);
-	numbers[2] = Round(ratios[2] * best_index);
+	numbers[0] = Round(ratios[0] * best_index) * signs[0];
+	numbers[1] = Round(ratios[1] * best_index) * signs[1];
+	numbers[2] = Round(ratios[2] * best_index) * signs[2];
 }
 
 void ApproximateRatioWithIntegers(double& number1, double& number2, double& number3, int max_int)

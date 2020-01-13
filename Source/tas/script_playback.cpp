@@ -398,6 +398,7 @@ void Cmd_TAS_Script_Play(void)
 void Cmd_TAS_Script_Stop(void)
 {
 	playback.script_running = false;
+	tas_playing.value = 0;
 	ClearAfterframes();
 	Cmd_TAS_Cmd_Reset_f();
 }
@@ -486,6 +487,10 @@ void Cmd_TAS_Script_Advance_Block(void)
 		blocks = 1;
 
 	int target_block = playback.GetCurrentBlockNumber() + blocks;
+	auto curblock = playback.Get_Current_Block();
+
+	if(curblock && curblock->frame != playback.current_frame)
+		target_block -= 1;
 
 	if (target_block < LOWEST_BLOCK || target_block >= playback.current_script.blocks.size())
 	{
@@ -577,7 +582,11 @@ void Cmd_TAS_Edit_Shrink(void)
 				return;
 			}
 			else
+			{
 				playback.current_script.blocks.resize(new_size);
+				playback.last_edited = Sys_DoubleTime();
+			}
+
 		}
 
 	}
@@ -600,6 +609,7 @@ void Cmd_TAS_Edit_Delete(void)
 
 	SCR_CenterPrint("Block deleted.\n");
 	playback.current_script.blocks.erase(playback.current_script.blocks.begin() + current_block);
+	playback.last_edited = Sys_DoubleTime();
 }
 
 void Shift_Block(const FrameBlock& new_block)
@@ -657,7 +667,6 @@ void Cmd_TAS_Edit_Shift(void)
 	block.frame = new_frame;
 	playback.current_script.blocks.erase(playback.current_script.blocks.begin() + current_block);
 	Shift_Block(block);
-
 	Generic_Advance(new_frame);
 }
 
@@ -738,7 +747,6 @@ void Cmd_TAS_Cancel(void)
 	if (m_state == MouseState::Locked)
 		return;
 
-	m_state = MouseState::Locked;
 	if (m_state == MouseState::Strafe)
 	{
 		SetConvar("tas_strafe_yaw", current_strafeyaw, true);
@@ -758,6 +766,7 @@ void Cmd_TAS_Cancel(void)
 		SetConvar("tas_strafe_pitch", current_strafepitch, true);
 		SetConvar("tas_strafe", current_strafe, true);
 	}
+	m_state = MouseState::Locked;
 }
 
 void Clear_Bookmarks()
@@ -852,8 +861,13 @@ qboolean Script_Playback_Cmd_ExecuteString_Hook(const char * text)
 
 		return qtrue;
 	}
-	else if (strstr(name, "impulse") == name)
+	else if (strstr(name, "impulse") == name && Cmd_Argc() > 1)
 	{
+		int number = atoi(Cmd_Argv(1));
+
+		if(number < 1 || number > 9)
+			return qfalse;
+
 		playback.last_edited = Sys_DoubleTime();
 		auto block = GetBlockForFrame();
 		sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "Block: Added %s %s", name, Cmd_Argv(1));
@@ -905,7 +919,7 @@ int PlaybackInfo::GetCurrentBlockNumber(int frame) const
 		}
 	}
 
-	return current_script.blocks.size() - 1;
+	return current_script.blocks.size();
 }
 
 int PlaybackInfo::Get_Number_Of_Blocks() const

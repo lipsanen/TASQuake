@@ -1,0 +1,92 @@
++1:
+	tas_strafe_version 2
+	disconnect
+	tas_set_seed
++1:
+	skill 0
+	record demo e1m6
++6:
+	tas_strafe 1
+	tas_strafe_yaw 337.363
+	+tas_lgagst
++51:
+	tas_strafe_yaw 272.23
++50:
+	tas_strafe_yaw 290.61
+	-tas_lgagst
++26:
+	tas_strafe_type 2
+	tas_strafe_yaw 156.489
++22:
+	tas_strafe_type 1
+	tas_strafe_yaw 52.707
+	+tas_lgagst
++28:
+	tas_strafe_yaw 74.174
++45:
+	tas_strafe_yaw 62.666
+	-tas_lgagst
++20:
+	tas_strafe_yaw 12.958
++14:
+	tas_strafe_type 3
+	tas_strafe_yaw 270.071
+	tas_view_pitch 0
+	tas_view_yaw 12.9529
++5:
+	tas_strafe_type 0
++2:
+	tas_strafe_type 1
+	tas_strafe_yaw 0.104
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-tas_lgagst
++8:
+	tas_strafe_yaw 90
++3:
+	tas_strafe_type 3
+	tas_strafe_yaw 120
++12:
++2:
+	-attack
++5:
+	tas_strafe_type 1
++1:
+	tas_strafe_yaw 80
++12:
+	tas_strafe_yaw 270
++9:
+	tas_strafe_type 2
++3:
+	tas_strafe_type 1
+	tas_view_pitch 999
+	tas_view_yaw 999
++27:
+	+tas_lgagst
++47:
+	-tas_lgagst
++4:
+	tas_strafe_yaw 355
++14:
+	impulse 1
++7:
+	tas_strafe_type 3
+	tas_strafe_yaw 171.211
+	tas_view_pitch 0
+	tas_view_yaw 355.001
++8:
+	tas_strafe_type 0
+	tas_view_yaw 355.001
++1:
+	tas_strafe_type 1
+	tas_strafe_yaw 349.195
+	tas_view_pitch 999
+	tas_view_yaw 999
++38:
+	tas_strafe_yaw 355.045
+	+tas_lgagst
++12:
+	tas_strafe_yaw 329.101
++14:
+	tas_strafe_yaw 77.432
++36:

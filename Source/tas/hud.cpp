@@ -48,7 +48,7 @@ void DrawFrameState(int& y, const PlaybackInfo& info)
 
 	auto current_block = info.Get_Current_Block();
 
-	if(current_block->frame != info.current_frame)
+	if(current_block && current_block->frame != info.current_frame)
 		current_block = nullptr;
 
 	Draw(y, &tas_hud_state, "");

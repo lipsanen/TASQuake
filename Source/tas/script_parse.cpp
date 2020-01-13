@@ -316,6 +316,7 @@ void TASScript::Write_To_File()
 			os << '\t' << cmd << '\n';
 		}
 	}
+	Con_Printf("Wrote script to file %s\n", file_name.c_str());
 }
 
 Bookmark::Bookmark()

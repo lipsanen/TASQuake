@@ -52,7 +52,7 @@ void Draw_Elements()
 
 
 		glBegin(GL_QUADS);
-		glColor3fv(rect.color.Get_Array());
+		glColor4fv(rect.color.Get_Array());
 		glVertex3f(corner1.x, corner1.y, corner1.z);
 		glVertex3f(corner1.x, corner2.y, corner1.z);
 		glVertex3f(corner2.x, corner2.y, corner1.z);
@@ -94,11 +94,27 @@ void Draw_Elements()
 			auto& vec1 = pair.second->at(i);
 			auto& vec2 = pair.second->at(i+1);
 
-			glColor3fv(vec1.color.Get_Array());
+			glColor4fv(vec1.color.Get_Array());
 			glVertex3fv(vec1.point.Get_Array());
 			glVertex3fv(vec2.point.Get_Array());
 		}
 		glEnd();
 	}
 	glEnable(GL_TEXTURE_2D);
+}
+
+PathPoint::PathPoint()
+{
+	for(int i=0; i < 3; ++i)
+		point[i] = 0;
+	for (int i = 0; i < 4; ++i)
+		color[i] = 0;
+}
+
+Rect::Rect()
+{
+	for (int i = 0; i < 3; ++i)
+		center[i] = 0;
+	for (int i = 0; i < 4; ++i)
+		color[i] = 0;
 }

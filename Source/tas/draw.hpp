@@ -5,13 +5,15 @@
 
 struct PathPoint
 {
+	PathPoint();
 	Vector3f point;
-	Vector3f color;
+	Vector4f color;
 };
 
 struct Rect
 {
-	Vector3f color;
+	Rect();
+	Vector4f color;
 	Vector3f center;
 	float width;
 	float height;

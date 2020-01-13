@@ -836,6 +836,7 @@ void Simulate_Frame_Hook()
 	auto& playback = GetPlaybackInfo();
 	if (!playback.In_Edit_Mode() || !tas_predict.value)
 	{
+		/*
 		int index = playback.current_frame - startFrame;
 
 		if (index < points.size() && index >= 0)
@@ -851,7 +852,7 @@ void Simulate_Frame_Hook()
 			{
 				Con_Printf("Prediction error: %f\n", len);		
 			}
-		}
+		}*/
 
 		RemoveCurve(PREDICTION_ID);
 		RemoveRectangles(PREDICTION_ID);
@@ -888,7 +889,7 @@ void Simulate_Frame_Hook()
 	(info.time < simulationStartTime + tas_predict_max.value && frame <= last_frame)); ++frame)
 	{
 		PathPoint vec;
-		VectorCopy(vec3_origin, vec.color);
+		vec.color[3] = 1;
 		if (info.collision)
 		{
 			vec.color[0] = 1;
@@ -902,7 +903,7 @@ void Simulate_Frame_Hook()
 		//infos.push_back(info);
 
 		auto block = playback.Get_Current_Block(frame);
-		if (block->frame == frame)
+		if (block && block->frame == frame)
 		{
 			ApplyFrameblock(info, block);
 			Rect rect;

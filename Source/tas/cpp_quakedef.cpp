@@ -14,3 +14,20 @@ float & Vector3f::operator[](int index)
 	else
 		return z;
 }
+
+float * Vector4f::Get_Array()
+{
+	return &x;
+}
+
+float & Vector4f::operator[](int index)
+{
+	if (index == 0)
+		return x;
+	else if (index == 1)
+		return y;
+	else if (index == 2)
+		return z;
+	else
+		return w;
+}

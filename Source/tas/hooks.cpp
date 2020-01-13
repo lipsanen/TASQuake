@@ -35,11 +35,17 @@ void Cmd_TAS_Set_Seed_Onload(void)
 
 void SV_Physics_Client_Hook()
 {
+	if (cls.demoplayback)
+		return;
+
 	Strafe_Jump_Check();
 }
 
 void CL_SendMove_Hook(usercmd_t* cmd)
 {
+	if (cls.demoplayback)
+		return;
+
 	Strafe(cmd);
 }
 
@@ -159,11 +165,17 @@ void TAS_Set_Seed(unsigned int seed)
 
 qboolean Cmd_ExecuteString_Hook(const char * text)
 {
+	if (cls.demoplayback)
+		return qfalse;
+
 	return Script_Playback_Cmd_ExecuteString_Hook(text);
 }
 
 void IN_Move_Hook(usercmd_t * cmd)
 {
+	if (cls.demoplayback)
+		return;
+
 	Script_Playback_IN_Move_Hook(cmd);
 }
 
@@ -174,11 +186,17 @@ void SCR_Draw_TAS_HUD_Hook(void)
 
 void Draw_Lines_Hook(void)
 {
+	if (cls.demoplayback)
+		return;
+
 	Draw_Elements();
 }
 
 void Host_Connect_f_Hook()
 {
+	if (cls.demoplayback)
+		return;
+
 	if (tas_pause_onload.value)
 	{
 		AddAfterframes(0, "tas_afterframes 0 pause");
@@ -189,12 +207,18 @@ void Host_Connect_f_Hook()
 
 void CL_SignonReply_Hook()
 {
+	if (cls.demoplayback)
+		return;
+
 	if(cls.signon == 4)
 		unpause_countdown = 3;
 }
 
 void _Host_Frame_Hook()
 {
+	if(cls.demoplayback)
+		return;
+
 	if (unpause_countdown > 0)
 	{
 		--unpause_countdown;
