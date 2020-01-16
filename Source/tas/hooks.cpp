@@ -9,8 +9,10 @@
 #include "draw.hpp"
 #include "simulate.hpp"
 
-cvar_t	tas_pause_onload = { "tas_pause_onload", "0" };
+// desc: When set to 1, pauses the game on load
+cvar_t tas_pause_onload = { "tas_pause_onload", "0" };
 cvar_t tas_playing = { "tas_playing", "0" };
+// desc: Controls the timescale of the game
 cvar_t tas_timescale = { "tas_timescale", "1"};
 static bool set_seed = false;
 static int unpause_countdown = -1;
@@ -97,7 +99,7 @@ void TAS_Init()
 	Cmd_AddCommand("tas_edit_delete", Cmd_TAS_Edit_Delete);
 	Cmd_AddCommand("tas_edit_shift", Cmd_TAS_Edit_Shift);
 	Cmd_AddCommand("tas_edit_shift_stack", Cmd_TAS_Edit_Shift_Stack);
-	Cmd_AddCommand("tas_edit_add_empty", Cmd_TAS_Edit_Add_Empty);
+	Cmd_AddCommand("tas_edit_add_empty", Cmd_TAS_Add_Empty);
 
 	Cmd_AddCommand("tas_cancel", Cmd_TAS_Cancel); // Keep as it is
 	Cmd_AddCommand("tas_confirm", Cmd_TAS_Confirm); // Confirm change
@@ -106,15 +108,14 @@ void TAS_Init()
 	Cmd_AddCommand("tas_bookmark_block", Cmd_TAS_Bookmark_Block);
 	Cmd_AddCommand("tas_bookmark_skip", Cmd_TAS_Bookmark_Skip);
 
-	Cmd_AddCommand("tas_cmd_reset", Cmd_TAS_Cmd_Reset_f);
+	Cmd_AddCommand("tas_cmd_reset", Cmd_TAS_Cmd_Reset);
 	Cmd_AddCommand("tas_reset_movement", Cmd_TAS_Reset_Movement);
 	Cmd_AddCommand("tas_run_test", Cmd_Run_Test);
 	Cmd_AddCommand("tas_generate_test", Cmd_GenerateTest);
 	Cmd_AddCommand("tas_print_seed", Cmd_Print_Seed);
 	Cmd_AddCommand("tas_pause", Cmd_TAS_Pause);
-	Cmd_AddCommand("tas_print_moves", Cmd_Print_Moves);
-	Cmd_AddCommand("tas_print_vel", Cmd_Print_Vel);
-	Cmd_AddCommand("tas_print_origin", Cmd_Print_Origin);
+	Cmd_AddCommand("tas_print_vel", Cmd_TAS_Print_Vel);
+	Cmd_AddCommand("tas_print_origin", Cmd_TAS_Print_Origin);
 	Cmd_AddCommand("tas_set_seed", Cmd_TAS_Set_Seed_Onload);
 	Cmd_AddCommand("tas_afterframes", Cmd_TAS_AfterFrames);
 	Cmd_AddCommand("tas_afterframes_await_load", Cmd_TAS_AfterFrames_Await_Load);
@@ -153,8 +154,7 @@ void TAS_Init()
 	Cvar_Register(&tas_timescale);
 	Cvar_Register(&tas_predict);
 	Cvar_Register(&tas_predict_per_frame);
-	Cvar_Register(&tas_predict_min);
-	Cvar_Register(&tas_predict_max);
+	Cvar_Register(&tas_predict_amount);
 }
 
 void TAS_Set_Seed(unsigned int seed)

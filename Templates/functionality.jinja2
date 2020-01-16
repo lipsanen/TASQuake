@@ -1,0 +1,28 @@
+TASQuake functionality
+======================
+1. [Toggles](#toggles)
+2. [Commands](#commands)
+3. [Console variables for TASing](#console-variables-for-tasing)
+
+
+# Toggles
+|Toggle|Description|
+|------|-----------|
+{%- for toggle in toggles|sort(attribute='name') %}
+|+{{toggle.name|lower}}|{{toggle.desc}}|
+{%- endfor %}
+
+
+# Commands
+|Command|Description|
+|-------|-----------|
+{%- for cmd in commands|sort(attribute='name') %}
+|{{cmd.name|lower}}|{{cmd.desc}}|
+{%- endfor %}
+
+# Console variables for TASing
+|Variable|Description|
+|--------|-----------|
+{%- for cvar in cvars|sort(attribute='name') %}
+|{{cvar.name}}|{{cvar.desc}}|
+{%- endfor -%}

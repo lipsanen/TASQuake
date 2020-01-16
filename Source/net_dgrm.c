@@ -1278,10 +1278,10 @@ static qsocket_t *_Datagram_CheckNewConnections (void)
 	if (mod != MOD_QSMACK)
 	{
 		if (cl_password.value && (len <= 18 || cl_password.value != MSG_ReadLong()))
-			return Datagram_Reject (va("Óåòöåò éó ðáóó÷ïòä ðòïôåãôåäŸ\nYou must use TASQuake v%s (build %i) or above\nand set cl_password to the server password\n", TASQUAKE_VERSION, build_number()), acceptsock, &clientaddr);
+			return Datagram_Reject (va("ÂYou must use TASQuake v%s (build %i) or above\nand set cl_password to the server password\n", TASQUAKE_VERSION, build_number()), acceptsock, &clientaddr);
 
 		if (cl_cheatfree && (mod != MOD_TASQUAKE || mod_version < 32))
-			return Datagram_Reject (va("Ôèéó éó á ãèåáô­æòåå óåòöåòŸ\nYou must use TASQuake v%s (build %i) or above\n", TASQUAKE_VERSION, build_number()), acceptsock, &clientaddr);
+			return Datagram_Reject (va("ÂYou must use TASQuake v%s (build %i) or above\n", TASQUAKE_VERSION, build_number()), acceptsock, &clientaddr);
 	}
 
 	// allocate a QSocket

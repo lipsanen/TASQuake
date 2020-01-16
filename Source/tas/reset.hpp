@@ -1,7 +1,9 @@
 #pragma once
 #include "cpp_quakedef.hpp"
 
-void Cmd_TAS_Cmd_Reset_f(void);
+// desc: Resets all toggles and console variables to their default values
+void Cmd_TAS_Cmd_Reset(void);
+// desc: Resets movement related stuff
 void Cmd_TAS_Reset_Movement(void);
 bool IsGameplayCvar(cvar_t* var);
 bool IsGameplayCvar(const char* text);

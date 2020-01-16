@@ -54,4 +54,4 @@ void SimulateFrame(SimulationInfo& info);
 void SimulateWithStrafe(SimulationInfo& info);
 bool Should_Jump(const SimulationInfo& info);
 void Simulate_Frame_Hook();
-extern cvar_t tas_predict_per_frame, tas_predict, tas_predict_max, tas_predict_min;
+extern cvar_t tas_predict_per_frame, tas_predict, tas_predict_amount;

@@ -94,15 +94,22 @@ cvar_t	r_drawflame = {"r_drawflame", "1"};
 cvar_t	r_farclip = {"r_farclip", "4096"};
 qboolean OnChange_r_skybox (cvar_t *var, char *string);
 cvar_t	r_skybox = {"r_skybox", "", 0, OnChange_r_skybox};
+// desc: Displays overlay
 cvar_t  r_overlay = { "r_overlay", "0" };
+// desc: Determines in which corner of the screen the overlay is. Set to a number between 0 and 3.
 cvar_t  r_overlay_pos = { "r_overlay_pos", "0" };
+// desc: The width of the overlay in pixels.
 cvar_t  r_overlay_width = { "r_overlay_width", "320" };
+// desc: The mode of the overlay. 0-1 for lbug beams, 2 for fixed offset camera and 3 for absolute coordinates camera.
 cvar_t  r_overlay_mode = { "r_overlay_mode", "0"};
 qboolean OnChange_r_overlay_offset(cvar_t *var, char *string);
+// desc: The positional offset in the 2/3 modes.
 cvar_t  r_overlay_offset = {"r_overlay_offset", "0 0 300", 0, OnChange_r_overlay_offset};
 qboolean OnChange_r_overlay_angles(cvar_t *var, char *string);
+// desc: The angle of the camera in the 2/3 modes.
 cvar_t  r_overlay_angles = { "r_overlay_angles", "90 0 0", 0, OnChange_r_overlay_angles };
 qboolean OnChange_r_norefresh(cvar_t *var, char *string);
+// desc: Makes your screen go black.
 cvar_t  r_norefresh = { "r_norefresh", "0", 0, OnChange_r_norefresh};
 
 

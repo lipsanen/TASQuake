@@ -91,7 +91,7 @@ bool IsUpCmd(const char * text)
 	return cmd && IsUpCmd(cmd);
 }
 
-void Cmd_TAS_Cmd_Reset_f(void)
+void Cmd_TAS_Cmd_Reset(void)
 {
 	tas_gamestate = unpaused;
 	sv.paused = qfalse;

@@ -26,7 +26,9 @@ static float old_yaw = 0;
 static float old_pitch = 0;
 static MouseState m_state = MouseState::Locked;
 
+// desc: How many backups to keep while saving the script to file.
 cvar_t tas_edit_backups = { "tas_edit_backups", "100" };
+// desc: How much rounding to apply when setting the strafe yaw and pitch
 cvar_t tas_edit_snap_threshold = { "tas_edit_snap_threshold", "0.001" };
 
 static void Run_Script(int frame, bool skip = false)
@@ -57,7 +59,7 @@ static void Run_Script(int frame, bool skip = false)
 		return;
 	}
 
-	Cmd_TAS_Cmd_Reset_f();
+	Cmd_TAS_Cmd_Reset();
 	AddAfterframes(0, "tas_playing 1");
 
 	if (skip)
@@ -400,7 +402,7 @@ void Cmd_TAS_Script_Stop(void)
 	playback.script_running = false;
 	tas_playing.value = 0;
 	ClearAfterframes();
-	Cmd_TAS_Cmd_Reset_f();
+	Cmd_TAS_Cmd_Reset();
 }
 
 void Cmd_TAS_Script_Skip(void)
@@ -489,7 +491,7 @@ void Cmd_TAS_Script_Advance_Block(void)
 	int target_block = playback.GetCurrentBlockNumber() + blocks;
 	auto curblock = playback.Get_Current_Block();
 
-	if(curblock && curblock->frame != playback.current_frame)
+	if(curblock && curblock->frame != playback.current_frame && blocks > 0)
 		target_block -= 1;
 
 	if (target_block < LOWEST_BLOCK || target_block >= playback.current_script.blocks.size())
@@ -719,7 +721,7 @@ void Cmd_TAS_Edit_Shift_Stack(void)
 		Shift_Block(block);
 }
 
-void Cmd_TAS_Edit_Add_Empty(void)
+void Cmd_TAS_Add_Empty(void)
 {
 	GetBlockForFrame();
 }

@@ -56,6 +56,7 @@ cvar_t	cl_demorewind = {"cl_demorewind", "0"};
 cvar_t	cl_bobbing = {"cl_bobbing", "0"};
 cvar_t	cl_deadbodyfilter = {"cl_deadbodyfilter", "0"};
 cvar_t	cl_gibfilter = {"cl_gibfilter", "0"};
+// desc: Use this for FPS trickery. Bounded between 10 and 72.
 cvar_t	cl_maxfps = {"cl_maxfps", "72", CVAR_SERVER};
 cvar_t	cl_advancedcompletion = {"cl_advancedcompletion", "1"};
 cvar_t	cl_independentphysics = {"cl_independentphysics", "0", CVAR_INIT};

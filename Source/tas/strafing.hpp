@@ -52,10 +52,14 @@ PlayerData GetPlayerData(edict_t* player, const StrafeVars& vars);
 void StrafeSim(usercmd_t* cmd, edict_t* player, float *yaw, float *pitch, const StrafeVars& vars);
 void Strafe(usercmd_t* cmd);
 void Strafe_Jump_Check();
+// desc: Autojump
 void IN_TAS_Jump_Down(void);
 void IN_TAS_Jump_Up(void);
+// desc: LGAGST = leave ground at air-ground speed threshold. Use in TASing to automatically jump \
+when it's faster to strafe in the air. Also always jumps when you walk off an edge.
 void IN_TAS_Lgagst_Down(void);
 void IN_TAS_Lgagst_Up(void);
-void Cmd_Print_Vel(void);
-void Cmd_Print_Origin(void);
-void Cmd_Print_Moves(void);
+// desc: Prints velocity on next physics frame
+void Cmd_TAS_Print_Vel(void);
+// desc: Prints origin on next physics frame
+void Cmd_TAS_Print_Origin(void);

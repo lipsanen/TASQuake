@@ -20,9 +20,6 @@ void AddAfterframes(int frames, const char* cmd);
 void AddAfterframes(const AfterFrames& af);
 char* GetQueuedCommands();
 
-extern "C"
-{
-	void Cmd_TAS_AfterFrames();
-	void Cmd_TAS_AfterFrames_Await_Load(void);
-	void Cmd_TAS_AfterFrames_Clear(void);
-}
+void Cmd_TAS_AfterFrames();
+void Cmd_TAS_AfterFrames_Await_Load(void);
+void Cmd_TAS_AfterFrames_Clear(void);

@@ -817,10 +817,12 @@ void SimulateWithStrafe(SimulationInfo & info)
 	SimulateFrame(info);
 }
 
-cvar_t tas_predict_per_frame{ "tas_predict_per_frame", "0.01" }; // How long the prediction should run per frame
-cvar_t tas_predict{ "tas_predict", "1" }; // Should predict player path in edit mode?
-cvar_t tas_predict_max{ "tas_predict_max", "3" }; // Maximum length of path to predict
-cvar_t tas_predict_min{ "tas_predict_min", "3" }; // Minimum length of path to predict
+// desc: How long the prediction algorithm should run per frame. High values will kill your fps.
+cvar_t tas_predict_per_frame{ "tas_predict_per_frame", "0.01" };
+// desc: Display position prediction while paused in a TAS.
+cvar_t tas_predict{ "tas_predict", "1" };
+// desc: Amount of time to predict
+cvar_t tas_predict_amount{ "tas_predict_amount", "3" };
 
 void Simulate_Frame_Hook()
 {
@@ -885,8 +887,7 @@ void Simulate_Frame_Hook()
 	int last_frame = playback.Get_Last_Frame();
 
 	for (; Sys_DoubleTime() - realTimeStart < tas_predict_per_frame.value &&
-	((info.time <= simulationStartTime + tas_predict_min.value) ||
-	(info.time < simulationStartTime + tas_predict_max.value && frame <= last_frame)); ++frame)
+	info.time < simulationStartTime + tas_predict_amount.value; ++frame)
 	{
 		PathPoint vec;
 		vec.color[3] = 1;
