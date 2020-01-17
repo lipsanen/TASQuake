@@ -160,7 +160,7 @@ PlayerData GetPlayerData(edict_t* player, const StrafeVars& vars)
 		else
 		{
 			data.vel_theta = NormalizeRad(vars.tas_strafe_yaw * M_DEG2RAD);
-			// this is a bit stupid but it makes the rounding errors in prediction go away and the speed loss should be basically 0
+			// there's still some issues with prediction so enjoy this lovely hack that fixes some issues with basically 0 cost
 			int places = 10000;
 			data.vel_theta = static_cast<int>(data.vel_theta * places) / static_cast<double>(places);
 		}
@@ -168,7 +168,7 @@ PlayerData GetPlayerData(edict_t* player, const StrafeVars& vars)
 	return data;
 }
 
-static double MaxAccelTheta(const PlayerData& data, const StrafeVars& vars)
+double MaxAccelTheta(const PlayerData& data, const StrafeVars& vars)
 {
 	double accelspeed = data.accelerate * data.wishspeed * data.frameTime;
 	if (accelspeed <= 0)
@@ -245,11 +245,6 @@ static double StrafeMaxAccel(edict_t* player, const StrafeVars& vars)
 {
 	auto data = GetPlayerData(player, vars);
 	double yaw = MaxAccelIntoYawAngle(data, vars);
-
-	float target_dir = vars.tas_strafe_yaw;
-	target_dir = NormalizeDeg(target_dir);
-	target_dir = AngleModDeg(target_dir);
-
 	double vel_yaw = data.vel_theta * M_RAD2DEG;
 
 	return vel_yaw + yaw;
@@ -259,11 +254,6 @@ static double StrafeMaxAngle(edict_t* player, const StrafeVars& vars)
 {
 	auto data = GetPlayerData(player, vars);
 	double yaw = MaxAngleIntoYawAngle(data, vars);
-
-	float target_dir = vars.tas_strafe_yaw;
-	target_dir = NormalizeDeg(target_dir);
-	target_dir = AngleModDeg(target_dir);
-
 	double vel_yaw = data.vel_theta * M_RAD2DEG;
 
 	return vel_yaw + yaw;
@@ -286,6 +276,7 @@ void StrafeInto(usercmd_t* cmd, double yaw, float view_yaw, float view_pitch, co
 	double diff = NormalizeDeg(lookyaw - yaw) * M_DEG2RAD;
 
 
+	float scaleFactor;
 	double fmove;
 	if (vars.tas_strafe_version <= 1)
 	{
@@ -301,7 +292,7 @@ void StrafeInto(usercmd_t* cmd, double yaw, float view_yaw, float view_pitch, co
 		angles[ROLL] = 0;
 		AngleVectors(angles, fwd, NULL, NULL);
 		fwd[2] = 0;
-		float scaleFactor = VectorLength(fwd);
+		scaleFactor = VectorLength(fwd);
 		fmove = std::cos(diff) * sv_maxspeed.value / scaleFactor;
 	}
 

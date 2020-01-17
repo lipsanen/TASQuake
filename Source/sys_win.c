@@ -704,17 +704,20 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 
 			newtime = Sys_DoubleTime();
 			time = newtime - oldtime;
-			float effective_fps = max(10, cl_maxfps.value);
-			effective_fps = min(72, effective_fps);
 
-			if (tas_playing.value)
-				effective_fps *= tas_timescale.value;
+			if (tas_playing.value != 0)
+			{	
+				float effective_fps = bound(10, cl_maxfps.value, 72);
 
-			while (time < 1 / effective_fps)
-			{
-				Sys_Sleep();
-				newtime = Sys_DoubleTime();
-				time = newtime - oldtime;
+				if (tas_playing.value)
+					effective_fps *= tas_timescale.value;
+
+				while (time < 1 / effective_fps)
+				{
+					Sys_Sleep();
+					newtime = Sys_DoubleTime();
+					time = newtime - oldtime;
+				}
 			}
 
 		}

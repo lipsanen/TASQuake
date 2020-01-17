@@ -865,8 +865,8 @@ void Simulate_Frame_Hook()
 	
 	double currentTime = Sys_DoubleTime();
 	static int frame = 0;
+	static int last_frame = 0;
 	static SimulationInfo info;
-	static double simulationStartTime = 0;
 	static int printed_index = -1;
 
 	if (last_updated < playback.last_edited)
@@ -879,15 +879,18 @@ void Simulate_Frame_Hook()
 		frame = playback.current_frame;
 		info = Get_Sim_Info();
 		info.vars.simulated = true;
-		simulationStartTime = info.time;
 		printed_index = -1;
+		last_frame = max(static_cast<int>(playback.Get_Last_Frame() + tas_predict_amount.value * 72),
+			static_cast<int>(playback.current_frame + tas_predict_amount.value * 72));
+
+		int frames = last_frame - startFrame;
+		if (frames > 0)
+			points.reserve(frames);
 	}
 
 	double realTimeStart = Sys_DoubleTime();
-	int last_frame = playback.Get_Last_Frame();
 
-	for (; Sys_DoubleTime() - realTimeStart < tas_predict_per_frame.value &&
-	info.time < simulationStartTime + tas_predict_amount.value; ++frame)
+	for (; Sys_DoubleTime() - realTimeStart < tas_predict_per_frame.value && frame < last_frame; ++frame)
 	{
 		PathPoint vec;
 		vec.color[3] = 1;

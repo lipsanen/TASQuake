@@ -151,6 +151,7 @@ void TAS_Init()
 	Cvar_Register(&tas_hud_pflags);
 	Cvar_Register(&tas_hud_waterlevel);
 	Cvar_Register(&tas_hud_state);
+	Cvar_Register(&tas_hud_strafe);
 	Cvar_Register(&tas_timescale);
 	Cvar_Register(&tas_predict);
 	Cvar_Register(&tas_predict_per_frame);

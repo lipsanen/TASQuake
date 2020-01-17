@@ -2,6 +2,7 @@
 #include "strafing.hpp"
 #include "script_playback.hpp"
 #include "hooks.h"
+#include "utils.hpp"
 
 // desc: Display position in HUD
 cvar_t tas_hud_pos = {"tas_hud_pos", "0"};
@@ -31,6 +32,8 @@ cvar_t tas_hud_pos_x = { "tas_hud_pos_x", "10" };
 cvar_t tas_hud_pos_y = { "tas_hud_pos_y", "60" };
 // desc: The vertical spacing between TAS HUD elements
 cvar_t tas_hud_pos_inc = { "tas_hud_pos_inc", "8" };
+//desc: Displays a bar that tells you how well you are strafing.
+cvar_t tas_hud_strafe = { "tas_hud_strafe", "0"};
 
 void Draw(int& y, cvar_t* cvar, const char* format, ...)
 {
@@ -43,6 +46,22 @@ void Draw(int& y, cvar_t* cvar, const char* format, ...)
 	vsnprintf(BUFFER, ARRAYSIZE(BUFFER), format, args);
 	Draw_String((int)tas_hud_pos_x.value, y, BUFFER);
 	y += tas_hud_pos_inc.value;
+}
+
+void Draw_Fill_RGB(int x, int y, int w, int h, float r, float g, float b)
+{
+	glDisable(GL_TEXTURE_2D);
+	glColor3f(r, g, b);
+
+	glBegin(GL_QUADS);
+	glVertex2f(x, y);
+	glVertex2f(x + w, y);
+	glVertex2f(x + w, y + h);
+	glVertex2f(x, y + h);
+	glEnd();
+
+	glEnable(GL_TEXTURE_2D);
+	glColor3ubv(color_white);
 }
 
 bool Should_Print_Cvar(const std::string& name, float value)
@@ -160,6 +179,104 @@ void Draw_VelAngle(int& y, const PlayerData& player_data)
 	Draw(y, &tas_hud_velang, "velang: (%.3f, %.3f)", -ang[PITCH], ang[YAW]);
 }
 
+static float FwdScale()
+{
+	vec3_t angles;
+	vec3_t fwd;
+
+	angles[PITCH] = AngleModDeg(cl.viewangles[PITCH]);
+	angles[YAW] = cl.viewangles[YAW];
+	angles[ROLL] = 0;
+	AngleVectors(angles, fwd, NULL, NULL);
+
+	return VectorLength2D(fwd);
+}
+
+static float AccelTheta(float fwd_scale, const PlayerData& player_data, const StrafeVars& vars)
+{
+	static float prev_yaw = 0;
+	static float current_yaw = 0;
+	float fmove = 0;
+	float smove = 0;
+	float speed_modifier = ((in_speed.state & 1) != 0) ? cl_movespeedkey.value : 1;
+
+	if (current_yaw != cl.viewangles[YAW])
+	{
+		prev_yaw = current_yaw;
+		current_yaw = cl.viewangles[YAW];
+	}
+
+	if (vars.tas_strafe)
+	{
+		usercmd_t cmd;
+		StrafeSim(&cmd, sv_player, &cl.viewangles[YAW], &cl.viewangles[PITCH], vars);
+		fmove = cmd.forwardmove * fwd_scale;
+		smove = cmd.sidemove;
+
+		return std::atan2f(-smove, fmove) + cl.viewangles[YAW] * M_DEG2RAD;
+	}
+	else
+	{
+		float predicted_yaw = current_yaw + (NormalizeDeg(NormalizeDeg(current_yaw) - NormalizeDeg(prev_yaw)));
+		if ((in_forward.state & 1) != 0)
+			fmove += cl_forwardspeed.value * speed_modifier * fwd_scale;
+		if ((in_back.state & 1) != 0)
+			fmove -= cl_backspeed.value * speed_modifier * fwd_scale;
+		if ((in_moveright.state & 1) != 0)
+			smove += cl_sidespeed.value * speed_modifier;
+		if ((in_moveleft.state & 1) != 0)
+			smove -= cl_sidespeed.value * speed_modifier;
+
+		return std::atan2f(-smove, fmove) + predicted_yaw * M_DEG2RAD;
+	}
+
+}
+
+void Draw_StrafeStuff(const PlayerData& player_data)
+{
+	int	x, y;
+
+	if (cl.intermission || !tas_hud_strafe.value)
+		return;
+
+	int position;
+	float fwd_scale = FwdScale();
+	StrafeVars vars = Get_Current_Vars();
+	float scale;
+
+	if (player_data.onGround)
+	{
+		scale = 15.0f;
+	}
+	else
+	{
+		scale = 6.0f;
+	}
+
+	float vel_theta;
+	if (player_data.vel2d < 0.01)
+		vel_theta = cl.viewangles[YAW] * M_DEG2RAD;
+	else
+		vel_theta = player_data.vel_theta;
+
+	float accel_theta = NormalizeRad(AccelTheta(fwd_scale, player_data, vars));
+	float diff = NormalizeRad(vel_theta - accel_theta) * M_RAD2DEG;
+	float angle = std::copysign(MaxAccelTheta(player_data, vars) * M_RAD2DEG, diff);
+
+	position = (angle - diff) / scale * 80 + 80;
+	position = bound(0, position, 160);
+
+
+	x = vid.width / 2 - 80;
+	y = vid.height / 2 + 60;
+
+	Draw_Fill(x, y - 1, 160, 1, 10);
+	Draw_Fill(x, y + 9, 160, 1, 10);
+	Draw_Fill(x, y, 160, 9, 52);
+	Draw_Fill(x + 78, y, 5, 9, 10);
+	Draw_Fill_RGB(x+position-1, y, 3, 9, 0, 1, 0);
+}
+
 void HUD_Draw_Hook()
 {
 	if(!sv.active)
@@ -185,4 +302,5 @@ void HUD_Draw_Hook()
 	Draw(y, &tas_hud_waterlevel, "waterlevel: %d", (int)sv_player->v.waterlevel);
 	Draw_PFlags(y);
 	DrawFrameState(y, info);
+	Draw_StrafeStuff(player_data);
 }

@@ -248,3 +248,12 @@ float Get_Default_Value(const char * name)
 
 	return f;
 }
+
+void CenterPrint(const char* value, ...)
+{
+	va_list args;
+	va_start(args, value);
+	static char BUFFER[80];
+	vsprintf_s(BUFFER, 80, value, args);
+	SCR_CenterPrint(BUFFER);
+}

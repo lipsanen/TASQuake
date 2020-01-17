@@ -60,11 +60,12 @@ static void Run_Script(int frame, bool skip = false)
 	}
 
 	Cmd_TAS_Cmd_Reset();
-	AddAfterframes(0, "tas_playing 1");
+	tas_playing.value = 1;
 
 	if (skip)
 	{
-		AddAfterframes(0, "tas_timescale 999999; r_norefresh 1");
+		tas_timescale.value = 999999;
+		r_norefresh.value = 1;
 		AddAfterframes(playback.pause_frame-1- playback.current_frame, "tas_timescale 1; r_norefresh 0");
 	}
 
@@ -207,8 +208,7 @@ static void SetConvar(const char* name, float new_val, bool silent=false)
 	playback.last_edited = Sys_DoubleTime();
 	auto block = GetBlockForFrame();
 	if (!silent)
-		sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "Block: Added %s %f", name, new_val);
-	SCR_CenterPrint(BUFFER);
+		CenterPrint("Block: Added %s %f", name, new_val);
 
 	if (Get_Stacked_Value(name) == new_val && block->convars.find(name) != block->convars.end())
 	{
@@ -222,9 +222,7 @@ void SetToggle(const char* cmd, bool new_value)
 {
 	playback.last_edited = Sys_DoubleTime();
 	auto block = GetBlockForFrame();
-
-	sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "Block: Added %c%s", new_value ? '+' : '-', cmd);
-	SCR_CenterPrint(BUFFER);
+	CenterPrint("Block: Added %c%s", new_value ? '+' : '-', cmd);
 
 	if (Get_Stacked_Toggle(cmd) == new_value && block->toggles.find(cmd) != block->toggles.end())
 	{
@@ -609,7 +607,7 @@ void Cmd_TAS_Edit_Delete(void)
 		return;
 	}
 
-	SCR_CenterPrint("Block deleted.\n");
+	CenterPrint("Block deleted.\n");
 	playback.current_script.blocks.erase(playback.current_script.blocks.begin() + current_block);
 	playback.last_edited = Sys_DoubleTime();
 }
@@ -685,13 +683,8 @@ void Cmd_TAS_Edit_Shift_Stack(void)
 
 	if (current_block == playback.current_script.blocks.size() - 1)
 	{
-		if(frames > 0)
-			AddBlock(playback.current_frame + 1);
-		else
-		{
-			Con_Printf("Cannot shift stack backwards, nothing to shift.\n");
-			return;
-		}
+		Con_Printf("Cannot shift stack, this is the last frame block.\n");
+		return;
 	}
 
 	std::vector<FrameBlock> insert_blocks;
@@ -732,15 +725,15 @@ void Cmd_TAS_Confirm(void)
 		return;
 
 	if (m_state == MouseState::Strafe)
-		SCR_CenterPrint("Set strafe");
+		CenterPrint("Set strafe");
 	else if (m_state == MouseState::Mixed)
-		SCR_CenterPrint("Set view");
+		CenterPrint("Set view");
 	else if (m_state == MouseState::Yaw)
-		SCR_CenterPrint("Set yaw");
+		CenterPrint("Set yaw");
 	else if (m_state == MouseState::Pitch)
-		SCR_CenterPrint("Set pitch");
+		CenterPrint("Set pitch");
 	else
-		SCR_CenterPrint("Set swimming");
+		CenterPrint("Set swimming");
 	m_state = MouseState::Locked;
 }
 
@@ -872,8 +865,7 @@ qboolean Script_Playback_Cmd_ExecuteString_Hook(const char * text)
 
 		playback.last_edited = Sys_DoubleTime();
 		auto block = GetBlockForFrame();
-		sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "Block: Added %s %s", name, Cmd_Argv(1));
-		SCR_CenterPrint(BUFFER);
+		CenterPrint("Block: Added %s %s", name, Cmd_Argv(1));
 		block->commands.clear();
 		sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "impulse %s", Cmd_Argv(1));
 		block->Add_Command(BUFFER);

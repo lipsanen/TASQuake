@@ -9,7 +9,7 @@ TASQuake functionality
 |Toggle|Description|
 |------|-----------|
 {%- for toggle in toggles|sort(attribute='name') %}
-|+{{toggle.name|lower}}|{{toggle.desc}}|
+|+{{toggle.name|lower}}|{{toggle.desc|replace("<","&lt;")|replace(">","&gt;")}}|
 {%- endfor %}
 
 
@@ -17,12 +17,12 @@ TASQuake functionality
 |Command|Description|
 |-------|-----------|
 {%- for cmd in commands|sort(attribute='name') %}
-|{{cmd.name|lower}}|{{cmd.desc}}|
+|{{cmd.name|lower}}|{{cmd.desc|replace("<","&lt;")|replace(">","&gt;")}}|
 {%- endfor %}
 
 # Console variables for TASing
 |Variable|Description|
 |--------|-----------|
 {%- for cvar in cvars|sort(attribute='name') %}
-|{{cvar.name}}|{{cvar.desc}}|
+|{{cvar.name}}|{{cvar.desc|replace("<","&lt;")|replace(">","&gt;")}}|
 {%- endfor -%}

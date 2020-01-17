@@ -16,9 +16,9 @@ TASQuake functionality
 |Command|Description|
 |-------|-----------|
 |tas_add_empty|Adds empty frameblock|
-|tas_bookmark_block|Usage: tas_bookmark_block <name>. Bookmarks the current block with the name given as the argument.|
-|tas_bookmark_frame|Usage: tas_bookmark_frame <name>. Bookmarks the current frame with the name given as the argument.|
-|tas_bookmark_skip|Usage: tas_bookmark_skip <name>. Skips to bookmark with the given name.|
+|tas_bookmark_block|Usage: tas_bookmark_block &lt;name&gt;. Bookmarks the current block with the name given as the argument.|
+|tas_bookmark_frame|Usage: tas_bookmark_frame &lt;name&gt;. Bookmarks the current frame with the name given as the argument.|
+|tas_bookmark_skip|Usage: tas_bookmark_skip &lt;name&gt;. Skips to bookmark with the given name.|
 |tas_cancel|Cancel change in editing mode|
 |tas_cmd_reset|Resets all toggles and console variables to their default values|
 |tas_edit_delete|Delete current block|
@@ -27,7 +27,7 @@ TASQuake functionality
 |tas_edit_set_pitch|Enters pitch editing mode|
 |tas_edit_set_view|Enters pitch/yaw editing mode|
 |tas_edit_set_yaw|Enters yaw editing mode|
-|tas_edit_shift|Usage: tas_edit_shift <frames>. Shift current frameblock by frames. Use with a negative argument to shift backwards|
+|tas_edit_shift|Usage: tas_edit_shift &lt;frames&gt;. Shift current frameblock by frames. Use with a negative argument to shift backwards|
 |tas_edit_shift_stack|Shifts all frameblocks after current one|
 |tas_edit_shrink|Removes all frameblocks after current one|
 |tas_edit_strafe|Enters strafe edit mode|
@@ -35,13 +35,13 @@ TASQuake functionality
 |tas_print_origin|Prints origin on next physics frame|
 |tas_print_vel|Prints velocity on next physics frame|
 |tas_reset_movement|Resets movement related stuff|
-|tas_script_advance|Usage: tas_script_advance <frames>. Advances script by number of frames given as argument. Use negative values to go backwards.|
-|tas_script_advance_block|Usage: tas_script_advance <frames>. Advances script by number of blocks given as argument. Use negative values to go backwards.|
-|tas_script_init|Usage: tas_script_init <filename> <map> <difficulty>. Initializes a TAS script.|
-|tas_script_load|Usage: tas_script_load <filename>. Loads a TAS script from file.|
+|tas_script_advance|Usage: tas_script_advance &lt;frames&gt;. Advances script by number of frames given as argument. Use negative values to go backwards.|
+|tas_script_advance_block|Usage: tas_script_advance &lt;frames&gt;. Advances script by number of blocks given as argument. Use negative values to go backwards.|
+|tas_script_init|Usage: tas_script_init &lt;filename&gt; &lt;map&gt; &lt;difficulty&gt;. Initializes a TAS script.|
+|tas_script_load|Usage: tas_script_load &lt;filename&gt;. Loads a TAS script from file.|
 |tas_script_play|Plays a script.|
-|tas_script_skip|Usage: tas_script_skip <frame>. Skips to the frame number given as parameter. Use with negative values to skip to the end, e.g. -1 skips to last frame, -2 skips to second last and so on.|
-|tas_script_skip_block|Usage: tas_script_skip_block <block>. Skips to this number of block. Works with negative numbers similarly to regular skip|
+|tas_script_skip|Usage: tas_script_skip &lt;frame&gt;. Skips to the frame number given as parameter. Use with negative values to skip to the end, e.g. -1 skips to last frame, -2 skips to second last and so on.|
+|tas_script_skip_block|Usage: tas_script_skip_block &lt;block&gt;. Skips to this number of block. Works with negative numbers similarly to regular skip|
 |tas_script_stop|Stop a script from playing. This is the "reset everything that the game is doing" command.|
 
 # Console variables for TASing
@@ -67,6 +67,7 @@ TASQuake functionality
 |tas_hud_pos_x|X position of the HUD|
 |tas_hud_pos_y|Y position of the HUD|
 |tas_hud_state|Displays lots of TAS info about frameblocks in HUD|
+|tas_hud_strafe|Displays a bar that tells you how well you are strafing.|
 |tas_hud_vel|Displays xyz-velocity in HUD|
 |tas_hud_vel2d|Displays 2d speed in HUD|
 |tas_hud_vel3d|Displays 3d speed in HUD|

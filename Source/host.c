@@ -538,7 +538,7 @@ qboolean Host_FilterTime (double time)
 	double	fps = max(10, cl_maxfps.value);
 	fps = min(72, fps);
 
-	if (!cls.demoplayback && !cls.timedemo)
+	if (!cls.demoplayback && !cls.timedemo && tas_playing.value != 0)
 	{
 		float ft = (float)1 / fps;
 		realtime += ft;

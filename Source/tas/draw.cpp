@@ -38,6 +38,9 @@ void RemoveCurve(int id)
 
 void Draw_Elements()
 {
+	if(cl.intermission)
+		return;
+
 	glDisable(GL_TEXTURE_2D);
 	for (auto& rect : rects)
 	{
@@ -89,7 +92,8 @@ void Draw_Elements()
 	for (auto pair : lines)
 	{	
 		glBegin(GL_LINES);
-		for (int i=0; i < pair.second->size() - 1; ++i)
+		int elements = pair.second->size();
+		for (int i=0; i < elements - 1; ++i)
 		{
 			auto& vec1 = pair.second->at(i);
 			auto& vec2 = pair.second->at(i+1);

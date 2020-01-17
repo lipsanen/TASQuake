@@ -16,5 +16,6 @@ extern cvar_t tas_hud_pos_y;
 extern cvar_t tas_hud_pos_inc;
 extern cvar_t tas_hud_state;
 extern cvar_t tas_hud_waterlevel;
+extern cvar_t tas_hud_strafe;
 
 void HUD_Draw_Hook();

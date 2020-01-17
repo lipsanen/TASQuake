@@ -12,7 +12,6 @@ struct PlayerData
 	double frameTime;
 	double wishspeed;
 	float vel2d;
-	double view_theta;
 	double vel_theta;
 };
 
@@ -63,3 +62,4 @@ void IN_TAS_Lgagst_Up(void);
 void Cmd_TAS_Print_Vel(void);
 // desc: Prints origin on next physics frame
 void Cmd_TAS_Print_Origin(void);
+double MaxAccelTheta(const PlayerData& data, const StrafeVars& vars);
