@@ -46,24 +46,24 @@
     <_ProjectFileVersion>14.0.25431.1</_ProjectFileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
-    <IntDir>$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)_build\$(Configuration)_$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)_build\$(Configuration)_$(ProjectName)\</IntDir>
     <ExtensionsToDeleteOnClean>*.asm%3b*.obj%3b*.ilk%3b*.pdb%3b*.tlb%3b*.tli%3b*.tlh%3b*.tmp%3b*.rsp%3b*.bat%3b$(TargetPath)</ExtensionsToDeleteOnClean>
     <LinkIncremental>false</LinkIncremental>
     <TargetName>$(ProjectName)</TargetName>
-    <ExecutablePath>dependencies\executable;$(ExecutablePath)</ExecutablePath>
-    <IncludePath>dependencies\include;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
-    <LibraryPath>dependencies\lib;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <ExecutablePath>$(SolutionDir)_build\$(Configuration)_gas2masm\;$(ExecutablePath)</ExecutablePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
-    <IntDir>$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)_build\$(Configuration)_$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)_build\$(Configuration)_$(ProjectName)\</IntDir>
     <ExtensionsToDeleteOnClean>*.asm%3b*.obj%3b*.ilk%3b*.pdb%3b*.tlb%3b*.tli%3b*.tlh%3b*.tmp%3b*.rsp%3b*.bat%3b$(TargetPath)</ExtensionsToDeleteOnClean>
     <LinkIncremental>true</LinkIncremental>
     <TargetName>$(ProjectName)</TargetName>
-    <ExecutablePath>dependencies\executable;$(ExecutablePath)</ExecutablePath>
-    <IncludePath>dependencies\include;$(IncludePath)</IncludePath>
-    <LibraryPath>dependencies\lib;$(LibraryPath)</LibraryPath>
+    <ExecutablePath>$(SolutionDir)_build\$(Configuration)_gas2masm\;$(ExecutablePath)</ExecutablePath>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -72,8 +72,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>libpng;zlib;dependencies</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;id386;GLQUAKE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -97,7 +96,7 @@
     </ResourceCompile>
     <Link>
       <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>dxguid.lib;opengl32.lib;wsock32.lib;winmm.lib;libpng.lib;libjpeg.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dxguid.lib;opengl32.lib;wsock32.lib;winmm.lib;user32.lib;gdi32.lib</AdditionalDependencies>
       <OutputFile>$(TargetPath)</OutputFile>
       <Version />
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -112,12 +111,14 @@
     <PostBuildEvent>
       <Command>xcopy "$(TargetPath)" "$(NQ_QUAKETESTDIR)" /Y /E</Command>
     </PostBuildEvent>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>libpng;zlib;dependencies</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;id386;GLQUAKE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>false</StringPooling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -145,7 +146,7 @@
     </ResourceCompile>
     <Link>
       <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>dxguid.lib;opengl32.lib;wsock32.lib;winmm.lib;libjpeg.lib;libpng.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dxguid.lib;opengl32.lib;wsock32.lib;winmm.lib;user32.lib;gdi32.lib</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>$(TargetPath)</OutputFile>
       <Version />
@@ -160,195 +161,31 @@
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Link>
-    <PostBuildEvent>
-      <Command>xcopy "$(TargetPath)" "$(NQ_QUAKETESTDIR)" /Y /E</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ResourceCompile Include="tasquake.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="cd_win.c" />
-    <ClCompile Include="chase.c" />
-    <ClCompile Include="cl_demo.c" />
-    <ClCompile Include="cl_input.c" />
-    <ClCompile Include="cl_main.c" />
-    <ClCompile Include="cl_parse.c" />
-    <ClCompile Include="cl_slist.c" />
-    <ClCompile Include="cl_tent.c" />
-    <ClCompile Include="cmd.c" />
-    <ClCompile Include="common.c" />
-    <ClCompile Include="conproc.c" />
-    <ClCompile Include="console.c" />
-    <ClCompile Include="crc.c" />
-    <ClCompile Include="cvar.c" />
-    <ClCompile Include="gl_decals.c" />
-    <ClCompile Include="gl_draw.c" />
-    <ClCompile Include="gl_mesh.c" />
-    <ClCompile Include="gl_model.c" />
-    <ClCompile Include="gl_refrag.c" />
-    <ClCompile Include="gl_rlight.c">
-      <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</OmitFramePointers>
-    </ClCompile>
-    <ClCompile Include="gl_rmain.c" />
-    <ClCompile Include="gl_rmisc.c" />
-    <ClCompile Include="gl_rpart.c" />
-    <ClCompile Include="gl_rsurf.c" />
-    <ClCompile Include="gl_screen.c" />
-    <ClCompile Include="gl_warp.c" />
-    <ClCompile Include="host.c" />
-    <ClCompile Include="host_cmd.c" />
-    <ClCompile Include="image.c" />
-    <ClCompile Include="in_win.c" />
-    <ClCompile Include="iplog.c" />
-    <ClCompile Include="keys.c" />
-    <ClCompile Include="mathlib.c" />
-    <ClCompile Include="menu.c" />
-    <ClCompile Include="movie.c" />
-    <ClCompile Include="movie_avi.c" />
-    <ClCompile Include="nehahra.c" />
-    <ClCompile Include="net_dgrm.c" />
-    <ClCompile Include="net_loop.c" />
-    <ClCompile Include="net_main.c" />
-    <ClCompile Include="net_vcr.c" />
-    <ClCompile Include="net_win.c" />
-    <ClCompile Include="net_wins.c" />
-    <ClCompile Include="net_wipx.c" />
-    <ClCompile Include="pr_cmds.c" />
-    <ClCompile Include="pr_edict.c" />
-    <ClCompile Include="pr_exec.c" />
-    <ClCompile Include="r_part.c" />
-    <ClCompile Include="sbar.c" />
-    <ClCompile Include="security.c" />
-    <ClCompile Include="snd_dma.c" />
-    <ClCompile Include="snd_mem.c" />
-    <ClCompile Include="snd_mix.c" />
-    <ClCompile Include="snd_win.c" />
-    <ClCompile Include="sv_main.c" />
-    <ClCompile Include="sv_move.c" />
-    <ClCompile Include="sv_phys.c" />
-    <ClCompile Include="sv_user.c" />
-    <ClCompile Include="sys_win.c" />
-    <ClCompile Include="tas\afterframes.cpp" />
-    <ClCompile Include="tas\cpp_quakedef.cpp" />
-    <ClCompile Include="tas\draw.cpp" />
-    <ClCompile Include="tas\hud.cpp" />
-    <ClCompile Include="tas\reset.cpp" />
-    <ClCompile Include="tas\script_parse.cpp" />
-    <ClCompile Include="tas\script_playback.cpp" />
-    <ClCompile Include="tas\simulate.cpp" />
-    <ClCompile Include="tas\test.cpp" />
-    <ClCompile Include="tas\hooks.cpp" />
-    <ClCompile Include="tas\strafing.cpp" />
-    <ClCompile Include="tas\utils.cpp" />
-    <ClCompile Include="version.c" />
-    <ClCompile Include="vid_common_gl.c" />
-    <ClCompile Include="vid_wgl.c" />
-    <ClCompile Include="view.c" />
-    <ClCompile Include="wad.c" />
-    <ClCompile Include="world.c" />
-    <ClCompile Include="zone.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="adivtab.h" />
-    <ClInclude Include="anorms.h" />
-    <ClInclude Include="anorm_dots.h" />
-    <ClInclude Include="asm_i386.h" />
-    <ClInclude Include="bspfile.h" />
-    <ClInclude Include="cdaudio.h" />
-    <ClInclude Include="client.h" />
-    <ClInclude Include="cl_slist.h" />
-    <ClInclude Include="cmd.h" />
-    <ClInclude Include="common.h" />
-    <ClInclude Include="conproc.h" />
-    <ClInclude Include="console.h" />
-    <ClInclude Include="crc.h" />
-    <ClInclude Include="cvar.h" />
-    <ClInclude Include="draw.h" />
-    <ClInclude Include="d_iface.h" />
-    <ClInclude Include="d_ifacea.h" />
-    <ClInclude Include="d_local.h" />
-    <ClInclude Include="glquake.h" />
-    <ClInclude Include="gl_model.h" />
-    <ClInclude Include="image.h" />
-    <ClInclude Include="input.h" />
-    <ClInclude Include="iplog.h" />
-    <ClInclude Include="keys.h" />
-    <ClInclude Include="mathlib.h" />
-    <ClInclude Include="menu.h" />
-    <ClInclude Include="modelgen.h" />
-    <ClInclude Include="movie.h" />
-    <ClInclude Include="movie_avi.h" />
-    <ClInclude Include="nehahra.h" />
-    <ClInclude Include="net.h" />
-    <ClInclude Include="net_dgrm.h" />
-    <ClInclude Include="net_loop.h" />
-    <ClInclude Include="net_ser.h" />
-    <ClInclude Include="net_vcr.h" />
-    <ClInclude Include="net_wins.h" />
-    <ClInclude Include="net_wipx.h" />
-    <ClInclude Include="progdefs.h" />
-    <ClInclude Include="progs.h" />
-    <ClInclude Include="protocol.h" />
-    <ClInclude Include="pr_comp.h" />
-    <ClInclude Include="quakeasm.h" />
-    <ClInclude Include="quakedef.h" />
-    <ClInclude Include="render.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="r_local.h" />
-    <ClInclude Include="r_model.h" />
-    <ClInclude Include="r_shared.h" />
-    <ClInclude Include="sbar.h" />
-    <ClInclude Include="screen.h" />
-    <ClInclude Include="security.h" />
-    <ClInclude Include="server.h" />
-    <ClInclude Include="sound.h" />
-    <ClInclude Include="spritegn.h" />
-    <ClInclude Include="sys.h" />
-    <ClInclude Include="tas\afterframes.hpp" />
-    <ClInclude Include="tas\cpp_quakedef.hpp" />
-    <ClInclude Include="tas\draw.hpp" />
-    <ClInclude Include="tas\hud.hpp" />
-    <ClInclude Include="tas\reset.hpp" />
-    <ClInclude Include="tas\script_parse.hpp" />
-    <ClInclude Include="tas\script_playback.hpp" />
-    <ClInclude Include="tas\simulate.hpp" />
-    <ClInclude Include="tas\test.hpp" />
-    <ClInclude Include="tas\hooks.h" />
-    <ClInclude Include="tas\strafing.hpp" />
-    <ClInclude Include="tas\utils.hpp" />
-    <ClInclude Include="version.h" />
-    <ClInclude Include="vid.h" />
-    <ClInclude Include="view.h" />
-    <ClInclude Include="wad.h" />
-    <ClInclude Include="winquake.h" />
-    <ClInclude Include="world.h" />
-    <ClInclude Include="zone.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="quake.ico" />
+    <ResourceCompile Include="Source/tasquake.rc" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="math.s">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cl /D "GLQUAKE" /nologo /EP &gt; "$(OutDir)%(Filename).spp" "%(FullPath)"
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cl /D "GLQUAKE" /nologo /EP &gt; "$(OutDir)%(Filename).spp" "Source\%(Filename).s"
 gas2masm &lt; "$(OutDir)%(Filename).spp" &gt; "$(OutDir)%(Filename).asm"
 ml /nologo /c /Cp /coff /Fo "$(OutDir)%(Filename).obj" /Zm /Zi "$(OutDir)%(Filename).asm"
 del "$(OutDir)%(Filename).spp"</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cl /D "GLQUAKE" /nologo /EP &gt; "$(OutDir)%(Filename).spp" "%(FullPath)"
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cl /D "GLQUAKE" /nologo /EP &gt; "$(OutDir)%(Filename).spp" "Source\%(Filename).s"
 gas2masm &lt; "$(OutDir)%(Filename).spp" &gt; "$(OutDir)%(Filename).asm"
 ml /nologo /c /Cp /coff /Fo "$(OutDir)%(Filename).obj" /Zm /Zi "$(OutDir)%(Filename).asm"
 del "$(OutDir)%(Filename).spp"</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="snd_mixa.s">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cl /D "GLQUAKE" /nologo /EP &gt; "$(OutDir)%(Filename).spp" "%(FullPath)"
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cl /D "GLQUAKE" /nologo /EP &gt; "$(OutDir)%(Filename).spp" "Source\%(Filename).s"
 gas2masm &lt; "$(OutDir)%(Filename).spp" &gt; "$(OutDir)%(Filename).asm"
 ml /nologo /c /Cp /coff /Fo "$(OutDir)%(Filename).obj" /Zm /Zi "$(OutDir)%(Filename).asm"
 del "$(OutDir)%(Filename).spp"
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cl /D "GLQUAKE" /nologo /EP &gt; "$(OutDir)%(Filename).spp" "%(FullPath)"
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cl /D "GLQUAKE" /nologo /EP &gt; "$(OutDir)%(Filename).spp" "Source\%(Filename).s"
 gas2masm &lt; "$(OutDir)%(Filename).spp" &gt; "$(OutDir)%(Filename).asm"
 ml /nologo /c /Cp /coff /Fo "$(OutDir)%(Filename).obj" /Zm /Zi "$(OutDir)%(Filename).asm"
 del "$(OutDir)%(Filename).spp"
@@ -356,13 +193,13 @@ del "$(OutDir)%(Filename).spp"
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="sys_x86.s">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cl /D "GLQUAKE" /nologo /EP &gt; "$(OutDir)%(Filename).spp" "%(FullPath)"
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cl /D "GLQUAKE" /nologo /EP &gt; "$(OutDir)%(Filename).spp" "Source\%(Filename).s"
 gas2masm &lt; "$(OutDir)%(Filename).spp" &gt; "$(OutDir)%(Filename).asm"
 ml /nologo /c /Cp /coff /Fo "$(OutDir)%(Filename).obj" /Zm /Zi "$(OutDir)%(Filename).asm"
 del "$(OutDir)%(Filename).spp"
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cl /D "GLQUAKE" /nologo /EP &gt; "$(OutDir)%(Filename).spp" "%(FullPath)"
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cl /D "GLQUAKE" /nologo /EP &gt; "$(OutDir)%(Filename).spp" "Source\%(Filename).s"
 gas2masm &lt; "$(OutDir)%(Filename).spp" &gt; "$(OutDir)%(Filename).asm"
 ml /nologo /c /Cp /coff /Fo "$(OutDir)%(Filename).obj" /Zm /Zi "$(OutDir)%(Filename).asm"
 del "$(OutDir)%(Filename).spp"
@@ -371,7 +208,178 @@ del "$(OutDir)%(Filename).spp"
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <None Include="PropertySheet.props" />
+    <ClInclude Include="Source\adivtab.h" />
+    <ClInclude Include="Source\anorms.h" />
+    <ClInclude Include="Source\anorm_dots.h" />
+    <ClInclude Include="Source\asm_i386.h" />
+    <ClInclude Include="Source\bspfile.h" />
+    <ClInclude Include="Source\cdaudio.h" />
+    <ClInclude Include="Source\client.h" />
+    <ClInclude Include="Source\cl_slist.h" />
+    <ClInclude Include="Source\cmd.h" />
+    <ClInclude Include="Source\common.h" />
+    <ClInclude Include="Source\conproc.h" />
+    <ClInclude Include="Source\console.h" />
+    <ClInclude Include="Source\crc.h" />
+    <ClInclude Include="Source\cvar.h" />
+    <ClInclude Include="Source\draw.h" />
+    <ClInclude Include="Source\d_iface.h" />
+    <ClInclude Include="Source\d_ifacea.h" />
+    <ClInclude Include="Source\d_local.h" />
+    <ClInclude Include="Source\glquake.h" />
+    <ClInclude Include="Source\gl_model.h" />
+    <ClInclude Include="Source\image.h" />
+    <ClInclude Include="Source\input.h" />
+    <ClInclude Include="Source\iplog.h" />
+    <ClInclude Include="Source\keys.h" />
+    <ClInclude Include="Source\mathlib.h" />
+    <ClInclude Include="Source\menu.h" />
+    <ClInclude Include="Source\modelgen.h" />
+    <ClInclude Include="Source\movie.h" />
+    <ClInclude Include="Source\movie_avi.h" />
+    <ClInclude Include="Source\nehahra.h" />
+    <ClInclude Include="Source\net.h" />
+    <ClInclude Include="Source\net_dgrm.h" />
+    <ClInclude Include="Source\net_loop.h" />
+    <ClInclude Include="Source\net_ser.h" />
+    <ClInclude Include="Source\net_vcr.h" />
+    <ClInclude Include="Source\net_wins.h" />
+    <ClInclude Include="Source\net_wipx.h" />
+    <ClInclude Include="Source\progdefs.h" />
+    <ClInclude Include="Source\progs.h" />
+    <ClInclude Include="Source\protocol.h" />
+    <ClInclude Include="Source\pr_comp.h" />
+    <ClInclude Include="Source\quakeasm.h" />
+    <ClInclude Include="Source\quakedef.h" />
+    <ClInclude Include="Source\render.h" />
+    <ClInclude Include="Source\resource.h" />
+    <ClInclude Include="Source\r_local.h" />
+    <ClInclude Include="Source\r_model.h" />
+    <ClInclude Include="Source\r_shared.h" />
+    <ClInclude Include="Source\sbar.h" />
+    <ClInclude Include="Source\screen.h" />
+    <ClInclude Include="Source\security.h" />
+    <ClInclude Include="Source\server.h" />
+    <ClInclude Include="Source\sound.h" />
+    <ClInclude Include="Source\spritegn.h" />
+    <ClInclude Include="Source\sys.h" />
+    <ClInclude Include="Source\tas\afterframes.hpp" />
+    <ClInclude Include="Source\tas\cpp_quakedef.hpp" />
+    <ClInclude Include="Source\tas\draw.hpp" />
+    <ClInclude Include="Source\tas\hooks.h" />
+    <ClInclude Include="Source\tas\hud.hpp" />
+    <ClInclude Include="Source\tas\reset.hpp" />
+    <ClInclude Include="Source\tas\script_parse.hpp" />
+    <ClInclude Include="Source\tas\script_playback.hpp" />
+    <ClInclude Include="Source\tas\simulate.hpp" />
+    <ClInclude Include="Source\tas\strafing.hpp" />
+    <ClInclude Include="Source\tas\test.hpp" />
+    <ClInclude Include="Source\tas\utils.hpp" />
+    <ClInclude Include="Source\version.h" />
+    <ClInclude Include="Source\vid.h" />
+    <ClInclude Include="Source\view.h" />
+    <ClInclude Include="Source\wad.h" />
+    <ClInclude Include="Source\winquake.h" />
+    <ClInclude Include="Source\world.h" />
+    <ClInclude Include="Source\zone.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\cd_win.c" />
+    <ClCompile Include="Source\chase.c" />
+    <ClCompile Include="Source\cl_demo.c" />
+    <ClCompile Include="Source\cl_input.c" />
+    <ClCompile Include="Source\cl_main.c" />
+    <ClCompile Include="Source\cl_parse.c" />
+    <ClCompile Include="Source\cl_slist.c" />
+    <ClCompile Include="Source\cl_tent.c" />
+    <ClCompile Include="Source\cmd.c" />
+    <ClCompile Include="Source\common.c" />
+    <ClCompile Include="Source\conproc.c" />
+    <ClCompile Include="Source\console.c" />
+    <ClCompile Include="Source\crc.c" />
+    <ClCompile Include="Source\cvar.c" />
+    <ClCompile Include="Source\gl_decals.c" />
+    <ClCompile Include="Source\gl_draw.c" />
+    <ClCompile Include="Source\gl_mesh.c" />
+    <ClCompile Include="Source\gl_model.c" />
+    <ClCompile Include="Source\gl_refrag.c" />
+    <ClCompile Include="Source\gl_rlight.c" />
+    <ClCompile Include="Source\gl_rmain.c" />
+    <ClCompile Include="Source\gl_rmisc.c" />
+    <ClCompile Include="Source\gl_rpart.c" />
+    <ClCompile Include="Source\gl_rsurf.c" />
+    <ClCompile Include="Source\gl_screen.c" />
+    <ClCompile Include="Source\gl_warp.c" />
+    <ClCompile Include="Source\host.c" />
+    <ClCompile Include="Source\host_cmd.c" />
+    <ClCompile Include="Source\image.c" />
+    <ClCompile Include="Source\in_win.c" />
+    <ClCompile Include="Source\iplog.c" />
+    <ClCompile Include="Source\keys.c" />
+    <ClCompile Include="Source\mathlib.c" />
+    <ClCompile Include="Source\menu.c" />
+    <ClCompile Include="Source\movie.c" />
+    <ClCompile Include="Source\movie_avi.c" />
+    <ClCompile Include="Source\nehahra.c" />
+    <ClCompile Include="Source\net_dgrm.c" />
+    <ClCompile Include="Source\net_loop.c" />
+    <ClCompile Include="Source\net_main.c" />
+    <ClCompile Include="Source\net_vcr.c" />
+    <ClCompile Include="Source\net_win.c" />
+    <ClCompile Include="Source\net_wins.c" />
+    <ClCompile Include="Source\net_wipx.c" />
+    <ClCompile Include="Source\pr_cmds.c" />
+    <ClCompile Include="Source\pr_edict.c" />
+    <ClCompile Include="Source\pr_exec.c" />
+    <ClCompile Include="Source\r_part.c" />
+    <ClCompile Include="Source\sbar.c" />
+    <ClCompile Include="Source\security.c" />
+    <ClCompile Include="Source\snd_dma.c" />
+    <ClCompile Include="Source\snd_mem.c" />
+    <ClCompile Include="Source\snd_mix.c" />
+    <ClCompile Include="Source\snd_win.c" />
+    <ClCompile Include="Source\sv_main.c" />
+    <ClCompile Include="Source\sv_move.c" />
+    <ClCompile Include="Source\sv_phys.c" />
+    <ClCompile Include="Source\sv_user.c" />
+    <ClCompile Include="Source\sys_win.c" />
+    <ClCompile Include="Source\tas\afterframes.cpp" />
+    <ClCompile Include="Source\tas\cpp_quakedef.cpp" />
+    <ClCompile Include="Source\tas\draw.cpp" />
+    <ClCompile Include="Source\tas\hooks.cpp" />
+    <ClCompile Include="Source\tas\hud.cpp" />
+    <ClCompile Include="Source\tas\reset.cpp" />
+    <ClCompile Include="Source\tas\script_parse.cpp" />
+    <ClCompile Include="Source\tas\script_playback.cpp" />
+    <ClCompile Include="Source\tas\simulate.cpp" />
+    <ClCompile Include="Source\tas\strafing.cpp" />
+    <ClCompile Include="Source\tas\test.cpp" />
+    <ClCompile Include="Source\tas\utils.cpp" />
+    <ClCompile Include="Source\version.c" />
+    <ClCompile Include="Source\vid_common_gl.c" />
+    <ClCompile Include="Source\vid_wgl.c" />
+    <ClCompile Include="Source\view.c" />
+    <ClCompile Include="Source\wad.c" />
+    <ClCompile Include="Source\world.c" />
+    <ClCompile Include="Source\zone.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Source\quake.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="libjpeg.vcxproj">
+      <Project>{a20a6471-689f-4bc1-9455-5bdb988687f0}</Project>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+    </ProjectReference>
+    <ProjectReference Include="libpng.vcxproj">
+      <Project>{3cd1704b-fa01-4118-b162-17af0d83d7cf}</Project>
+    </ProjectReference>
+    <ProjectReference Include="Source\gas2masm\gas2masm.vcxproj">
+      <Project>{0efd7023-88b0-491d-9765-804d682ffef6}</Project>
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
