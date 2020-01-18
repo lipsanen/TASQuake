@@ -108,9 +108,6 @@
       <SetChecksum>true</SetChecksum>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
-    <PostBuildEvent>
-      <Command>xcopy "$(TargetPath)" "$(NQ_QUAKETESTDIR)" /Y /E</Command>
-    </PostBuildEvent>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
     </ProjectReference>
