@@ -15,12 +15,12 @@ TASQuake functionality
 # Commands
 |Command|Description|
 |-------|-----------|
-|tas_add_empty|Adds empty frameblock|
 |tas_bookmark_block|Usage: tas_bookmark_block &lt;name&gt;. Bookmarks the current block with the name given as the argument.|
 |tas_bookmark_frame|Usage: tas_bookmark_frame &lt;name&gt;. Bookmarks the current frame with the name given as the argument.|
 |tas_bookmark_skip|Usage: tas_bookmark_skip &lt;name&gt;. Skips to bookmark with the given name.|
 |tas_cancel|Cancel change in editing mode|
 |tas_cmd_reset|Resets all toggles and console variables to their default values|
+|tas_edit_add_empty|Adds empty frameblock|
 |tas_edit_delete|Delete current block|
 |tas_edit_prune|Removes all blocks with no content|
 |tas_edit_save|Usage: tas_edit_save [savename]. Saves the script to file , if used without arguments saves to the same filename where the script was loaded from|
