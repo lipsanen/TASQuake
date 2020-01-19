@@ -149,7 +149,6 @@
     <ClCompile Include="libpng\pngwtran.c" />
     <ClCompile Include="libpng\pngwutil.c" />
     <ClCompile Include="libpng\projects\borland\libpng.cpp" />
-    <ClCompile Include="libpng\projects\borland\zlib.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="zlib.vcxproj">
