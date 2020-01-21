@@ -1,20 +1,31 @@
 #include <algorithm>
 
 #include "cpp_quakedef.hpp"
+
 #include "script_playback.hpp"
-#include "script_parse.hpp"
-#include "reset.hpp"
-#include "afterframes.hpp"
-#include "utils.hpp"
+
 #include "hooks.h"
+
+#include "afterframes.hpp"
+#include "reset.hpp"
+#include "script_parse.hpp"
 #include "strafing.hpp"
+#include "utils.hpp"
 
 static PlaybackInfo playback;
 const int LOWEST_FRAME = 8;
 const int LOWEST_BLOCK = 2;
 static char BUFFER[256];
 
-enum class MouseState { Locked, Strafe, Yaw, Pitch, Mixed, Swim };
+enum class MouseState
+{
+	Locked,
+	Strafe,
+	Yaw,
+	Pitch,
+	Mixed,
+	Swim
+};
 
 static float current_strafeyaw = 0;
 static float current_strafepitch = 0;
@@ -27,9 +38,9 @@ static float old_pitch = 0;
 static MouseState m_state = MouseState::Locked;
 
 // desc: How many backups to keep while saving the script to file.
-cvar_t tas_edit_backups = { "tas_edit_backups", "100" };
+cvar_t tas_edit_backups = {"tas_edit_backups", "100"};
 // desc: How much rounding to apply when setting the strafe yaw and pitch
-cvar_t tas_edit_snap_threshold = { "tas_edit_snap_threshold", "0.001" };
+cvar_t tas_edit_snap_threshold = {"tas_edit_snap_threshold", "0.001"};
 
 static void Run_Script(int frame, bool skip = false)
 {
@@ -66,7 +77,7 @@ static void Run_Script(int frame, bool skip = false)
 	{
 		tas_timescale.value = 999999;
 		r_norefresh.value = 1;
-		AddAfterframes(playback.pause_frame-1- playback.current_frame, "tas_timescale 1; r_norefresh 0");
+		AddAfterframes(playback.pause_frame - 1 - playback.current_frame, "tas_timescale 1; r_norefresh 0");
 	}
 
 	playback.script_running = true;
@@ -83,7 +94,7 @@ static void Continue_Script(int frames)
 static void Generic_Advance(int frame)
 {
 	key_dest = key_game;
-	if(frame > playback.current_frame)
+	if (frame > playback.current_frame)
 		Continue_Script(frame - playback.current_frame);
 	else if (frame < LOWEST_FRAME)
 	{
@@ -127,7 +138,8 @@ static int AddBlock(int frame)
 		{
 			if (playback.current_script.blocks[i].frame > frame)
 			{
-				playback.current_script.blocks.insert(playback.current_script.blocks.begin() + i, block);
+				playback.current_script.blocks.insert(playback.current_script.blocks.begin() + i,
+				                                      block);
 				return i;
 			}
 		}
@@ -135,7 +147,6 @@ static int AddBlock(int frame)
 		playback.current_script.blocks.insert(playback.current_script.blocks.begin() + i, block);
 		return i;
 	}
-
 }
 
 static FrameBlock* GetBlockForFrame()
@@ -195,13 +206,13 @@ static bool Get_Existing_Toggle(const char* cmd_name)
 		return Get_Stacked_Toggle(cmd_name);
 }
 
-static void SetConvar(const char* name, float new_val, bool silent=false)
+static void SetConvar(const char* name, float new_val, bool silent = false)
 {
 	float old_val = Get_Existing_Value(name);
 
 	if (new_val == old_val)
 	{
-		if(!silent)
+		if (!silent)
 			Con_Printf("Value identical to old value.\n");
 		return;
 	}
@@ -278,7 +289,7 @@ void Script_Playback_Host_Frame_Hook()
 	if (tas_gamestate == unpaused)
 		m_state = MouseState::Locked;
 
-	if(tas_gamestate == paused || !playback.script_running)
+	if (tas_gamestate == paused || !playback.script_running)
 		return;
 	else if (playback.current_frame == playback.pause_frame)
 	{
@@ -291,7 +302,8 @@ void Script_Playback_Host_Frame_Hook()
 
 	int current_block = playback.GetCurrentBlockNumber();
 
-	while (current_block < playback.current_script.blocks.size() && playback.current_script.blocks[current_block].frame <= playback.current_frame)
+	while (current_block < playback.current_script.blocks.size()
+	       && playback.current_script.blocks[current_block].frame <= playback.current_frame)
 	{
 		auto& block = playback.current_script.blocks[current_block];
 
@@ -305,11 +317,11 @@ void Script_Playback_Host_Frame_Hook()
 	++playback.current_frame;
 }
 
-void Script_Playback_IN_Move_Hook(usercmd_t * cmd)
+void Script_Playback_IN_Move_Hook(usercmd_t* cmd)
 {
 	if (tas_playing.value && tas_gamestate == paused)
 	{
-		if(m_state == MouseState::Pitch || m_state == MouseState::Locked)
+		if (m_state == MouseState::Pitch || m_state == MouseState::Locked)
 		{
 			cl.viewangles[YAW] = old_yaw;
 		}
@@ -340,7 +352,7 @@ void Cmd_TAS_Script_Init(void)
 		Con_Print("Usage: tas_script_init <filename> <map> <difficulty>\n");
 		return;
 	}
-	
+
 	char name[256];
 	sprintf(name, "%s/tas/%s", com_gamedir, Cmd_Argv(1));
 	COM_ForceExtension(name, ".qtas");
@@ -352,14 +364,14 @@ void Cmd_TAS_Script_Init(void)
 	b1.Add_Command("tas_set_seed");
 	sprintf_s(BUFFER, "tas_strafe_version %s", tas_strafe_version.defaultvalue);
 	b1.Add_Command(BUFFER);
-	
+
 	FrameBlock b2;
 	b2.frame = 2;
 	std::string map = Cmd_Argv(2);
 	int difficulty = atoi(Cmd_Argv(3));
 	b2.Add_Command("skill " + std::to_string(difficulty));
 	b2.Add_Command("record demo " + map);
-	
+
 	FrameBlock b3;
 	b3.frame = 8;
 
@@ -490,7 +502,7 @@ void Cmd_TAS_Script_Advance_Block(void)
 	int target_block = playback.GetCurrentBlockNumber() + blocks;
 	auto curblock = playback.Get_Current_Block();
 
-	if(curblock && curblock->frame != playback.current_frame && blocks > 0)
+	if (curblock && curblock->frame != playback.current_frame && blocks > 0)
 		target_block -= 1;
 
 	if (target_block < LOWEST_BLOCK || target_block >= playback.current_script.blocks.size())
@@ -506,18 +518,17 @@ void Cmd_TAS_Script_Advance_Block(void)
 
 void Cmd_TAS_Edit_Prune(void)
 {
-	for(int i= playback.current_script.blocks.size() - 1; i >= LOWEST_FRAME; --i)
+	for (int i = playback.current_script.blocks.size() - 1; i >= LOWEST_FRAME; --i)
 	{
 		auto element = &playback.current_script.blocks[i];
-		if(element->convars.empty() && element->commands.empty() && element->toggles.empty())
+		if (element->convars.empty() && element->commands.empty() && element->toggles.empty())
 			playback.current_script.blocks.erase(playback.current_script.blocks.begin() + i);
 	}
-
 }
 
 void Cmd_TAS_Edit_Save(void)
 {
-	if(Cmd_Argc() > 1)
+	if (Cmd_Argc() > 1)
 		playback.current_script.file_name = Cmd_Argv(1);
 	playback.current_script.Write_To_File();
 }
@@ -571,7 +582,7 @@ void Cmd_TAS_Edit_Shrink(void)
 	{
 		int new_size;
 
-		if(CurrentFrameHasBlock())
+		if (CurrentFrameHasBlock())
 			new_size = current_block + 1;
 		else
 			new_size = current_block;
@@ -588,11 +599,8 @@ void Cmd_TAS_Edit_Shrink(void)
 				playback.current_script.blocks.resize(new_size);
 				playback.last_edited = Sys_DoubleTime();
 			}
-
 		}
-
 	}
-
 }
 
 void Cmd_TAS_Edit_Delete(void)
@@ -694,7 +702,9 @@ void Cmd_TAS_Edit_Shift_Stack(void)
 	std::vector<FrameBlock> insert_blocks;
 
 	// Frame check
-	for (int i = playback.current_script.blocks.size() - 1; i >= LOWEST_BLOCK && playback.current_script.blocks[i].frame > playback.current_frame; --i)
+	for (int i = playback.current_script.blocks.size() - 1;
+	     i >= LOWEST_BLOCK && playback.current_script.blocks[i].frame > playback.current_frame;
+	     --i)
 	{
 		auto& block = playback.current_script.blocks[i];
 		int new_frame = block.frame + frames;
@@ -706,7 +716,9 @@ void Cmd_TAS_Edit_Shift_Stack(void)
 		}
 	}
 
-	for (int i = playback.current_script.blocks.size() - 1; i >= LOWEST_BLOCK && playback.current_script.blocks[i].frame > playback.current_frame; --i)
+	for (int i = playback.current_script.blocks.size() - 1;
+	     i >= LOWEST_BLOCK && playback.current_script.blocks[i].frame > playback.current_frame;
+	     --i)
 	{
 		auto block = playback.current_script.blocks[i];
 		block.frame += frames;
@@ -714,11 +726,11 @@ void Cmd_TAS_Edit_Shift_Stack(void)
 		insert_blocks.push_back(block);
 	}
 
-	for(auto& block : insert_blocks)
+	for (auto& block : insert_blocks)
 		Shift_Block(block);
 }
 
-void Cmd_TAS_Add_Empty(void)
+void Cmd_TAS_Edit_Add_Empty(void)
 {
 	GetBlockForFrame();
 }
@@ -830,7 +842,7 @@ void Cmd_TAS_Bookmark_Skip(void)
 	}
 }
 
-qboolean Script_Playback_Cmd_ExecuteString_Hook(const char * text)
+qboolean Script_Playback_Cmd_ExecuteString_Hook(const char* text)
 {
 	if (!playback.In_Edit_Mode())
 		return qfalse;
@@ -853,7 +865,7 @@ qboolean Script_Playback_Cmd_ExecuteString_Hook(const char * text)
 	else if (IsDownCmd(name))
 	{
 		auto cmd = name + 1;
-			
+
 		bool old_value = Get_Existing_Toggle(cmd);
 		bool new_value = !old_value;
 		SetToggle(cmd, new_value);
@@ -864,7 +876,7 @@ qboolean Script_Playback_Cmd_ExecuteString_Hook(const char * text)
 	{
 		int number = atoi(Cmd_Argv(1));
 
-		if(number < 1 || number > 9)
+		if (number < 1 || number > 9)
 			return qfalse;
 
 		playback.last_edited = Sys_DoubleTime();
@@ -892,7 +904,7 @@ const FrameBlock* PlaybackInfo::Get_Current_Block(int frame) const
 {
 	int blck = GetCurrentBlockNumber(frame);
 
-	if(blck >= playback.current_script.blocks.size())
+	if (blck >= playback.current_script.blocks.size())
 		return nullptr;
 	else
 		return &playback.current_script.blocks[blck];
@@ -903,10 +915,9 @@ const FrameBlock* PlaybackInfo::Get_Stacked_Block() const
 	return &stacked;
 }
 
-
 int PlaybackInfo::GetCurrentBlockNumber(int frame) const
 {
-	if(frame == -1)
+	if (frame == -1)
 		frame = current_frame;
 
 	for (int i = 0; i < current_script.blocks.size(); ++i)
@@ -937,6 +948,5 @@ int PlaybackInfo::Get_Last_Frame() const
 
 bool PlaybackInfo::In_Edit_Mode() const
 {
-	return !script_running && tas_gamestate == paused && tas_playing.value
-		&& !current_script.blocks.empty();
+	return !script_running && tas_gamestate == paused && tas_playing.value && !current_script.blocks.empty();
 }

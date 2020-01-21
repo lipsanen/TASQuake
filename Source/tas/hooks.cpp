@@ -1,19 +1,21 @@
 #include "cpp_quakedef.hpp"
+
 #include "hooks.h"
+
 #include "afterframes.hpp"
-#include "strafing.hpp"
-#include "test.hpp"
+#include "draw.hpp"
+#include "hud.hpp"
 #include "reset.hpp"
 #include "script_playback.hpp"
-#include "hud.hpp"
-#include "draw.hpp"
 #include "simulate.hpp"
+#include "strafing.hpp"
+#include "test.hpp"
 
 // desc: When set to 1, pauses the game on load
-cvar_t tas_pause_onload = { "tas_pause_onload", "0" };
-cvar_t tas_playing = { "tas_playing", "0" };
+cvar_t tas_pause_onload = {"tas_pause_onload", "0"};
+cvar_t tas_playing = {"tas_playing", "0"};
 // desc: Controls the timescale of the game
-cvar_t tas_timescale = { "tas_timescale", "1"};
+cvar_t tas_timescale = {"tas_timescale", "1"};
 static bool set_seed = false;
 static int unpause_countdown = -1;
 static unsigned int seed_number = 0;
@@ -31,7 +33,6 @@ void Cmd_TAS_Set_Seed_Onload(void)
 	}
 
 	set_seed = true;
-
 }
 
 void SV_Physics_Client_Hook()
@@ -72,9 +73,8 @@ void Cmd_Print_Seed(void)
 void TAS_Set_Seed(int seed)
 {
 	set_seed = true;
-	seed_number = seed;	
+	seed_number = seed;
 }
-
 
 void TAS_Init()
 {
@@ -98,9 +98,9 @@ void TAS_Init()
 	Cmd_AddCommand("tas_edit_delete", Cmd_TAS_Edit_Delete);
 	Cmd_AddCommand("tas_edit_shift", Cmd_TAS_Edit_Shift);
 	Cmd_AddCommand("tas_edit_shift_stack", Cmd_TAS_Edit_Shift_Stack);
-	Cmd_AddCommand("tas_edit_add_empty", Cmd_TAS_Add_Empty);
+	Cmd_AddCommand("tas_edit_add_empty", Cmd_TAS_Edit_Add_Empty);
 
-	Cmd_AddCommand("tas_cancel", Cmd_TAS_Cancel); // Keep as it is
+	Cmd_AddCommand("tas_cancel", Cmd_TAS_Cancel);   // Keep as it is
 	Cmd_AddCommand("tas_confirm", Cmd_TAS_Confirm); // Confirm change
 
 	Cmd_AddCommand("tas_bookmark_frame", Cmd_TAS_Bookmark_Frame);
@@ -163,7 +163,7 @@ void TAS_Set_Seed(unsigned int seed)
 	set_seed = true;
 }
 
-qboolean Cmd_ExecuteString_Hook(const char * text)
+qboolean Cmd_ExecuteString_Hook(const char* text)
 {
 	if (cls.demoplayback)
 		return qfalse;
@@ -171,7 +171,7 @@ qboolean Cmd_ExecuteString_Hook(const char * text)
 	return Script_Playback_Cmd_ExecuteString_Hook(text);
 }
 
-void IN_Move_Hook(usercmd_t * cmd)
+void IN_Move_Hook(usercmd_t* cmd)
 {
 	if (cls.demoplayback)
 		return;
@@ -210,13 +210,13 @@ void CL_SignonReply_Hook()
 	if (cls.demoplayback)
 		return;
 
-	if(cls.signon == 4)
+	if (cls.signon == 4)
 		unpause_countdown = 3;
 }
 
 void _Host_Frame_Hook()
 {
-	if(cls.demoplayback)
+	if (cls.demoplayback)
 		return;
 
 	if (unpause_countdown > 0)
@@ -226,7 +226,7 @@ void _Host_Frame_Hook()
 		{
 			tas_gamestate = unpaused;
 			unpause_countdown = -1;
-		}		
+		}
 	}
 
 	Simulate_Frame_Hook();
@@ -248,5 +248,4 @@ void _Host_Frame_Hook()
 			Cbuf_AddText(queued);
 		}
 	}
-
 }

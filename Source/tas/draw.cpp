@@ -1,13 +1,15 @@
-#include <map>
 #include <algorithm>
+#include <map>
 
 #include "cpp_quakedef.hpp"
+
 #include "draw.hpp"
+
 #include "strafing.hpp"
 
 static std::map<int, std::vector<PathPoint>*> lines;
 static std::vector<Rect> rects;
-static byte	color_green[4] = { 0, 255, 0, 0 };
+static byte color_green[4] = {0, 255, 0, 0};
 
 void AddCurve(std::vector<PathPoint>* points, int id)
 {
@@ -23,14 +25,14 @@ void RemoveRectangles(int id)
 {
 	for (int i = rects.size() - 1; i >= 0; --i)
 	{
-		if(rects[i].id == id)
+		if (rects[i].id == id)
 			rects.erase(rects.begin() + i);
 	}
 }
 
 void RemoveCurve(int id)
 {
-	if(lines.find(id) != lines.end())
+	if (lines.find(id) != lines.end())
 		lines.erase(id);
 }
 
@@ -38,7 +40,7 @@ void RemoveCurve(int id)
 
 void Draw_Elements()
 {
-	if(cl.intermission)
+	if (cl.intermission)
 		return;
 
 	glDisable(GL_TEXTURE_2D);
@@ -52,7 +54,6 @@ void Draw_Elements()
 		corner2[0] += rect.width / 2;
 		corner2[1] += rect.width / 2;
 		corner2[2] += rect.height / 2;
-
 
 		glBegin(GL_QUADS);
 		glColor4fv(rect.color._Elems);
@@ -90,13 +91,13 @@ void Draw_Elements()
 	}
 
 	for (auto pair : lines)
-	{	
+	{
 		glBegin(GL_LINES);
 		int elements = pair.second->size();
-		for (int i=0; i < elements - 1; ++i)
+		for (int i = 0; i < elements - 1; ++i)
 		{
 			auto& vec1 = pair.second->at(i);
-			auto& vec2 = pair.second->at(i+1);
+			auto& vec2 = pair.second->at(i + 1);
 
 			glColor4fv(vec1.color._Elems);
 			glVertex3fv(vec1.point._Elems);
@@ -109,7 +110,7 @@ void Draw_Elements()
 
 PathPoint::PathPoint()
 {
-	for(int i=0; i < 3; ++i)
+	for (int i = 0; i < 3; ++i)
 		point[i] = 0;
 	for (int i = 0; i < 4; ++i)
 		color[i] = 0;

@@ -2,7 +2,7 @@
 #include <string>
 
 bool IsZero(double number);
-double NormalizeRad(double rad); // [-pi, pi]
+double NormalizeRad(double rad);   // [-pi, pi]
 double NormalizeDeg(double angle); // [-180, 180]
 double ToQuakeAngle(double angle); // [0, 360]
 float AngleModDeg(float deg);

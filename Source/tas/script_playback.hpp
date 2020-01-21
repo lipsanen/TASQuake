@@ -1,9 +1,10 @@
 #pragma once
 
 #include "cpp_quakedef.hpp"
+
 #include "script_parse.hpp"
 
-struct PlaybackInfo 
+struct PlaybackInfo
 {
 	PlaybackInfo();
 
@@ -78,7 +79,7 @@ void Cmd_TAS_Edit_Shift(void);
 // desc: Shifts all frameblocks after current one
 void Cmd_TAS_Edit_Shift_Stack(void);
 // desc: Adds empty frameblock
-void Cmd_TAS_Add_Empty(void);
+void Cmd_TAS_Edit_Add_Empty(void);
 //void Cmd_TAS_Edit_Delete_Cmd(void);
 
 // desc: Confirms change in editing mode

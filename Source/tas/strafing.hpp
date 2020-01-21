@@ -25,7 +25,14 @@ extern cvar_t tas_view_pitch;
 extern cvar_t tas_anglespeed;
 extern cvar_t tas_strafe_version;
 extern const float INVALID_ANGLE;
-enum class StrafeType { None = 0, MaxAccel = 1, MaxAngle = 2, Straight = 3, Swim = 4 };
+enum class StrafeType
+{
+	None = 0,
+	MaxAccel = 1,
+	MaxAngle = 2,
+	Straight = 3,
+	Swim = 4
+};
 
 struct StrafeVars
 {
@@ -48,7 +55,7 @@ bool Is_TAS_Lgagst_Down();
 StrafeVars Get_Current_Vars();
 PlayerData GetPlayerData();
 PlayerData GetPlayerData(edict_t* player, const StrafeVars& vars);
-void StrafeSim(usercmd_t* cmd, edict_t* player, float *yaw, float *pitch, const StrafeVars& vars);
+void StrafeSim(usercmd_t* cmd, edict_t* player, float* yaw, float* pitch, const StrafeVars& vars);
 void Strafe(usercmd_t* cmd);
 void Strafe_Jump_Check();
 // desc: Autojump

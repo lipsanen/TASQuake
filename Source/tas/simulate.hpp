@@ -1,8 +1,9 @@
 #pragma once
 
 #include "cpp_quakedef.hpp"
-#include "strafing.hpp"
+
 #include "script_playback.hpp"
+#include "strafing.hpp"
 
 struct KeyState
 {
@@ -14,7 +15,7 @@ struct SimulationInfo
 	// The player entity
 	edict_t ent;
 
-	// Set during the frame	
+	// Set during the frame
 	float jumpflag;
 	double time;
 	bool collision;

@@ -1,29 +1,32 @@
-﻿#include "strafing.hpp"
-#include <cmath>
-#include "afterframes.hpp"
-#include "utils.hpp"
+﻿#include <cmath>
+
+#include "strafing.hpp"
+
 #include "hooks.h"
+
+#include "afterframes.hpp"
 #include "simulate.hpp"
+#include "utils.hpp"
 
 // desc: Set to 1 to activate automated strafing
-cvar_t tas_strafe = { "tas_strafe", "0" };
+cvar_t tas_strafe = {"tas_strafe", "0"};
 // desc: 1 = max accel, 2 = max angle, 3 = w strafing, 4 = swimming
-cvar_t tas_strafe_type = { "tas_strafe_type", "1" };
+cvar_t tas_strafe_type = {"tas_strafe_type", "1"};
 // desc: Yaw angle to strafe at
-cvar_t tas_strafe_yaw = { "tas_strafe_yaw", "0" };
+cvar_t tas_strafe_yaw = {"tas_strafe_yaw", "0"};
 // desc: Pitch angle to swim to. Only relevant while swimming.
-cvar_t tas_strafe_pitch = { "tas_strafe_pitch", "0" };
+cvar_t tas_strafe_pitch = {"tas_strafe_pitch", "0"};
 // deprecated
-cvar_t tas_strafe_lgagst_speed = { "tas_strafe_lgagst_speed", "460" };
+cvar_t tas_strafe_lgagst_speed = {"tas_strafe_lgagst_speed", "460"};
 // desc: When not set to 999, sets the yaw the player should look at. When set to 999 the player will look towards the strafe yaw.
-cvar_t tas_view_yaw = { "tas_view_yaw", "999" };
+cvar_t tas_view_yaw = {"tas_view_yaw", "999"};
 // desc: Player pitch.
-cvar_t tas_view_pitch = { "tas_view_pitch", "999" };
+cvar_t tas_view_pitch = {"tas_view_pitch", "999"};
 // desc: How fast the player's pitch/yaw angle changes visually. This has no impact on strafing speed \
 which works regardless of where you are looking at.
-cvar_t tas_anglespeed = { "tas_anglespeed", "5" };
+cvar_t tas_anglespeed = {"tas_anglespeed", "5"};
 // internal functionality for backwards compatibility
-cvar_t tas_strafe_version = { "tas_strafe_version", "2"};
+cvar_t tas_strafe_version = {"tas_strafe_version", "2"};
 const float INVALID_ANGLE = 999;
 
 static bool autojump = false;
@@ -69,9 +72,9 @@ void Cmd_Print_Moves(void)
 
 static float Get_EntFriction(float* vel, float* player_origin)
 {
-	float	speed;
-	vec3_t	start, stop;
-	trace_t	trace;
+	float speed;
+	vec3_t start, stop;
+	trace_t trace;
 
 	speed = sqrt(vel[0] * vel[0] + vel[1] * vel[1]);
 
@@ -124,7 +127,7 @@ PlayerData GetPlayerData()
 PlayerData GetPlayerData(edict_t* player, const StrafeVars& vars)
 {
 	PlayerData data;
-	
+
 	memcpy(data.origin, player->v.origin, sizeof(float) * 3);
 	memcpy(data.velocity, player->v.velocity, sizeof(float) * 3);
 
@@ -134,7 +137,6 @@ PlayerData GetPlayerData(edict_t* player, const StrafeVars& vars)
 	data.frameTime = vars.host_frametime;
 	data.wishspeed = sv_maxspeed.value;
 	float vel2d = std::sqrt(data.velocity[0] * data.velocity[0] + data.velocity[1] * data.velocity[1]);
-
 
 	if (data.onGround && std::abs(vel2d) > 0)
 	{
@@ -151,7 +153,7 @@ PlayerData GetPlayerData(edict_t* player, const StrafeVars& vars)
 	}
 
 	data.vel2d = std::sqrt(data.velocity[0] * data.velocity[0] + data.velocity[1] * data.velocity[1]);
-	if(!IsZero(data.vel2d))
+	if (!IsZero(data.vel2d))
 		data.vel_theta = NormalizeRad(std::atan2(data.velocity[1], data.velocity[0]));
 	else
 	{
@@ -198,7 +200,7 @@ static double MaxAngleTheta(const PlayerData& data, const StrafeVars& vars)
 
 		if (accelspeed >= data.vel2d)
 		{
-			if(wishspeed_capped >= data.vel2d)
+			if (wishspeed_capped >= data.vel2d)
 				return 0;
 			else
 				return std::acos(wishspeed_capped / data.vel2d);
@@ -207,7 +209,8 @@ static double MaxAngleTheta(const PlayerData& data, const StrafeVars& vars)
 		{
 			if (wishspeed_capped >= data.vel2d)
 				return std::acos(accelspeed / data.vel2d);
-			else {
+			else
+			{
 				return std::acos(min(accelspeed, wishspeed_capped) / data.vel2d);
 			}
 		}
@@ -275,7 +278,6 @@ void StrafeInto(usercmd_t* cmd, double yaw, float view_yaw, float view_pitch, co
 
 	double diff = NormalizeDeg(lookyaw - yaw) * M_DEG2RAD;
 
-
 	float scaleFactor;
 	double fmove;
 	if (vars.tas_strafe_version <= 1)
@@ -296,7 +298,6 @@ void StrafeInto(usercmd_t* cmd, double yaw, float view_yaw, float view_pitch, co
 		fmove = std::cos(diff) * sv_maxspeed.value / scaleFactor;
 	}
 
-	
 	double smove = std::sin(diff) * sv_maxspeed.value;
 	ApproximateRatioWithIntegers(fmove, smove, 32767);
 	cmd->forwardmove = fmove;
@@ -316,7 +317,7 @@ void SwimInto(usercmd_t* cmd, float view_yaw, float view_pitch, const StrafeVars
 		cmd->forwardmove = 0;
 		return;
 	}
-	else if(pitch <= -90)
+	else if (pitch <= -90)
 	{
 		cmd->upmove = sv_maxspeed.value;
 		cmd->sidemove = 0;
@@ -355,7 +356,7 @@ float MoveViewTowards(float target, float current, bool yaw, const StrafeVars& v
 	if (yaw)
 	{
 		diff = NormalizeDeg(target - current);
-	}	
+	}
 	else
 	{
 		target = bound(-70, target, 80);
@@ -363,24 +364,23 @@ float MoveViewTowards(float target, float current, bool yaw, const StrafeVars& v
 	}
 	float abs_diff = std::abs(diff);
 
-	if(abs_diff < vars.tas_anglespeed)
+	if (abs_diff < vars.tas_anglespeed)
 		current = target;
 	else
 	{
 		abs_diff = min(abs_diff, vars.tas_anglespeed);
 		current += std::copysign(abs_diff, diff);
 	}
-	
+
 	if (yaw)
 		return ToQuakeAngle(current);
 	else
 		return current;
-
 }
 
 void SetView(float* yaw, float* pitch, const StrafeVars& vars)
 {
-	if(!vars.simulated && (sv.paused || tas_gamestate == paused || key_dest != key_game))
+	if (!vars.simulated && (sv.paused || tas_gamestate == paused || key_dest != key_game))
 		return;
 
 	if (vars.tas_view_pitch != INVALID_ANGLE)
@@ -410,23 +410,22 @@ void SetView(float* yaw, float* pitch, const StrafeVars& vars)
 static SimulationInfo past;
 static SimulationInfo present;*/
 
-
 void Strafe(usercmd_t* cmd)
 {
-	if(tas_gamestate == paused)
+	if (tas_gamestate == paused)
 		return;
 
 	auto vars = Get_Current_Vars();
 	StrafeSim(cmd, sv_player, &cl.viewangles[YAW], &cl.viewangles[PITCH], vars);
 }
 
-void StrafeSim(usercmd_t* cmd, edict_t* player, float *yaw, float *pitch, const StrafeVars& vars)
+void StrafeSim(usercmd_t* cmd, edict_t* player, float* yaw, float* pitch, const StrafeVars& vars)
 {
 	double strafe_yaw = 0;
 	bool strafe = false;
 	SetView(yaw, pitch, vars);
 
-	if(vars.tas_strafe)
+	if (vars.tas_strafe)
 	{
 		if (vars.tas_strafe_type == StrafeType::MaxAccel)
 		{
@@ -478,9 +477,6 @@ void Strafe_Jump_Check()
 		print_origin = false;
 		Con_Printf("pos (%.3f, %.3f, %.3f)\n", data.origin[0], data.origin[1], data.origin[2]);
 	}
-
 }
 
-StrafeVars::StrafeVars()
-{
-}
+StrafeVars::StrafeVars() {}
