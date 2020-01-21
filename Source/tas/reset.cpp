@@ -25,7 +25,8 @@ static const char* const INCLUDE_SUBSTR[] = {
 	"sv_",
 	"tas_",
 	"gl_",
-	"r_"
+	"r_",
+	"v_centerspeed"
 };
 
 bool IsUpCmd(cmd_function_t* func)

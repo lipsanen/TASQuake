@@ -6,27 +6,8 @@ const int BUFFER_SIZE = 8192;
 
 static std::vector<AfterFrames> afterframesQueue;
 static char CmdBuffer[BUFFER_SIZE];
-static int bufferIndex;
+static int bufferIndex = 0;
 static bool afterFramesPaused = false;
-
-
-void AddAfterframes(int frames, const char* cmd)
-{
-	afterframesQueue.push_back(AfterFrames(frames, cmd));
-}
-
-void AddAfterframes(const AfterFrames & af)
-{
-	afterframesQueue.push_back(af);
-}
-
-void AdvanceCommands()
-{
-	for (auto& entry : afterframesQueue)
-	{
-		--entry.frames;
-	}
-}
 
 void CopyToBuffer(const char* str)
 {
@@ -39,10 +20,24 @@ void CopyToBuffer(const char* str)
 	CmdBuffer[bufferIndex++] = ';';
 }
 
+void AddAfterframes(int frames, const char* cmd)
+{
+	if(frames <= 1)
+		CopyToBuffer(cmd);
+	else
+		afterframesQueue.push_back(AfterFrames(frames, cmd));
+}
+
+void AdvanceCommands()
+{
+	for (auto& entry : afterframesQueue)
+	{
+		--entry.frames;
+	}
+}
+
 char* GetQueuedCommands()
 {
-	bufferIndex = 0;
-
 	if (!afterFramesPaused && tas_gamestate == unpaused)
 	{
 		AdvanceCommands();
@@ -63,6 +58,7 @@ char* GetQueuedCommands()
 	else
 	{
 		CmdBuffer[bufferIndex++] = '\0';
+		bufferIndex = 0;
 		return CmdBuffer;
 	}
 }

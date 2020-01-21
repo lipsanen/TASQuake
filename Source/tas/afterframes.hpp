@@ -17,7 +17,6 @@ void PauseAfterframes();
 void UnpauseAfterframes();
 void ClearAfterframes();
 void AddAfterframes(int frames, const char* cmd);
-void AddAfterframes(const AfterFrames& af);
 char* GetQueuedCommands();
 
 void Cmd_TAS_AfterFrames();

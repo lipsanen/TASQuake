@@ -17,7 +17,6 @@ cvar_t tas_timescale = { "tas_timescale", "1"};
 static bool set_seed = false;
 static int unpause_countdown = -1;
 static unsigned int seed_number = 0;
-static bool should_prevent_unpause = false;
 
 void Cmd_TAS_Set_Seed_Onload(void)
 {

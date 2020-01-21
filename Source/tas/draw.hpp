@@ -1,20 +1,21 @@
-#include "cpp_quakedef.hpp"
 #include <vector>
+#include <array>
+#include "cpp_quakedef.hpp"
 
 #define PREDICTION_ID 1
 
 struct PathPoint
 {
 	PathPoint();
-	Vector3f point;
-	Vector4f color;
+	std::array<float, 3> point;
+	std::array<float, 4> color;
 };
 
 struct Rect
 {
 	Rect();
-	Vector4f color;
-	Vector3f center;
+	std::array<float, 4> color;
+	std::array<float, 3> center;
 	float width;
 	float height;
 	int id;
