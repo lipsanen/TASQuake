@@ -1,6 +1,8 @@
-#include "cpp_quakedef.hpp"
-#include "afterframes.hpp"
 #include <vector>
+
+#include "cpp_quakedef.hpp"
+
+#include "afterframes.hpp"
 
 const int BUFFER_SIZE = 8192;
 
@@ -22,7 +24,7 @@ void CopyToBuffer(const char* str)
 
 void AddAfterframes(int frames, const char* cmd)
 {
-	if(frames <= 1)
+	if (frames <= 1)
 		CopyToBuffer(cmd);
 	else
 		afterframesQueue.push_back(AfterFrames(frames, cmd));
@@ -53,7 +55,7 @@ char* GetQueuedCommands()
 		}
 	}
 
-	if(bufferIndex == 0)
+	if (bufferIndex == 0)
 		return NULL;
 	else
 	{
@@ -100,18 +102,16 @@ void Cmd_TAS_AfterFrames_Clear(void)
 	ClearAfterframes();
 }
 
-AfterFrames::AfterFrames(int numFrames, const char * cmd)
+AfterFrames::AfterFrames(int numFrames, const char* cmd)
 {
 	frames = numFrames;
 	command = cmd;
 }
 
-AfterFrames::AfterFrames(int numFrames, const std::string & str)
+AfterFrames::AfterFrames(int numFrames, const std::string& str)
 {
 	frames = numFrames;
 	command = str;
 }
 
-AfterFrames::AfterFrames()
-{
-}
+AfterFrames::AfterFrames() {}

@@ -1,30 +1,31 @@
 #include "simulate.hpp"
+
+#include "draw.hpp"
 #include "strafing.hpp"
 #include "utils.hpp"
-#include "draw.hpp"
 
-trace_t SV_Move_Proxy(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int type, edict_t *passedict)
+trace_t SV_Move_Proxy(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int type, edict_t* passedict)
 {
 	return SV_Move(start, mins, maxs, end, type, sv_player);
 }
 
-void SV_Impact(edict_t *e1, edict_t *e2)
+void SV_Impact(edict_t* e1, edict_t* e2)
 {
 	// Hopefully this does nothing important
 }
 
-#define	STOP_EPSILON	0.1
+#define STOP_EPSILON 0.1
 
 int ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce)
 {
-	float	backoff, change;
-	int	i, blocked;
+	float backoff, change;
+	int i, blocked;
 
 	blocked = 0;
 	if (normal[2] > 0)
-		blocked |= 1;		// floor
+		blocked |= 1; // floor
 	if (!normal[2])
-		blocked |= 2;		// step
+		blocked |= 2; // step
 
 	backoff = DotProduct(in, normal) * overbounce;
 
@@ -44,10 +45,10 @@ int ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce)
 	return blocked;
 }
 
-trace_t SV_PushEntity(edict_t *ent, vec3_t push)
+trace_t SV_PushEntity(edict_t* ent, vec3_t push)
 {
-	trace_t	trace;
-	vec3_t	end;
+	trace_t trace;
+	vec3_t end;
 
 	VectorAdd(ent->v.origin, push, end);
 
@@ -68,13 +69,13 @@ trace_t SV_PushEntity(edict_t *ent, vec3_t push)
 	return trace;
 }
 
-int SV_FlyMove(edict_t *ent, float time, trace_t *steptrace, SimulationInfo& info);
+int SV_FlyMove(edict_t* ent, float time, trace_t* steptrace, SimulationInfo& info);
 
-int SV_TryUnstick(edict_t *ent, vec3_t oldvel, SimulationInfo& info)
+int SV_TryUnstick(edict_t* ent, vec3_t oldvel, SimulationInfo& info)
 {
-	int	i, clip;
-	vec3_t	oldorg, dir;
-	trace_t	steptrace;
+	int i, clip;
+	vec3_t oldorg, dir;
+	trace_t steptrace;
 
 	VectorCopy(ent->v.origin, oldorg);
 	VectorCopy(vec3_origin, dir);
@@ -84,14 +85,38 @@ int SV_TryUnstick(edict_t *ent, vec3_t oldvel, SimulationInfo& info)
 		// try pushing a little in an axial direction
 		switch (i)
 		{
-		case 0:	dir[0] = 2; dir[1] = 0; break;
-		case 1:	dir[0] = 0; dir[1] = 2; break;
-		case 2:	dir[0] = -2; dir[1] = 0; break;
-		case 3:	dir[0] = 0; dir[1] = -2; break;
-		case 4:	dir[0] = 2; dir[1] = 2; break;
-		case 5:	dir[0] = -2; dir[1] = 2; break;
-		case 6:	dir[0] = 2; dir[1] = -2; break;
-		case 7:	dir[0] = -2; dir[1] = -2; break;
+		case 0:
+			dir[0] = 2;
+			dir[1] = 0;
+			break;
+		case 1:
+			dir[0] = 0;
+			dir[1] = 2;
+			break;
+		case 2:
+			dir[0] = -2;
+			dir[1] = 0;
+			break;
+		case 3:
+			dir[0] = 0;
+			dir[1] = -2;
+			break;
+		case 4:
+			dir[0] = 2;
+			dir[1] = 2;
+			break;
+		case 5:
+			dir[0] = -2;
+			dir[1] = 2;
+			break;
+		case 6:
+			dir[0] = 2;
+			dir[1] = -2;
+			break;
+		case 7:
+			dir[0] = -2;
+			dir[1] = -2;
+			break;
 		}
 
 		SV_PushEntity(ent, dir);
@@ -113,13 +138,13 @@ int SV_TryUnstick(edict_t *ent, vec3_t oldvel, SimulationInfo& info)
 	}
 
 	VectorCopy(vec3_origin, ent->v.velocity);
-	return 7;		// still not moving
+	return 7; // still not moving
 }
 
-void SV_WallFriction(edict_t *ent, trace_t *trace)
+void SV_WallFriction(edict_t* ent, trace_t* trace)
 {
-	float	d, i;
-	vec3_t	forward, right, up, into, side;
+	float d, i;
+	vec3_t forward, right, up, into, side;
 
 	AngleVectors(ent->v.v_angle, forward, right, up);
 	d = DotProduct(trace->plane.normal, forward);
@@ -137,13 +162,13 @@ void SV_WallFriction(edict_t *ent, trace_t *trace)
 	ent->v.velocity[1] = side[1] * (1 + d);
 }
 
-#define	MAX_CLIP_PLANES	5
-int SV_FlyMove(edict_t *ent, float time, trace_t *steptrace, SimulationInfo& info)
+#define MAX_CLIP_PLANES 5
+int SV_FlyMove(edict_t* ent, float time, trace_t* steptrace, SimulationInfo& info)
 {
-	int			i, j, bumpcount, numbumps, numplanes, blocked;
-	float		d, time_left;
-	vec3_t		dir, planes[MAX_CLIP_PLANES], primal_velocity, original_velocity, new_velocity, end;
-	trace_t		trace;
+	int i, j, bumpcount, numbumps, numplanes, blocked;
+	float d, time_left;
+	vec3_t dir, planes[MAX_CLIP_PLANES], primal_velocity, original_velocity, new_velocity, end;
+	trace_t trace;
 
 	numbumps = 4;
 
@@ -165,27 +190,27 @@ int SV_FlyMove(edict_t *ent, float time, trace_t *steptrace, SimulationInfo& inf
 		trace = SV_Move_Proxy(ent->v.origin, ent->v.mins, ent->v.maxs, end, false, ent);
 
 		if (trace.allsolid)
-		{	// entity is trapped in another solid
+		{ // entity is trapped in another solid
 			VectorCopy(vec3_origin, ent->v.velocity);
 			return 3;
 		}
 
 		if (trace.fraction > 0)
-		{	// actually covered some distance
+		{ // actually covered some distance
 			VectorCopy(trace.endpos, ent->v.origin);
 			VectorCopy(ent->v.velocity, original_velocity);
 			numplanes = 0;
 		}
 
 		if (trace.fraction == 1)
-			break;		// moved the entire distance
+			break; // moved the entire distance
 
 		if (!trace.ent)
 			Sys_Error("SV_FlyMove: !trace.ent");
 
 		if (trace.plane.normal[2] > 0.7)
 		{
-			blocked |= 1;		// floor
+			blocked |= 1; // floor
 			if (trace.ent->v.solid == SOLID_BSP)
 			{
 				ent->v.flags = (int)ent->v.flags | FL_ONGROUND;
@@ -198,21 +223,21 @@ int SV_FlyMove(edict_t *ent, float time, trace_t *steptrace, SimulationInfo& inf
 		}
 		if (!trace.plane.normal[2])
 		{
-			blocked |= 2;		// step
+			blocked |= 2; // step
 			if (steptrace)
-				*steptrace = trace;	// save for player extrafriction
+				*steptrace = trace; // save for player extrafriction
 		}
 
 		// run the impact function
 		SV_Impact(ent, trace.ent);
 		if (ent->free)
-			break;		// removed by the impact function
+			break; // removed by the impact function
 
 		time_left -= time_left * trace.fraction;
 
 		// cliped to another plane
 		if (numplanes >= MAX_CLIP_PLANES)
-		{	// this shouldn't really happen
+		{ // this shouldn't really happen
 			VectorCopy(vec3_origin, ent->v.velocity);
 			return 3;
 		}
@@ -228,18 +253,18 @@ int SV_FlyMove(edict_t *ent, float time, trace_t *steptrace, SimulationInfo& inf
 				if (j != i)
 				{
 					if (DotProduct(new_velocity, planes[j]) < 0)
-						break;	// not ok
+						break; // not ok
 				}
 			if (j == numplanes)
 				break;
 		}
 
 		if (i != numplanes)
-		{	// go along this plane
+		{ // go along this plane
 			VectorCopy(new_velocity, ent->v.velocity);
 		}
 		else
-		{	// go along the crease
+		{ // go along the crease
 			if (numplanes != 2)
 			{
 				//				Con_Printf ("clip velocity, numplanes == %i\n",numplanes);
@@ -263,12 +288,12 @@ int SV_FlyMove(edict_t *ent, float time, trace_t *steptrace, SimulationInfo& inf
 	return blocked;
 }
 
-#define	STEPSIZE	18
-void SV_WalkMove(edict_t *ent, double hfr, SimulationInfo& info, bool nostep=false)
+#define STEPSIZE 18
+void SV_WalkMove(edict_t* ent, double hfr, SimulationInfo& info, bool nostep = false)
 {
-	int		clip, oldonground;
-	vec3_t		upmove, downmove, oldorg, oldvel, nosteporg, nostepvel;
-	trace_t		steptrace, downtrace;
+	int clip, oldonground;
+	vec3_t upmove, downmove, oldorg, oldvel, nosteporg, nostepvel;
+	trace_t steptrace, downtrace;
 	bool oldcollision = info.collision;
 
 	// do a regular slide move unless it looks like you ran into a step
@@ -281,13 +306,13 @@ void SV_WalkMove(edict_t *ent, double hfr, SimulationInfo& info, bool nostep=fal
 	clip = SV_FlyMove(ent, hfr, &steptrace, info);
 
 	if (!(clip & 2))
-		return;		// move didn't block on a step
+		return; // move didn't block on a step
 
 	if (!oldonground && ent->v.waterlevel == 0)
-		return;		// don't stair up while jumping
+		return; // don't stair up while jumping
 
 	if (ent->v.movetype != MOVETYPE_WALK)
-		return;		// gibbed by a trigger
+		return; // gibbed by a trigger
 
 	if (nostep)
 		return;
@@ -295,13 +320,13 @@ void SV_WalkMove(edict_t *ent, double hfr, SimulationInfo& info, bool nostep=fal
 	if ((int)ent->v.flags & FL_WATERJUMP)
 		return;
 
-	if(!oldcollision && info.collision)
+	if (!oldcollision && info.collision)
 		info.collision = false;
 	VectorCopy(ent->v.origin, nosteporg);
 	VectorCopy(ent->v.velocity, nostepvel);
 
 	// try moving up and forward to go up a step
-	VectorCopy(oldorg, ent->v.origin);	// back to start pos
+	VectorCopy(oldorg, ent->v.origin); // back to start pos
 
 	VectorCopy(vec3_origin, upmove);
 	VectorCopy(vec3_origin, downmove);
@@ -309,9 +334,9 @@ void SV_WalkMove(edict_t *ent, double hfr, SimulationInfo& info, bool nostep=fal
 	downmove[2] = -STEPSIZE + oldvel[2] * hfr;
 
 	// move up
-	SV_PushEntity(ent, upmove);	// FIXME: don't link?
+	SV_PushEntity(ent, upmove); // FIXME: don't link?
 
-// move forward
+	// move forward
 	ent->v.velocity[0] = oldvel[0];
 	ent->v.velocity[1] = oldvel[1];
 	ent->v.velocity[2] = 0;
@@ -322,7 +347,7 @@ void SV_WalkMove(edict_t *ent, double hfr, SimulationInfo& info, bool nostep=fal
 	if (clip)
 	{
 		if (fabs(oldorg[1] - ent->v.origin[1]) < 0.03125 && fabs(oldorg[0] - ent->v.origin[0]) < 0.03125)
-		{	// stepping up didn't make any progress
+		{ // stepping up didn't make any progress
 			clip = SV_TryUnstick(ent, oldvel, info);
 		}
 	}
@@ -332,7 +357,7 @@ void SV_WalkMove(edict_t *ent, double hfr, SimulationInfo& info, bool nostep=fal
 		SV_WallFriction(ent, &steptrace);
 
 	// move down
-	downtrace = SV_PushEntity(ent, downmove);	// FIXME: don't link?
+	downtrace = SV_PushEntity(ent, downmove); // FIXME: don't link?
 
 	if (downtrace.plane.normal[2] > 0.7)
 	{
@@ -346,16 +371,16 @@ void SV_WalkMove(edict_t *ent, double hfr, SimulationInfo& info, bool nostep=fal
 	{
 		// if the push down didn't end up on good ground, use the move without
 		// the step up.  This happens near wall / slope combinations, and can
-		// cause the player to hop up higher on a slope too steep to climb	
+		// cause the player to hop up higher on a slope too steep to climb
 		VectorCopy(nosteporg, ent->v.origin);
 		VectorCopy(nostepvel, ent->v.velocity);
 	}
 }
 
-bool SV_CheckWater(edict_t *ent)
+bool SV_CheckWater(edict_t* ent)
 {
-	int	cont;
-	vec3_t	point;
+	int cont;
+	vec3_t point;
 
 	point[0] = ent->v.origin[0];
 	point[1] = ent->v.origin[1];
@@ -368,7 +393,7 @@ bool SV_CheckWater(edict_t *ent)
 	{
 		ent->v.watertype = cont;
 		ent->v.waterlevel = 1;
-		point[2] = ent->v.origin[2] + (ent->v.mins[2] + ent->v.maxs[2])*0.5;
+		point[2] = ent->v.origin[2] + (ent->v.mins[2] + ent->v.maxs[2]) * 0.5;
 		cont = SV_PointContents(point);
 		if (cont <= CONTENTS_WATER)
 		{
@@ -383,11 +408,11 @@ bool SV_CheckWater(edict_t *ent)
 	return ent->v.waterlevel > 1;
 }
 
-void SV_AddGravity(edict_t *ent, double hfr)
+void SV_AddGravity(edict_t* ent, double hfr)
 {
-	float	ent_gravity;
+	float ent_gravity;
 
-	eval_t	*val;
+	eval_t* val;
 
 	val = GETEDICTFIELDVALUE(ent, eval_gravity);
 	if (val && val->_float)
@@ -397,10 +422,9 @@ void SV_AddGravity(edict_t *ent, double hfr)
 	ent->v.velocity[2] -= ent_gravity * sv_gravity.value * hfr;
 }
 
-
-edict_t	*Simulate_SV_TestEntityPosition(edict_t *ent)
+edict_t* Simulate_SV_TestEntityPosition(edict_t* ent)
 {
-	trace_t	trace;
+	trace_t trace;
 
 	trace = SV_Move_Proxy(ent->v.origin, ent->v.mins, ent->v.maxs, ent->v.origin, 0, ent);
 
@@ -410,11 +434,11 @@ edict_t	*Simulate_SV_TestEntityPosition(edict_t *ent)
 	return NULL;
 }
 
-void SV_CheckStuck(edict_t *ent)
+void SV_CheckStuck(edict_t* ent)
 {
-	int		i, j;
-	int		z;
-	vec3_t	org;
+	int i, j;
+	int z;
+	vec3_t org;
 
 	if (!Simulate_SV_TestEntityPosition(ent))
 	{
@@ -484,8 +508,11 @@ void Simulate_SV_ClientThink(SimulationInfo& info)
 	sv = backup;
 }
 
-#define READ_KEY(name) if ((in_##name.state & 1) != 0) info.key_##name.state = 1;\
-else info.key_##name.state = 0;
+#define READ_KEY(name) \
+	if ((in_##name.state & 1) != 0) \
+		info.key_##name.state = 1; \
+	else \
+		info.key_##name.state = 0;
 #define READ_CVAR(name) info.##name = ##name.value
 
 SimulationInfo Get_Sim_Info()
@@ -503,7 +530,7 @@ SimulationInfo Get_Sim_Info()
 	info.collision = false;
 
 	VectorCopy(cl.prev_viewangles, info.viewangles);
-	for(int i=0; i < 3; ++i)
+	for (int i = 0; i < 3; ++i)
 		info.ent.v.v_angle[i] = AngleModDeg(cl.prev_viewangles[i]);
 
 	READ_CVAR(cl_forwardspeed);
@@ -525,17 +552,17 @@ SimulationInfo Get_Sim_Info()
 }
 
 #define CHECK_INPUT(name, member_name) \
-if (block->toggles.find(#name) != block->toggles.end()) \
-{ \
-	if (info.##member_name.state == 0 && block->toggles.at(#name)) \
-		info.##member_name.state = 0.5; \
-	else if (info.##member_name.state > 0 && !block->toggles.at(#name)) \
-		info.##member_name.state = 0; \
-}
+	if (block->toggles.find(#name) != block->toggles.end()) \
+	{ \
+		if (info.##member_name.state == 0 && block->toggles.at(#name)) \
+			info.##member_name.state = 0.5; \
+		else if (info.##member_name.state > 0 && !block->toggles.at(#name)) \
+			info.##member_name.state = 0; \
+	}
 
 #define TOGGLE_BOOL(name) block->toggles.find(#name) != block->toggles.end()
 
-static void ApplyToggles(SimulationInfo & info, const FrameBlock* block)
+static void ApplyToggles(SimulationInfo& info, const FrameBlock* block)
 {
 	CHECK_INPUT(forward, key_forward);
 	CHECK_INPUT(back, key_back);
@@ -546,7 +573,7 @@ static void ApplyToggles(SimulationInfo & info, const FrameBlock* block)
 	CHECK_INPUT(speed, key_speed);
 	CHECK_INPUT(jump, key_jump);
 
-	if(TOGGLE_BOOL(tas_lgagst))
+	if (TOGGLE_BOOL(tas_lgagst))
 		info.tas_lgagst = block->toggles.at("tas_lgagst");
 
 	if (TOGGLE_BOOL(tas_jump))
@@ -554,12 +581,12 @@ static void ApplyToggles(SimulationInfo & info, const FrameBlock* block)
 }
 
 #define CHECK_CVAR(name, member_name) \
-if (block->convars.find(#name) != block->convars.end()) \
-{ \
-	info.##member_name = block->convars.at(#name); \
-}
+	if (block->convars.find(#name) != block->convars.end()) \
+	{ \
+		info.##member_name = block->convars.at(#name); \
+	}
 
-static void ApplyCvars(SimulationInfo & info, const FrameBlock* block)
+static void ApplyCvars(SimulationInfo& info, const FrameBlock* block)
 {
 	CHECK_CVAR(cl_forwardspeed, cl_forwardspeed);
 	CHECK_CVAR(cl_sidespeed, cl_sidespeed);
@@ -587,7 +614,7 @@ static void ApplyCvars(SimulationInfo & info, const FrameBlock* block)
 }
 
 #define CHECK_HALF_PRESS(member_name) \
-if (info.##member_name.state == 0.5) \
+	if (info.##member_name.state == 0.5) \
 	info.##member_name.state = 1
 
 static void CheckHalfPresses(SimulationInfo& info)
@@ -602,7 +629,7 @@ static void CheckHalfPresses(SimulationInfo& info)
 	CHECK_HALF_PRESS(key_jump);
 }
 
-static void CalculateMoves(SimulationInfo & info)
+static void CalculateMoves(SimulationInfo& info)
 {
 	float factor = info.key_speed.state > 0 ? info.cl_movespeedkey : 1;
 	info.fmove = 0;
@@ -639,7 +666,7 @@ static void SetStrafe(SimulationInfo& info)
 	}
 }
 
-void ApplyFrameblock(SimulationInfo & info, const FrameBlock* block)
+void ApplyFrameblock(SimulationInfo& info, const FrameBlock* block)
 {
 	ApplyToggles(info, block);
 	ApplyCvars(info, block);
@@ -649,7 +676,7 @@ void WaterMove(SimulationInfo& info)
 {
 	if (!info.ent.v.waterlevel)
 	{
-		if(((int)info.ent.v.flags & FL_INWATER) != 0)
+		if (((int)info.ent.v.flags & FL_INWATER) != 0)
 			info.ent.v.flags = (int)info.ent.v.flags - FL_INWATER;
 		return;
 	}
@@ -698,19 +725,18 @@ void CheckWaterJump(SimulationInfo& info)
 			info.ent.v.teleport_time += 2;
 		}
 	}
-
 }
 
 void PlayerJump(SimulationInfo& info)
 {
 	int flags = info.ent.v.flags;
 
-	if((flags & FL_WATERJUMP) != 0)
+	if ((flags & FL_WATERJUMP) != 0)
 		return;
 
 	if (info.ent.v.waterlevel >= 2)
 	{
-		if(info.ent.v.watertype == CONTENTS_WATER)
+		if (info.ent.v.watertype == CONTENTS_WATER)
 			info.ent.v.velocity[2] = 100;
 		else if (info.ent.v.watertype == CONTENTS_SLIME)
 			info.ent.v.velocity[2] = 80;
@@ -720,7 +746,7 @@ void PlayerJump(SimulationInfo& info)
 		return;
 	}
 
-	if((flags & FL_ONGROUND) == 0 || (flags & FL_JUMPRELEASED) == 0)
+	if ((flags & FL_ONGROUND) == 0 || (flags & FL_JUMPRELEASED) == 0)
 		return;
 	info.ent.v.flags -= flags & FL_JUMPRELEASED;
 	info.ent.v.flags -= FL_ONGROUND;
@@ -747,9 +773,7 @@ void PlayerPreThink(SimulationInfo& info)
 	}
 }
 
-void PlayerPostThink(SimulationInfo& info)
-{
-}
+void PlayerPostThink(SimulationInfo& info) {}
 
 bool Should_Jump(const SimulationInfo& info)
 {
@@ -785,7 +809,6 @@ bool Should_Jump(const SimulationInfo& info)
 	}
 }
 
-
 static void SimulateWithStrafePlusJump(SimulationInfo& info)
 {
 	SetStrafe(info);
@@ -811,18 +834,18 @@ void SimulateFrame(SimulationInfo& info)
 	CheckHalfPresses(info);
 }
 
-void SimulateWithStrafe(SimulationInfo & info)
+void SimulateWithStrafe(SimulationInfo& info)
 {
 	SetStrafe(info);
 	SimulateFrame(info);
 }
 
 // desc: How long the prediction algorithm should run per frame. High values will kill your fps.
-cvar_t tas_predict_per_frame{ "tas_predict_per_frame", "0.01" };
+cvar_t tas_predict_per_frame{"tas_predict_per_frame", "0.01"};
 // desc: Display position prediction while paused in a TAS.
-cvar_t tas_predict{ "tas_predict", "1" };
+cvar_t tas_predict{"tas_predict", "1"};
 // desc: Amount of time to predict
-cvar_t tas_predict_amount{ "tas_predict_amount", "3" };
+cvar_t tas_predict_amount{"tas_predict_amount", "3"};
 
 void Simulate_Frame_Hook()
 {
@@ -833,7 +856,7 @@ void Simulate_Frame_Hook()
 	//static std::vector<SimulationInfo> infos;
 	static int startFrame = 0;
 
-	if(cls.state != ca_connected)
+	if (cls.state != ca_connected)
 		return;
 	auto& playback = GetPlaybackInfo();
 	if (!playback.In_Edit_Mode() || !tas_predict.value)
@@ -862,7 +885,6 @@ void Simulate_Frame_Hook()
 		return;
 	}
 
-	
 	double currentTime = Sys_DoubleTime();
 	static int frame = 0;
 	static double last_sim_time = 0;

@@ -1,7 +1,9 @@
 #include "hud.hpp"
-#include "strafing.hpp"
-#include "script_playback.hpp"
+
 #include "hooks.h"
+
+#include "script_playback.hpp"
+#include "strafing.hpp"
 #include "utils.hpp"
 
 // desc: Display position in HUD
@@ -27,17 +29,17 @@ cvar_t tas_hud_pflags = {"tas_hud_pflags", "0"};
 // desc: Displays waterlevel in HUD
 cvar_t tas_hud_waterlevel = {"tas_hud_waterlevel", "0"};
 // desc: X position of the HUD
-cvar_t tas_hud_pos_x = { "tas_hud_pos_x", "10" };
+cvar_t tas_hud_pos_x = {"tas_hud_pos_x", "10"};
 // desc: Y position of the HUD
-cvar_t tas_hud_pos_y = { "tas_hud_pos_y", "60" };
+cvar_t tas_hud_pos_y = {"tas_hud_pos_y", "60"};
 // desc: The vertical spacing between TAS HUD elements
-cvar_t tas_hud_pos_inc = { "tas_hud_pos_inc", "8" };
+cvar_t tas_hud_pos_inc = {"tas_hud_pos_inc", "8"};
 //desc: Displays a bar that tells you how well you are strafing.
-cvar_t tas_hud_strafe = { "tas_hud_strafe", "0"};
+cvar_t tas_hud_strafe = {"tas_hud_strafe", "0"};
 
 void Draw(int& y, cvar_t* cvar, const char* format, ...)
 {
-	if(!cvar->value)
+	if (!cvar->value)
 		return;
 
 	static char BUFFER[128];
@@ -75,12 +77,12 @@ bool Should_Print_Cvar(const std::string& name, float value)
 
 void DrawFrameState(int& y, const PlaybackInfo& info)
 {
-	if(!tas_hud_state.value || info.Get_Last_Frame() == 0 || !tas_playing.value)
+	if (!tas_hud_state.value || info.Get_Last_Frame() == 0 || !tas_playing.value)
 		return;
 
 	auto current_block = info.Get_Current_Block();
 
-	if(current_block && current_block->frame != info.current_frame)
+	if (current_block && current_block->frame != info.current_frame)
 		current_block = nullptr;
 
 	Draw(y, &tas_hud_state, "");
@@ -88,13 +90,18 @@ void DrawFrameState(int& y, const PlaybackInfo& info)
 	for (auto& cvar : info.stacked.convars)
 	{
 		if (current_block && current_block->HasConvar(cvar.first)
-			&& current_block->convars.at(cvar.first) != cvar.second)
+		    && current_block->convars.at(cvar.first) != cvar.second)
 		{
-			Draw(y, &tas_hud_state, "%s %.3f -> %.3f", cvar.first.c_str(), cvar.second, current_block->convars.at(cvar.first));
+			Draw(y,
+			     &tas_hud_state,
+			     "%s %.3f -> %.3f",
+			     cvar.first.c_str(),
+			     cvar.second,
+			     current_block->convars.at(cvar.first));
 		}
 		else
 		{
-			if(Should_Print_Cvar(cvar.first, cvar.second))
+			if (Should_Print_Cvar(cvar.first, cvar.second))
 				Draw(y, &tas_hud_state, "%s %.3f", cvar.first.c_str(), cvar.second);
 		}
 	}
@@ -120,7 +127,6 @@ void DrawFrameState(int& y, const PlaybackInfo& info)
 				Draw(y, &tas_hud_state, "+%s -> -%s", toggle.first.c_str(), toggle.first.c_str());
 			else
 				Draw(y, &tas_hud_state, "+%s", toggle.first.c_str());
-
 		}
 	}
 
@@ -145,18 +151,17 @@ void DrawFrameState(int& y, const PlaybackInfo& info)
 			Draw(y, &tas_hud_state, "%s", cmd.c_str());
 		}
 	}
-
 }
 
 void Draw_PFlags(int& y)
 {
-	if(!tas_hud_pflags.value)
+	if (!tas_hud_pflags.value)
 		return;
 	static char BUFFER[64];
 
 	strcpy(BUFFER, "Flags: ");
 	int index = 7;
-	
+
 	for (int flag = 4096; flag >= 1; flag >>= 1)
 	{
 		BUFFER[index++] = ((int)sv_player->v.flags & flag ? '1' : '0');
@@ -171,7 +176,7 @@ void Draw_PFlags(int& y)
 
 void Draw_VelAngle(int& y, const PlayerData& player_data)
 {
-	if(!tas_hud_velang.value)
+	if (!tas_hud_velang.value)
 		return;
 
 	vec3_t ang;
@@ -229,12 +234,11 @@ static float AccelTheta(float fwd_scale, const PlayerData& player_data, const St
 
 		return std::atan2f(-smove, fmove) + predicted_yaw * M_DEG2RAD;
 	}
-
 }
 
 void Draw_StrafeStuff(const PlayerData& player_data)
 {
-	int	x, y;
+	int x, y;
 
 	if (cl.intermission || !tas_hud_strafe.value)
 		return;
@@ -266,7 +270,6 @@ void Draw_StrafeStuff(const PlayerData& player_data)
 	position = (angle - diff) / scale * 80 + 80;
 	position = bound(0, position, 160);
 
-
 	x = vid.width / 2 - 80;
 	y = vid.height / 2 + 60;
 
@@ -274,26 +277,36 @@ void Draw_StrafeStuff(const PlayerData& player_data)
 	Draw_Fill(x, y + 9, 160, 1, 10);
 	Draw_Fill(x, y, 160, 9, 52);
 	Draw_Fill(x + 78, y, 5, 9, 10);
-	Draw_Fill_RGB(x+position-1, y, 3, 9, 0, 1, 0);
+	Draw_Fill_RGB(x + position - 1, y, 3, 9, 0, 1, 0);
 }
 
 void HUD_Draw_Hook()
 {
-	if(!sv.active)
+	if (!sv.active)
 		return;
 
 	int x = tas_hud_pos_x.value;
 	int y = tas_hud_pos_y.value;
-	
+
 	auto player_data = GetPlayerData();
 	auto info = GetPlaybackInfo();
 	int last_frame = info.Get_Last_Frame();
 	int current_block_no = info.GetCurrentBlockNumber();
 	int blocks = info.Get_Number_Of_Blocks();
 
-	Draw(y, &tas_hud_pos, "pos: (%.3f, %.3f, %.3f)", player_data.origin[0], player_data.origin[1], player_data.origin[2]);
+	Draw(y,
+	     &tas_hud_pos,
+	     "pos: (%.3f, %.3f, %.3f)",
+	     player_data.origin[0],
+	     player_data.origin[1],
+	     player_data.origin[2]);
 	Draw(y, &tas_hud_angles, "ang: (%.3f, %.3f, %.3f)", cl.viewangles[0], cl.viewangles[1], cl.viewangles[2]);
-	Draw(y, &tas_hud_vel, "vel: (%.3f, %.3f, %.3f)", player_data.velocity[0], player_data.velocity[1], player_data.velocity[2]);
+	Draw(y,
+	     &tas_hud_vel,
+	     "vel: (%.3f, %.3f, %.3f)",
+	     player_data.velocity[0],
+	     player_data.velocity[1],
+	     player_data.velocity[2]);
 	Draw(y, &tas_hud_vel2d, "vel2d: %.3f", player_data.vel2d);
 	Draw(y, &tas_hud_vel3d, "vel3d: %.3f", VectorLength(player_data.velocity));
 	Draw_VelAngle(y, player_data);

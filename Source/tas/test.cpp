@@ -1,17 +1,19 @@
-#include <map>
-#include <fstream>
-#include <vector>
-#include "cpp_quakedef.hpp"
-#include "test.hpp"
 #include <direct.h>
+#include <fstream>
+#include <map>
+#include <vector>
 #include <zlib.h>
 
+#include "cpp_quakedef.hpp"
+
+#include "test.hpp"
 
 class DataFrame
 {
 	unsigned int saved_seed;
 	float saved_time;
 	std::map<int, edict_t> saved_edicts;
+
 public:
 	DataFrame() {}
 	void BuildFrame();
@@ -20,8 +22,8 @@ public:
 	const edict_t& Get_Edict(int index) const;
 	bool operator==(const DataFrame& rhs) const;
 	bool operator!=(const DataFrame& rhs) const;
-	friend std::ostream & operator << (std::ostream &out, const DataFrame &c);
-	friend std::istream & operator >> (std::istream &in, DataFrame &c);
+	friend std::ostream& operator<<(std::ostream& out, const DataFrame& c);
+	friend std::istream& operator>>(std::istream& in, DataFrame& c);
 };
 
 class TestCase
@@ -30,16 +32,23 @@ private:
 	std::vector<DataFrame> data_frames;
 	int frame_count;
 	std::string path;
+
 public:
 	TestCase();
 	TestCase(int frames, const std::string& filepath);
-	int FrameCount() { return frame_count; }
-	const std::string& Filepath() { return path; }
+	int FrameCount()
+	{
+		return frame_count;
+	}
+	const std::string& Filepath()
+	{
+		return path;
+	}
 	bool GenerateFrame();
 	bool operator!=(const TestCase& rhs) const;
 	void Clear();
-	friend std::ostream & operator << (std::ostream &out, const TestCase &c);
-	friend std::istream & operator >> (std::istream &in, TestCase &c);
+	friend std::ostream& operator<<(std::ostream& out, const TestCase& c);
+	friend std::istream& operator>>(std::istream& in, TestCase& c);
 	void SaveToFile();
 	static TestCase LoadFromFile(char* file_name);
 };
@@ -49,7 +58,6 @@ static TestCase rhsCase;
 static bool collecting_data = false;
 static bool generating_test = false;
 static bool running_comparison = false;
-
 
 void Compare()
 {
@@ -75,9 +83,9 @@ void Test_Host_Frame_Hook()
 		bool result = rhsCase.GenerateFrame();
 		if (!result)
 		{
-			if(running_comparison)
+			if (running_comparison)
 				Compare();
-			else if(generating_test)
+			else if (generating_test)
 				Write_To_File();
 			running_comparison = false;
 			generating_test = false;
@@ -85,7 +93,6 @@ void Test_Host_Frame_Hook()
 		}
 	}
 }
-
 
 void Cmd_GenerateTest(void)
 {
@@ -96,17 +103,16 @@ void Cmd_GenerateTest(void)
 		Con_Printf("Cannot generate test, already collecting data.\n");
 		return;
 	}
-	
+
 	if (Cmd_Argc() < 3)
 	{
 		Con_Printf("Usage: tas_generate_test <filepath> <frames>\n");
 	}
 
-
 	sprintf(buf, "%s/test/", com_gamedir);
 	_mkdir(buf);
 	sprintf(buf, "%s/test/%s.qd", com_gamedir, Cmd_Argv(1));
-	
+
 	int frames = std::atoi(Cmd_Argv(2));
 	rhsCase = TestCase(frames, buf);
 	generating_test = true;
@@ -143,7 +149,6 @@ void Cmd_Run_Test(void)
 	Con_Printf("Started running test %s\n", Cmd_Argv(2));
 }
 
-
 void DataFrame::BuildFrame()
 {
 	Clear();
@@ -160,7 +165,6 @@ void DataFrame::BuildFrame()
 		}
 	}
 }
-
 
 void DataFrame::Clear()
 {
@@ -195,24 +199,21 @@ bool EdictsEqual(const edict_t& edict1, const edict_t& edict2)
 			Con_DPrintf("Angle difference at coordinate %d\n", i);
 			return false;
 		}
-
 	}
-
 
 	return true;
 }
 
-const edict_t & DataFrame::Get_Edict(int index) const
+const edict_t& DataFrame::Get_Edict(int index) const
 {
 	return saved_edicts.at(index);
 }
 
-bool DataFrame::operator== (const DataFrame & other) const
+bool DataFrame::operator==(const DataFrame& other) const
 {
 	int edicts_size = saved_edicts.size();
 	int other_edicts_size = other.saved_edicts.size();
 	bool out = true;
-	
 
 	if (edicts_size != other_edicts_size)
 	{
@@ -231,7 +232,6 @@ bool DataFrame::operator== (const DataFrame & other) const
 				out = false;
 				break;
 			}
-
 		}
 	}
 
@@ -247,19 +247,15 @@ bool DataFrame::operator== (const DataFrame & other) const
 		Con_DPrintf("Seed is different\n");
 	}
 
-
 	return out;
 }
 
-bool DataFrame::operator!=(const DataFrame & rhs) const
+bool DataFrame::operator!=(const DataFrame& rhs) const
 {
 	return !(*this == rhs);
 }
 
-
-TestCase::TestCase()
-{
-}
+TestCase::TestCase() {}
 
 TestCase::TestCase(int frames, const std::string& filepath)
 {
@@ -276,7 +272,7 @@ bool TestCase::GenerateFrame()
 	return data_frames.size() < frame_count;
 }
 
-bool TestCase::operator!=(const TestCase & rhs) const
+bool TestCase::operator!=(const TestCase& rhs) const
 {
 	if (data_frames.size() != rhs.data_frames.size())
 	{
@@ -307,7 +303,7 @@ void TestCase::SaveToFile()
 	char buff[FILENAME_MAX];
 	_getcwd(buff, FILENAME_MAX);
 	Con_Printf("Writing test case to %s/%s\n", buff, path.c_str());
-	std::ofstream os(path, std::ios::binary|std::ios::out);
+	std::ofstream os(path, std::ios::binary | std::ios::out);
 	os << *this;
 	os.close();
 }
@@ -315,13 +311,12 @@ void TestCase::SaveToFile()
 TestCase TestCase::LoadFromFile(char* file_name)
 {
 	TestCase c;
-	std::ifstream is(file_name, std::ios::binary|std::ios::in);
-	if(!is.good())
+	std::ifstream is(file_name, std::ios::binary | std::ios::in);
+	if (!is.good())
 		Con_Printf("opened no good\n");
 	is >> c;
 	return c;
 }
-
 
 template<typename T>
 void Read(std::istream& in, T& value, int offset = 0)
@@ -337,7 +332,7 @@ void Write(std::ostream& os, const T& value, int offset = 0)
 	os.write(pointer, sizeof(T));
 }
 
-std::ostream & operator<<(std::ostream & out, const DataFrame & df)
+std::ostream& operator<<(std::ostream& out, const DataFrame& df)
 {
 	Write(out, df.saved_seed);
 	Write(out, df.saved_time);
@@ -363,7 +358,7 @@ std::ostream & operator<<(std::ostream & out, const DataFrame & df)
 	return out;
 }
 
-std::istream & operator>>(std::istream & in, DataFrame & df)
+std::istream& operator>>(std::istream& in, DataFrame& df)
 {
 	df.Clear();
 	Read(in, df.saved_seed);
@@ -389,7 +384,7 @@ std::istream & operator>>(std::istream & in, DataFrame & df)
 			}
 
 			Read(in, *pointer, offset);
-			Read(in, offset);	
+			Read(in, offset);
 		}
 		df.saved_edicts[key] = dummy;
 	}
@@ -397,17 +392,16 @@ std::istream & operator>>(std::istream & in, DataFrame & df)
 	return in;
 }
 
-
-std::ostream & operator<<(std::ostream & out, const TestCase & c)
+std::ostream& operator<<(std::ostream& out, const TestCase& c)
 {
 	Write(out, c.frame_count);
-	for(auto& frame : c.data_frames)
+	for (auto& frame : c.data_frames)
 		out << frame;
 
 	return out;
 }
 
-std::istream & operator>>(std::istream & in, TestCase & c)
+std::istream& operator>>(std::istream& in, TestCase& c)
 {
 	c.Clear();
 	DataFrame frame;

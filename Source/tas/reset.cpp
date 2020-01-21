@@ -1,33 +1,26 @@
-#include "reset.hpp"
-#include "utils.hpp"
-#include "afterframes.hpp"
 #include "cpp_quakedef.hpp"
 
-static const char* const EXCLUDE_CVARS[] = {
-	"gl_texturemode",
-	"gl_consolefont",
-	"gl_gamma",
-	"gl_contrast",
-	"tas_pause",
-	"tas_playing",
-	"cl_independentphysics",
-	"tas_hud",
-	"tas_edit",
-	"tas_script",
-	"tas_timescale",
-	"r_norefresh",
-	"r_overlay",
-	"tas_predict"
-};
+#include "reset.hpp"
 
-static const char* const INCLUDE_SUBSTR[] = {
-	"cl_",
-	"sv_",
-	"tas_",
-	"gl_",
-	"r_",
-	"v_centerspeed"
-};
+#include "afterframes.hpp"
+#include "utils.hpp"
+
+static const char* const EXCLUDE_CVARS[] = {"gl_texturemode",
+                                            "gl_consolefont",
+                                            "gl_gamma",
+                                            "gl_contrast",
+                                            "tas_pause",
+                                            "tas_playing",
+                                            "cl_independentphysics",
+                                            "tas_hud",
+                                            "tas_edit",
+                                            "tas_script",
+                                            "tas_timescale",
+                                            "r_norefresh",
+                                            "r_overlay",
+                                            "tas_predict"};
+
+static const char* const INCLUDE_SUBSTR[] = {"cl_", "sv_", "tas_", "gl_", "r_", "v_centerspeed"};
 
 bool IsUpCmd(cmd_function_t* func)
 {
@@ -37,7 +30,7 @@ bool IsUpCmd(cmd_function_t* func)
 		return false;
 }
 
-bool IsDownCmd(const char * text)
+bool IsDownCmd(const char* text)
 {
 	auto cmd = Cmd_FindCommand(const_cast<char*>(text));
 	return cmd && IsDownCmd(cmd);
@@ -53,7 +46,7 @@ bool IsDownCmd(cmd_function_t* func)
 
 bool IsGameplayCvar(cvar_t* var)
 {
-	if(!var->defaultvalue || !var->defaultvalue[0])
+	if (!var->defaultvalue || !var->defaultvalue[0])
 		return false;
 
 	bool match = false;
@@ -67,10 +60,10 @@ bool IsGameplayCvar(cvar_t* var)
 		}
 	}
 
-	if(!match)
+	if (!match)
 		return false;
 
-	for(auto excluded : EXCLUDE_CVARS)
+	for (auto excluded : EXCLUDE_CVARS)
 		if (strstr(var->name, excluded) == var->name)
 		{
 			Con_DPrintf("%s was excluded\n", var->name);
@@ -80,13 +73,13 @@ bool IsGameplayCvar(cvar_t* var)
 	return true;
 }
 
-bool IsGameplayCvar(const char * text)
+bool IsGameplayCvar(const char* text)
 {
 	auto cvar = Cvar_FindVar(const_cast<char*>(text));
 	return cvar && IsGameplayCvar(cvar);
 }
 
-bool IsUpCmd(const char * text)
+bool IsUpCmd(const char* text)
 {
 	auto cmd = Cmd_FindCommand(const_cast<char*>(text));
 	return cmd && IsUpCmd(cmd);

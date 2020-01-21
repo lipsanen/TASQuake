@@ -1,7 +1,5 @@
 #pragma once
 
-
-
 #ifdef __cplusplus
 extern "C"
 {
@@ -20,7 +18,7 @@ extern "C"
 	void TAS_Init();
 	void TAS_Set_Seed(unsigned int seed);
 	qboolean Cmd_ExecuteString_Hook(const char* text);
-	void IN_Move_Hook(usercmd_t *cmd);
+	void IN_Move_Hook(usercmd_t* cmd);
 	void SCR_Draw_TAS_HUD_Hook(void);
 	void Draw_Lines_Hook(void);
 #ifdef __cplusplus

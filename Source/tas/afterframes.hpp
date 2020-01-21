@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 
-
 struct AfterFrames
 {
 	AfterFrames(int numFrames, const char* cmd);
@@ -11,7 +10,6 @@ struct AfterFrames
 	std::string command;
 	int frames;
 };
-
 
 void PauseAfterframes();
 void UnpauseAfterframes();

@@ -1,5 +1,6 @@
-#include <vector>
 #include <array>
+#include <vector>
+
 #include "cpp_quakedef.hpp"
 
 #define PREDICTION_ID 1

@@ -1,9 +1,11 @@
-#include "cpp_quakedef.hpp"
-#include "utils.hpp"
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
-#include <algorithm>
 #include <string>
+
+#include "cpp_quakedef.hpp"
+
+#include "utils.hpp"
 
 bool IsZero(double number)
 {
@@ -57,7 +59,6 @@ void BrapAlg(double& outInteger1, double& outInteger2, int64_t max_int)
 	q[1] = 0;
 	q[2] = 0;
 
-
 	for (int i = 0; remainder != 0 && q[0] <= max_int; ++i)
 	{
 		p[2] = p[1];
@@ -79,7 +80,6 @@ void BrapAlg(double& outInteger1, double& outInteger2, int64_t max_int)
 			p[0] = a * p[1] + p[2];
 			q[0] = a * q[1] + q[2];
 		}
-
 	}
 
 	if (remainder == 0 && q[0] <= max_int)
@@ -105,9 +105,8 @@ void ApproximateRatioWithIntegers(double& number1, double& number2, int max_int)
 	number2 = std::abs(number2);
 
 	bool flip = number1 > number2;
-	if(flip)
+	if (flip)
 		std::swap(number1, number2);
-
 
 	BrapAlg(number1, number2, max_int);
 
@@ -116,17 +115,13 @@ void ApproximateRatioWithIntegers(double& number1, double& number2, int max_int)
 
 	number1 *= num1Sign;
 	number2 *= num2Sign;
-
 }
 
 inline static double distance(double* old, double* v1)
 {
-	return (1.0 - old[0] * old[0]) * v1[0] * v1[0] +
-		(1.0 - old[1] * old[1]) * v1[1] * v1[1] +
-		(1.0 - old[2] * old[2]) * v1[2] * v1[2] -
-		2.0 * old[0] * old[1] * v1[0] * v1[1] -
-		2.0 * old[0] * old[2] * v1[0] * v1[2] -
-		2.0 * old[1] * old[2] * v1[1] * v1[2];
+	return (1.0 - old[0] * old[0]) * v1[0] * v1[0] + (1.0 - old[1] * old[1]) * v1[1] * v1[1]
+	       + (1.0 - old[2] * old[2]) * v1[2] * v1[2] - 2.0 * old[0] * old[1] * v1[0] * v1[1]
+	       - 2.0 * old[0] * old[2] * v1[0] * v1[2] - 2.0 * old[1] * old[2] * v1[1] * v1[2];
 }
 
 inline static double Round(double d)
@@ -179,7 +174,6 @@ static void ApproximateRatioWithIntegers(double* numbers, int max_int)
 	int best_index = max_int;
 	double best_error = 1;
 	double err;
-
 
 	for (int i = max_int / 2; i <= max_int; ++i)
 	{
@@ -238,7 +232,7 @@ float Round(double val, double acc)
 	return static_cast<float>(val);
 }
 
-float Get_Default_Value(const char * name)
+float Get_Default_Value(const char* name)
 {
 	float f;
 	auto var = Cvar_FindVar(const_cast<char*>(name));

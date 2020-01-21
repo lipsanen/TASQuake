@@ -1,20 +1,23 @@
-#include <string>
-#include <map>
-#include <vector>
 #include <algorithm>
+#include <experimental/filesystem>
 #include <fstream>
+#include <map>
 #include <regex>
 #include <sstream>
-#include <experimental/filesystem>
+#include <string>
+#include <vector>
 
 #include "cpp_quakedef.hpp"
+
 #include "script_parse.hpp"
-#include "strafing.hpp"
-#include "afterframes.hpp"
-#include "utils.hpp"
-#include "reset.hpp"
+
 #include "hooks.h"
+
+#include "afterframes.hpp"
+#include "reset.hpp"
 #include "script_playback.hpp"
+#include "strafing.hpp"
+#include "utils.hpp"
 
 std::regex FRAME_NO_REGEX(R"#((\+?)(\d+):)#");
 std::regex TOGGLE_REGEX(R"#(([\+\-])(\w+))#");
@@ -43,7 +46,7 @@ bool Is_Convar(const std::string& line)
 	std::smatch sm;
 	std::regex_match(line, sm, CONVAR_REGEX);
 
-	if(Cvar_FindVar((char*)sm[1].str().c_str()))
+	if (Cvar_FindVar((char*)sm[1].str().c_str()))
 		return true;
 	else
 		return false;
@@ -54,7 +57,8 @@ bool Is_Toggle(const std::string& line)
 	return std::regex_match(line, TOGGLE_REGEX);
 }
 
-bool Is_Whitespace(const std::string& s) {
+bool Is_Whitespace(const std::string& s)
+{
 	return std::all_of(s.begin(), s.end(), isspace);
 }
 
@@ -63,12 +67,12 @@ FrameBlock::FrameBlock()
 	parsed = false;
 }
 
-void FrameBlock::Stack(const FrameBlock & new_block)
+void FrameBlock::Stack(const FrameBlock& new_block)
 {
-	for(auto& pair : new_block.toggles)
+	for (auto& pair : new_block.toggles)
 		toggles[pair.first] = pair.second;
 
-	for(auto& pair : new_block.convars)
+	for (auto& pair : new_block.convars)
 		convars[pair.first] = pair.second;
 }
 
@@ -81,13 +85,12 @@ std::string FrameBlock::GetCommand()
 
 	for (auto& toggle : toggles)
 	{
-		if(toggle.second)
+		if (toggle.second)
 			oss << '+';
 		else
 			oss << '-';
 		oss << toggle.first << ';';
 	}
-
 
 	for (auto& cmd : commands)
 		oss << cmd << ';';
@@ -95,25 +98,25 @@ std::string FrameBlock::GetCommand()
 	return oss.str();
 }
 
-void FrameBlock::Add_Command(const std::string & line)
+void FrameBlock::Add_Command(const std::string& line)
 {
 	commands.push_back(line);
 }
 
-void FrameBlock::Parse_Frame_No(const std::string & line, int& running_frame)
+void FrameBlock::Parse_Frame_No(const std::string& line, int& running_frame)
 {
 	std::smatch sm;
 	std::regex_match(line, sm, FRAME_NO_REGEX);
 
 	// No + in the frame number, take number as absolute
-	if(sm[1].str().empty())
+	if (sm[1].str().empty())
 		running_frame = 0;
 	frame = std::stoi(sm[2].str()) + running_frame;
 	running_frame = frame;
 	parsed = true;
 }
 
-void FrameBlock::Parse_Convar(const std::string & line)
+void FrameBlock::Parse_Convar(const std::string& line)
 {
 	std::smatch sm;
 	std::regex_match(line, sm, CONVAR_REGEX);
@@ -123,7 +126,7 @@ void FrameBlock::Parse_Convar(const std::string & line)
 	convars[cmd] = val;
 }
 
-void FrameBlock::Parse_Toggle(const std::string & line)
+void FrameBlock::Parse_Toggle(const std::string& line)
 {
 	std::smatch sm;
 	std::regex_match(line, sm, TOGGLE_REGEX);
@@ -139,12 +142,12 @@ void FrameBlock::Parse_Toggle(const std::string & line)
 	}
 }
 
-void FrameBlock::Parse_Command(const std::string & line)
+void FrameBlock::Parse_Command(const std::string& line)
 {
 	Add_Command(line);
 }
 
-void FrameBlock::Parse_Line(const std::string & line, int& running_frame)
+void FrameBlock::Parse_Line(const std::string& line, int& running_frame)
 {
 	if (Is_Whitespace(line))
 		return;
@@ -166,21 +169,19 @@ void FrameBlock::Reset()
 	commands.clear();
 }
 
-bool FrameBlock::HasToggle(const std::string & cmd) const
+bool FrameBlock::HasToggle(const std::string& cmd) const
 {
 	return toggles.find(cmd) != toggles.end();
 }
 
-bool FrameBlock::HasConvar(const std::string & cvar) const
+bool FrameBlock::HasConvar(const std::string& cvar) const
 {
 	return convars.find(cvar) != convars.end();
 }
 
-TASScript::TASScript()
-{
-}
+TASScript::TASScript() {}
 
-TASScript::TASScript(const char * file_name)
+TASScript::TASScript(const char* file_name)
 {
 	this->file_name = file_name;
 }
@@ -192,7 +193,7 @@ void TASScript::Load_From_File()
 	int running_frame = 0;
 	int line_number = 0;
 	std::string current_line;
-	
+
 	try
 	{
 		while (stream.good() && !stream.eof())
@@ -213,7 +214,6 @@ void TASScript::Load_From_File()
 	{
 		Con_Printf("Error parsing line %d: %s\n", line_number, e.what());
 	}
-
 }
 
 static bool Get_Backup_Save(char* buffer, const char* file_name, int backup)
@@ -247,9 +247,9 @@ static bool Move_Saves(const char* file_name)
 	static char new_filename[256];
 	int backups = (int)tas_edit_backups.value;
 
-	if(backups <= 0)
+	if (backups <= 0)
 		return true;
-	
+
 	bool result = Get_Backup_Save(new_filename, file_name, backups - 1);
 	if (!result)
 	{
@@ -257,7 +257,7 @@ static bool Move_Saves(const char* file_name)
 		return false;
 	}
 
-	if(std::experimental::filesystem::exists(new_filename))
+	if (std::experimental::filesystem::exists(new_filename))
 		std::remove(new_filename);
 
 	for (int i = backups - 2; i >= 0; --i)
@@ -272,10 +272,9 @@ static bool Move_Saves(const char* file_name)
 			std::rename(old_filename, new_filename);
 		std::strcpy(new_filename, old_filename);
 	}
-	
+
 	return true;
 }
-
 
 void TASScript::Write_To_File()
 {
@@ -319,11 +318,10 @@ void TASScript::Write_To_File()
 	Con_Printf("Wrote script to file %s\n", file_name.c_str());
 }
 
-Bookmark::Bookmark()
-{
-}
+Bookmark::Bookmark() {}
 
 Bookmark::Bookmark(int index, bool frame)
 {
-	this->index = index; this->frame = frame;
+	this->index = index;
+	this->frame = frame;
 }
