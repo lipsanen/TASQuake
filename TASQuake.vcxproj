@@ -81,9 +81,9 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderOutputFile>
       </PrecompiledHeaderOutputFile>
-      <AssemblerListingLocation>$(Configuration)\</AssemblerListingLocation>
-      <ObjectFileName>$(Configuration)\</ObjectFileName>
-      <ProgramDataBaseFileName>$(Configuration)\</ProgramDataBaseFileName>
+      <AssemblerListingLocation>$(SolutionDir)_build\$(Configuration)_$(ProjectName)\</AssemblerListingLocation>
+      <ObjectFileName>$(SolutionDir)_build\$(Configuration)_$(ProjectName)\</ObjectFileName>
+      <ProgramDataBaseFileName>$(SolutionDir)_build\$(Configuration)_$(ProjectName)\</ProgramDataBaseFileName>
       <BrowseInformation />
       <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <WarningLevel>Level3</WarningLevel>
@@ -128,9 +128,9 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderOutputFile>
       </PrecompiledHeaderOutputFile>
-      <AssemblerListingLocation>$(Configuration)\</AssemblerListingLocation>
-      <ObjectFileName>$(Configuration)\</ObjectFileName>
-      <ProgramDataBaseFileName>$(Configuration)\</ProgramDataBaseFileName>
+      <AssemblerListingLocation>$(SolutionDir)_build\$(Configuration)_$(ProjectName)\</AssemblerListingLocation>
+      <ObjectFileName>$(SolutionDir)_build\$(Configuration)_$(ProjectName)\</ObjectFileName>
+      <ProgramDataBaseFileName>$(SolutionDir)_build\$(Configuration)_$(ProjectName)\</ProgramDataBaseFileName>
       <BrowseInformation />
       <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <WarningLevel>Level3</WarningLevel>
@@ -342,7 +342,6 @@ del "$(OutDir)%(Filename).spp"
     <ClCompile Include="Source\sv_user.c" />
     <ClCompile Include="Source\sys_win.c" />
     <ClCompile Include="Source\tas\afterframes.cpp" />
-    <ClCompile Include="Source\tas\cpp_quakedef.cpp" />
     <ClCompile Include="Source\tas\draw.cpp" />
     <ClCompile Include="Source\tas\hooks.cpp" />
     <ClCompile Include="Source\tas\hud.cpp" />

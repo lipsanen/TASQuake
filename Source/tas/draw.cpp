@@ -44,8 +44,8 @@ void Draw_Elements()
 	glDisable(GL_TEXTURE_2D);
 	for (auto& rect : rects)
 	{
-		Vector3f corner1 = rect.center;
-		Vector3f corner2 = rect.center;
+		auto corner1 = rect.center;
+		auto corner2 = rect.center;
 		corner1[0] -= rect.width / 2;
 		corner1[1] -= rect.width / 2;
 		corner1[2] -= rect.height / 2;
@@ -55,36 +55,36 @@ void Draw_Elements()
 
 
 		glBegin(GL_QUADS);
-		glColor4fv(rect.color.Get_Array());
-		glVertex3f(corner1.x, corner1.y, corner1.z);
-		glVertex3f(corner1.x, corner2.y, corner1.z);
-		glVertex3f(corner2.x, corner2.y, corner1.z);
-		glVertex3f(corner2.x, corner1.y, corner1.z);
+		glColor4fv(rect.color._Elems);
+		glVertex3f(corner1[0], corner1[1], corner1[2]);
+		glVertex3f(corner1[0], corner2[1], corner1[2]);
+		glVertex3f(corner2[0], corner2[1], corner1[2]);
+		glVertex3f(corner2[0], corner1[1], corner1[2]);
 
-		glVertex3f(corner1.x, corner1.y, corner1.z);
-		glVertex3f(corner1.x, corner1.y, corner2.z);
-		glVertex3f(corner1.x, corner2.y, corner2.z);
-		glVertex3f(corner1.x, corner2.y, corner1.z);
+		glVertex3f(corner1[0], corner1[1], corner1[2]);
+		glVertex3f(corner1[0], corner1[1], corner2[2]);
+		glVertex3f(corner1[0], corner2[1], corner2[2]);
+		glVertex3f(corner1[0], corner2[1], corner1[2]);
 
-		glVertex3f(corner1.x, corner1.y, corner1.z);
-		glVertex3f(corner2.x, corner1.y, corner1.z);
-		glVertex3f(corner2.x, corner1.y, corner2.z);
-		glVertex3f(corner1.x, corner1.y, corner2.z);
+		glVertex3f(corner1[0], corner1[1], corner1[2]);
+		glVertex3f(corner2[0], corner1[1], corner1[2]);
+		glVertex3f(corner2[0], corner1[1], corner2[2]);
+		glVertex3f(corner1[0], corner1[1], corner2[2]);
 
-		glVertex3f(corner2.x, corner2.y, corner2.z);
-		glVertex3f(corner1.x, corner2.y, corner2.z);
-		glVertex3f(corner1.x, corner1.y, corner2.z);
-		glVertex3f(corner2.x, corner1.y, corner2.z);
+		glVertex3f(corner2[0], corner2[1], corner2[2]);
+		glVertex3f(corner1[0], corner2[1], corner2[2]);
+		glVertex3f(corner1[0], corner1[1], corner2[2]);
+		glVertex3f(corner2[0], corner1[1], corner2[2]);
 
-		glVertex3f(corner2.x, corner2.y, corner2.z);
-		glVertex3f(corner2.x, corner1.y, corner2.z);
-		glVertex3f(corner2.x, corner1.y, corner1.z);
-		glVertex3f(corner2.x, corner2.y, corner1.z);
+		glVertex3f(corner2[0], corner2[1], corner2[2]);
+		glVertex3f(corner2[0], corner1[1], corner2[2]);
+		glVertex3f(corner2[0], corner1[1], corner1[2]);
+		glVertex3f(corner2[0], corner2[1], corner1[2]);
 
-		glVertex3f(corner2.x, corner2.y, corner2.z);
-		glVertex3f(corner2.x, corner2.y, corner1.z);
-		glVertex3f(corner1.x, corner2.y, corner1.z);
-		glVertex3f(corner1.x, corner2.y, corner2.z);
+		glVertex3f(corner2[0], corner2[1], corner2[2]);
+		glVertex3f(corner2[0], corner2[1], corner1[2]);
+		glVertex3f(corner1[0], corner2[1], corner1[2]);
+		glVertex3f(corner1[0], corner2[1], corner2[2]);
 
 		glEnd();
 	}
@@ -98,9 +98,9 @@ void Draw_Elements()
 			auto& vec1 = pair.second->at(i);
 			auto& vec2 = pair.second->at(i+1);
 
-			glColor4fv(vec1.color.Get_Array());
-			glVertex3fv(vec1.point.Get_Array());
-			glVertex3fv(vec2.point.Get_Array());
+			glColor4fv(vec1.color._Elems);
+			glVertex3fv(vec1.point._Elems);
+			glVertex3fv(vec2.point._Elems);
 		}
 		glEnd();
 	}

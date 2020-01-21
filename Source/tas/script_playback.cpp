@@ -82,6 +82,7 @@ static void Continue_Script(int frames)
 
 static void Generic_Advance(int frame)
 {
+	key_dest = key_game;
 	if(frame > playback.current_frame)
 		Continue_Script(frame - playback.current_frame);
 	else if (frame < LOWEST_FRAME)
@@ -564,6 +565,7 @@ void Cmd_TAS_Edit_Shrink(void)
 	if (current_block >= playback.current_script.blocks.size())
 	{
 		Con_Printf("Already beyond last block.\n");
+		return;
 	}
 	else
 	{
@@ -614,7 +616,7 @@ void Cmd_TAS_Edit_Delete(void)
 
 void Shift_Block(const FrameBlock& new_block)
 {
-	bool set = false;
+	playback.last_edited = Sys_DoubleTime();
 
 	for (auto i = 0; i < playback.current_script.blocks.size(); ++i)
 	{
@@ -622,22 +624,17 @@ void Shift_Block(const FrameBlock& new_block)
 
 		if (block.frame == new_block.frame)
 		{
-			Con_Printf("Cannot shift to an existing block!\n");
+			Con_Printf("Cannot shift to an existing block! This is a bug.\n");
 			return;
 		}
 		else if (block.frame > new_block.frame)
 		{
 			playback.current_script.blocks.insert(playback.current_script.blocks.begin() + i, new_block);
-			set = true;
-			break;
+			return;
 		}
 	}
 
-	if (!set)
-	{
-		playback.last_edited = Sys_DoubleTime();
-		playback.current_script.blocks.push_back(new_block);
-	}
+	playback.current_script.blocks.push_back(new_block);
 }
 
 void Cmd_TAS_Edit_Shift(void)
@@ -659,6 +656,13 @@ void Cmd_TAS_Edit_Shift(void)
 	if (new_frame < LOWEST_FRAME)
 	{
 		Con_Printf("Cannot move frame past %d\n", LOWEST_FRAME);
+		return;
+	}
+	else if (std::any_of(playback.current_script.blocks.begin(),
+	                     playback.current_script.blocks.end(),
+	                     [&](auto& element) { return element.frame == new_frame; }))
+	{
+		Con_Printf("Frame block already on frame %d\n", new_frame);
 		return;
 	}
 
