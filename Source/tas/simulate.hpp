@@ -1,7 +1,6 @@
 #pragma once
 
 #include "cpp_quakedef.hpp"
-
 #include "script_playback.hpp"
 #include "strafing.hpp"
 

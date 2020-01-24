@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.10)
+project(TASQuake)
+include(sourcelist.cmake)
+
+include_directories("dependencies" "zlib" "libpng" "libjpeg")
+add_library(zlib ${ZLIB_SOURCES})
+add_library(jpeg ${LIBJPEG_SOURCES})
+add_library(png ${LIBPNG_SOURCES})
+add_executable(TASQuake ${TASQUAKE_SOURCES})
+add_definitions(-D_WIN32 -D_WINDOWS -Did386 -DGLQUAKE)
+SET(CMAKE_C_FLAGS "-std=c99 -Wno-pedantic")
+SET(CMAKE_CXX_FLAGS "-std=c++14 -Wno-pedantic -Wno-write-strings")
+
+target_link_libraries(png zlib)
+target_link_libraries(TASQuake jpeg png)

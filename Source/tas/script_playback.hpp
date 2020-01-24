@@ -1,8 +1,8 @@
 #pragma once
 
 #include "cpp_quakedef.hpp"
-
 #include "script_parse.hpp"
+
 
 struct PlaybackInfo
 {

@@ -1,7 +1,3 @@
-#include <vector>
-
-#include "cpp_quakedef.hpp"
-
 #include "afterframes.hpp"
 
 const int BUFFER_SIZE = 8192;

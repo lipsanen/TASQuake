@@ -1,5 +1,5 @@
 #pragma once
-#include <string>
+#include "cpp_quakedef.hpp"
 
 bool IsZero(double number);
 double NormalizeRad(double rad);   // [-pi, pi]

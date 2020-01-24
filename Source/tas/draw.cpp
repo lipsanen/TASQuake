@@ -1,10 +1,4 @@
-#include <algorithm>
-#include <map>
-
-#include "cpp_quakedef.hpp"
-
 #include "draw.hpp"
-
 #include "strafing.hpp"
 
 static std::map<int, std::vector<PathPoint>*> lines;
@@ -56,7 +50,7 @@ void Draw_Elements()
 		corner2[2] += rect.height / 2;
 
 		glBegin(GL_QUADS);
-		glColor4fv(rect.color._Elems);
+		glColor4fv(&rect.color[0]);
 		glVertex3f(corner1[0], corner1[1], corner1[2]);
 		glVertex3f(corner1[0], corner2[1], corner1[2]);
 		glVertex3f(corner2[0], corner2[1], corner1[2]);
@@ -99,9 +93,9 @@ void Draw_Elements()
 			auto& vec1 = pair.second->at(i);
 			auto& vec2 = pair.second->at(i + 1);
 
-			glColor4fv(vec1.color._Elems);
-			glVertex3fv(vec1.point._Elems);
-			glVertex3fv(vec2.point._Elems);
+			glColor4fv(&vec1.color[0]);
+			glVertex3fv(&vec1.point[0]);
+			glVertex3fv(&vec2.point[0]);
 		}
 		glEnd();
 	}

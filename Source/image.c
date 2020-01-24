@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef _WIN32
 #include "jpeg-linux/jpeglib.h"	// FIXME!!!
 #else
+#define XMD_H
 #include "jpeglib.h"
 #endif
 #endif

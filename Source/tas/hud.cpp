@@ -1,7 +1,6 @@
 #include "hud.hpp"
 
 #include "hooks.h"
-
 #include "script_playback.hpp"
 #include "strafing.hpp"
 #include "utils.hpp"
@@ -218,7 +217,7 @@ static float AccelTheta(float fwd_scale, const PlayerData& player_data, const St
 		fmove = cmd.forwardmove * fwd_scale;
 		smove = cmd.sidemove;
 
-		return std::atan2f(-smove, fmove) + cl.viewangles[YAW] * M_DEG2RAD;
+		return std::atan2(-smove, fmove) + cl.viewangles[YAW] * M_DEG2RAD;
 	}
 	else
 	{
@@ -232,7 +231,7 @@ static float AccelTheta(float fwd_scale, const PlayerData& player_data, const St
 		if ((in_moveleft.state & 1) != 0)
 			smove -= cl_sidespeed.value * speed_modifier;
 
-		return std::atan2f(-smove, fmove) + predicted_yaw * M_DEG2RAD;
+		return std::atan2(-smove, fmove) + predicted_yaw * M_DEG2RAD;
 	}
 }
 

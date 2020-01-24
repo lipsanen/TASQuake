@@ -1,12 +1,3 @@
-#include <algorithm>
-#include <experimental/filesystem>
-#include <fstream>
-#include <map>
-#include <regex>
-#include <sstream>
-#include <string>
-#include <vector>
-
 #include "cpp_quakedef.hpp"
 
 #include "script_parse.hpp"

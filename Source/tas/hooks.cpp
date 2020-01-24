@@ -1,15 +1,15 @@
-#include "cpp_quakedef.hpp"
-
-#include "hooks.h"
 
 #include "afterframes.hpp"
 #include "draw.hpp"
 #include "hud.hpp"
-#include "reset.hpp"
 #include "script_playback.hpp"
 #include "simulate.hpp"
 #include "strafing.hpp"
 #include "test.hpp"
+
+#include "hooks.h"
+#include "reset.hpp"
+
 
 // desc: When set to 1, pauses the game on load
 cvar_t tas_pause_onload = {"tas_pause_onload", "0"};

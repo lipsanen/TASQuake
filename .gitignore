@@ -277,3 +277,5 @@ __pycache__/
 
 # Build directory
 _build/
+CMakeFiles
+CMakeCache.txt

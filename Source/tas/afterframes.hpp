@@ -1,5 +1,6 @@
 #pragma once
-#include <string>
+
+#include "cpp_quakedef.hpp"
 
 struct AfterFrames
 {

@@ -1,5 +1,3 @@
-#include "cpp_quakedef.hpp"
-
 #include "reset.hpp"
 
 #include "afterframes.hpp"

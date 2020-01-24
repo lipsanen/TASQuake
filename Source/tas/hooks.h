@@ -1,6 +1,7 @@
 #pragma once
 
 #ifdef __cplusplus
+#include "cpp_quakedef.hpp"
 extern "C"
 {
 #endif

@@ -513,7 +513,7 @@ void Simulate_SV_ClientThink(SimulationInfo& info)
 		info.key_##name.state = 1; \
 	else \
 		info.key_##name.state = 0;
-#define READ_CVAR(name) info.##name = ##name.value
+#define READ_CVAR(name) info.name = name.value
 
 SimulationInfo Get_Sim_Info()
 {
@@ -554,10 +554,10 @@ SimulationInfo Get_Sim_Info()
 #define CHECK_INPUT(name, member_name) \
 	if (block->toggles.find(#name) != block->toggles.end()) \
 	{ \
-		if (info.##member_name.state == 0 && block->toggles.at(#name)) \
-			info.##member_name.state = 0.5; \
-		else if (info.##member_name.state > 0 && !block->toggles.at(#name)) \
-			info.##member_name.state = 0; \
+		if (info.member_name.state == 0 && block->toggles.at(#name)) \
+			info.member_name.state = 0.5; \
+		else if (info.member_name.state > 0 && !block->toggles.at(#name)) \
+			info.member_name.state = 0; \
 	}
 
 #define TOGGLE_BOOL(name) block->toggles.find(#name) != block->toggles.end()
@@ -583,7 +583,7 @@ static void ApplyToggles(SimulationInfo& info, const FrameBlock* block)
 #define CHECK_CVAR(name, member_name) \
 	if (block->convars.find(#name) != block->convars.end()) \
 	{ \
-		info.##member_name = block->convars.at(#name); \
+		info.member_name = block->convars.at(#name); \
 	}
 
 static void ApplyCvars(SimulationInfo& info, const FrameBlock* block)
@@ -614,8 +614,8 @@ static void ApplyCvars(SimulationInfo& info, const FrameBlock* block)
 }
 
 #define CHECK_HALF_PRESS(member_name) \
-	if (info.##member_name.state == 0.5) \
-	info.##member_name.state = 1
+	if (info.member_name.state == 0.5) \
+	info.member_name.state = 1
 
 static void CheckHalfPresses(SimulationInfo& info)
 {

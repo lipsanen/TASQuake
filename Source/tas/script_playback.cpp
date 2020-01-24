@@ -1,7 +1,3 @@
-#include <algorithm>
-
-#include "cpp_quakedef.hpp"
-
 #include "script_playback.hpp"
 
 #include "hooks.h"

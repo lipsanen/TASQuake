@@ -1,6 +1,4 @@
-﻿#include <cmath>
-
-#include "strafing.hpp"
+﻿#include "strafing.hpp"
 
 #include "hooks.h"
 

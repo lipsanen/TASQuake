@@ -1,11 +1,3 @@
-#include <direct.h>
-#include <fstream>
-#include <map>
-#include <vector>
-#include <zlib.h>
-
-#include "cpp_quakedef.hpp"
-
 #include "test.hpp"
 
 class DataFrame

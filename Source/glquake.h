@@ -27,6 +27,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #pragma warning (disable : 4051)     // ALPHA
 
 #include <windows.h>
+
+#ifndef __noop
+#define __noop 0
+#endif
 #endif
 
 #include <GL/gl.h>

@@ -1,9 +1,6 @@
-#include <array>
-#include <vector>
+#define PREDICTION_ID 1
 
 #include "cpp_quakedef.hpp"
-
-#define PREDICTION_ID 1
 
 struct PathPoint
 {
