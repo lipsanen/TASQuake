@@ -827,11 +827,13 @@ static void SimulateWithStrafePlusJump(SimulationInfo& info)
 
 void SimulateFrame(SimulationInfo& info)
 {
+	simulating = qtrue;
 	Simulate_SV_ClientThink(info);
 	PlayerPreThink(info);
 	PlayerPhysics(info);
 	PlayerPostThink(info);
 	CheckHalfPresses(info);
+	simulating = qfalse;
 }
 
 void SimulateWithStrafe(SimulationInfo& info)
@@ -934,8 +936,8 @@ void Simulate_Frame_Hook()
 			VectorCopy(vec3_origin, rect.color);
 			rect.color[2] = 1;
 			VectorCopy(info.ent.v.origin, rect.center);
-			rect.width = 10;
-			rect.height = 10;
+			rect.width = 3;
+			rect.height = 3;
 			AddRectangle(rect);
 		}
 

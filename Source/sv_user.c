@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 edict_t	*sv_player;
 tas_state tas_gamestate;
+qboolean simulating = false;
 
 cvar_t	sv_edgefriction = {"edgefriction", "2"};
 
@@ -200,6 +201,9 @@ void SV_AirAccelerate (vec3_t wishveloc)
 
 void DropPunchAngle (void)
 {
+	if(tas_gamestate == paused && simulating == false)
+		return;
+
 	float	len;
 
 	len = VectorNormalize (sv_player->v.punchangle);

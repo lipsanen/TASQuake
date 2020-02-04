@@ -79,7 +79,7 @@ TASQuake functionality
 |tas_predict_per_frame|How long the prediction algorithm should run per frame. High values will kill your fps.|
 |tas_strafe|Set to 1 to activate automated strafing|
 |tas_strafe_pitch|Pitch angle to swim to. Only relevant while swimming.|
-|tas_strafe_type|1 = max accel, 2 = max angle, 3 = w strafing, 4 = swimming|
+|tas_strafe_type|1 = max accel, 2 = max angle, 3 = w strafing, 4 = swimming, 5 = reverse|
 |tas_strafe_yaw|Yaw angle to strafe at|
 |tas_timescale|Controls the timescale of the game|
 |tas_view_pitch|Player pitch.|
