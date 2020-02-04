@@ -31,7 +31,8 @@ enum class StrafeType
 	MaxAccel = 1,
 	MaxAngle = 2,
 	Straight = 3,
-	Swim = 4
+	Swim = 4,
+	Reverse = 5
 };
 
 struct StrafeVars

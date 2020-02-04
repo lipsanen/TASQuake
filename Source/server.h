@@ -207,6 +207,7 @@ extern	double		host_time;
 
 extern	edict_t		*sv_player;
 extern tas_state tas_gamestate;
+extern qboolean simulating;
 
 //===========================================================
 

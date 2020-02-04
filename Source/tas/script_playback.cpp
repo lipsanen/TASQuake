@@ -345,6 +345,12 @@ const PlaybackInfo& GetPlaybackInfo()
 	return playback;
 }
 
+static void CreateScriptName(char* buffer, const char* name)
+{
+	sprintf(buffer, "%s/tas/%s", com_gamedir, Cmd_Argv(1));
+	COM_ForceExtension(buffer, ".qtas");
+}
+
 void Cmd_TAS_Script_Init(void)
 {
 	if (Cmd_Argc() < 4)
@@ -354,8 +360,7 @@ void Cmd_TAS_Script_Init(void)
 	}
 
 	char name[256];
-	sprintf(name, "%s/tas/%s", com_gamedir, Cmd_Argv(1));
-	COM_ForceExtension(name, ".qtas");
+	CreateScriptName(name, Cmd_Argv(1));
 
 	playback.current_script = TASScript(name);
 	FrameBlock b1;
@@ -529,7 +534,11 @@ void Cmd_TAS_Edit_Prune(void)
 void Cmd_TAS_Edit_Save(void)
 {
 	if (Cmd_Argc() > 1)
-		playback.current_script.file_name = Cmd_Argv(1);
+	{
+		CreateScriptName(BUFFER, Cmd_Argv(1));
+		playback.current_script.file_name = BUFFER;
+	}
+
 	playback.current_script.Write_To_File();
 }
 

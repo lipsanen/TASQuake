@@ -10,7 +10,7 @@
 
 // desc: Set to 1 to activate automated strafing
 cvar_t tas_strafe = {"tas_strafe", "0"};
-// desc: 1 = max accel, 2 = max angle, 3 = w strafing, 4 = swimming
+// desc: 1 = max accel, 2 = max angle, 3 = w strafing, 4 = swimming, 5 = reverse
 cvar_t tas_strafe_type = {"tas_strafe_type", "1"};
 // desc: Yaw angle to strafe at
 cvar_t tas_strafe_yaw = {"tas_strafe_yaw", "0"};
@@ -34,6 +34,7 @@ static bool tas_lgagst = false;
 static bool print_origin = false;
 static bool print_vel = false;
 static bool print_moves = false;
+static bool should_unjump = false;
 
 void IN_TAS_Jump_Down(void)
 {
@@ -267,6 +268,11 @@ static double StrafeStraight(const StrafeVars& vars)
 	return vars.tas_strafe_yaw;
 }
 
+static double StrafeReverse(const StrafeVars& vars)
+{
+	return vars.tas_strafe_yaw + 180;
+}
+
 void StrafeInto(usercmd_t* cmd, double yaw, float view_yaw, float view_pitch, const StrafeVars& vars)
 {
 	float lookyaw;
@@ -446,6 +452,12 @@ void StrafeSim(usercmd_t* cmd, edict_t* player, float* yaw, float* pitch, const 
 		{
 			SwimInto(cmd, *yaw, *pitch, vars);
 		}
+		else if (vars.tas_strafe_type == StrafeType::Reverse)
+		{
+			strafe_yaw = StrafeReverse(vars);
+			StrafeInto(cmd, strafe_yaw, *yaw, *pitch, vars);
+		}
+
 	}
 }
 
@@ -454,13 +466,15 @@ void Strafe_Jump_Check()
 	auto sim = Get_Sim_Info();
 	bool jump = Should_Jump(sim);
 
-	if (!jump && (in_jump.state & 1) == 1 && (sim.tas_jump || sim.tas_lgagst))
+	if (should_unjump)
 	{
 		AddAfterframes(0, "-jump");
+		should_unjump = false;
 	}
 	else if (jump && (in_jump.state & 1) == 0)
 	{
 		AddAfterframes(0, "+jump");
+		should_unjump = true;
 	}
 
 	auto data = GetPlayerData();
