@@ -785,6 +785,9 @@ bool Should_Jump(const SimulationInfo& info)
 	if (!data.onGround)
 		return false;
 
+	if (info.tas_jump)
+		return true;
+
 	if (info.vars.tas_strafe_version <= 1)
 	{
 		float lgagst = tas_strafe_lgagst_speed.value;
