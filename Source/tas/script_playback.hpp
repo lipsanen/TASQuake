@@ -86,6 +86,8 @@ void Cmd_TAS_Edit_Add_Empty(void);
 void Cmd_TAS_Confirm(void);
 // desc: Cancel change in editing mode
 void Cmd_TAS_Cancel(void);
+// desc: Revert changes to current editing mode to pre-frame values
+void Cmd_TAS_Revert(void);
 
 void Clear_Bookmarks();
 // desc: Usage: tas_bookmark_frame <name>. Bookmarks the current frame with the name given as the argument.
