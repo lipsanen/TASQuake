@@ -2677,7 +2677,7 @@ vec3_t r_overlay_offset_vec;
 vec3_t r_overlay_offset_angles;
 qboolean r_overlay_offset_init = false;
 
-static void Setup_Overlay_Overhead()
+static qboolean Setup_Overlay_Overhead()
 {
 	if (!r_overlay_offset_init)
 	{
@@ -2691,10 +2691,15 @@ static void Setup_Overlay_Overhead()
 	else
 		VectorCopy(r_overlay_offset_vec, r_refdef.vieworg);
 	VectorCopy(r_overlay_offset_angles, r_refdef.viewangles);
+
+	return true;
 }
 
-static void Setup_Overlay_Lbug()
+static qboolean Setup_Overlay_Lbug()
 {
+	if (cls.demoplayback || !sv_player)
+		return false;
+
 	vec3_t fwd;
 	vec3_t endp;
 	vec3_t lgfwd;
@@ -2733,8 +2738,7 @@ static void Setup_Overlay_Lbug()
 		r_refdef.vieworg[2] = origin[2];
 	}
 
-
-
+	return true;
 }
 
 static void Set_Overlay_Viewport()
@@ -2776,10 +2780,19 @@ void R_RenderOverlay(void)
 	VectorCopy(r_refdef.vieworg, orig_vieworg);
 	VectorCopy(r_refdef.viewangles, orig_viewangles);
 
+	qboolean setup_result;
+
 	if(r_overlay_mode.value <= 1)
-		Setup_Overlay_Lbug();
-	else if(r_overlay_mode.value >= 2)
-		Setup_Overlay_Overhead();
+		setup_result = Setup_Overlay_Lbug();
+	else
+		setup_result = Setup_Overlay_Overhead();
+
+	if (!setup_result)
+	{
+		in_overlay = false;
+		return;
+	}
+		
 	Set_Overlay_Viewport();
 	
 	Clear_Screen();
