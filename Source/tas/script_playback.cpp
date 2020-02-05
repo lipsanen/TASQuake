@@ -772,20 +772,59 @@ void Cmd_TAS_Cancel(void)
 		SetConvar("tas_strafe_yaw", current_strafeyaw, true);
 		SetConvar("tas_strafe", current_strafe, true);
 	}
-	else if (m_state == MouseState::Mixed || m_state == MouseState::Yaw)
-	{
-		SetConvar("tas_view_yaw", current_yaw, true);
-	}
-	else if (m_state == MouseState::Mixed || m_state == MouseState::Pitch)
-	{
-		SetConvar("tas_view_pitch", current_pitch, true);
-	}
 	else if (m_state == MouseState::Swim)
 	{
 		SetConvar("tas_strafe_yaw", current_strafeyaw, true);
 		SetConvar("tas_strafe_pitch", current_strafepitch, true);
 		SetConvar("tas_strafe", current_strafe, true);
 	}
+	else
+	{
+		if (m_state == MouseState::Mixed || m_state == MouseState::Yaw)
+		{
+			SetConvar("tas_view_yaw", current_yaw, true);
+		}
+
+		if (m_state == MouseState::Mixed || m_state == MouseState::Pitch)
+		{
+			SetConvar("tas_view_pitch", current_pitch, true);
+		}
+	}
+
+	m_state = MouseState::Locked;
+}
+
+void Cmd_TAS_Revert(void)
+{
+	#define RETURN_STACKED(val) SetConvar(#val, Get_Stacked_Value(#val), true)
+
+	if (m_state == MouseState::Locked)
+		return;
+
+	if (m_state == MouseState::Strafe)
+	{
+		RETURN_STACKED(tas_strafe_yaw);
+		RETURN_STACKED(tas_strafe);
+	}
+	else if (m_state == MouseState::Swim)
+	{
+		RETURN_STACKED(tas_strafe_yaw);
+		RETURN_STACKED(tas_strafe_pitch);
+		RETURN_STACKED(tas_strafe);
+	}
+	else
+	{
+		if (m_state == MouseState::Mixed || m_state == MouseState::Yaw)
+		{
+			RETURN_STACKED(tas_view_yaw);
+		}
+
+		if (m_state == MouseState::Mixed || m_state == MouseState::Pitch)
+		{
+			RETURN_STACKED(tas_view_pitch);
+		}
+	}
+
 	m_state = MouseState::Locked;
 }
 
