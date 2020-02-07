@@ -70,6 +70,12 @@ void Cmd_Print_Seed(void)
 	Con_Printf("Seed is %d\n", Get_RNG_Seed());
 }
 
+void Cmd_Print_Time(void)
+{
+	Con_Printf("Time is %f\n", sv.time);
+	Con_Printf("Client time is %f\n", cl.time);
+}
+
 void TAS_Set_Seed(int seed)
 {
 	set_seed = true;
@@ -113,6 +119,7 @@ void TAS_Init()
 	Cmd_AddCommand("tas_run_test", Cmd_Run_Test);
 	Cmd_AddCommand("tas_generate_test", Cmd_GenerateTest);
 	Cmd_AddCommand("tas_print_seed", Cmd_Print_Seed);
+	Cmd_AddCommand("tas_print_time", Cmd_Print_Time);
 	Cmd_AddCommand("tas_pause", Cmd_TAS_Pause);
 	Cmd_AddCommand("tas_print_vel", Cmd_TAS_Print_Vel);
 	Cmd_AddCommand("tas_print_origin", Cmd_TAS_Print_Origin);

@@ -33,8 +33,7 @@ static float current_yaw = 0;
 static float current_pitch = 0;
 static int current_strafe = 0;
 
-static float old_yaw = 0;
-static float old_pitch = 0;
+static vec3_t old_angles;
 static MouseState m_state = MouseState::Locked;
 
 // desc: How many backups to keep while saving the script to file.
@@ -76,8 +75,8 @@ static void Run_Script(int frame, bool skip = false)
 	if (skip)
 	{
 		tas_timescale.value = 999999;
-		r_norefresh.value = 1;
-		AddAfterframes(playback.pause_frame - 1 - playback.current_frame, "tas_timescale 1; r_norefresh 0");
+		//r_norefresh.value = 1;
+		AddAfterframes(playback.pause_frame - 1 - playback.current_frame, "tas_timescale 1");
 	}
 
 	playback.script_running = true;
@@ -295,8 +294,7 @@ void Script_Playback_Host_Frame_Hook()
 	{
 		tas_gamestate = paused;
 		playback.script_running = false;
-		old_yaw = cl.viewangles[YAW];
-		old_pitch = cl.viewangles[PITCH];
+		VectorCopy(cl.viewangles, old_angles);
 		return;
 	}
 
@@ -321,13 +319,17 @@ void Script_Playback_IN_Move_Hook(usercmd_t* cmd)
 {
 	if (tas_playing.value && tas_gamestate == paused)
 	{
-		if (m_state == MouseState::Pitch || m_state == MouseState::Locked)
+		if (m_state == MouseState::Locked)
 		{
-			cl.viewangles[YAW] = old_yaw;
+			VectorCopy(old_angles, cl.viewangles);
 		}
-		if (m_state == MouseState::Yaw || m_state == MouseState::Locked)
+		else if (m_state == MouseState::Pitch)
 		{
-			cl.viewangles[PITCH] = old_pitch;
+			cl.viewangles[YAW] = old_angles[YAW];
+		}
+		else if (m_state == MouseState::Yaw)
+		{
+			cl.viewangles[PITCH] = old_angles[PITCH];
 		}
 	}
 }
@@ -796,7 +798,7 @@ void Cmd_TAS_Cancel(void)
 
 void Cmd_TAS_Revert(void)
 {
-	#define RETURN_STACKED(val) SetConvar(#val, Get_Stacked_Value(#val), true)
+#define RETURN_STACKED(val) SetConvar(#val, Get_Stacked_Value(#val), true)
 
 	if (m_state == MouseState::Locked)
 		return;

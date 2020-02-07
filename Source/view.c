@@ -164,7 +164,7 @@ cvar_t	v_centerspeed = {"v_centerspeed", "0"};
 
 void V_StartPitchDrift (void)
 {
-	if (cl.laststop == cl.time)
+	if (cl.laststop == cl.time || tas_gamestate != unpaused)
 		return;		// something else is keeping it from drifting
 
 	if (cl.nodrift || !cl.pitchvel)
@@ -177,6 +177,9 @@ void V_StartPitchDrift (void)
 
 void V_StopPitchDrift (void)
 {
+	if(tas_gamestate != unpaused)
+		return;
+
 	cl.laststop = cl.time;
 	cl.nodrift = true;
 	cl.pitchvel = 0;
@@ -197,6 +200,9 @@ lookspring is non 0, or when
 */
 void V_DriftPitch (void)
 {
+	if(tas_gamestate != unpaused)
+		return;
+
 	float	delta, move;
 
 	if (noclip_anglehack || !cl.onground || cls.demoplayback)
@@ -947,7 +953,8 @@ void V_CalcViewRoll (void)
 	{
 		r_refdef.viewangles[ROLL] += v_dmg_time / v_kicktime.value * v_dmg_roll;
 		r_refdef.viewangles[PITCH] += v_dmg_time / v_kicktime.value * v_dmg_pitch;
-		v_dmg_time -= host_frametime;
+		if (tas_gamestate == unpaused)
+			v_dmg_time -= host_frametime;
 	}
 }
 
@@ -1034,7 +1041,7 @@ void V_CalcRefdef (void)
 	float		bob;
 
 	V_DriftPitch ();
-
+		
 	// ent is the player model (visible when out of body)
 	ent = &cl_entities[cl.viewentity];
 	// view is the weapon model (only visible from inside body)
@@ -1044,9 +1051,9 @@ void V_CalcRefdef (void)
 	// model origin for the view
 	ent->angles[YAW] = cl.viewangles[YAW];		// the model should face the view dir
 	ent->angles[PITCH] = -cl.viewangles[PITCH];	//
-										
+
 	bob = V_CalcBob ();
-	
+
 	// set up the refresh position
 	VectorCopy (ent->origin, r_refdef.vieworg);
 
