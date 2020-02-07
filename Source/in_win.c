@@ -417,8 +417,6 @@ IN_MouseMove
 */
 void IN_MouseMove (usercmd_t *cmd)
 {
-	// TODO: Add overrides for manually setting the pitch/yaw
-
 	int mx, my;
 
 	if (!mouseactive)

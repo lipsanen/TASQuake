@@ -392,6 +392,9 @@ CL_SendMove
 */
 void CL_SendMove (usercmd_t *cmd)
 {
+	if(tas_gamestate != unpaused)
+		return;
+
 	int		i, bits;
 	float		lag;
 	sizebuf_t	*buf;
@@ -411,8 +414,7 @@ void CL_SendMove (usercmd_t *cmd)
 	MSG_WriteByte (buf, clc_move);
 	MSG_WriteFloat (buf, cl.mtime[0]);	// so server can get ping times
 	
-	if(tas_gamestate != paused)
-		VectorCopy(cl.viewangles, cl.prev_viewangles);
+	VectorCopy(cl.viewangles, cl.prev_viewangles);
 
 	if (!cls.demoplayback && (cls.netcon->mod == MOD_TASQUAKE))
 	{

@@ -350,7 +350,7 @@ void SV_ClientThink (void)
 {
 	vec3_t	v_angle;
 
-	if (sv_player->v.movetype == MOVETYPE_NONE)
+	if (sv_player->v.movetype == MOVETYPE_NONE || (tas_gamestate != unpaused && !simulating))
 		return;
 	
 	onground = (int)sv_player->v.flags & FL_ONGROUND;
@@ -565,8 +565,7 @@ void SV_RunClients (void)
 		}
 
 	// always pause in single player if in console or menus
-		if (!sv.paused && (svs.maxclients > 1 || key_dest == key_game) &&
-		  tas_gamestate == unpaused)
+		if (!sv.paused && (svs.maxclients > 1 || key_dest == key_game))
 			SV_ClientThink ();
 	}
 }

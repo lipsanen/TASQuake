@@ -709,7 +709,8 @@ void _Host_Frame (double time)
 		// process console commands
 		Cbuf_Execute ();
 
-		NET_Poll ();
+		if(tas_gamestate == unpaused)
+			NET_Poll ();
 
 		// if running the server locally, make intentions now
 		if (sv.active)
@@ -724,7 +725,7 @@ void _Host_Frame (double time)
 		// check for commands typed to the host
 		Host_GetConsoleCommands ();
 
-		if (sv.active)
+		if (sv.active && tas_gamestate == unpaused)
 			Host_ServerFrame (host_frametime);
 
 	//-------------------
@@ -738,10 +739,11 @@ void _Host_Frame (double time)
 		if (!sv.active)
 			CL_SendCmd ();
 
-		host_time += host_frametime;
+		if (tas_gamestate == unpaused)
+			host_time += host_frametime;
 
 		// fetch results from server
-		if (cls.state == ca_connected)
+		if (cls.state == ca_connected && tas_gamestate == unpaused)
 			CL_ReadFromServer ();
 #ifdef INDEPENDENTPHYSICS
 	}
@@ -810,63 +812,66 @@ void _Host_Frame (double time)
 	if (host_speeds.value)
 		time2 = Sys_DoubleTime ();
 
-	if (cls.signon == SIGNONS)
+	if (tas_gamestate == unpaused)
 	{
-		// update audio
-		S_Update (r_origin, vpn, vright, vup);
-		CL_DecayLights ();
-	}
-	else
-	{
-		S_Update (vec3_origin, vec3_origin, vec3_origin, vec3_origin);
-	}
-
-	CDAudio_Update ();
-
-	if (host_speeds.value)
-	{
-		pass1 = (time1 - time3) * 1000;
-		time3 = Sys_DoubleTime ();
-		pass2 = (time2 - time1) * 1000;
-		pass3 = (time3 - time2) * 1000;
-		Con_Printf ("%3i tot %3i server %3i gfx %3i snd\n", pass1 + pass2 + pass3, pass1, pass2, pass3);
-	}
-
-	if (!cls.demoplayback && cl_demorewind.value)
-	{
-		Cvar_SetValue (&cl_demorewind, 0);
-		Con_Printf ("ERROR: Demorewind is only enabled during playback\n");
-	}
-
-	// don't allow cheats in multiplayer
-	if (cl.gametype == GAME_DEATHMATCH)
-	{
-		if (cl_cheatfree)
+		if (cls.signon == SIGNONS)
 		{
-			Cvar_SetValue (&chase_active, 0);
-#ifdef GLQUAKE
-			Cvar_SetValue (&r_wateralpha, 1);
-#endif
+			// update audio
+			S_Update (r_origin, vpn, vright, vup);
+			CL_DecayLights ();
 		}
-		Cvar_SetValue (&r_fullbright, 0);
-		Cvar_SetValue (&r_fullbrightskins, 0);
-#ifndef GLQUAKE
-		Cvar_SetValue (&r_draworder, 0);
-		Cvar_SetValue (&r_ambient, 0);
-		Cvar_SetValue (&r_drawflat, 0);
-#endif
-	}
-	else
-	{
-		// don't allow cheats when recording a single player demo
-		if (cls.demorecording)
+		else
 		{
-			Cvar_SetValue (&cl_truelightning, 0);
+			S_Update (vec3_origin, vec3_origin, vec3_origin, vec3_origin);
 		}
-	}
 
-	host_framecount++;
-	fps_count++;
+		CDAudio_Update ();
+
+		if (host_speeds.value)
+		{
+			pass1 = (time1 - time3) * 1000;
+			time3 = Sys_DoubleTime ();
+			pass2 = (time2 - time1) * 1000;
+			pass3 = (time3 - time2) * 1000;
+			Con_Printf ("%3i tot %3i server %3i gfx %3i snd\n", pass1 + pass2 + pass3, pass1, pass2, pass3);
+		}
+
+		if (!cls.demoplayback && cl_demorewind.value)
+		{
+			Cvar_SetValue (&cl_demorewind, 0);
+			Con_Printf ("ERROR: Demorewind is only enabled during playback\n");
+		}
+
+		// don't allow cheats in multiplayer
+		if (cl.gametype == GAME_DEATHMATCH)
+		{
+			if (cl_cheatfree)
+			{
+				Cvar_SetValue (&chase_active, 0);
+	#ifdef GLQUAKE
+				Cvar_SetValue (&r_wateralpha, 1);
+	#endif
+			}
+			Cvar_SetValue (&r_fullbright, 0);
+			Cvar_SetValue (&r_fullbrightskins, 0);
+	#ifndef GLQUAKE
+			Cvar_SetValue (&r_draworder, 0);
+			Cvar_SetValue (&r_ambient, 0);
+			Cvar_SetValue (&r_drawflat, 0);
+	#endif
+		}
+		else
+		{
+			// don't allow cheats when recording a single player demo
+			if (cls.demorecording)
+			{
+				Cvar_SetValue (&cl_truelightning, 0);
+			}
+		}
+
+		host_framecount++;
+		fps_count++;
+	}
 }
 
 void Host_Frame (double time)
