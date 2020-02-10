@@ -725,7 +725,7 @@ void _Host_Frame (double time)
 		// check for commands typed to the host
 		Host_GetConsoleCommands ();
 
-		if (sv.active && tas_gamestate == unpaused)
+		if (sv.active && tas_gamestate != paused)
 			Host_ServerFrame (host_frametime);
 
 	//-------------------
@@ -739,11 +739,11 @@ void _Host_Frame (double time)
 		if (!sv.active)
 			CL_SendCmd ();
 
-		if (tas_gamestate == unpaused)
+		if (tas_gamestate != paused)
 			host_time += host_frametime;
 
 		// fetch results from server
-		if (cls.state == ca_connected && tas_gamestate == unpaused)
+		if (cls.state == ca_connected && tas_gamestate != paused)
 			CL_ReadFromServer ();
 #ifdef INDEPENDENTPHYSICS
 	}
@@ -812,7 +812,7 @@ void _Host_Frame (double time)
 	if (host_speeds.value)
 		time2 = Sys_DoubleTime ();
 
-	if (tas_gamestate == unpaused)
+	if (tas_gamestate != paused)
 	{
 		if (cls.signon == SIGNONS)
 		{

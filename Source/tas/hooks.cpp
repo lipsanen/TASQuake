@@ -218,7 +218,7 @@ void CL_SignonReply_Hook()
 	if (cls.demoplayback)
 		return;
 
-	if (cls.signon == 4)
+	if (cls.signon == 4 && tas_gamestate == loading)
 		unpause_countdown = 3;
 }
 

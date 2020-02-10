@@ -643,7 +643,7 @@ void Host_Loadgame_f (void)
 	}
 	sv.paused = true;		// pause until all clients connect
 	sv.loadgame = true;
-	tas_gamestate = paused;
+	tas_gamestate = loading;
 
 // load the light styles
 	for (i=0 ; i<MAX_LIGHTSTYLES ; i++)

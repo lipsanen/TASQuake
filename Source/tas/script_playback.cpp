@@ -290,7 +290,8 @@ void Script_Playback_Host_Frame_Hook()
 
 	if (tas_gamestate == paused || !playback.script_running)
 		return;
-	else if (playback.current_frame == playback.pause_frame)
+	else if (playback.current_frame >= playback.pause_frame 
+	&& !svs.changelevel_issued && !scr_disabled_for_loading) // make sure we dont TAS pause mid-load
 	{
 		tas_gamestate = paused;
 		playback.script_running = false;
