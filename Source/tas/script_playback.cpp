@@ -13,7 +13,7 @@
 #include "utils.hpp"
 
 static PlaybackInfo playback;
-const int LOWEST_FRAME = 8;
+const int LOWEST_FRAME = 0;
 const int LOWEST_BLOCK = 2;
 static char BUFFER[256];
 
@@ -274,6 +274,11 @@ static void ApplyMouseStuff()
 
 void Script_Playback_Host_Frame_Hook()
 {
+	// TODO: Make this function less disgusting
+	
+	if (tas_gamestate == loading)
+		return;
+
 	if (playback.In_Edit_Mode() && m_state != MouseState::Locked)
 	{
 		ApplyMouseStuff();

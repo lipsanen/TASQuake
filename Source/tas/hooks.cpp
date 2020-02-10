@@ -234,6 +234,8 @@ void _Host_Frame_Hook()
 		{
 			tas_gamestate = unpaused;
 			unpause_countdown = -1;
+			key_dest = key_game;
+			cl.movemessages = 2; // this is some hack to stop the game eating the first few messages, god knows why that has to be a thing
 		}
 	}
 
