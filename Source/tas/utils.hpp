@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <fstream>
 
 bool IsZero(double number);
 double NormalizeRad(double rad);   // [-pi, pi]
@@ -22,5 +23,22 @@ std::string& trim(std::string& s, const char* t = " \t\n\r\f\v");
 float Round(double val, double acc);
 float Get_Default_Value(const char* cvar);
 void CenterPrint(const char* value, ...);
+
+template<typename T>
+void Read(std::istream& in, T& value, int offset = 0)
+{
+	char* pointer = reinterpret_cast<char*>(&value) + offset;
+	in.read(pointer, sizeof(T));
+}
+
+template<typename T>
+void Write(std::ostream& os, const T& value, int offset = 0)
+{
+	const char* pointer = reinterpret_cast<const char*>(&value) + offset;
+	os.write(pointer, sizeof(T));
+}
+
+void WriteString(std::ostream& os, const char* value);
+void ReadString(std::ifstream& in, char* value);
 
 #define VectorLength2D(x) std::sqrt(x[0] * x[0] + x[1] * x[1])

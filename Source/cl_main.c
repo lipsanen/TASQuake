@@ -1021,13 +1021,21 @@ Read all incoming data from the server
 void CL_ReadFromServer (void)
 {
 	int	ret;
+	vec3_t old_angles;
 
-	cl.oldtime = cl.ctime;
-	cl.time += host_frametime;
-	if (!cl_demorewind.value || !cls.demoplayback)
-		cl.ctime += host_frametime;
-	else
-		cl.ctime -= host_frametime;
+	if (tas_gamestate == unpaused)
+	{
+		cl.oldtime = cl.ctime;
+		cl.time += host_frametime;
+		if (!cl_demorewind.value || !cls.demoplayback)
+			cl.ctime += host_frametime;
+		else
+			cl.ctime -= host_frametime;
+	}
+	else if (tas_gamestate == loading)
+	{
+		VectorCopy(cl.viewangles, old_angles);
+	}
 
 	do {
 		ret = CL_GetMessage ();
@@ -1046,6 +1054,11 @@ void CL_ReadFromServer (void)
 	CL_RelinkEntities ();
 	CL_CalcCrouch ();
 	CL_UpdateTEnts ();
+
+	if (tas_gamestate == loading)
+	{
+		//VectorCopy(old_angles, cl.viewangles);
+	}
 }
 
 /*

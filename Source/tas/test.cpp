@@ -5,7 +5,7 @@
 #include <zlib.h>
 
 #include "cpp_quakedef.hpp"
-
+#include "utils.hpp"
 #include "test.hpp"
 
 class DataFrame
@@ -78,6 +78,9 @@ void Write_To_File()
 
 void Test_Host_Frame_Hook()
 {
+	if (tas_gamestate != unpaused)
+		return;
+
 	if (collecting_data)
 	{
 		bool result = rhsCase.GenerateFrame();
@@ -159,7 +162,7 @@ void DataFrame::BuildFrame()
 	for (int i = 0; i < sv.num_edicts; ++i)
 	{
 		edict_t* ent = EDICT_NUM(i);
-		if (!ent->free && ent == sv_player)
+		if (!ent->free)
 		{
 			saved_edicts[i] = *ent;
 		}
@@ -197,6 +200,12 @@ bool EdictsEqual(const edict_t& edict1, const edict_t& edict2)
 		if (edict1.v.angles[i] != edict2.v.angles[i])
 		{
 			Con_DPrintf("Angle difference at coordinate %d\n", i);
+			return false;
+		}
+
+		if (edict1.v.nextthink != edict2.v.nextthink)
+		{
+			Con_DPrintf("Next think difference at %d: %.8f != %.8f\n", i, edict1.v.nextthink, edict2.v.nextthink);
 			return false;
 		}
 	}
@@ -237,7 +246,7 @@ bool DataFrame::operator==(const DataFrame& other) const
 
 	if (saved_time != other.saved_time)
 	{
-		Con_DPrintf("Time is different\n");
+		Con_DPrintf("Time is different, %.8f != %.8f\n", saved_time, other.saved_time);
 		out = false;
 	}
 
@@ -316,20 +325,6 @@ TestCase TestCase::LoadFromFile(char* file_name)
 		Con_Printf("opened no good\n");
 	is >> c;
 	return c;
-}
-
-template<typename T>
-void Read(std::istream& in, T& value, int offset = 0)
-{
-	char* pointer = reinterpret_cast<char*>(&value) + offset;
-	in.read(pointer, sizeof(T));
-}
-
-template<typename T>
-void Write(std::ostream& os, const T& value, int offset = 0)
-{
-	const char* pointer = reinterpret_cast<const char*>(&value) + offset;
-	os.write(pointer, sizeof(T));
 }
 
 std::ostream& operator<<(std::ostream& out, const DataFrame& df)

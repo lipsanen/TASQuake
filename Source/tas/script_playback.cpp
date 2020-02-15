@@ -11,6 +11,7 @@
 #include "script_parse.hpp"
 #include "strafing.hpp"
 #include "utils.hpp"
+#include "savestate.hpp"
 
 static PlaybackInfo playback;
 const int LOWEST_FRAME = 0;
@@ -41,42 +42,84 @@ cvar_t tas_edit_backups = {"tas_edit_backups", "100"};
 // desc: How much rounding to apply when setting the strafe yaw and pitch
 cvar_t tas_edit_snap_threshold = {"tas_edit_snap_threshold", "0.001"};
 
-static void Run_Script(int frame, bool skip = false)
+static bool Set_Pause_Frame(int pause_frame)
 {
 	if (playback.Get_Number_Of_Blocks() == 0)
 	{
 		Con_Print("No script loaded\n");
-		return;
+		return false;
 	}
-
-	playback.current_frame = 0;
-	playback.stacked.Reset();
-
-	if (frame >= 0)
+	else if (pause_frame < LOWEST_FRAME)
 	{
-		playback.pause_frame = frame;
+		Con_Printf("Cannot go to frame below %d.\n", LOWEST_FRAME);
+		return false;
+	}
+	else if (pause_frame >= 0)
+	{
+		playback.pause_frame = pause_frame;
 	}
 	else
 	{
-		int frames_from_end = -1 - frame;
+		int frames_from_end = -1 - pause_frame;
 		auto& last_block = playback.current_script.blocks[playback.current_script.blocks.size() - 1];
 		playback.pause_frame = last_block.frame - frames_from_end;
 	}
 
-	if (playback.pause_frame < LOWEST_FRAME)
+	Savestate_Playback_Started(playback.pause_frame);
+
+	return true;
+}
+
+
+static void Savestate_Skip(int start_frame)
+{
+	playback.current_frame = start_frame;
+	if (playback.current_frame < playback.pause_frame)
 	{
-		Con_Printf("Cannot go to frame below %d.\n", LOWEST_FRAME);
-		return;
+		tas_timescale.value = 999999;
+		AddAfterframes(playback.pause_frame - 1 - playback.current_frame, "tas_timescale 1");
 	}
 
+	for (auto& block : playback.current_script.blocks)
+	{
+		if(block.frame >= playback.current_frame)
+			break;
+
+		playback.stacked.Stack(block);
+	}
+
+	playback.stacked.commands.clear();
+	auto cmd = playback.stacked.GetCommand();
+	AddAfterframes(1, const_cast<char*>(cmd.c_str()), NoFilter);
+}
+
+static void Normal_Skip()
+{
+	tas_timescale.value = 999999;
+	AddAfterframes(playback.pause_frame - 1 - playback.current_frame, "tas_timescale 1");
+}
+
+static void Run_Script(int frame, bool skip = false)
+{
+	if(!Set_Pause_Frame(frame))
+		return;
+
+	playback.current_frame = 0;
+	playback.stacked.Reset();
 	Cmd_TAS_Cmd_Reset();
 	tas_playing.value = 1;
 
 	if (skip)
 	{
-		tas_timescale.value = 999999;
-		//r_norefresh.value = 1;
-		AddAfterframes(playback.pause_frame - 1 - playback.current_frame, "tas_timescale 1");
+		int ss_frame = Savestate_Load_State(frame);
+		if (ss_frame < 0)
+		{
+			Normal_Skip();
+		}
+		else
+		{
+			Savestate_Skip(ss_frame);
+		}
 	}
 
 	playback.script_running = true;
@@ -85,7 +128,9 @@ static void Run_Script(int frame, bool skip = false)
 
 static void Continue_Script(int frames)
 {
-	playback.pause_frame = playback.current_frame + frames;
+	if (!Set_Pause_Frame(playback.current_frame + frames))
+		return;
+
 	playback.script_running = true;
 	playback.should_unpause = true;
 }
@@ -222,11 +267,11 @@ static void SetConvar(const char* name, float new_val, bool silent = false)
 		CenterPrint("Block: Added %s %f", name, new_val);
 
 	if (Get_Stacked_Value(name) == new_val && block->convars.find(name) != block->convars.end())
-	{
 		block->convars.erase(name);
-		return;
-	}
-	block->convars[name] = new_val;
+	else
+		block->convars[name] = new_val;
+
+	Savestate_Script_Updated(playback.current_frame);
 }
 
 void SetToggle(const char* cmd, bool new_value)
@@ -236,12 +281,10 @@ void SetToggle(const char* cmd, bool new_value)
 	CenterPrint("Block: Added %c%s", new_value ? '+' : '-', cmd);
 
 	if (Get_Stacked_Toggle(cmd) == new_value && block->toggles.find(cmd) != block->toggles.end())
-	{
 		block->toggles.erase(cmd);
-		return;
-	}
-
-	block->toggles[cmd] = new_value;
+	else
+		block->toggles[cmd] = new_value;
+	Savestate_Script_Updated(playback.current_frame);
 }
 
 static void ApplyMouseStuff()
@@ -279,6 +322,8 @@ void Script_Playback_Host_Frame_Hook()
 	if (tas_gamestate == loading)
 		return;
 
+	Savestate_Frame_Hook(playback.current_frame);
+
 	if (playback.In_Edit_Mode() && m_state != MouseState::Locked)
 	{
 		ApplyMouseStuff();
@@ -313,7 +358,7 @@ void Script_Playback_Host_Frame_Hook()
 
 		std::string cmd = block.GetCommand();
 		playback.stacked.Stack(block);
-		AddAfterframes(0, cmd.c_str());
+		AddAfterframes(0, cmd.c_str(), NoFilter);
 		++current_block;
 	}
 
@@ -393,6 +438,7 @@ void Cmd_TAS_Script_Init(void)
 	playback.current_script.blocks.push_back(b3);
 	playback.current_script.Write_To_File();
 	Con_Printf("Initialized script into file %s, map %s and difficulty %d\n", name, map.c_str(), difficulty);
+	Savestate_Script_Updated(0);
 }
 
 void Cmd_TAS_Script_Load(void)
@@ -408,10 +454,14 @@ void Cmd_TAS_Script_Load(void)
 	COM_ForceExtension(name, ".qtas");
 
 	Clear_Bookmarks();
+	Savestate_Script_Updated(0);
 	playback.current_script = TASScript(name);
 	playback.current_script.Load_From_File();
 	playback.last_edited = Sys_DoubleTime();
+	tas_playing.value = 0;
+	tas_gamestate = unpaused;
 	Con_Printf("Script %s loaded with %u blocks.\n", Cmd_Argv(1), playback.current_script.blocks.size());
+	Cbuf_AddText("disconnect");
 }
 
 void Cmd_TAS_Script_Play(void)
