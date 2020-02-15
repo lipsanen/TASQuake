@@ -540,6 +540,7 @@ void Host_Savegame_f (void)
 	fprintf (f, "%i\n", SAVEGAME_VERSION);
 	// Jukspa: save RNG
 	unsigned int seed = Get_RNG_Seed();
+	Con_Printf("saved seed %u\n", seed);
 	fprintf(f, "%u\n", seed);
 
 	Host_SavegameComment (comment);
@@ -548,7 +549,7 @@ void Host_Savegame_f (void)
 		fprintf (f, "%f\n", svs.clients->spawn_parms[i]);
 	fprintf (f, "%d\n", current_skill);
 	fprintf (f, "%s\n", sv.name);
-	fprintf (f, "%f\n", sv.time);
+	fprintf (f, "%lf\n", sv.time);
 
 // write the light styles
 
@@ -579,7 +580,8 @@ Host_Loadgame_f
 void Host_Loadgame_f (void)
 {
 	char	name[MAX_OSPATH], mapname[MAX_QPATH], str[32768], *start;
-	float	time, tfloat, spawn_parms[NUM_SPAWN_PARMS];
+	float	tfloat, spawn_parms[NUM_SPAWN_PARMS];
+	double time;
 	int	i, r, entnum, version;
 	edict_t	*ent;
 	FILE	*f;
@@ -631,7 +633,7 @@ void Host_Loadgame_f (void)
 	Cvar_SetValue (&skill, (float)current_skill);
 
 	fscanf (f, "%s\n", mapname);
-	fscanf (f, "%f\n", &time);
+	fscanf (f, "%lf\n", &time);
 
 	CL_Disconnect_f ();
 

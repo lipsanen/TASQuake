@@ -386,9 +386,6 @@ float MoveViewTowards(float target, float current, bool yaw, const StrafeVars& v
 
 void SetView(float* yaw, float* pitch, const StrafeVars& vars)
 {
-	if (!vars.simulated && (sv.paused || tas_gamestate == paused || key_dest != key_game))
-		return;
-
 	if (vars.tas_view_pitch != INVALID_ANGLE)
 	{
 		*pitch = MoveViewTowards(vars.tas_view_pitch, *pitch, false, vars);

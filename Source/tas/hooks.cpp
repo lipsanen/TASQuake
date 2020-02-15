@@ -10,6 +10,7 @@
 #include "simulate.hpp"
 #include "strafing.hpp"
 #include "test.hpp"
+#include "savestate.hpp"
 
 // desc: When set to 1, pauses the game on load
 cvar_t tas_pause_onload = {"tas_pause_onload", "0"};
@@ -67,7 +68,8 @@ void Cmd_TAS_Pause(void)
 
 void Cmd_Print_Seed(void)
 {
-	Con_Printf("Seed is %d\n", Get_RNG_Seed());
+	Con_Printf("Seed is %u\n", Get_RNG_Seed());
+	Con_Printf("Count is %d\n", Get_RNG_Count());
 }
 
 void Cmd_Print_Time(void)
@@ -131,6 +133,9 @@ void TAS_Init()
 	Cmd_AddCommand("-tas_jump", IN_TAS_Jump_Up);
 	Cmd_AddCommand("+tas_lgagst", IN_TAS_Lgagst_Down);
 	Cmd_AddCommand("-tas_lgagst", IN_TAS_Lgagst_Up);
+
+	Cmd_AddCommand("tas_ss", Cmd_TAS_SS);
+	Cmd_AddCommand("tas_ls", Cmd_TAS_LS);
 	Cvar_Register(&tas_playing);
 	Cvar_Register(&tas_pause_onload);
 	Cvar_Register(&tas_strafe);
@@ -163,6 +168,9 @@ void TAS_Init()
 	Cvar_Register(&tas_predict);
 	Cvar_Register(&tas_predict_per_frame);
 	Cvar_Register(&tas_predict_amount);
+	Cvar_Register(&tas_savestate_auto);
+	Cvar_Register(&tas_savestate_interval);
+	Cvar_Register(&tas_savestate_prior);
 }
 
 void TAS_Set_Seed(unsigned int seed)
@@ -219,7 +227,7 @@ void CL_SignonReply_Hook()
 		return;
 
 	if (cls.signon == 4 && tas_gamestate == loading)
-		unpause_countdown = 3;
+		unpause_countdown = 4;
 }
 
 void _Host_Frame_Hook()
@@ -236,26 +244,24 @@ void _Host_Frame_Hook()
 			unpause_countdown = -1;
 			key_dest = key_game;
 			cl.movemessages = 2; // this is some hack to stop the game eating the first few messages, god knows why that has to be a thing
+			Con_Print("unpausing.\n");
 		}
 	}
 
 	Simulate_Frame_Hook();
 	Script_Playback_Host_Frame_Hook();
 
-	if (tas_gamestate == unpaused)
+	Test_Host_Frame_Hook();
+	if (set_seed && tas_gamestate == unpaused)
 	{
-		Test_Host_Frame_Hook();
+		set_seed = false;
+		srand(seed_number);
+		Con_Printf("set seed %u\n", seed_number);
+	}
 
-		if (set_seed && tas_gamestate == unpaused)
-		{
-			set_seed = false;
-			srand(seed_number);
-		}
-
-		char* queued = GetQueuedCommands();
-		if (queued)
-		{
-			Cbuf_AddText(queued);
-		}
+	char* queued = GetQueuedCommands();
+	if (queued)
+	{
+		Cbuf_AddText(queued);
 	}
 }

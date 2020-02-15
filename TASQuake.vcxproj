@@ -267,6 +267,7 @@ del "$(OutDir)%(Filename).spp"
     <ClInclude Include="Source\tas\hooks.h" />
     <ClInclude Include="Source\tas\hud.hpp" />
     <ClInclude Include="Source\tas\reset.hpp" />
+    <ClInclude Include="Source\tas\savestate.hpp" />
     <ClInclude Include="Source\tas\script_parse.hpp" />
     <ClInclude Include="Source\tas\script_playback.hpp" />
     <ClInclude Include="Source\tas\simulate.hpp" />
@@ -346,6 +347,7 @@ del "$(OutDir)%(Filename).spp"
     <ClCompile Include="Source\tas\hooks.cpp" />
     <ClCompile Include="Source\tas\hud.cpp" />
     <ClCompile Include="Source\tas\reset.cpp" />
+    <ClCompile Include="Source\tas\savestate.cpp" />
     <ClCompile Include="Source\tas\script_parse.cpp" />
     <ClCompile Include="Source\tas\script_playback.cpp" />
     <ClCompile Include="Source\tas\simulate.cpp" />

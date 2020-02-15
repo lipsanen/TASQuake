@@ -252,3 +252,28 @@ void CenterPrint(const char* value, ...)
 	vsprintf_s(BUFFER, 80, value, args);
 	SCR_CenterPrint(BUFFER);
 }
+
+void WriteString(std::ostream & os, const char * value)
+{
+	while (value && *value)
+	{
+		os << *value;
+		++value;
+	}
+	os << '\0';
+}
+
+void ReadString(std::ifstream & in, char* value)
+{
+	char c;
+	in >> c;
+
+	while (c != '\0')
+	{
+		*value = c;
+		++value;
+		in >> c;
+	}
+
+	*value = c;
+}

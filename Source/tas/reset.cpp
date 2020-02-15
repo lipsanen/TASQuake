@@ -18,7 +18,8 @@ static const char* const EXCLUDE_CVARS[] = {"gl_texturemode",
                                             "tas_timescale",
                                             "r_norefresh",
                                             "r_overlay",
-                                            "tas_predict"};
+                                            "tas_predict",
+											"tas_savestate"};
 
 static const char* const INCLUDE_SUBSTR[] = {"cl_", "sv_", "tas_", "gl_", "r_", "v_centerspeed"};
 

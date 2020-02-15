@@ -739,7 +739,7 @@ void _Host_Frame (double time)
 		if (!sv.active)
 			CL_SendCmd ();
 
-		if (tas_gamestate != paused)
+		if (tas_gamestate == unpaused)
 			host_time += host_frametime;
 
 		// fetch results from server
@@ -812,7 +812,7 @@ void _Host_Frame (double time)
 	if (host_speeds.value)
 		time2 = Sys_DoubleTime ();
 
-	if (tas_gamestate != paused)
+	if (tas_gamestate == unpaused)
 	{
 		if (cls.signon == SIGNONS)
 		{

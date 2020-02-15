@@ -1,20 +1,24 @@
 #pragma once
 #include <string>
 
+extern const unsigned int NoFilter, Game, Menu, Unpaused, Loading;
+
 struct AfterFrames
 {
-	AfterFrames(int numFrames, const char* cmd);
-	AfterFrames(int numFrames, const std::string& str);
+	AfterFrames(int numFrames, const char* cmd, unsigned int f = 0);
+	AfterFrames(int numFrames, const std::string& str, unsigned int f = Unpaused);
 	AfterFrames();
+	bool Active();
 
 	std::string command;
+	unsigned int filter;
 	int frames;
 };
 
 void PauseAfterframes();
 void UnpauseAfterframes();
 void ClearAfterframes();
-void AddAfterframes(int frames, const char* cmd);
+void AddAfterframes(int frames, const char* cmd, unsigned int f = Unpaused);
 char* GetQueuedCommands();
 
 void Cmd_TAS_AfterFrames();
