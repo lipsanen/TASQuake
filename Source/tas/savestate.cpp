@@ -26,6 +26,8 @@ cvar_t tas_savestate_auto = {"tas_savestate_auto", "1"};
 cvar_t tas_savestate_interval = { "tas_savestate_interval", "72" };
 cvar_t tas_savestate_prior = { "tas_savestate_prior", "10" };
 
+void SS(const char* savename);
+
 static bool Can_Savestate()
 {
 	return cl.movemessages >= 2 && !scr_disabled_for_loading && tas_gamestate != loading && tas_playing.value == 1;
@@ -51,8 +53,8 @@ static void Create_Savestate(int frame, bool force)
 			return;
 	}
 
-	sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "save ss_%d", save_number);
-	Cbuf_AddText(BUFFER);
+	sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "ss_%d", save_number);
+	SS(BUFFER);
 	savestateMap[frame] = Savestate(frame, save_number);
 	++save_number;
 	max_frame = max(max_frame, frame);
@@ -71,7 +73,7 @@ int Savestate_Load_State(int frame)
 		--it;
 		auto elem = it->second;
 		static char BUFFER[80];
-		sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "load ss_%d", elem.number);
+		sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "tas_ls ss_%d", elem.number);
 		tas_gamestate = loading;
 		AddAfterframes(1, "disconnect", NoFilter);
 		AddAfterframes(2, BUFFER, NoFilter);
@@ -236,44 +238,41 @@ static void ReadEnts(std::ifstream& in, char* str)
 	}
 }
 
-static void WriteClientEnt(std::ofstream& out, entity_t* ent, int index)
-{
-	Write(out, index);
-	Write(out, *ent);
-}
-
-static void WriteClientEnts(std::ofstream& out)
-{
-	Write(out, cl.num_entities);
-
-	for (int i = 1; i < cl.num_entities; ++i)
-	{
-		auto ent = &cl_entities[i];
-		WriteClientEnt(out, ent, i);
-	}
-}
-
 static entity_t saved_ents[MAX_EDICTS];
 static int num_entities = 0;
+static client_state_t cl_backup;
 
-static void ReadClientEnt(std::ifstream& in)
+static void WriteClient(std::ofstream& out)
 {
-	int index;
-	Read(in, index);
-	entity_t ent;
-
-	Read(in, index);
-	Read(in, ent);
-	saved_ents[index] = ent;
+	for (int i = 1; i < cl.num_entities; ++i)
+	{
+		if (cl_entities[i].model)
+		{
+			Write(out, i);
+			Write(out, cl_entities[i]);
+		}
+		
+	}
+	Write(out, -1);
+	Write(out, cl);
 }
 
-void Read_CL_Entities(std::ifstream& in)
+void Read_Client(std::ifstream& in)
 {
-	Read(in, num_entities);
-	for (int i = 1; i < num_entities; ++i)
+	for (int i = 1; i < MAX_EDICTS; ++i)
 	{
-		Read(in, cl_entities[i]);
+		saved_ents[i].model = NULL;
 	}
+
+	int index;
+	Read(in, index);
+	while (index != -1)
+	{
+		Read(in, saved_ents[index]);
+		Read(in, index);
+	}
+
+	Read(in, cl_backup);
 }
 
 
@@ -281,20 +280,22 @@ void Copy_Entity(int index)
 {
 #define COPY(prop) cl_entities[index].##prop = saved_ents[index].##prop
 #define VECCOPY(prop) VectorCopy(saved_ents[index].##prop, cl_entities[index].##prop)
-
 	VECCOPY(angles);
 	VECCOPY(angles1);
 	VECCOPY(angles2);
+	VECCOPY(msg_origins[0]);
+	VECCOPY(msg_origins[1]);
+	VECCOPY(origin);
+	VECCOPY(origin1);
+	VECCOPY(origin2);
+	VECCOPY(msg_angles[0]);
+	VECCOPY(msg_angles[1]);
+	VECCOPY(trail_origin);
+
 	COPY(forcelink);
 	COPY(update_type);
 	COPY(baseline);
 	COPY(msgtime);
-	VECCOPY(msg_origins[0]);
-	VECCOPY(msg_origins[1]);
-	VECCOPY(origin);
-	VECCOPY(msg_angles[0]);
-	VECCOPY(msg_angles[1]);
-	VECCOPY(angles);
 	COPY(frame);
 	COPY(syncbase);
 	COPY(effects);
@@ -304,7 +305,6 @@ void Copy_Entity(int index)
 	COPY(dlightbits);
 	COPY(trivial_accept);
 	COPY(modelindex);
-	VECCOPY(trail_origin);
 	COPY(traildrawn);
 	COPY(noshadow);
 	COPY(frame_start_time);
@@ -312,19 +312,15 @@ void Copy_Entity(int index)
 	COPY(pose1);
 	COPY(pose2);
 	COPY(translate_start_time);
-	VECCOPY(origin1);
-	VECCOPY(origin2);
 	COPY(rotate_start_time);
-	VECCOPY(angles1);
-	VECCOPY(angles2);
 	COPY(transparency);
 	COPY(smokepuff_time);
 	COPY(istransparent);
 }
 
-void Restore_CL_Entities()
+void Restore_Client()
 {
-	for (int i = 1; i < num_entities; ++i)
+	for (int i = 1; i < MAX_EDICTS; ++i)
 	{
 		auto& ent = saved_ents[i];
 		if (ent.model)
@@ -332,23 +328,63 @@ void Restore_CL_Entities()
 			Copy_Entity(i);
 		}
 	}
+
+#define COPY2(prop) cl.##prop = cl_backup.##prop
+#define VECCOPY2(prop) VectorCopy(cl_backup.##prop, cl.##prop)
+
+	COPY2(cdtrack);
+	COPY2(cmd);
+	COPY2(completed_time);
+	COPY2(console_ping);
+	COPY2(console_status);
+	COPY2(ctime);
+	COPY2(driftmove);
+	COPY2(faceanimtime);
+	COPY2(gametype);
+	COPY2(idealpitch);
+	COPY2(intermission);
+	COPY2(inwater);
+	COPY2(items);
+	COPY2(laststop);
+	COPY2(last_ping_time);
+	COPY2(last_received_message);
+	COPY2(last_status_time);
+	COPY2(looptrack);
+	COPY2(maxclients);
+	COPY2(movemessages);
+	COPY2(mtime[0]);
+	COPY2(mtime[1]);
+	COPY2(nodrift);
+	COPY2(num_entities);
+	COPY2(num_statics);
+	COPY2(oldtime);
+	COPY2(onground);
+	COPY2(paused);
+	COPY2(pitchvel);
+	COPY2(prev_cshifts[0]);
+	COPY2(prev_cshifts[1]);
+	COPY2(prev_cshifts[2]);
+	COPY2(prev_cshifts[3]);
+	COPY2(time);
+	COPY2(viewheight);
+
+	VECCOPY2(mvelocity[0]);
+	VECCOPY2(mvelocity[1]);
+	VECCOPY2(mviewangles[0]);
+	VECCOPY2(mviewangles[1]);
+	VECCOPY2(mviewangles[1]);
+	VECCOPY2(prev_viewangles);
+	VECCOPY2(punchangle);
+	VECCOPY2(velocity);
+	VECCOPY2(viewangles);
 }
 
-void Cmd_TAS_SS(void)
+void SS(const char* savename)
 {
 	int	i;
 	char name[256];
 
-	if (cmd_source != src_command)
-		return;
-
-	if (Cmd_Argc() != 2)
-	{
-		Con_Printf("tas_ss <savename> : load a game\n");
-		return;
-	}
-
-	sprintf(name, "%s/%s", com_gamedir, Cmd_Argv(1));
+	sprintf(name, "%s/%s", com_gamedir, savename);
 	COM_ForceExtension(name, ".sav");		// joe: force to ".sav"
 	Con_Printf("Saving game to %s...", name);
 
@@ -375,8 +411,7 @@ void Cmd_TAS_SS(void)
 	ED_WriteGlobals(out);
 	WriteEnts(out);
 	Write(out, svs.clients->spawn_parms);
-	//Write(out, cl.viewangles);
-	//WriteClientEnts(out);
+	WriteClient(out);
 
 	out.close();
 	Con_Printf("done.\n");
@@ -444,8 +479,7 @@ void Cmd_TAS_LS(void)
 
 	for (i = 0; i < NUM_SPAWN_PARMS; i++)
 		Read(in, svs.clients->spawn_parms[i]);
-	//Read(in, cl.viewangles);
-	//Read_CL_Entities(in);
+	Read_Client(in);
 
 	in.close();
 

@@ -16,4 +16,4 @@ extern cvar_t tas_savestate_interval;
 extern cvar_t tas_savestate_prior;
 
 void Cmd_TAS_LS(void);
-void Cmd_TAS_SS(void);
+void Restore_Client();
