@@ -188,7 +188,14 @@ TASScript::TASScript(const char* file_name)
 
 void TASScript::Load_From_File()
 {
-	std::ifstream stream(file_name);
+	std::ifstream stream;
+
+	if (!Open_Stream(stream, file_name.c_str()))
+	{
+		Con_Printf("Unable to open script %s\n", file_name.c_str());
+		return;
+	}
+
 	FrameBlock fb;
 	int running_frame = 0;
 	int line_number = 0;
@@ -209,6 +216,7 @@ void TASScript::Load_From_File()
 		}
 		if (fb.parsed)
 			blocks.push_back(fb);
+		Con_Printf("Script %s loaded with %u blocks.\n", file_name.c_str(), blocks.size());
 	}
 	catch (const std::exception& e)
 	{
@@ -291,7 +299,14 @@ void TASScript::Write_To_File()
 		return;
 	}
 
-	std::ofstream os(file_name);
+	std::ofstream os;
+
+	if (!Open_Stream(os, file_name.c_str()))
+	{
+		Con_Printf("Unable to write to %s\n", file_name.c_str());
+		return;
+	}
+
 	int current_frame = 0;
 
 	for (auto& block : blocks)

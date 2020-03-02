@@ -8,12 +8,10 @@ void Savestate_Playback_Started(int target_frame);
 // desc: Make a manual savestate on current frame
 void Cmd_TAS_Savestate(void);
 
-// desc: When set to 1, use automatic savestates.
+// desc: When set to 1, use automatic savestates in level transitions.
 extern cvar_t tas_savestate_auto;
-// desc: How often the game should automatically savestate
-extern cvar_t tas_savestate_interval;
-// desc: How many seconds prior to the skipped frame should the script start savestating?
-extern cvar_t tas_savestate_prior;
+// desc: Enable/disable savestates in TASes.
+extern cvar_t tas_savestate_enabled;
 
 void Cmd_TAS_LS(void);
 void Restore_Client();

@@ -2,6 +2,7 @@
 #include <cmath>
 #include <cstdint>
 #include <string>
+#include <filesystem>
 
 #include "cpp_quakedef.hpp"
 
@@ -276,4 +277,46 @@ void ReadString(std::ifstream & in, char* value)
 	}
 
 	*value = c;
+}
+
+bool Create_Folder_If_Not_Exists(const char* file_name)
+{
+	std::experimental::filesystem::path path = file_name;
+
+	if (!path.has_parent_path())
+	{
+		return false;
+	}
+
+	auto parent = path.parent_path();
+
+	if (!std::experimental::filesystem::exists(parent))
+	{
+		std::experimental::filesystem::create_directory(parent);
+	}
+
+
+	return true;
+}
+
+bool Open_Stream(std::ofstream & os, const char * file_name, int mode)
+{
+	if(!Create_Folder_If_Not_Exists(file_name))
+		return false;
+
+	os.open(file_name, mode);
+
+	return os.good();
+}
+
+bool Open_Stream(std::ifstream & in, const char * file_name, unsigned int mode)
+{
+	std::experimental::filesystem::path path = file_name;
+
+	if(!std::experimental::filesystem::exists(path) || std::experimental::filesystem::is_directory(path))
+		return false;
+
+	in.open(file_name, mode);
+
+	return in.good();
 }

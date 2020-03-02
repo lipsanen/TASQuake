@@ -311,18 +311,28 @@ void TestCase::SaveToFile()
 {
 	char buff[FILENAME_MAX];
 	_getcwd(buff, FILENAME_MAX);
-	Con_Printf("Writing test case to %s/%s\n", buff, path.c_str());
-	std::ofstream os(path, std::ios::binary | std::ios::out);
+	Con_Printf("Writing test case to %s/%s...", buff, path.c_str());
+	std::ofstream os;
+	if (!Open_Stream(os, path.c_str(), std::ios::binary | std::ios::out))
+	{
+		Con_Printf("failed to open file %s\n", path.c_str());
+		return;
+	}
 	os << *this;
 	os.close();
+
+	Con_Print("done.\n");
 }
 
 TestCase TestCase::LoadFromFile(char* file_name)
 {
 	TestCase c;
-	std::ifstream is(file_name, std::ios::binary | std::ios::in);
-	if (!is.good())
-		Con_Printf("opened no good\n");
+	std::ifstream is;
+	if (!Open_Stream(is, file_name, std::ios::binary | std::ios::out))
+	{
+		Con_Printf("Couldn't open test case %s.\n", file_name);
+		return c;
+	}
 	is >> c;
 	return c;
 }
