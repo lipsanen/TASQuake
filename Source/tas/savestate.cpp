@@ -18,19 +18,16 @@ struct Savestate
 
 static int save_number = 0;
 static int current_frame = 0;
-static int min_frame = 0;
-static int max_frame = 0;
 static bool in_playback = false;
 static std::map<int, Savestate> savestateMap;
 cvar_t tas_savestate_auto = {"tas_savestate_auto", "1"};
-cvar_t tas_savestate_interval = { "tas_savestate_interval", "72" };
-cvar_t tas_savestate_prior = { "tas_savestate_prior", "10" };
+cvar_t tas_savestate_enabled = {"tas_savestate_enabled", "1"};
 
 void SS(const char* savename);
 
 static bool Can_Savestate()
 {
-	return cl.movemessages >= 2 && !scr_disabled_for_loading && tas_gamestate != loading && tas_playing.value == 1;
+	return cls.state == ca_connected && cls.signon == SIGNONS && tas_playing.value == 1;
 }
 
 static void Create_Savestate(int frame, bool force)
@@ -53,41 +50,55 @@ static void Create_Savestate(int frame, bool force)
 			return;
 	}
 
-	sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "ss_%d", save_number);
+	sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "savestates/ss_%d", save_number);
 	SS(BUFFER);
 	savestateMap[frame] = Savestate(frame, save_number);
 	++save_number;
-	max_frame = max(max_frame, frame);
 }
 
 int Savestate_Load_State(int frame)
 {
-	if (savestateMap.empty())
+	if (savestateMap.empty() || tas_savestate_enabled.value == 0)
 		return -1;
 
+	auto exact_match = savestateMap.find(frame);
 	auto it = savestateMap.lower_bound(frame);
-	if(it == savestateMap.begin())
+
+	int number;
+	int savestate_frame;
+
+
+	if (exact_match != savestateMap.end())
+	{
+		auto elem = exact_match->second;
+		savestate_frame = elem.frame;
+		number = elem.number;
+	}
+	else if (it == savestateMap.begin())
 		return -1;
 	else
 	{
 		--it;
 		auto elem = it->second;
-		static char BUFFER[80];
-		sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "tas_ls ss_%d", elem.number);
-		tas_gamestate = loading;
-		AddAfterframes(1, "disconnect", NoFilter);
-		AddAfterframes(2, BUFFER, NoFilter);
-
-		return elem.frame;
+		savestate_frame = elem.frame;
+		number = elem.number;
 	}
+
+	static char BUFFER[80];
+	sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "tas_ls savestates/ss_%d", number);
+	tas_gamestate = loading;
+	AddAfterframes(1, "disconnect", NoFilter);
+	AddAfterframes(2, BUFFER, NoFilter);
+
+
+	return savestate_frame;
 }
 
 void Savestate_Frame_Hook(int frame)
 {
 	current_frame = frame;
-	int interval = static_cast<int>(tas_savestate_interval.value);
 
-	if (frame - max_frame >= interval && frame >= min_frame && tas_savestate_auto.value != 0)
+	if (cl.movemessages == 0 && frame > 10)
 		Create_Savestate(frame, false);
 }
 
@@ -99,20 +110,12 @@ void Savestate_Script_Updated(int frame)
 	if (savestateMap.empty())
 	{
 		save_number = 0;
-		max_frame = 0;
-		min_frame = 0;
-	}
-	else
-	{
-		auto last = savestateMap.rbegin();
-		max_frame = last->first;
 	}
 }
 
 void Savestate_Playback_Started(int target_frame)
 {
 	const int fps = 72;
-	min_frame = target_frame - static_cast<int>(fps * tas_savestate_prior.value);
 }
 
 void Cmd_TAS_Savestate(void)
@@ -389,11 +392,10 @@ void SS(const char* savename)
 	Con_Printf("Saving game to %s...", name);
 
 	std::ofstream out;
-	out.open(name, std::ios::binary);
 
-	if (out.bad() || out.eof())
+	if (!Open_Stream(out, name, std::ios::binary | std::ios::out))
 	{
-		Con_Printf("ERROR: couldn't open\n");
+		Con_Printf("ERROR: couldn't open file %s\n", name);
 		return;
 	}
 

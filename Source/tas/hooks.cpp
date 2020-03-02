@@ -134,7 +134,6 @@ void TAS_Init()
 	Cmd_AddCommand("+tas_lgagst", IN_TAS_Lgagst_Down);
 	Cmd_AddCommand("-tas_lgagst", IN_TAS_Lgagst_Up);
 
-	Cmd_AddCommand("tas_ss", Cmd_TAS_SS);
 	Cmd_AddCommand("tas_ls", Cmd_TAS_LS);
 	Cvar_Register(&tas_playing);
 	Cvar_Register(&tas_pause_onload);
@@ -164,13 +163,13 @@ void TAS_Init()
 	Cvar_Register(&tas_hud_waterlevel);
 	Cvar_Register(&tas_hud_state);
 	Cvar_Register(&tas_hud_strafe);
+	Cvar_Register(&tas_hud_movemessages);
 	Cvar_Register(&tas_timescale);
 	Cvar_Register(&tas_predict);
 	Cvar_Register(&tas_predict_per_frame);
 	Cvar_Register(&tas_predict_amount);
 	Cvar_Register(&tas_savestate_auto);
-	Cvar_Register(&tas_savestate_interval);
-	Cvar_Register(&tas_savestate_prior);
+	Cvar_Register(&tas_savestate_enabled);
 }
 
 void TAS_Set_Seed(unsigned int seed)
@@ -249,13 +248,11 @@ void _Host_Frame_Hook()
 
 	Simulate_Frame_Hook();
 	Script_Playback_Host_Frame_Hook();
-
 	Test_Host_Frame_Hook();
 	if (set_seed && tas_gamestate == unpaused)
 	{
 		set_seed = false;
 		srand(seed_number);
-		Con_Printf("set seed %u\n", seed_number);
 	}
 
 	char* queued = GetQueuedCommands();

@@ -15,7 +15,7 @@
 
 static PlaybackInfo playback;
 const int LOWEST_FRAME = 0;
-const int LOWEST_BLOCK = 2;
+const int LOWEST_BLOCK = 0;
 static char BUFFER[256];
 
 enum class MouseState
@@ -47,11 +47,6 @@ static bool Set_Pause_Frame(int pause_frame)
 	if (playback.Get_Number_Of_Blocks() == 0)
 	{
 		Con_Print("No script loaded\n");
-		return false;
-	}
-	else if (pause_frame < LOWEST_FRAME)
-	{
-		Con_Printf("Cannot go to frame below %d.\n", LOWEST_FRAME);
 		return false;
 	}
 	else if (pause_frame >= 0)
@@ -341,7 +336,7 @@ void Script_Playback_Host_Frame_Hook()
 	if (tas_gamestate == paused || !playback.script_running)
 		return;
 	else if (playback.current_frame >= playback.pause_frame 
-	&& !svs.changelevel_issued && !scr_disabled_for_loading) // make sure we dont TAS pause mid-load
+	&& !svs.changelevel_issued && !scr_disabled_for_loading && (cls.state == ca_connected && cls.signon >= SIGNONS)) // make sure we dont TAS pause mid-load
 	{
 		tas_gamestate = paused;
 		playback.script_running = false;
@@ -460,7 +455,6 @@ void Cmd_TAS_Script_Load(void)
 	playback.last_edited = Sys_DoubleTime();
 	tas_playing.value = 0;
 	tas_gamestate = unpaused;
-	Con_Printf("Script %s loaded with %u blocks.\n", Cmd_Argv(1), playback.current_script.blocks.size());
 	Cbuf_AddText("disconnect");
 }
 

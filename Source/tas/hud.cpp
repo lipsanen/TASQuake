@@ -36,6 +36,8 @@ cvar_t tas_hud_pos_y = {"tas_hud_pos_y", "60"};
 cvar_t tas_hud_pos_inc = {"tas_hud_pos_inc", "8"};
 //desc: Displays a bar that tells you how well you are strafing.
 cvar_t tas_hud_strafe = {"tas_hud_strafe", "0"};
+//desc: Displays movemessages sent
+cvar_t tas_hud_movemessages = {"tas_hud_movemessages", "0"};
 
 void Draw(int& y, cvar_t* cvar, const char* format, ...)
 {
@@ -313,6 +315,7 @@ void HUD_Draw_Hook()
 	Draw(y, &tas_hud_frame, "frame: %d / %d", info.current_frame, last_frame);
 	Draw(y, &tas_hud_block, "block: %d / %d", current_block_no, blocks - 1);
 	Draw(y, &tas_hud_waterlevel, "waterlevel: %d", (int)sv_player->v.waterlevel);
+	Draw(y, &tas_hud_movemessages, "cl.movemessages: %d", cl.movemessages);
 	Draw_PFlags(y);
 	DrawFrameState(y, info);
 	Draw_StrafeStuff(player_data);
