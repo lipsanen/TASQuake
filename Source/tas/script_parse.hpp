@@ -12,6 +12,27 @@ struct Bookmark
 	bool frame;
 };
 
+enum class HookEnum
+{
+	None,          // Execute like a normal command right after the previous one
+	CommandFinish, // Execute after a special command has finished that reports to the tester
+	LevelChange // Execute when level change has completed
+};
+
+struct TestBlock
+{
+	HookEnum hook; // The hook used for the test block
+	int hook_count; // How many iterations of this hook should complete before performing the action
+	int afterframes; // How many frames after the hook has fired should it be executed
+	unsigned int afterframes_filter; // Filter for the afterframes command
+	std::string command; // The command to be executed
+
+
+	void Write_To_Stream(std::ostream& os);
+	TestBlock(const std::string& line);
+	TestBlock();
+};
+
 struct FrameBlock
 {
 	FrameBlock();
@@ -44,5 +65,17 @@ public:
 	void Write_To_File();
 	std::vector<FrameBlock> blocks;
 	std::map<std::string, Bookmark> bookmarks;
+	std::string file_name;
+};
+
+class TestScript
+{
+public:
+	TestScript();
+	TestScript(const char* file_name);
+	void Load_From_File();
+	void Write_To_File();
+	std::vector<TestBlock> blocks;
+	TestBlock exit_block;
 	std::string file_name;
 };

@@ -340,3 +340,156 @@ Bookmark::Bookmark(int index, bool frame)
 	this->index = index;
 	this->frame = frame;
 }
+
+TestScript::TestScript()
+{
+}
+
+TestScript::TestScript(const char * file_name)
+{
+	this->file_name = file_name;
+}
+
+void TestScript::Load_From_File()
+{
+	std::ifstream stream;
+
+	if (!Open_Stream(stream, file_name.c_str()))
+	{
+		Con_Printf("Unable to open test %s\n", file_name.c_str());
+		return;
+	}
+
+	int running_frame = 0;
+	int line_number = 0;
+	std::string current_line;
+
+	try
+	{
+		while (stream.good() && !stream.eof())
+		{
+			TestBlock block(current_line);
+			running_frame += block.afterframes;
+			Parse_Newline(stream, current_line);
+			++line_number;
+
+			if(!Is_Whitespace(current_line))
+				blocks.push_back(TestBlock(current_line));
+		}
+		
+		Con_Printf("Test %s loaded with %u blocks.\n", file_name.c_str(), blocks.size());
+	}
+	catch (const std::exception& e)
+	{
+		Con_Printf("Error parsing line %d: %s\n", line_number, e.what());
+	}
+}
+
+void TestScript::Write_To_File()
+{
+	if (blocks.empty())
+	{
+		Con_Printf("Cannot write an empty test to file!\n");
+		return;
+	}
+
+	std::ofstream os;
+
+	if (!Open_Stream(os, file_name.c_str()))
+	{
+		Con_Printf("Unable to write to %s\n", file_name.c_str());
+		return;
+	}
+
+	for (auto& block : blocks)
+	{
+		block.Write_To_Stream(os);
+	}
+
+	Con_Printf("Wrote script to file %s\n", file_name.c_str());
+}
+
+void TestBlock::Write_To_Stream(std::ostream & os)
+{
+	switch (this->hook)
+	{
+	case HookEnum::None:
+		os << 'n';
+		break;
+	case HookEnum::LevelChange:
+		os << 'l';
+		break;
+	case HookEnum::CommandFinish:
+		os << 'f';
+		break;
+	default:
+		break;
+	}
+
+	os << '\t' << this->afterframes << '\t';
+
+	for (int i = 0; i < 5; ++i)
+	{
+		
+		if(this->afterframes_filter & (4 - i) != 0)
+			os << '1';
+		else
+			os << '0';
+	}
+
+	os << '\t';
+	os << this->command << '\n';
+}
+
+TestBlock::TestBlock(const std::string& line)
+{
+	char cmd_buffer[256];
+	char filter[5];
+	int frames;
+	char hook;
+
+	int read = sscanf_s(line.c_str(), "%c\t%d\t%4s\t%s", hook, frames, filter, cmd_buffer);
+
+	if (read != 4)
+		throw std::exception("Unable to read all required variables from line.");
+
+	this->afterframes = frames;
+
+	if(this->afterframes < 0)
+	 throw std::exception("Afterframes cannot be negative.");
+
+	switch (hook)
+	{
+	case 'n':
+		this->hook = HookEnum::None;
+		break;
+	case 'f':
+		this->hook = HookEnum::CommandFinish;
+		break;
+	case 'l':
+		this->hook = HookEnum::LevelChange;
+		break;
+	default:
+		throw std::exception("invalid hook type");
+	}
+
+	this->afterframes_filter = 0;
+
+	for (int i = 0; i < 5; ++i)
+	{
+		if (filter[i] == '1')
+			this->afterframes_filter |= 1 << (4 - i);
+		else if (filter[i] != '0')
+			throw std::exception("Invalid bit in filter.");
+	}
+	
+	command = cmd_buffer;
+}
+
+TestBlock::TestBlock()
+{
+	afterframes_filter = 0;
+	afterframes = 0;
+	hook_count = 0;
+	hook = HookEnum::None;
+}
