@@ -431,7 +431,7 @@ void TestBlock::Write_To_Stream(std::ostream & os)
 	for (int i = 0; i < 5; ++i)
 	{
 		
-		if(this->afterframes_filter & (4 - i) != 0)
+		if((this->afterframes_filter & (4 - i)) != 0)
 			os << '1';
 		else
 			os << '0';
@@ -443,11 +443,12 @@ void TestBlock::Write_To_Stream(std::ostream & os)
 
 TestBlock::TestBlock(const std::string& line)
 {
-	char cmd_buffer[256];
+	/*char cmd_buffer[256];
 	char filter[5];
 	int frames;
 	char hook;
 
+	
 	int read = sscanf_s(line.c_str(), "%c\t%d\t%4s\t%s", hook, frames, filter, cmd_buffer);
 
 	if (read != 4)
@@ -483,7 +484,7 @@ TestBlock::TestBlock(const std::string& line)
 			throw std::exception("Invalid bit in filter.");
 	}
 	
-	command = cmd_buffer;
+	command = cmd_buffer;*/
 }
 
 TestBlock::TestBlock()
