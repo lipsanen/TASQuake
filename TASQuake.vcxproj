@@ -264,8 +264,10 @@ del "$(OutDir)%(Filename).spp"
     <ClInclude Include="Source\tas\afterframes.hpp" />
     <ClInclude Include="Source\tas\cpp_quakedef.hpp" />
     <ClInclude Include="Source\tas\draw.hpp" />
+    <ClInclude Include="Source\tas\ent_export.hpp" />
     <ClInclude Include="Source\tas\hooks.h" />
     <ClInclude Include="Source\tas\hud.hpp" />
+    <ClInclude Include="Source\tas\json.hpp" />
     <ClInclude Include="Source\tas\reset.hpp" />
     <ClInclude Include="Source\tas\savestate.hpp" />
     <ClInclude Include="Source\tas\script_parse.hpp" />
@@ -344,6 +346,7 @@ del "$(OutDir)%(Filename).spp"
     <ClCompile Include="Source\sys_win.c" />
     <ClCompile Include="Source\tas\afterframes.cpp" />
     <ClCompile Include="Source\tas\draw.cpp" />
+    <ClCompile Include="Source\tas\ent_export.cpp" />
     <ClCompile Include="Source\tas\hooks.cpp" />
     <ClCompile Include="Source\tas\hud.cpp" />
     <ClCompile Include="Source\tas\reset.cpp" />
