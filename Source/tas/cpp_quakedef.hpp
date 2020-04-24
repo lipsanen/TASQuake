@@ -4,3 +4,5 @@ extern "C"
 {
 #include "..\quakedef.h"
 }
+
+#include "json.hpp"

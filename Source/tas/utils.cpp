@@ -233,6 +233,19 @@ float Round(double val, double acc)
 	return static_cast<float>(val);
 }
 
+int IRound(double val, double acc)
+{
+	double multiple = std::round(val / acc);
+
+	return static_cast<int>(multiple);
+}
+
+double DRound(double val, double acc)
+{
+	double multiple = std::round(val / acc);
+	return multiple * acc;
+}
+
 float Get_Default_Value(const char* name)
 {
 	float f;

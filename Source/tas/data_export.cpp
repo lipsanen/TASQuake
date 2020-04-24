@@ -1,15 +1,16 @@
-#include "ent_export.hpp"
+#include "data_export.hpp"
 #include "utils.hpp"
 #include <fstream>
+#include <sstream>
+#include <iomanip>
 
 
-static nlohmann::json Ent_To_Json(edict_t* ent, int index)
+static nlohmann::json Ent_To_Json(edict_t* ent)
 {
 #define COPY(prop) if (ent->v.prop != 0) out[#prop] = ent->v.prop;
 #define VEC_COPY(prop) COPY(prop[0]) COPY(prop[1]) COPY(prop[2])
 
 	nlohmann::json out;
-	out["index"] = index;
 
 	VEC_COPY(absmin);
 	VEC_COPY(absmax);
@@ -92,28 +93,71 @@ static nlohmann::json Ent_To_Json(edict_t* ent, int index)
 
 	return out;
 }
-
-nlohmann::json Ents_To_Json()
+static nlohmann::json Ent_To_Json_Compact(edict_t* ent)
 {
+	const double eps = 1e-4;
+
+#define COPY_ROUND(prop) if (ent->v.prop != 0) out[#prop] = IRound(ent->v.prop, eps);
+#define VEC_COPY_ROUND(prop) COPY_ROUND(prop[0]) COPY_ROUND(prop[1]) COPY_ROUND(prop[2])
+
 	nlohmann::json out;
+
+	VEC_COPY_ROUND(origin);
+	VEC_COPY_ROUND(v_angle);
+	COPY_ROUND(nextthink);
+
+	return out;
+}
+
+
+nlohmann::json Dump_SV()
+{
+	const double eps = 1e-4;
+	nlohmann::json ents, out;
+	char BUFFER[5];
 
 	for (int i = 0; i < sv.num_edicts; ++i)
 	{
 		auto ptr = EDICT_NUM(i);
 		if (!ptr->free)
 		{
-			out[i] = Ent_To_Json(ptr, i);
+			sprintf_s(BUFFER, 5, "%04d", i);
+			ents[BUFFER] = Ent_To_Json(ptr);
 		}
 	}
+
+
+	out["time"] = sv.time;
+	out["lastcheck"] = sv.lastcheck;
+	out["lastchecktime"] = sv.lastchecktime;
+	out["seed"] = Get_RNG_Seed();
+	out["entities"] = ents;
 
 	return out;
 }
 
-void Cmd_TAS_Dump_Ents()
+nlohmann::json Dump_Test()
+{
+	const double eps = 1e-4;
+	nlohmann::json out;
+
+	out["time"] = IRound(sv.time, eps);
+	out["lastchecktime"] = IRound(sv.lastchecktime, eps);
+	out["seed"] = Get_RNG_Seed();
+
+	auto ptr = EDICT_NUM(1);
+
+	if (!ptr->free)
+		out["player"] = Ent_To_Json_Compact(ptr);
+
+	return out;
+}
+
+void Cmd_TAS_Dump_SV()
 {
 	if (Cmd_Argc() <= 1)
 	{
-		Con_Print("Usage: tas_dump_ents <filename>\n");
+		Con_Print("Usage: tas_dump_sv <filename>\n");
 		return;
 	}
 
@@ -121,7 +165,7 @@ void Cmd_TAS_Dump_Ents()
 	sprintf(name, "%s/%s", com_gamedir, Cmd_Argv(1));
 	COM_ForceExtension(name, ".json");
 
-	auto json = Ents_To_Json();
+	auto json = Dump_SV();
 	std::ofstream os;
 	if (!Open_Stream(os, name))
 	{

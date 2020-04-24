@@ -44,6 +44,8 @@ bool Create_Folder_If_Not_Exists(const char * file_name);
 // std::ifstream/ofstream::open has different integer type based on whether or not it's an input/output stream. Yes.
 bool Open_Stream(std::ofstream& os, const char* file_name, int mode=std::ios_base::out);
 bool Open_Stream(std::ifstream& in, const char* file_name, unsigned int mode=std::ios_base::in);
+int IRound(double val, double acc);
+double DRound(double val, double acc);
 
 #define VectorLength2D(x) std::sqrt(x[0] * x[0] + x[1] * x[1])
 

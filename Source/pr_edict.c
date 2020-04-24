@@ -379,11 +379,11 @@ char *PR_UglyValueString (etype_t type, eval_t *val)
 		break;
 
 	case ev_float:
-		sprintf (line, "%.10f", val->_float);
+		sprintf (line, "%f", val->_float);
 		break;
 
 	case ev_vector:
-		sprintf (line, "%.10f %.10f %.10f", val->vector[0], val->vector[1], val->vector[2]);
+		sprintf (line, "%f %f %f", val->vector[0], val->vector[1], val->vector[2]);
 		break;
 
 	default:
