@@ -5,37 +5,24 @@
 #include <zlib.h>
 
 #include "cpp_quakedef.hpp"
+#include "data_export.hpp"
 #include "utils.hpp"
 #include "test.hpp"
-
-class DataFrame
-{
-	unsigned int saved_seed;
-	float saved_time;
-	std::map<int, edict_t> saved_edicts;
-
-public:
-	DataFrame() {}
-	void BuildFrame();
-	void Clear();
-	bool Has_Edict(int index) const;
-	const edict_t& Get_Edict(int index) const;
-	bool operator==(const DataFrame& rhs) const;
-	bool operator!=(const DataFrame& rhs) const;
-	friend std::ostream& operator<<(std::ostream& out, const DataFrame& c);
-	friend std::istream& operator>>(std::istream& in, DataFrame& c);
-};
+#include "reset.hpp"
 
 class TestCase
 {
 private:
-	std::vector<DataFrame> data_frames;
+	nlohmann::json initial_data;
+	std::vector<nlohmann::json> deltas;
 	int frame_count;
 	std::string path;
 
 public:
+	nlohmann::json current;
 	TestCase();
 	TestCase(int frames, const std::string& filepath);
+	void Apply(int frame);
 	int FrameCount()
 	{
 		return frame_count;
@@ -44,8 +31,7 @@ public:
 	{
 		return path;
 	}
-	bool GenerateFrame();
-	bool operator!=(const TestCase& rhs) const;
+	void GenerateFrame();
 	void Clear();
 	friend std::ostream& operator<<(std::ostream& out, const TestCase& c);
 	friend std::istream& operator>>(std::istream& in, TestCase& c);
@@ -53,27 +39,35 @@ public:
 	static TestCase LoadFromFile(char* file_name);
 };
 
-static TestCase lhsCase;
-static TestCase rhsCase;
+static TestCase oldCase;
+static TestCase newCase;
+static int test_frame = 0;
 static bool collecting_data = false;
 static bool generating_test = false;
 static bool running_comparison = false;
 
-void Compare()
+void Compare(bool final_iteration=false)
 {
-	if (lhsCase != rhsCase)
+	if (oldCase.current != newCase.current)
 	{
-		Con_Printf("Test failed.\n");
+		auto patch = nlohmann::json::diff(newCase.current, oldCase.current).dump(4);
+		Con_Printf("Test failed, differences on frame %d\n", test_frame);
+		Con_Print(const_cast<char*>(patch.c_str()));
+		running_comparison = false;
+		generating_test = false;
+		collecting_data = false;
+		Cmd_TAS_Cmd_Reset();
+		sv.paused = qtrue;
 	}
-	else
+	else if (final_iteration)
 	{
-		Con_Printf("Test succeeded.\n");
+		Con_Print("Test ran successfully.\n");
 	}
 }
 
 void Write_To_File()
 {
-	rhsCase.SaveToFile();
+	newCase.SaveToFile();
 }
 
 void Test_Host_Frame_Hook()
@@ -83,17 +77,28 @@ void Test_Host_Frame_Hook()
 
 	if (collecting_data)
 	{
-		bool result = rhsCase.GenerateFrame();
-		if (!result)
+		newCase.GenerateFrame();
+		if (test_frame >= newCase.FrameCount() - 1)
 		{
 			if (running_comparison)
-				Compare();
+				Compare(true);
 			else if (generating_test)
 				Write_To_File();
+
 			running_comparison = false;
 			generating_test = false;
 			collecting_data = false;
 		}
+		else
+		{
+			if (running_comparison)
+			{
+				oldCase.Apply(test_frame);
+				Compare();
+			}
+				
+		}
+		++test_frame;
 	}
 }
 
@@ -117,9 +122,10 @@ void Cmd_GenerateTest(void)
 	sprintf(buf, "%s/test/%s.qd", com_gamedir, Cmd_Argv(1));
 
 	int frames = std::atoi(Cmd_Argv(2));
-	rhsCase = TestCase(frames, buf);
+	newCase = TestCase(frames, buf);
 	generating_test = true;
 	collecting_data = true;
+	test_frame = 0;
 	Con_Printf("Started generating test %s\n", buf);
 }
 
@@ -139,129 +145,18 @@ void Cmd_Run_Test(void)
 	}
 
 	sprintf(buf, "%s/test/%s.qd", com_gamedir, Cmd_Argv(1));
-	lhsCase = TestCase::LoadFromFile(buf);
-	if (lhsCase.FrameCount() == 0)
+	oldCase = TestCase::LoadFromFile(buf);
+	if (oldCase.FrameCount() == 0)
 	{
 		Con_Printf("Failed to load testcase from file %s.\n", buf);
 		return;
 	}
 
-	rhsCase = TestCase(lhsCase.FrameCount(), lhsCase.Filepath());
+	newCase = TestCase(oldCase.FrameCount(), oldCase.Filepath());
 	running_comparison = true;
 	collecting_data = true;
+	test_frame = 0;
 	Con_Printf("Started running test %s\n", Cmd_Argv(2));
-}
-
-void DataFrame::BuildFrame()
-{
-	Clear();
-
-	this->saved_seed = Get_RNG_Seed();
-	this->saved_time = sv.time;
-
-	for (int i = 0; i < sv.num_edicts; ++i)
-	{
-		edict_t* ent = EDICT_NUM(i);
-		if (!ent->free)
-		{
-			saved_edicts[i] = *ent;
-		}
-	}
-}
-
-void DataFrame::Clear()
-{
-	this->saved_seed = 0;
-	this->saved_time = 0;
-	saved_edicts.clear();
-}
-
-bool DataFrame::Has_Edict(int index) const
-{
-	return saved_edicts.find(index) != saved_edicts.end();
-}
-
-bool EdictsEqual(const edict_t& edict1, const edict_t& edict2)
-{
-	for (int i = 0; i < 3; ++i)
-	{
-		if (edict1.v.origin[i] != edict1.v.origin[i])
-		{
-			Con_DPrintf("Pos difference at coordinate %d\n", i);
-			return false;
-		}
-
-		if (edict1.v.velocity[i] != edict1.v.velocity[i])
-		{
-			Con_DPrintf("Vel difference at coordinate %d\n", i);
-			return false;
-		}
-
-		if (edict1.v.angles[i] != edict2.v.angles[i])
-		{
-			Con_DPrintf("Angle difference at coordinate %d\n", i);
-			return false;
-		}
-
-		if (edict1.v.nextthink != edict2.v.nextthink)
-		{
-			Con_DPrintf("Next think difference at %d: %.8f != %.8f\n", i, edict1.v.nextthink, edict2.v.nextthink);
-			return false;
-		}
-	}
-
-	return true;
-}
-
-const edict_t& DataFrame::Get_Edict(int index) const
-{
-	return saved_edicts.at(index);
-}
-
-bool DataFrame::operator==(const DataFrame& other) const
-{
-	int edicts_size = saved_edicts.size();
-	int other_edicts_size = other.saved_edicts.size();
-	bool out = true;
-
-	if (edicts_size != other_edicts_size)
-	{
-		Con_DPrintf("Size: %d != %d\n", edicts_size, other_edicts_size);
-		out = false;
-	}
-	else
-	{
-		for (auto& entry : saved_edicts)
-		{
-			int key = entry.first;
-
-			if (!other.Has_Edict(key) || !EdictsEqual(entry.second, other.Get_Edict(key)))
-			{
-				Con_DPrintf("Difference spotted in edict %d\n", key);
-				out = false;
-				break;
-			}
-		}
-	}
-
-	if (saved_time != other.saved_time)
-	{
-		Con_DPrintf("Time is different, %.8f != %.8f\n", saved_time, other.saved_time);
-		out = false;
-	}
-
-	if (saved_seed != other.saved_seed)
-	{
-		out = false;
-		Con_DPrintf("Seed is different\n");
-	}
-
-	return out;
-}
-
-bool DataFrame::operator!=(const DataFrame& rhs) const
-{
-	return !(*this == rhs);
 }
 
 TestCase::TestCase() {}
@@ -272,39 +167,35 @@ TestCase::TestCase(int frames, const std::string& filepath)
 	path = filepath;
 }
 
-bool TestCase::GenerateFrame()
+void TestCase::Apply(int frame)
 {
-	DataFrame frame;
-	frame.BuildFrame();
-	data_frames.push_back(frame);
-
-	return data_frames.size() < frame_count;
+	if(frame == 0)
+		current = initial_data;
+	else
+		current.patch(deltas[frame-1]);
 }
 
-bool TestCase::operator!=(const TestCase& rhs) const
+void TestCase::GenerateFrame()
 {
-	if (data_frames.size() != rhs.data_frames.size())
+	auto dump = Dump_SV();
+	if (test_frame == 0)
 	{
-		Con_Printf("Test failed, data has different amount of frames.\n");
-		return true;
+		current = dump;
+		initial_data = current;
 	}
-
-	for (int i = 0; i < data_frames.size(); ++i)
+	else
 	{
-		if (data_frames[i] != rhs.data_frames[i])
-		{
-			Con_Printf("Test failed at frame %d\n", i);
-			return true;
-		}
+		auto delta = nlohmann::json::diff(current, dump);
+		deltas.push_back(delta);
+		current = dump;
 	}
-
-	return false;
 }
+
 
 void TestCase::Clear()
 {
 	frame_count = 0;
-	data_frames.clear();
+	deltas.clear();
 }
 
 void TestCase::SaveToFile()
@@ -313,7 +204,7 @@ void TestCase::SaveToFile()
 	_getcwd(buff, FILENAME_MAX);
 	Con_Printf("Writing test case to %s/%s...", buff, path.c_str());
 	std::ofstream os;
-	if (!Open_Stream(os, path.c_str(), std::ios::binary | std::ios::out))
+	if (!Open_Stream(os, path.c_str(), std::ios::out))
 	{
 		Con_Printf("failed to open file %s\n", path.c_str());
 		return;
@@ -328,7 +219,7 @@ TestCase TestCase::LoadFromFile(char* file_name)
 {
 	TestCase c;
 	std::ifstream is;
-	if (!Open_Stream(is, file_name, std::ios::binary | std::ios::out))
+	if (!Open_Stream(is, file_name, std::ios::in))
 	{
 		Con_Printf("Couldn't open test case %s.\n", file_name);
 		return c;
@@ -337,70 +228,14 @@ TestCase TestCase::LoadFromFile(char* file_name)
 	return c;
 }
 
-std::ostream& operator<<(std::ostream& out, const DataFrame& df)
-{
-	Write(out, df.saved_seed);
-	Write(out, df.saved_time);
-	Write(out, df.saved_edicts.size());
 
-	for (auto& entry : df.saved_edicts)
-	{
-		Write(out, entry.first);
-
-		for (int i = 0; i < sizeof(entvars_t) / 4; ++i)
-		{
-			const int* pointer = reinterpret_cast<const int*>(&entry.second.v) + i;
-			if (*pointer != 0)
-			{
-				Write(out, (short)(i * 4));
-				Write(out, *pointer, 0);
-			}
-		}
-
-		Write(out, (short)-1);
-	}
-
-	return out;
-}
-
-std::istream& operator>>(std::istream& in, DataFrame& df)
-{
-	df.Clear();
-	Read(in, df.saved_seed);
-	Read(in, df.saved_time);
-	size_t edict_count;
-	Read(in, edict_count);
-
-	edict_t dummy;
-	int* pointer = reinterpret_cast<int*>(&dummy.v);
-	int key;
-	short offset;
-
-	for (int i = 0; i < edict_count; ++i)
-	{
-		memset(&dummy, 0, sizeof(edict_t));
-		Read(in, key);
-		Read(in, offset);
-		while (offset != -1)
-		{
-			if (offset > sizeof(entvars_t) || offset < 0)
-			{
-				int a = 0;
-			}
-
-			Read(in, *pointer, offset);
-			Read(in, offset);
-		}
-		df.saved_edicts[key] = dummy;
-	}
-
-	return in;
-}
 
 std::ostream& operator<<(std::ostream& out, const TestCase& c)
 {
-	Write(out, c.frame_count);
-	for (auto& frame : c.data_frames)
+	out << c.frame_count;
+	out << c.initial_data;
+
+	for (auto& frame : c.deltas)
 		out << frame;
 
 	return out;
@@ -409,12 +244,14 @@ std::ostream& operator<<(std::ostream& out, const TestCase& c)
 std::istream& operator>>(std::istream& in, TestCase& c)
 {
 	c.Clear();
-	DataFrame frame;
-	Read(in, c.frame_count);
-	for (int i = 0; i < c.frame_count; ++i)
+	in >> c.frame_count;
+	in >> c.initial_data;
+
+	nlohmann::json delta;
+	for (int i = 0; i < c.frame_count - 1; ++i)
 	{
-		in >> frame;
-		c.data_frames.push_back(frame);
+		in >> delta;
+		c.deltas.push_back(delta);
 	}
 
 	return in;

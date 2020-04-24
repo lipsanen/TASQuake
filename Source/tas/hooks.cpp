@@ -11,7 +11,7 @@
 #include "strafing.hpp"
 #include "test.hpp"
 #include "savestate.hpp"
-#include "ent_export.hpp"
+#include "data_export.hpp"
 
 // desc: When set to 1, pauses the game on load
 cvar_t tas_pause_onload = {"tas_pause_onload", "0"};
@@ -130,7 +130,7 @@ void TAS_Init()
 	Cmd_AddCommand("tas_afterframes", Cmd_TAS_AfterFrames);
 	Cmd_AddCommand("tas_afterframes_await_load", Cmd_TAS_AfterFrames_Await_Load);
 	Cmd_AddCommand("tas_afterframes_clear", Cmd_TAS_AfterFrames_Clear);
-	Cmd_AddCommand("tas_dump_ents", Cmd_TAS_Dump_Ents);
+	Cmd_AddCommand("tas_dump_sv", Cmd_TAS_Dump_SV);
 	Cmd_AddCommand("+tas_jump", IN_TAS_Jump_Down);
 	Cmd_AddCommand("-tas_jump", IN_TAS_Jump_Up);
 	Cmd_AddCommand("+tas_lgagst", IN_TAS_Lgagst_Down);
