@@ -9,7 +9,7 @@
 #include "script_playback.hpp"
 #include "simulate.hpp"
 #include "strafing.hpp"
-#include "test.hpp"
+#include "state_test.hpp"
 #include "savestate.hpp"
 #include "data_export.hpp"
 

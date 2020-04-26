@@ -360,7 +360,6 @@ void TestScript::Load_From_File()
 		return;
 	}
 
-	int running_frame = 0;
 	int line_number = 0;
 	std::string current_line;
 
@@ -368,13 +367,20 @@ void TestScript::Load_From_File()
 	{
 		while (stream.good() && !stream.eof())
 		{
-			TestBlock block(current_line);
-			running_frame += block.afterframes;
 			Parse_Newline(stream, current_line);
-			++line_number;
+			if (line_number == 0)
+			{
+				this->description = current_line;
+			}
+			else
+			{
+				if (!Is_Whitespace(current_line))
+				{
+					blocks.push_back(TestBlock(current_line));
+				}
 
-			if(!Is_Whitespace(current_line))
-				blocks.push_back(TestBlock(current_line));
+			}
+			++line_number;
 		}
 		
 		Con_Printf("Test %s loaded with %u blocks.\n", file_name.c_str(), blocks.size());
@@ -401,6 +407,8 @@ void TestScript::Write_To_File()
 		return;
 	}
 
+	os << this->description << '\n';
+	
 	for (auto& block : blocks)
 	{
 		block.Write_To_Stream(os);
@@ -413,14 +421,11 @@ void TestBlock::Write_To_Stream(std::ostream & os)
 {
 	switch (this->hook)
 	{
-	case HookEnum::None:
-		os << 'n';
+	case HookEnum::Frame:
+		os << 'f';
 		break;
 	case HookEnum::LevelChange:
 		os << 'l';
-		break;
-	case HookEnum::CommandFinish:
-		os << 'f';
 		break;
 	default:
 		break;
@@ -443,13 +448,20 @@ void TestBlock::Write_To_Stream(std::ostream & os)
 
 TestBlock::TestBlock(const std::string& line)
 {
-	/*char cmd_buffer[256];
+	char cmd_buffer[256];
 	char filter[5];
 	int frames;
-	char hook;
+	char hook[1];
 
-	
-	int read = sscanf_s(line.c_str(), "%c\t%d\t%4s\t%s", hook, frames, filter, cmd_buffer);
+	int read = sscanf_s(line.c_str(),
+	                    "%c\t%u\t%4s\t%s",
+	                    hook,
+	                    ARRAYSIZE(hook),
+	                    &frames,
+	                    filter,
+	                    ARRAYSIZE(filter),
+	                    cmd_buffer,
+	                    ARRAYSIZE(cmd_buffer));
 
 	if (read != 4)
 		throw std::exception("Unable to read all required variables from line.");
@@ -459,13 +471,10 @@ TestBlock::TestBlock(const std::string& line)
 	if(this->afterframes < 0)
 	 throw std::exception("Afterframes cannot be negative.");
 
-	switch (hook)
+	switch (hook[0])
 	{
-	case 'n':
-		this->hook = HookEnum::None;
-		break;
 	case 'f':
-		this->hook = HookEnum::CommandFinish;
+		this->hook = HookEnum::Frame;
 		break;
 	case 'l':
 		this->hook = HookEnum::LevelChange;
@@ -484,7 +493,7 @@ TestBlock::TestBlock(const std::string& line)
 			throw std::exception("Invalid bit in filter.");
 	}
 	
-	command = cmd_buffer;*/
+	command = cmd_buffer;
 }
 
 TestBlock::TestBlock()
@@ -492,5 +501,5 @@ TestBlock::TestBlock()
 	afterframes_filter = 0;
 	afterframes = 0;
 	hook_count = 0;
-	hook = HookEnum::None;
+	hook = HookEnum::Frame;
 }

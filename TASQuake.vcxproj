@@ -231,7 +231,8 @@
     <ClInclude Include="Source\tas\script_playback.hpp" />
     <ClInclude Include="Source\tas\simulate.hpp" />
     <ClInclude Include="Source\tas\strafing.hpp" />
-    <ClInclude Include="Source\tas\test.hpp" />
+    <ClInclude Include="Source\tas\state_test.hpp" />
+    <ClInclude Include="Source\tas\test_runner.hpp" />
     <ClInclude Include="Source\tas\utils.hpp" />
     <ClInclude Include="Source\version.h" />
     <ClInclude Include="Source\vid.h" />
@@ -312,7 +313,8 @@
     <ClCompile Include="Source\tas\script_playback.cpp" />
     <ClCompile Include="Source\tas\simulate.cpp" />
     <ClCompile Include="Source\tas\strafing.cpp" />
-    <ClCompile Include="Source\tas\test.cpp" />
+    <ClCompile Include="Source\tas\state_test.cpp" />
+    <ClCompile Include="Source\tas\test_runner.cpp" />
     <ClCompile Include="Source\tas\utils.cpp" />
     <ClCompile Include="Source\version.c" />
     <ClCompile Include="Source\vid_common_gl.c" />
