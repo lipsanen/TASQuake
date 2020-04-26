@@ -73,7 +73,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>libpng;zlib;dependencies</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;id386;GLQUAKE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;GLQUAKE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -117,7 +117,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>libpng;zlib;dependencies</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;id386;GLQUAKE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;GLQUAKE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>false</StringPooling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <SmallerTypeCheck>false</SmallerTypeCheck>
@@ -164,48 +164,6 @@
     <ResourceCompile Include="Source/tasquake.rc" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="math.s">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cl /D "GLQUAKE" /nologo /EP &gt; "$(OutDir)%(Filename).spp" "Source\%(Filename).s"
-gas2masm &lt; "$(OutDir)%(Filename).spp" &gt; "$(OutDir)%(Filename).asm"
-ml /nologo /c /Cp /coff /Fo "$(OutDir)%(Filename).obj" /Zm /Zi "$(OutDir)%(Filename).asm"
-del "$(OutDir)%(Filename).spp"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cl /D "GLQUAKE" /nologo /EP &gt; "$(OutDir)%(Filename).spp" "Source\%(Filename).s"
-gas2masm &lt; "$(OutDir)%(Filename).spp" &gt; "$(OutDir)%(Filename).asm"
-ml /nologo /c /Cp /coff /Fo "$(OutDir)%(Filename).obj" /Zm /Zi "$(OutDir)%(Filename).asm"
-del "$(OutDir)%(Filename).spp"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="snd_mixa.s">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cl /D "GLQUAKE" /nologo /EP &gt; "$(OutDir)%(Filename).spp" "Source\%(Filename).s"
-gas2masm &lt; "$(OutDir)%(Filename).spp" &gt; "$(OutDir)%(Filename).asm"
-ml /nologo /c /Cp /coff /Fo "$(OutDir)%(Filename).obj" /Zm /Zi "$(OutDir)%(Filename).asm"
-del "$(OutDir)%(Filename).spp"
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cl /D "GLQUAKE" /nologo /EP &gt; "$(OutDir)%(Filename).spp" "Source\%(Filename).s"
-gas2masm &lt; "$(OutDir)%(Filename).spp" &gt; "$(OutDir)%(Filename).asm"
-ml /nologo /c /Cp /coff /Fo "$(OutDir)%(Filename).obj" /Zm /Zi "$(OutDir)%(Filename).asm"
-del "$(OutDir)%(Filename).spp"
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="sys_x86.s">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cl /D "GLQUAKE" /nologo /EP &gt; "$(OutDir)%(Filename).spp" "Source\%(Filename).s"
-gas2masm &lt; "$(OutDir)%(Filename).spp" &gt; "$(OutDir)%(Filename).asm"
-ml /nologo /c /Cp /coff /Fo "$(OutDir)%(Filename).obj" /Zm /Zi "$(OutDir)%(Filename).asm"
-del "$(OutDir)%(Filename).spp"
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cl /D "GLQUAKE" /nologo /EP &gt; "$(OutDir)%(Filename).spp" "Source\%(Filename).s"
-gas2masm &lt; "$(OutDir)%(Filename).spp" &gt; "$(OutDir)%(Filename).asm"
-ml /nologo /c /Cp /coff /Fo "$(OutDir)%(Filename).obj" /Zm /Zi "$(OutDir)%(Filename).asm"
-del "$(OutDir)%(Filename).spp"
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
-    </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Source\adivtab.h" />
     <ClInclude Include="Source\anorms.h" />
     <ClInclude Include="Source\anorm_dots.h" />
@@ -222,7 +180,6 @@ del "$(OutDir)%(Filename).spp"
     <ClInclude Include="Source\cvar.h" />
     <ClInclude Include="Source\draw.h" />
     <ClInclude Include="Source\d_iface.h" />
-    <ClInclude Include="Source\d_ifacea.h" />
     <ClInclude Include="Source\d_local.h" />
     <ClInclude Include="Source\glquake.h" />
     <ClInclude Include="Source\gl_model.h" />
@@ -377,11 +334,15 @@ del "$(OutDir)%(Filename).spp"
     <ProjectReference Include="libpng.vcxproj">
       <Project>{3cd1704b-fa01-4118-b162-17af0d83d7cf}</Project>
     </ProjectReference>
-    <ProjectReference Include="Source\gas2masm\gas2masm.vcxproj">
-      <Project>{0efd7023-88b0-491d-9765-804d682ffef6}</Project>
-      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
-      <LinkLibraryDependencies>false</LinkLibraryDependencies>
-    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Source\sys_x86.asm">
+      <FileType>Document</FileType>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ml /nologo /c /Cp /coff /Fo "$(OutDir)%(Filename).obj" /Zm /Zi "Source/$(Filename).asm"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml /nologo /c /Cp /coff /Fo "$(OutDir)%(Filename).obj" /Zm /Zi "$(SolutionDir)Source\%(Filename).asm"</Command>
+    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

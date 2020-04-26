@@ -59,7 +59,7 @@ static	int		r_numparticles;
 
 vec3_t			r_pright, r_pup, r_ppn;
 
-#if !id386
+#if !id386 && !GLQUAKE
 
 /*
 ==============
