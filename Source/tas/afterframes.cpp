@@ -31,7 +31,7 @@ static unsigned int GetCurrentFilter()
 	return filter;
 }
 
-static bool FilterMatchesCurrentFrame(unsigned int filter)
+bool FilterMatchesCurrentFrame(unsigned int filter)
 {
 	auto current = GetCurrentFilter();
 

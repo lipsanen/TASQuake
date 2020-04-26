@@ -20,6 +20,7 @@ void UnpauseAfterframes();
 void ClearAfterframes();
 void AddAfterframes(int frames, const char* cmd, unsigned int f = Unpaused);
 char* GetQueuedCommands();
+bool FilterMatchesCurrentFrame(unsigned int filter);
 
 void Cmd_TAS_AfterFrames();
 void Cmd_TAS_AfterFrames_Await_Load(void);

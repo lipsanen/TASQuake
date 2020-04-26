@@ -14,8 +14,7 @@ struct Bookmark
 
 enum class HookEnum
 {
-	None,          // Execute like a normal command right after the previous one
-	CommandFinish, // Execute after a special command has finished that reports to the tester
+	Frame,          // Execute like a normal command right after the previous one
 	LevelChange // Execute when level change has completed
 };
 
@@ -71,11 +70,12 @@ public:
 class TestScript
 {
 public:
-	TestScript();
-	TestScript(const char* file_name);
-	void Load_From_File();
-	void Write_To_File();
-	std::vector<TestBlock> blocks;
-	TestBlock exit_block;
-	std::string file_name;
+	TestScript();						// Default constructor is only intended for containers
+	TestScript(const char* file_name);	// Initialize script with c-string filename
+	void Load_From_File();				// Load the script from file
+	void Write_To_File();				// Write the script to file
+	std::vector<TestBlock> blocks;		// Testblocks in the test
+	TestBlock exit_block;				// Testblock to be run after the test is finished
+	std::string file_name;				// Filename of the test
+	std::string description;			// Description on what the test is testing
 };
