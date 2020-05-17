@@ -1,5 +1,5 @@
 #include <algorithm>
-#include <experimental/filesystem>
+#include <filesystem>
 #include <fstream>
 #include <map>
 #include <regex>
@@ -265,7 +265,7 @@ static bool Move_Saves(const char* file_name)
 		return false;
 	}
 
-	if (std::experimental::filesystem::exists(new_filename))
+	if (std::filesystem::exists(new_filename))
 		std::remove(new_filename);
 
 	for (int i = backups - 2; i >= 0; --i)
@@ -276,7 +276,7 @@ static bool Move_Saves(const char* file_name)
 			Con_Printf("Failed to move save %d for file %s\n", file_name);
 			return false;
 		}
-		if (std::experimental::filesystem::exists(old_filename))
+		if (std::filesystem::exists(old_filename))
 			std::rename(old_filename, new_filename);
 		std::strcpy(new_filename, old_filename);
 	}

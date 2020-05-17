@@ -12,6 +12,8 @@ static int HOOK_COUNT = 0;
 static bool GENERATION_RUNNING = false;
 static std::ostringstream TEST_OUTPUT;
 
+static void HookIteration();
+
 static HookEnum CURRENT_HOOK()
 {
 	auto& currentBlock = TEST_VECTOR[SCRIPT_INDEX].blocks[BLOCK_INDEX];
@@ -40,7 +42,6 @@ void Test_Frame_Hook()
 }
 static void StopTesting()
 {
-	TEST_VECTOR.empty();
 	TEST_RUNNING = false;
 	GENERATION_RUNNING = false;
 	TEST_OUTPUT.clear();
