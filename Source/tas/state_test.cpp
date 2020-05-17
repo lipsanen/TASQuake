@@ -103,36 +103,13 @@ void Test_Host_Frame_Hook()
 	}
 }
 
-void Cmd_GenerateTest(void)
+void Cmd_Test_Script(void)
 {
-	char buf[260];
-
-	if (collecting_data)
+	if (!Test_IsRunningTest())
 	{
-		Con_Printf("Cannot generate test, already collecting data.\n");
+		Con_Print("Cannot run script test outside of a test file.\n");
 		return;
 	}
-
-	if (Cmd_Argc() < 3)
-	{
-		Con_Printf("Usage: tas_generate_test <filepath> <frames>\n");
-	}
-	
-	sprintf(buf, "%s/test/", com_gamedir);
-	Create_Folder_If_Not_Exists(buf);
-	sprintf(buf, "%s/test/%s.qd", com_gamedir, Cmd_Argv(1));
-
-	int frames = std::atoi(Cmd_Argv(2));
-	newCase = TestCase(frames, buf);
-	generating_test = true;
-	collecting_data = true;
-	test_frame = 0;
-	Con_Printf("Started generating test %s\n", buf);
-}
-
-void Cmd_Run_Test(void)
-{
-	char buf[260];
 
 	if (collecting_data)
 	{
@@ -140,24 +117,47 @@ void Cmd_Run_Test(void)
 		return;
 	}
 
-	if (Cmd_Argc() < 3)
-	{
-		Con_Printf("Usage: tas_run_test <filepath> <test name>\n");
-	}
+	char buf[260];
 
-	sprintf(buf, "%s/test/%s.qd", com_gamedir, Cmd_Argv(1));
-	oldCase = TestCase::LoadFromFile(buf);
-	if (oldCase.FrameCount() == 0)
+	if (Test_IsGeneratingTest())
 	{
-		Con_Printf("Failed to load testcase from file %s.\n", buf);
-		return;
-	}
+		if (Cmd_Argc() < 3)
+		{
+			Con_Printf("Usage: tas_generate_test <filepath> <frames>\n");
+		}
 
-	newCase = TestCase(oldCase.FrameCount(), oldCase.Filepath());
-	running_comparison = true;
-	collecting_data = true;
-	test_frame = 0;
-	Con_Printf("Started running test %s\n", Cmd_Argv(2));
+		sprintf(buf, "%s/test/", com_gamedir);
+		Create_Folder_If_Not_Exists(buf);
+		sprintf(buf, "%s/test/%s.qd", com_gamedir, Cmd_Argv(1));
+
+		int frames = std::atoi(Cmd_Argv(2));
+		newCase = TestCase(frames, buf);
+		generating_test = true;
+		collecting_data = true;
+		test_frame = 0;
+		Con_Printf("Started generating test %s\n", buf);
+	}
+	else
+	{
+		if (Cmd_Argc() < 3)
+		{
+			Con_Printf("Usage: tas_run_test <filepath> <test name>\n");
+		}
+
+		sprintf(buf, "%s/test/%s.qd", com_gamedir, Cmd_Argv(1));
+		oldCase = TestCase::LoadFromFile(buf);
+		if (oldCase.FrameCount() == 0)
+		{
+			Con_Printf("Failed to load testcase from file %s.\n", buf);
+			return;
+		}
+
+		newCase = TestCase(oldCase.FrameCount(), oldCase.Filepath());
+		running_comparison = true;
+		collecting_data = true;
+		test_frame = 0;
+		Con_Printf("Started running test %s\n", Cmd_Argv(2));
+	}
 }
 
 TestCase::TestCase() { }

@@ -2,6 +2,7 @@
 #include "test_runner.hpp"
 #include "script_parse.hpp"
 #include "afterframes.hpp"
+#include "utils.hpp"
 #include <sstream>
 
 static std::vector<TestScript> TEST_VECTOR;
@@ -25,26 +26,76 @@ static unsigned int CURRENT_FILTER()
 	return currentBlock.afterframes_filter;
 }
 
+static void Load_Test(bool generate)
+{
+	char buf[260];
+	sprintf(buf, "%s/test/%s.qtest", com_gamedir, Cmd_Argv(1));
+	TestScript script(buf);
+	bool result = script.Load_From_File();
+	if (!result)
+	{
+		return;
+	}
+
+	TEST_VECTOR.emplace_back(script);
+	SCRIPT_INDEX = 0;
+	BLOCK_INDEX = 0;
+	HOOK_COUNT = 0;
+	BLOCK_INDEX = 0;
+	TEST_RUNNING = true;
+	GENERATION_RUNNING = true;
+}
+
+void Cmd_Test_Generate(void)
+{
+	Load_Test(false);
+}
+
+void Cmd_Test_Run(void)
+{
+	Load_Test(false);
+}
+
+bool Test_IsGeneratingTest()
+{
+	return GENERATION_RUNNING;
+}
+
+bool Test_IsRunningTest()
+{
+	return TEST_RUNNING;
+}
+
 void Test_Changelevel_Hook()
 {
-	if (IsRunningTest() && CURRENT_HOOK() == HookEnum::LevelChange)
+	if (Test_IsRunningTest() && CURRENT_HOOK() == HookEnum::LevelChange)
 	{
 		HookIteration();
 	}
 }
 
-void Test_Frame_Hook()
+void Test_Runner_Frame_Hook()
 {
-	if (IsRunningTest() && CURRENT_HOOK() == HookEnum::Frame && FilterMatchesCurrentFrame(CURRENT_FILTER()))
+	if (Test_IsRunningTest() && CURRENT_HOOK() == HookEnum::Frame && FilterMatchesCurrentFrame(CURRENT_FILTER()))
 	{
 		HookIteration();
 	}
 }
+
+void Test_Script_Completed_Hook()
+{
+	if (Test_IsRunningTest() && CURRENT_HOOK() == HookEnum::ScriptCompleted)
+	{
+		HookIteration();
+	}
+}
+
 static void StopTesting()
 {
 	TEST_RUNNING = false;
 	GENERATION_RUNNING = false;
-	TEST_OUTPUT.clear();
+	TEST_OUTPUT = std::ostringstream();
+	TEST_VECTOR.clear();
 }
 
 static void StartNewTest()
@@ -54,16 +105,17 @@ static void StartNewTest()
 	BLOCK_INDEX = 0;
 	HOOK_COUNT = 0;
 
+	TEST_OUTPUT << "Test \"" << currentTest.description << "\" ran successfully.\n";
+	std::string output = TEST_OUTPUT.str();
+	Con_Print(const_cast<char*>(output.c_str()));
+
 	if (SCRIPT_INDEX >= TEST_VECTOR.size())
 	{
-		Con_Print("All tests were ran.\n");
-		std::string output = TEST_OUTPUT.str();
-		Con_Print(const_cast<char*>(output.c_str()));
+		if (TEST_VECTOR.size() > 1)
+		{
+			Con_Print("All tests were ran.\n");
+		}
 		StopTesting();
-	}
-	else
-	{
-		TEST_OUTPUT << "Test \"" << currentTest.description << "\" ran successfully.\n";
 	}
 }
 
@@ -75,7 +127,6 @@ static void BlockChange()
 
 	if (BLOCK_INDEX >= currentTest.blocks.size())
 	{
-		AddAfterframes(0, currentTest.exit_block.command.c_str());
 		StartNewTest();
 	}
 }
@@ -87,24 +138,14 @@ static void HookIteration()
 
 	if (HOOK_COUNT >= currentBlock.hook_count)
 	{
-		AddAfterframes(0, currentBlock.command.c_str());
+		AddAfterframes(0, currentBlock.command.c_str(), NoFilter);
 		BlockChange();
 	}	
 }
 
-bool IsGeneratingTest()
-{
-	return GENERATION_RUNNING;
-}
-
-bool IsRunningTest()
-{
-	return TEST_RUNNING;
-}
-
 void ReportFailure(const std::string& error)
 {
-	if(!IsRunningTest())
+	if(!Test_IsRunningTest())
 		return;
 
 	auto& currentTest = TEST_VECTOR[SCRIPT_INDEX];

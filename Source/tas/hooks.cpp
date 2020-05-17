@@ -12,6 +12,7 @@
 #include "state_test.hpp"
 #include "savestate.hpp"
 #include "data_export.hpp"
+#include "test_runner.hpp"
 
 // desc: When set to 1, pauses the game on load
 cvar_t tas_pause_onload = {"tas_pause_onload", "0"};
@@ -109,8 +110,8 @@ void TAS_Init()
 	Cmd_AddCommand("tas_edit_shift_stack", Cmd_TAS_Edit_Shift_Stack);
 	Cmd_AddCommand("tas_edit_add_empty", Cmd_TAS_Edit_Add_Empty);
 
-	Cmd_AddCommand("tas_cancel", Cmd_TAS_Cancel);   // Keep as it is
-	Cmd_AddCommand("tas_confirm", Cmd_TAS_Confirm); // Confirm change
+	Cmd_AddCommand("tas_cancel", Cmd_TAS_Cancel);
+	Cmd_AddCommand("tas_confirm", Cmd_TAS_Confirm);
 	Cmd_AddCommand("tas_revert", Cmd_TAS_Revert);
 
 	Cmd_AddCommand("tas_bookmark_frame", Cmd_TAS_Bookmark_Frame);
@@ -119,8 +120,7 @@ void TAS_Init()
 
 	Cmd_AddCommand("tas_cmd_reset", Cmd_TAS_Cmd_Reset);
 	Cmd_AddCommand("tas_reset_movement", Cmd_TAS_Reset_Movement);
-	Cmd_AddCommand("tas_run_test", Cmd_Run_Test);
-	Cmd_AddCommand("tas_generate_test", Cmd_GenerateTest);
+	
 	Cmd_AddCommand("tas_print_seed", Cmd_Print_Seed);
 	Cmd_AddCommand("tas_print_time", Cmd_Print_Time);
 	Cmd_AddCommand("tas_pause", Cmd_TAS_Pause);
@@ -135,6 +135,10 @@ void TAS_Init()
 	Cmd_AddCommand("-tas_jump", IN_TAS_Jump_Up);
 	Cmd_AddCommand("+tas_lgagst", IN_TAS_Lgagst_Down);
 	Cmd_AddCommand("-tas_lgagst", IN_TAS_Lgagst_Up);
+
+	Cmd_AddCommand("tas_test_script", Cmd_Test_Script);
+	Cmd_AddCommand("tas_test_run", Cmd_Test_Run);
+	Cmd_AddCommand("tas_test_generate", Cmd_Test_Generate);
 
 	Cmd_AddCommand("tas_ls", Cmd_TAS_LS);
 	Cvar_Register(&tas_playing);
@@ -250,7 +254,7 @@ void _Host_Frame_Hook()
 
 	Simulate_Frame_Hook();
 	Script_Playback_Host_Frame_Hook();
-	Test_Host_Frame_Hook();
+
 	if (set_seed && tas_gamestate == unpaused)
 	{
 		set_seed = false;
@@ -262,4 +266,10 @@ void _Host_Frame_Hook()
 	{
 		Cbuf_AddText(queued);
 	}
+}
+
+void _Host_Frame_After_FilterTime_Hook()
+{
+	Test_Host_Frame_Hook();
+	Test_Runner_Frame_Hook();
 }

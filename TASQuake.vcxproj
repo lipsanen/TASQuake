@@ -138,6 +138,7 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -343,7 +344,7 @@
       <FileType>Document</FileType>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ml /nologo /c /Cp /coff /Fo "$(OutDir)%(Filename).obj" /Zm /Zi "Source/$(Filename).asm"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ml /nologo /c /Cp /coff /Fo "$(OutDir)%(Filename).obj" /Zm /Zi "$(SolutionDir)Source\%(Filename).asm"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml /nologo /c /Cp /coff /Fo "$(OutDir)%(Filename).obj" /Zm /Zi "$(SolutionDir)Source\%(Filename).asm"</Command>
     </CustomBuild>
   </ItemGroup>
