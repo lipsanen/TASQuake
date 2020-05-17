@@ -294,7 +294,7 @@ void ReadString(std::ifstream & in, char* value)
 
 bool Create_Folder_If_Not_Exists(const char* file_name)
 {
-	std::experimental::filesystem::path path = file_name;
+	std::filesystem::path path = file_name;
 
 	if (!path.has_parent_path())
 	{
@@ -303,9 +303,9 @@ bool Create_Folder_If_Not_Exists(const char* file_name)
 
 	auto parent = path.parent_path();
 
-	if (!std::experimental::filesystem::exists(parent))
+	if (!std::filesystem::exists(parent))
 	{
-		std::experimental::filesystem::create_directory(parent);
+		std::filesystem::create_directory(parent);
 	}
 
 
@@ -324,9 +324,9 @@ bool Open_Stream(std::ofstream & os, const char * file_name, int mode)
 
 bool Open_Stream(std::ifstream & in, const char * file_name, unsigned int mode)
 {
-	std::experimental::filesystem::path path = file_name;
+	std::filesystem::path path = file_name;
 
-	if(!std::experimental::filesystem::exists(path) || std::experimental::filesystem::is_directory(path))
+	if(!std::filesystem::exists(path) || std::filesystem::is_directory(path))
 		return false;
 
 	in.open(file_name, mode);

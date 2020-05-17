@@ -117,9 +117,9 @@ void Cmd_GenerateTest(void)
 	{
 		Con_Printf("Usage: tas_generate_test <filepath> <frames>\n");
 	}
-
+	
 	sprintf(buf, "%s/test/", com_gamedir);
-	_mkdir(buf);
+	Create_Folder_If_Not_Exists(buf);
 	sprintf(buf, "%s/test/%s.qd", com_gamedir, Cmd_Argv(1));
 
 	int frames = std::atoi(Cmd_Argv(2));
@@ -160,7 +160,7 @@ void Cmd_Run_Test(void)
 	Con_Printf("Started running test %s\n", Cmd_Argv(2));
 }
 
-TestCase::TestCase() {}
+TestCase::TestCase() { }
 
 TestCase::TestCase(int frames, const std::string& filepath)
 {
