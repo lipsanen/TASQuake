@@ -15,14 +15,14 @@ struct Bookmark
 enum class HookEnum
 {
 	Frame,          // Execute like a normal command right after the previous one
-	LevelChange // Execute when level change has completed
+	LevelChange,	// Execute when level change has completed
+	ScriptCompleted // Script run completed
 };
 
 struct TestBlock
 {
 	HookEnum hook; // The hook used for the test block
 	int hook_count; // How many iterations of this hook should complete before performing the action
-	int afterframes; // How many frames after the hook has fired should it be executed
 	unsigned int afterframes_filter; // Filter for the afterframes command
 	std::string command; // The command to be executed
 
@@ -72,7 +72,7 @@ class TestScript
 public:
 	TestScript();						// Default constructor is only intended for containers
 	TestScript(const char* file_name);	// Initialize script with c-string filename
-	void Load_From_File();				// Load the script from file
+	bool Load_From_File();				// Load the script from file
 	void Write_To_File();				// Write the script to file
 	std::vector<TestBlock> blocks;		// Testblocks in the test
 	TestBlock exit_block;				// Testblock to be run after the test is finished

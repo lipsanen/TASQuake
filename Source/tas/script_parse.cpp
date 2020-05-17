@@ -350,14 +350,14 @@ TestScript::TestScript(const char * file_name)
 	this->file_name = file_name;
 }
 
-void TestScript::Load_From_File()
+bool TestScript::Load_From_File()
 {
 	std::ifstream stream;
 
 	if (!Open_Stream(stream, file_name.c_str()))
 	{
 		Con_Printf("Unable to open test %s\n", file_name.c_str());
-		return;
+		return true;
 	}
 
 	int line_number = 0;
@@ -384,10 +384,12 @@ void TestScript::Load_From_File()
 		}
 		
 		Con_Printf("Test %s loaded with %u blocks.\n", file_name.c_str(), blocks.size());
+		return true;
 	}
 	catch (const std::exception& e)
 	{
 		Con_Printf("Error parsing line %d: %s\n", line_number, e.what());
+		return false;
 	}
 }
 
@@ -431,7 +433,7 @@ void TestBlock::Write_To_Stream(std::ostream & os)
 		break;
 	}
 
-	os << '\t' << this->afterframes << '\t';
+	os << '\t' << this->hook_count << '\t';
 
 	for (int i = 0; i < 5; ++i)
 	{
@@ -448,58 +450,47 @@ void TestBlock::Write_To_Stream(std::ostream & os)
 
 TestBlock::TestBlock(const std::string& line)
 {
-	char cmd_buffer[256];
-	char filter[5];
-	int frames;
-	char hook[1];
+	std::regex lineregex("([fls])\t([0-9]+)\t([01]{4})\t([^\n]*)");
+	std::smatch sm;
+	if (std::regex_match(line, sm, lineregex))
+	{
+		switch (sm[1].str()[0]) {
+			case 'f':
+				this->hook = HookEnum::Frame;
+				break;
+			case 'l':
+				this->hook = HookEnum::LevelChange;
+				break;
+			case 's':
+				this->hook = HookEnum::ScriptCompleted;
+				break;
+		}
+		this->hook_count = std::stoi(sm[2]);
+		std::string filter = sm[3];
+		this->afterframes_filter = 0;
+		for (int i = 0; i < 4; ++i)
+		{
+			if (filter[i] == '1')
+				this->afterframes_filter |= 1 << (4 - i);
+			else if (filter[i] != '0')
+				throw std::exception("Invalid bit in filter.");
+		}
 
-	int read = sscanf_s(line.c_str(),
-	                    "%c\t%u\t%4s\t%s",
-	                    hook,
-	                    ARRAYSIZE(hook),
-	                    &frames,
-	                    filter,
-	                    ARRAYSIZE(filter),
-	                    cmd_buffer,
-	                    ARRAYSIZE(cmd_buffer));
+		if (this->hook_count < 0)
+			throw std::exception("Hook count cannot be negative.");
 
-	if (read != 4)
+		command = sm[4];
+	}
+	else
+	{
 		throw std::exception("Unable to read all required variables from line.");
-
-	this->afterframes = frames;
-
-	if(this->afterframes < 0)
-	 throw std::exception("Afterframes cannot be negative.");
-
-	switch (hook[0])
-	{
-	case 'f':
-		this->hook = HookEnum::Frame;
-		break;
-	case 'l':
-		this->hook = HookEnum::LevelChange;
-		break;
-	default:
-		throw std::exception("invalid hook type");
 	}
-
-	this->afterframes_filter = 0;
-
-	for (int i = 0; i < 5; ++i)
-	{
-		if (filter[i] == '1')
-			this->afterframes_filter |= 1 << (4 - i);
-		else if (filter[i] != '0')
-			throw std::exception("Invalid bit in filter.");
-	}
-	
-	command = cmd_buffer;
 }
 
 TestBlock::TestBlock()
 {
 	afterframes_filter = 0;
-	afterframes = 0;
+	hook_count = 0;
 	hook_count = 0;
 	hook = HookEnum::Frame;
 }

@@ -673,6 +673,8 @@ void _Host_Frame (double time)
 		return;
 	}
 
+	_Host_Frame_After_FilterTime_Hook();
+
 	if (cl_independentphysics.value)
 	{
 		double	minphysframetime = MinPhysFrameTime ();
