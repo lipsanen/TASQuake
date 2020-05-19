@@ -4,12 +4,11 @@
 #include <sstream>
 #include <iomanip>
 
-
-static nlohmann::json Ent_To_Json(edict_t* ent)
-{
 #define COPY(prop) if (ent->v.prop != 0) out[#prop] = ent->v.prop;
 #define VEC_COPY(prop) COPY(prop[0]) COPY(prop[1]) COPY(prop[2])
 
+static nlohmann::json Ent_To_Json(edict_t* ent)
+{
 	nlohmann::json out;
 
 	VEC_COPY(absmin);
@@ -95,16 +94,12 @@ static nlohmann::json Ent_To_Json(edict_t* ent)
 }
 static nlohmann::json Ent_To_Json_Compact(edict_t* ent)
 {
-	const double eps = 1e-4;
-
-#define COPY_ROUND(prop) if (ent->v.prop != 0) out[#prop] = IRound(ent->v.prop, eps);
-#define VEC_COPY_ROUND(prop) COPY_ROUND(prop[0]) COPY_ROUND(prop[1]) COPY_ROUND(prop[2])
-
 	nlohmann::json out;
 
-	VEC_COPY_ROUND(origin);
-	VEC_COPY_ROUND(v_angle);
-	COPY_ROUND(nextthink);
+	VEC_COPY(origin);
+	VEC_COPY(velocity);
+	VEC_COPY(v_angle);
+	COPY(nextthink);
 
 	return out;
 }
@@ -141,14 +136,17 @@ nlohmann::json Dump_Test()
 	const double eps = 1e-4;
 	nlohmann::json out;
 
-	out["time"] = IRound(sv.time, eps);
-	out["lastchecktime"] = IRound(sv.lastchecktime, eps);
 	out["seed"] = Get_RNG_Seed();
+	
+	if (sv.num_edicts > 1)
+	{
+		out["time"] = sv.time;
+		out["lastchecktime"] = sv.lastchecktime;
+		auto ptr = EDICT_NUM(1);
 
-	auto ptr = EDICT_NUM(1);
-
-	if (!ptr->free)
-		out["player"] = Ent_To_Json_Compact(ptr);
+		if (!ptr->free)
+			out["player"] = Ent_To_Json_Compact(ptr);
+	}
 
 	return out;
 }
