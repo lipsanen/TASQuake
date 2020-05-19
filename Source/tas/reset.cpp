@@ -16,7 +16,6 @@ static const char* const EXCLUDE_CVARS[] = {"gl_texturemode",
                                             "tas_edit",
                                             "tas_script",
                                             "tas_timescale",
-                                            "r_norefresh",
                                             "r_overlay",
                                             "tas_predict",
 											"tas_savestate"};

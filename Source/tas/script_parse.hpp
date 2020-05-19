@@ -60,7 +60,7 @@ class TASScript
 public:
 	TASScript();
 	TASScript(const char* file_name);
-	void Load_From_File();
+	bool Load_From_File();
 	void Write_To_File();
 	std::vector<FrameBlock> blocks;
 	std::map<std::string, Bookmark> bookmarks;

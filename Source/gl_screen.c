@@ -955,76 +955,72 @@ void SCR_UpdateScreen (void)
 	SCR_SetupAutoID ();
 	R_RenderOverlay();
 
-	if (!r_norefresh.value)
+	GL_Set2D();
+
+	// added by joe - IMPORTANT: this _must_ be here so that 
+	//			     palette flashes take effect in windowed mode too.
+	R_PolyBlend();
+
+	R_Q3DamageDraw();
+
+	// draw any areas not covered by the refresh
+	SCR_TileClear();
+
+	if (scr_drawdialog)
 	{
-		GL_Set2D();
+		Sbar_Draw();
+		Draw_FadeScreen();
+		SCR_DrawNotifyString();
+		scr_copyeverything = true;
+	}
+	else if (scr_drawloading)
+	{
+		SCR_DrawLoading();
+		Sbar_Draw();
+	}
+	else if (cl.intermission == 1 && key_dest == key_game)
+	{
+		Sbar_IntermissionOverlay();
+		SCR_DrawVolume();
+		SCR_Draw_TAS_Hud();
+	}
+	else if (cl.intermission == 2 && key_dest == key_game)
+	{
+		Sbar_FinaleOverlay();
+		SCR_CheckDrawCenterString();
+		SCR_DrawVolume();
+		SCR_Draw_TAS_Hud();
+	}
+	else
+	{
+		Draw_Crosshair();
+		SCR_DrawRam();
+		SCR_DrawNet();
+		SCR_DrawTurtle();
+		SCR_DrawPause();
+		SCR_DrawAutoID();
+		if (nehahra)
+			SHOWLMP_drawall();
+		SCR_CheckDrawCenterString();
+		SCR_DrawClock();
+		SCR_DrawFPS();
+		SCR_DrawSpeed();
+		SCR_DrawStats();
+		SCR_DrawVolume();
+		SCR_DrawPlaybackStats();
+		SCR_Draw_TAS_Hud();
+		Sbar_Draw();
+		SCR_DrawConsole();
+		M_Draw();
+	}
 
-		// added by joe - IMPORTANT: this _must_ be here so that 
-		//			     palette flashes take effect in windowed mode too.
-		R_PolyBlend();
+	R_BrightenScreen();
 
-		R_Q3DamageDraw();
-
-		// draw any areas not covered by the refresh
-		SCR_TileClear();
-
-		if (scr_drawdialog)
-		{
-			Sbar_Draw();
-			Draw_FadeScreen();
-			SCR_DrawNotifyString();
-			scr_copyeverything = true;
-		}
-		else if (scr_drawloading)
-		{
-			SCR_DrawLoading();
-			Sbar_Draw();
-		}
-		else if (cl.intermission == 1 && key_dest == key_game)
-		{
-			Sbar_IntermissionOverlay();
-			SCR_DrawVolume();
-			SCR_Draw_TAS_Hud();
-		}
-		else if (cl.intermission == 2 && key_dest == key_game)
-		{
-			Sbar_FinaleOverlay();
-			SCR_CheckDrawCenterString();
-			SCR_DrawVolume();
-			SCR_Draw_TAS_Hud();
-		}
-		else
-		{
-			Draw_Crosshair();
-			SCR_DrawRam();
-			SCR_DrawNet();
-			SCR_DrawTurtle();
-			SCR_DrawPause();
-			SCR_DrawAutoID();
-			if (nehahra)
-				SHOWLMP_drawall();
-			SCR_CheckDrawCenterString();
-			SCR_DrawClock();
-			SCR_DrawFPS();
-			SCR_DrawSpeed();
-			SCR_DrawStats();
-			SCR_DrawVolume();
-			SCR_DrawPlaybackStats();
-			SCR_Draw_TAS_Hud();
-			Sbar_Draw();
-			SCR_DrawConsole();
-			M_Draw();
-		}
-
-		R_BrightenScreen();
-
-		V_UpdatePalette();
+	V_UpdatePalette();
 
 #ifdef _WIN32
-		Movie_UpdateScreen();
+	Movie_UpdateScreen();
 #endif
-
-	}
 
 	GL_EndRendering ();
 }

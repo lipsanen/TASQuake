@@ -43,12 +43,12 @@ static void Load_Test(bool generate)
 	HOOK_COUNT = 0;
 	BLOCK_INDEX = 0;
 	TEST_RUNNING = true;
-	GENERATION_RUNNING = true;
+	GENERATION_RUNNING = generate;
 }
 
 void Cmd_Test_Generate(void)
 {
-	Load_Test(false);
+	Load_Test(true);
 }
 
 void Cmd_Test_Run(void)
@@ -96,21 +96,25 @@ static void StopTesting()
 	GENERATION_RUNNING = false;
 	TEST_OUTPUT = std::ostringstream();
 	TEST_VECTOR.clear();
+	AddAfterframes(0, "tas_script_stop;disconnect", NoFilter);
 }
 
-static void StartNewTest()
+static void StartNewTest(bool failed)
 {
 	auto& currentTest = TEST_VECTOR[SCRIPT_INDEX];
 	++SCRIPT_INDEX;
 	BLOCK_INDEX = 0;
 	HOOK_COUNT = 0;
 
-	TEST_OUTPUT << "Test \"" << currentTest.description << "\" ran successfully.\n";
-	std::string output = TEST_OUTPUT.str();
-	Con_Print(const_cast<char*>(output.c_str()));
+	if (!failed)
+	{
+		TEST_OUTPUT << "Test \"" << currentTest.description << "\" ran successfully.\n";
+	}
 
 	if (SCRIPT_INDEX >= TEST_VECTOR.size())
 	{
+		std::string output = TEST_OUTPUT.str();
+		Con_Print(const_cast<char*>(output.c_str()));
 		if (TEST_VECTOR.size() > 1)
 		{
 			Con_Print("All tests were ran.\n");
@@ -127,7 +131,7 @@ static void BlockChange()
 
 	if (BLOCK_INDEX >= currentTest.blocks.size())
 	{
-		StartNewTest();
+		StartNewTest(false);
 	}
 }
 
@@ -150,5 +154,5 @@ void ReportFailure(const std::string& error)
 
 	auto& currentTest = TEST_VECTOR[SCRIPT_INDEX];
 	TEST_OUTPUT << "Test \"" << currentTest.description << "\" failed, reason: " << error << '\n';
-	StartNewTest();
+	StartNewTest(true);
 }

@@ -1,6 +1,7 @@
 #include <direct.h>
 #include <fstream>
 #include <map>
+#include <sstream>
 #include <vector>
 #include <zlib.h>
 
@@ -10,6 +11,7 @@
 #include "state_test.hpp"
 #include "reset.hpp"
 #include "test_runner.hpp"
+#include "script_playback.hpp"
 
 class TestCase
 {
@@ -42,23 +44,20 @@ public:
 
 static TestCase oldCase;
 static TestCase newCase;
-static int test_frame = 0;
-static bool collecting_data = false;
-static bool generating_test = false;
-static bool running_comparison = false;
+static int TEST_FRAME = 0;
+static int TEST_LENGTH = 0;
+static bool COLLECTING_DATA = false;
+constexpr int START_OFFSET = 6;
 
 void Compare(bool final_iteration=false)
 {
 	if (oldCase.current != newCase.current)
 	{
 		auto patch = nlohmann::json::diff(newCase.current, oldCase.current).dump(4);
-		Con_Printf("Test failed, differences on frame %d\n", test_frame);
-		Con_Print(const_cast<char*>(patch.c_str()));
-		running_comparison = false;
-		generating_test = false;
-		collecting_data = false;
-		Cmd_TAS_Cmd_Reset();
-		sv.paused = qtrue;
+		COLLECTING_DATA = false;
+		std::ostringstream oss;
+		oss << "Test failed, differences on frame " << TEST_FRAME << '\n' << "Was: " << oldCase.current << "Supposed to be: " << newCase.current << '\n';
+		ReportFailure(oss.str());
 	}
 	else if (final_iteration)
 	{
@@ -73,91 +72,104 @@ void Write_To_File()
 
 void Test_Host_Frame_Hook()
 {
-	if (tas_gamestate != unpaused)
+	auto playback = GetPlaybackInfo();
+	if (tas_gamestate != unpaused || playback.current_frame < START_OFFSET)
 		return;
 
-	if (collecting_data)
+	bool runningComparison = !Test_IsGeneratingTest();
+	
+	if (COLLECTING_DATA)
 	{
-		newCase.GenerateFrame();
-		if (test_frame >= newCase.FrameCount() - 1)
+		if (TEST_FRAME >= TEST_LENGTH)
 		{
-			if (running_comparison)
+			if (runningComparison)
 				Compare(true);
-			else if (generating_test)
+			else
 				Write_To_File();
 
-			running_comparison = false;
-			generating_test = false;
-			collecting_data = false;
+			COLLECTING_DATA = false;
+			Test_Script_Completed_Hook();
 		}
 		else
 		{
-			if (running_comparison)
+			newCase.GenerateFrame();
+			if (runningComparison)
 			{
-				oldCase.Apply(test_frame);
+				oldCase.Apply(TEST_FRAME);
 				Compare();
-			}
-				
+			}			
 		}
-		++test_frame;
 	}
+
+	++TEST_FRAME;
 }
 
-void Cmd_Test_Script(void)
+static bool CheckTestConditions()
 {
 	if (!Test_IsRunningTest())
 	{
 		Con_Print("Cannot run script test outside of a test file.\n");
-		return;
+		return false;
 	}
-
-	if (collecting_data)
+	else if (COLLECTING_DATA)
 	{
 		Con_Printf("Cannot run test, already collecting data.\n");
+		return false;
+	}
+	
+	return true;
+}
+
+void Cmd_Test_Script(void)
+{
+	char testfile[260];
+	char script[260];
+
+	if (!CheckTestConditions())
+		return;
+
+	if (Cmd_Argc() < 2)
+	{
+		Con_Printf("Usage: tas_test_script <filepath>\n");
 		return;
 	}
 
-	char buf[260];
+	const char* testname = Cmd_Argv(1);
+	sprintf(script, "%s/test/%s.qtas", com_gamedir, testname);
+	sprintf(testfile, "%s/test/%s.qd", com_gamedir, testname);
+	bool scriptLoaded = TAS_Script_Load(script);
+
+	if (!scriptLoaded)
+	{
+		Con_Printf("Failed to load test.\n");
+		return;
+	}
+
+	auto playback = GetPlaybackInfo();
+	int frames = playback.Get_Last_Frame() - START_OFFSET;
+	COLLECTING_DATA = true;
+	TEST_FRAME = 0;
+	TEST_LENGTH = frames;
 
 	if (Test_IsGeneratingTest())
 	{
-		if (Cmd_Argc() < 3)
-		{
-			Con_Printf("Usage: tas_generate_test <filepath> <frames>\n");
-		}
-
-		sprintf(buf, "%s/test/", com_gamedir);
-		Create_Folder_If_Not_Exists(buf);
-		sprintf(buf, "%s/test/%s.qd", com_gamedir, Cmd_Argv(1));
-
-		int frames = std::atoi(Cmd_Argv(2));
-		newCase = TestCase(frames, buf);
-		generating_test = true;
-		collecting_data = true;
-		test_frame = 0;
-		Con_Printf("Started generating test %s\n", buf);
+		newCase = TestCase(frames, testfile);
+		Con_Printf("Started generating test %s\n", testfile);
 	}
 	else
 	{
-		if (Cmd_Argc() < 3)
+		oldCase = TestCase::LoadFromFile(testfile);
+		if (oldCase.FrameCount() != frames)
 		{
-			Con_Printf("Usage: tas_run_test <filepath> <test name>\n");
-		}
-
-		sprintf(buf, "%s/test/%s.qd", com_gamedir, Cmd_Argv(1));
-		oldCase = TestCase::LoadFromFile(buf);
-		if (oldCase.FrameCount() == 0)
-		{
-			Con_Printf("Failed to load testcase from file %s.\n", buf);
+			Con_Printf("Old testcase has wrong framecount %s.\n", testfile);
 			return;
 		}
 
-		newCase = TestCase(oldCase.FrameCount(), oldCase.Filepath());
-		running_comparison = true;
-		collecting_data = true;
-		test_frame = 0;
-		Con_Printf("Started running test %s\n", Cmd_Argv(2));
+		newCase = TestCase(frames, oldCase.Filepath());
+		Con_Printf("Started running test %s\n", Cmd_Argv(1));
 	}
+
+	Run_Script(-1, true, false);
 }
 
 TestCase::TestCase() { }
@@ -173,23 +185,26 @@ void TestCase::Apply(int frame)
 	if(frame == 0)
 		current = initial_data;
 	else
-		current.patch(deltas[frame-1]);
+		current = current.patch(deltas[frame-1]);
 }
 
 void TestCase::GenerateFrame()
 {
-	auto dump = Dump_SV();
-	if (test_frame == 0)
+	auto dump = Dump_Test();
+	if (Test_IsGeneratingTest())
 	{
-		current = dump;
-		initial_data = current;
+		if (TEST_FRAME == 0)
+		{		
+			current = dump;
+			initial_data = current;
+		}
+		else
+		{
+			auto delta = nlohmann::json::diff(current, dump);
+			deltas.push_back(delta);
+		}
 	}
-	else
-	{
-		auto delta = nlohmann::json::diff(current, dump);
-		deltas.push_back(delta);
-		current = dump;
-	}
+	current = dump;
 }
 
 

@@ -186,14 +186,14 @@ TASScript::TASScript(const char* file_name)
 	this->file_name = file_name;
 }
 
-void TASScript::Load_From_File()
+bool TASScript::Load_From_File()
 {
 	std::ifstream stream;
 
 	if (!Open_Stream(stream, file_name.c_str()))
 	{
 		Con_Printf("Unable to open script %s\n", file_name.c_str());
-		return;
+		return false;
 	}
 
 	FrameBlock fb;
@@ -217,10 +217,12 @@ void TASScript::Load_From_File()
 		if (fb.parsed)
 			blocks.push_back(fb);
 		Con_Printf("Script %s loaded with %u blocks.\n", file_name.c_str(), blocks.size());
+		return true;
 	}
 	catch (const std::exception& e)
 	{
 		Con_Printf("Error parsing line %d: %s\n", line_number, e.what());
+		return false;
 	}
 }
 
@@ -490,7 +492,6 @@ TestBlock::TestBlock(const std::string& line)
 TestBlock::TestBlock()
 {
 	afterframes_filter = 0;
-	hook_count = 0;
 	hook_count = 0;
 	hook = HookEnum::Frame;
 }

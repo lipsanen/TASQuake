@@ -91,10 +91,11 @@ static void Savestate_Skip(int start_frame)
 static void Normal_Skip()
 {
 	tas_timescale.value = 999999;
-	AddAfterframes(playback.pause_frame - 1 - playback.current_frame, "tas_timescale 1");
+	r_norefresh.value = 1;
+	AddAfterframes(playback.pause_frame - 1 - playback.current_frame, "tas_timescale 1; r_norefresh 0");
 }
 
-static void Run_Script(int frame, bool skip = false)
+void Run_Script(int frame, bool skip, bool ss)
 {
 	if(!Set_Pause_Frame(frame))
 		return;
@@ -107,7 +108,7 @@ static void Run_Script(int frame, bool skip = false)
 	if (skip)
 	{
 		int ss_frame = Savestate_Load_State(frame);
-		if (ss_frame < 0)
+		if (ss_frame < 0 && ss)
 		{
 			Normal_Skip();
 		}
@@ -393,6 +394,17 @@ const PlaybackInfo& GetPlaybackInfo()
 	return playback;
 }
 
+bool TAS_Script_Load(const char* name)
+{
+	Clear_Bookmarks();
+	Savestate_Script_Updated(0);
+	playback.current_script = TASScript(name);
+	playback.last_edited = Sys_DoubleTime();
+	bool result = playback.current_script.Load_From_File();
+
+	return result;
+}
+
 static void CreateScriptName(char* buffer, const char* name)
 {
 	sprintf(buffer, "%s/tas/%s", com_gamedir, Cmd_Argv(1));
@@ -447,15 +459,13 @@ void Cmd_TAS_Script_Load(void)
 	char name[256];
 	sprintf(name, "%s/tas/%s", com_gamedir, Cmd_Argv(1));
 	COM_ForceExtension(name, ".qtas");
-
-	Clear_Bookmarks();
-	Savestate_Script_Updated(0);
-	playback.current_script = TASScript(name);
-	playback.current_script.Load_From_File();
-	playback.last_edited = Sys_DoubleTime();
-	tas_playing.value = 0;
-	tas_gamestate = unpaused;
-	Cbuf_AddText("disconnect");
+	
+	if (TAS_Script_Load(name))
+	{
+		tas_playing.value = 0;
+		tas_gamestate = unpaused;
+		Cbuf_AddText("disconnect");
+	}
 }
 
 void Cmd_TAS_Script_Play(void)
