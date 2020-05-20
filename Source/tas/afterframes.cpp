@@ -9,6 +9,8 @@ const int BUFFER_SIZE = 8192;
 static std::vector<AfterFrames> afterframesQueue;
 static char CmdBuffer[BUFFER_SIZE];
 static int bufferIndex = 0;
+static bool jump_calculated = false;
+static bool jump_result = false;
 static bool afterFramesPaused = false;
 const unsigned int NoFilter = 0, Game = 1, Menu = 2, Unpaused = 4, Loading = 8;
 
@@ -61,6 +63,7 @@ void AdvanceCommands()
 		if(entry.Active())
 			--entry.frames;
 	}
+	jump_calculated = false;
 }
 
 char* GetQueuedCommands()
@@ -103,6 +106,26 @@ void UnpauseAfterframes()
 void ClearAfterframes()
 {
 	afterframesQueue.clear();
+	jump_calculated = false;
+}
+
+bool Gonna_Jump()
+{
+	if (!jump_calculated)
+	{
+		jump_result = false;
+		for (auto& entry : afterframesQueue)
+		{
+			if (entry.frames <= 0 && strstr(entry.command.c_str(), "+jump") != NULL)
+			{
+				jump_result = true;
+			}
+		}
+
+		jump_calculated = true;
+	}
+
+	return jump_result;
 }
 
 void Cmd_TAS_AfterFrames(void)

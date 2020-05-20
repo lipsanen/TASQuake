@@ -105,8 +105,16 @@ void Savestate_Frame_Hook(int frame)
 void Savestate_Script_Updated(int frame)
 {
 	auto it = savestateMap.lower_bound(frame);
-	savestateMap.erase(it, savestateMap.end());
-	
+
+	for (auto it = savestateMap.begin(); it != savestateMap.end(); ++it)
+	{
+		if (it->first > frame)
+		{
+			savestateMap.erase(it, savestateMap.end());
+			break;
+		}
+	}
+
 	if (savestateMap.empty())
 	{
 		save_number = 0;

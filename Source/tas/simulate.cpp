@@ -3,6 +3,7 @@
 #include "draw.hpp"
 #include "strafing.hpp"
 #include "utils.hpp"
+#include "afterframes.hpp"
 
 trace_t SV_Move_Proxy(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int type, edict_t* passedict)
 {
@@ -546,6 +547,10 @@ SimulationInfo Get_Sim_Info()
 	READ_KEY(down);
 	READ_KEY(speed);
 	READ_KEY(jump);
+	if (Gonna_Jump())
+	{
+		info.key_jump.state = 1;
+	}
 	info.vars = Get_Current_Vars();
 
 	return info;
@@ -646,6 +651,14 @@ static void CalculateMoves(SimulationInfo& info)
 
 static void SetStrafe(SimulationInfo& info)
 {
+	if (info.time <= 1.425)
+	{
+		info.fmove = 0;
+		info.smove = 0;
+		info.upmove = 0;
+		return;
+	}
+
 	usercmd_t cmd;
 	cmd.forwardmove = 0;
 	cmd.upmove = 0;
