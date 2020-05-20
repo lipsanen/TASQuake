@@ -72,7 +72,8 @@ static void Savestate_Skip(int start_frame)
 	if (playback.current_frame < playback.pause_frame)
 	{
 		tas_timescale.value = 999999;
-		AddAfterframes(playback.pause_frame - 1 - playback.current_frame, "tas_timescale 1");
+		r_norefresh.value = 1;
+		AddAfterframes(playback.pause_frame - 1 - playback.current_frame, "tas_timescale 1; r_norefresh 0");
 	}
 
 	for (auto& block : playback.current_script.blocks)
@@ -764,7 +765,7 @@ void Cmd_TAS_Edit_Shift_Stack(void)
 	int frames = atoi(Cmd_Argv(1));
 	int current_block = playback.GetCurrentBlockNumber();
 
-	if (current_block == playback.current_script.blocks.size() - 1)
+	if (playback.current_frame >= playback.Get_Last_Frame())
 	{
 		Con_Printf("Cannot shift stack, this is the last frame block.\n");
 		return;
