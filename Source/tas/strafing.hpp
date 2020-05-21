@@ -51,6 +51,15 @@ struct StrafeVars
 	StrafeVars();
 };
 
+struct MoveInfo {
+	int fmove;
+	int smove;
+	int upmove;
+	float yaw;
+	float pitch;
+	bool jump;
+};
+
 bool Is_TAS_Jump_Down();
 bool Is_TAS_Lgagst_Down();
 StrafeVars Get_Current_Vars();
@@ -71,3 +80,4 @@ void Cmd_TAS_Print_Vel(void);
 // desc: Prints origin on next physics frame
 void Cmd_TAS_Print_Origin(void);
 double MaxAccelTheta(const PlayerData& data, const StrafeVars& vars);
+MoveInfo GetPrevMoveInfo();

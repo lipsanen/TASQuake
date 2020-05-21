@@ -38,6 +38,8 @@ cvar_t tas_hud_pos_inc = {"tas_hud_pos_inc", "8"};
 cvar_t tas_hud_strafe = {"tas_hud_strafe", "0"};
 //desc: Displays movemessages sent
 cvar_t tas_hud_movemessages = {"tas_hud_movemessages", "0"};
+//desc: Draws output of strafe algorithm on previous frame
+cvar_t tas_hud_strafeinfo = {"tas_hud_strafeinfo", "0"};
 
 void Draw(int& y, cvar_t* cvar, const char* format, ...)
 {
@@ -282,6 +284,20 @@ void Draw_StrafeStuff(const PlayerData& player_data)
 	Draw_Fill_RGB(x + position - 1, y, 3, 9, 0, 1, 0);
 }
 
+
+void Draw_StrafeInfo(int& y)
+{
+	if (!tas_hud_strafeinfo.value)
+		return;
+
+	auto info = GetPrevMoveInfo();
+
+	Draw(y, &tas_hud_strafeinfo, "moves: (%d, %d, %d)", info.fmove, info.smove, info.upmove);
+	Draw(y, &tas_hud_strafeinfo, "angles: (%f, %f)", info.pitch, info.yaw);
+	Draw(y, &tas_hud_strafeinfo, "jump: %d", info.jump ? 1 : 0);
+}
+
+
 void HUD_Draw_Hook()
 {
 	if (!sv.active)
@@ -319,4 +335,5 @@ void HUD_Draw_Hook()
 	Draw_PFlags(y);
 	DrawFrameState(y, info);
 	Draw_StrafeStuff(player_data);
+	Draw_StrafeInfo(y);
 }

@@ -412,6 +412,7 @@ void SetView(float* yaw, float* pitch, const StrafeVars& vars)
 /*
 static SimulationInfo past;
 static SimulationInfo present;*/
+static MoveInfo previous;
 
 void Strafe(usercmd_t* cmd)
 {
@@ -420,6 +421,16 @@ void Strafe(usercmd_t* cmd)
 
 	auto vars = Get_Current_Vars();
 	StrafeSim(cmd, sv_player, &cl.viewangles[YAW], &cl.viewangles[PITCH], vars);
+	previous.fmove = cmd->forwardmove;
+	previous.smove = cmd->sidemove;
+	previous.upmove = cmd->upmove;
+	previous.yaw = cl.viewangles[YAW];
+	previous.pitch = cl.viewangles[PITCH];
+}
+
+MoveInfo GetPrevMoveInfo()
+{
+	return previous;
 }
 
 void StrafeSim(usercmd_t* cmd, edict_t* player, float* yaw, float* pitch, const StrafeVars& vars)
@@ -467,11 +478,17 @@ void Strafe_Jump_Check()
 	{
 		AddAfterframes(0, "-jump");
 		should_unjump = false;
+		previous.jump = false;
 	}
 	else if (jump && (in_jump.state & 1) == 0)
 	{
+		previous.jump = true;
 		AddAfterframes(0, "+jump");
 		should_unjump = true;
+	}
+	else
+	{
+		previous.jump = false;
 	}
 
 	auto data = GetPlayerData();
