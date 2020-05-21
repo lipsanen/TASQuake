@@ -246,4 +246,3 @@ void SV_CheckForNewClients (void);
 void SV_RunClients (void);
 void SV_SaveSpawnparms ();
 void SV_SpawnServer (char *server);
-char *PR_UglyValueString(etype_t type, eval_t *val);

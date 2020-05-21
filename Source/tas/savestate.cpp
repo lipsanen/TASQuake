@@ -148,6 +148,254 @@ void GrabEntity(std::ifstream& in, char* data)
 	*data = '\0';
 }
 
+static ddef_t* ED_FieldAtOfs(int ofs)
+{
+	ddef_t* def;
+	int	i;
+
+	for (i = 0; i < progs->numfielddefs; i++)
+	{
+		def = &pr_fielddefs[i];
+		if (def->ofs == ofs)
+			return def;
+	}
+
+	return NULL;
+}
+
+
+/*
+============
+ED_FindField
+============
+*/
+static ddef_t* ED_FindField(char* name)
+{
+	ddef_t* def;
+	int	i;
+
+	for (i = 0; i < progs->numfielddefs; i++)
+	{
+		def = &pr_fielddefs[i];
+		if (!strcmp(pr_strings + def->s_name, name))
+			return def;
+	}
+
+	return NULL;
+}
+
+static qboolean _ED_ParseEpair(void* base, ddef_t* key, char* s)
+{
+	int		i;
+	char		string[128];
+	ddef_t* def;
+	char* v, * w;
+	void* d;
+	dfunction_t* func;
+	int val;
+
+	d = (void*)((int*)base + key->ofs);
+
+	switch (key->type & ~DEF_SAVEGLOBAL)
+	{
+	case ev_string:
+		*(string_t*)d = ED_NewString(s) - pr_strings;
+		break;
+
+	case ev_float:
+		val = atoi(s);
+		*(float*)d = *reinterpret_cast<float*>(&val);
+		break;
+
+	case ev_vector:
+		strcpy(string, s);
+		v = string;
+		w = string;
+		for (i = 0; i < 3; i++)
+		{
+			while (*v && *v != ' ')
+				v++;
+			*v = 0;
+			((float*)d)[i] = atof(w);
+			w = v = v + 1;
+		}
+		break;
+
+	case ev_entity:
+		*(int*)d = EDICT_TO_PROG(EDICT_NUM(atoi(s)));
+		break;
+
+	case ev_field:
+		if (!(def = ED_FindField(s)))
+		{
+			// LordHavoc: don't warn about worldspawn sky/fog fields
+			// because they don't require mod support
+			if (strcmp(s, "sky") && strncmp(s, "fog_", 4))
+				Con_Printf("Can't find field %s\n", s);
+			return qfalse;
+		}
+		*(int*)d = G_INT(def->ofs);
+		break;
+
+	case ev_function:
+		if (!(func = ED_FindFunction(s)))
+		{
+			Con_Printf("Can't find function %s\n", s);
+			return qfalse;
+		}
+		*(func_t*)d = func - pr_functions;
+		break;
+
+	default:
+		break;
+	}
+
+	return qtrue;
+}
+
+/*
+====================
+ED_ParseEdict
+
+Parses an edict out of the given string, returning the new position
+ed should be a properly initialized empty edict.
+Used for initial level load and for savegames.
+====================
+*/
+static char* ED_ParseEdict(char* data, edict_t* ent)
+{
+	ddef_t* key;
+	qboolean	anglehack;
+	qboolean	init;
+	char		keyname[256];
+	int		n;
+
+	init = qfalse;
+
+	// clear it
+	if (ent != sv.edicts)	// hack
+		memset(&ent->v, 0, progs->entityfields * 4);
+
+	// go through all the dictionary pairs
+	while (1)
+	{
+		// parse key
+		data = COM_Parse(data);
+		if (com_token[0] == '}')
+			break;
+		if (!data)
+			Sys_Error("ED_ParseEntity: EOF without closing brace");
+
+		// anglehack is to allow QuakeEd to write single scalar angles
+		// and allow them to be turned into vectors. (FIXME...)
+		if (!strcmp(com_token, "angle"))
+		{
+			strcpy(com_token, "angles");
+			anglehack = qtrue;
+		}
+		else
+			anglehack = qfalse;
+
+		// FIXME: change light to _light to get rid of this hack
+		if (!strcmp(com_token, "light"))
+			strcpy(com_token, "light_lev");	// hack for single light def
+
+		strcpy(keyname, com_token);
+
+		// another hack to fix keynames with trailing spaces
+		n = strlen(keyname);
+		while (n && keyname[n - 1] == ' ')
+		{
+			keyname[n - 1] = 0;
+			n--;
+		}
+
+		// parse value	
+		if (!(data = COM_Parse(data)))
+			Sys_Error("ED_ParseEntity: EOF without closing brace");
+
+		if (com_token[0] == '}')
+			Sys_Error("ED_ParseEntity: closing brace without data");
+
+		init = qtrue;
+
+		// keynames with a leading underscore are used for utility comments,
+		// and are immediately discarded by quake
+		if (keyname[0] == '_')
+			continue;
+
+		if (!(key = ED_FindField(keyname)))
+		{
+			Con_Printf("'%s' is not a field\n", keyname);
+			continue;
+		}
+
+		if (anglehack)
+		{
+			char	temp[32];
+
+			strcpy(temp, com_token);
+			sprintf(com_token, "0 %s 0", temp);
+		}
+
+		if (!_ED_ParseEpair((void*)&ent->v, key, com_token))
+			Host_Error("ED_ParseEdict: parse error");
+	}
+
+	if (!init)
+		ent->free = qtrue;
+
+	return data;
+}
+
+static char* _PR_UglyValueString(etype_t type, eval_t* val)
+{
+	static char	line[256];
+	ddef_t* def;
+	dfunction_t* f;
+
+	type = static_cast<etype_t>(type & ~DEF_SAVEGLOBAL);
+
+	switch (type)
+	{
+	case ev_string:
+		sprintf(line, "%s", pr_strings + val->string);
+		break;
+
+	case ev_entity:
+		sprintf(line, "%i", NUM_FOR_EDICT(PROG_TO_EDICT(val->edict)));
+		break;
+
+	case ev_function:
+		f = pr_functions + val->function;
+		sprintf(line, "%s", pr_strings + f->s_name);
+		break;
+
+	case ev_field:
+		def = ED_FieldAtOfs(val->_int);
+		sprintf(line, "%s", pr_strings + def->s_name);
+		break;
+
+	case ev_void:
+		sprintf(line, "void");
+		break;
+
+	case ev_float:
+		sprintf(line, "%d", val->_int);
+		break;
+
+	case ev_vector:
+		sprintf(line, "%d %d %d", *reinterpret_cast<int32_t*>(&val->vector[0]), *reinterpret_cast<int32_t*>(&val->vector[1]), *reinterpret_cast<int32_t*>(&val->vector[2]));
+		break;
+
+	default:
+		sprintf(line, "bad type %i", type);
+		break;
+	}
+
+	return line;
+}
+
 static void ED_WriteGlobals(std::ofstream& out)
 {
 	ddef_t		*def;
@@ -167,7 +415,7 @@ static void ED_WriteGlobals(std::ofstream& out)
 
 		name = pr_strings + def->s_name;
 		out << '"' << name << "\" ";
-		out << '"' << PR_UglyValueString((etype_t)type, (eval_t *)&pr_globals[def->ofs]) << "\"\n";
+		out << '"' << _PR_UglyValueString((etype_t)type, (eval_t *)&pr_globals[def->ofs]) << "\"\n";
 	}
 	out << '}';
 }
@@ -196,7 +444,7 @@ static void ED_Write(std::ofstream& out, edict_t *ed)
 			continue;
 
 		out << '"' << name << "\" ";
-		out << '"' << PR_UglyValueString((etype_t)d->type, (eval_t *)v) << "\"\n";
+		out << '"' << _PR_UglyValueString((etype_t)d->type, (eval_t *)v) << "\"\n";
 	}
 
 	out << '}';
@@ -284,6 +532,55 @@ void Read_Client(std::ifstream& in)
 	}
 
 	Read(in, cl_backup);
+}
+
+static ddef_t* ED_FindGlobal(char* name)
+{
+	ddef_t* def;
+	int	i;
+
+	for (i = 0; i < progs->numglobaldefs; i++)
+	{
+		def = &pr_globaldefs[i];
+		if (!strcmp(pr_strings + def->s_name, name))
+			return def;
+	}
+
+	return NULL;
+}
+
+static void ED_ParseGlobals(char* data)
+{
+	char	keyname[64];
+	ddef_t* key;
+
+	while (1)
+	{
+		// parse key
+		data = COM_Parse(data);
+		if (com_token[0] == '}')
+			break;
+		if (!data)
+			Sys_Error("ED_ParseEntity: EOF without closing brace");
+
+		strcpy(keyname, com_token);
+
+		// parse value	
+		if (!(data = COM_Parse(data)))
+			Sys_Error("ED_ParseEntity: EOF without closing brace");
+
+		if (com_token[0] == '}')
+			Sys_Error("ED_ParseEntity: closing brace without data");
+
+		if (!(key = ED_FindGlobal(keyname)))
+		{
+			Con_Printf("'%s' is not a global\n", keyname);
+			continue;
+		}
+
+		if (!_ED_ParseEpair((void*)pr_globals, key, com_token))
+			Host_Error("ED_ParseGlobals: parse error");
+	}
 }
 
 
@@ -411,6 +708,8 @@ void SS(const char* savename)
 	Write(out, current_skill);
 	Write(out, sv.name);
 	Write(out, sv.time);
+	Write(out, sv.lastcheck);
+	Write(out, sv.lastchecktime);
 
 	// write the light styles
 	for (i = 0; i < MAX_LIGHTSTYLES; i++)
@@ -454,11 +753,15 @@ void Cmd_TAS_LS(void)
 	}
 
 	unsigned int seed;
+	int lastcheck;
+	double lastchecktime;
 	Read(in, seed);
 	Read(in, current_skill);
 	Read(in, mapname);
 	double t;
 	Read(in, t);
+	Read(in, lastcheck);
+	Read(in, lastchecktime);
 
 	TAS_Set_Seed(seed);
 	Cvar_SetValue(&skill, (float)current_skill);
@@ -475,6 +778,8 @@ void Cmd_TAS_LS(void)
 	sv.loadgame = qtrue;
 	tas_gamestate = loading;
 	sv.time = t;
+	sv.lastcheck = lastcheck;
+	sv.lastchecktime = lastchecktime;
 
 	for (i = 0; i < MAX_LIGHTSTYLES; i++)
 	{
