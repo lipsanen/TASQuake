@@ -959,8 +959,14 @@ qboolean Script_Playback_Cmd_ExecuteString_Hook(const char* text)
 		return qfalse;
 
 	char* name = Cmd_Argv(0);
+	static char lowercase [33];
+	strcpy(lowercase, name);
+	int len = strlen(name);
+	for (int i = 0; i <= len; ++i) {
+		lowercase[i] = tolower(name[i]);
+	}
 
-	if (IsGameplayCvar(name))
+	if (IsGameplayCvar(lowercase))
 	{
 		if (Cmd_Argc() == 1)
 		{
@@ -969,13 +975,13 @@ qboolean Script_Playback_Cmd_ExecuteString_Hook(const char* text)
 		}
 
 		float new_val = atof(Cmd_Argv(1));
-		SetConvar(name, new_val);
+		SetConvar(lowercase, new_val);
 
 		return qtrue;
 	}
-	else if (IsDownCmd(name))
+	else if (IsDownCmd(lowercase))
 	{
-		auto cmd = name + 1;
+		auto cmd = lowercase + 1;
 
 		bool old_value = Get_Existing_Toggle(cmd);
 		bool new_value = !old_value;
@@ -983,7 +989,7 @@ qboolean Script_Playback_Cmd_ExecuteString_Hook(const char* text)
 
 		return qtrue;
 	}
-	else if (strstr(name, "impulse") == name && Cmd_Argc() > 1)
+	else if (strstr(lowercase, "impulse") == lowercase && Cmd_Argc() > 1)
 	{
 		int number = atoi(Cmd_Argv(1));
 
@@ -992,7 +998,7 @@ qboolean Script_Playback_Cmd_ExecuteString_Hook(const char* text)
 
 		playback.last_edited = Sys_DoubleTime();
 		auto block = GetBlockForFrame();
-		CenterPrint("Block: Added %s %s", name, Cmd_Argv(1));
+		CenterPrint("Block: Added impulse %s", Cmd_Argv(1));
 		block->commands.clear();
 		sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "impulse %s", Cmd_Argv(1));
 		block->Add_Command(BUFFER);
