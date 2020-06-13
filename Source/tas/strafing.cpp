@@ -27,6 +27,9 @@ which works regardless of where you are looking at.
 cvar_t tas_anglespeed = {"tas_anglespeed", "5"};
 // internal functionality for backwards compatibility
 cvar_t tas_strafe_version = {"tas_strafe_version", "2"};
+// desc: Max length of the strafe vectors on each axis
+cvar_t tas_strafe_maxlength = {"tas_strafe_maxlength", "32767"};
+
 const float INVALID_ANGLE = 999;
 
 static bool autojump = false;
@@ -305,7 +308,7 @@ void StrafeInto(usercmd_t* cmd, double yaw, float view_yaw, float view_pitch, co
 	}
 
 	double smove = std::sin(diff) * sv_maxspeed.value;
-	ApproximateRatioWithIntegers(fmove, smove, 32767);
+	ApproximateRatioWithIntegers(fmove, smove, tas_strafe_maxlength.value);
 	cmd->forwardmove = fmove;
 	cmd->sidemove = smove;
 	cmd->upmove = 0;
@@ -350,7 +353,7 @@ void SwimInto(usercmd_t* cmd, float view_yaw, float view_pitch, const StrafeVars
 	double smove = std::sin(yawdiff);
 	double upmove = std::tan(-pitch * M_DEG2RAD) - fwd_zlen;
 
-	ApproximateRatioWithIntegers(fmove, smove, upmove, 32767);
+	ApproximateRatioWithIntegers(fmove, smove, upmove, tas_strafe_maxlength.value);
 	cmd->forwardmove = fmove;
 	cmd->sidemove = smove;
 	cmd->upmove = upmove;
