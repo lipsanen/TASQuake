@@ -13,6 +13,7 @@
 #include "savestate.hpp"
 #include "data_export.hpp"
 #include "test_runner.hpp"
+#include "ipc_main.hpp"
 
 // desc: When set to 1, pauses the game on load
 cvar_t tas_pause_onload = {"tas_pause_onload", "0"};
@@ -173,12 +174,18 @@ void TAS_Init()
 	Cvar_Register(&tas_hud_strafe);
 	Cvar_Register(&tas_hud_strafeinfo);
 	Cvar_Register(&tas_hud_movemessages);
+	Cvar_Register(&tas_ipc);
+	Cvar_Register(&tas_ipc_port);
+	Cvar_Register(&tas_ipc_timeout);
+	Cvar_Register(&tas_ipc_verbose);
 	Cvar_Register(&tas_timescale);
 	Cvar_Register(&tas_predict);
 	Cvar_Register(&tas_predict_per_frame);
 	Cvar_Register(&tas_predict_amount);
 	Cvar_Register(&tas_savestate_auto);
 	Cvar_Register(&tas_savestate_enabled);
+
+	IPC_Init();
 }
 
 void TAS_Set_Seed(unsigned int seed)
@@ -257,6 +264,7 @@ void _Host_Frame_Hook()
 
 	Simulate_Frame_Hook();
 	Script_Playback_Host_Frame_Hook();
+	IPC_Loop();
 
 	if (set_seed && tas_gamestate == unpaused)
 	{

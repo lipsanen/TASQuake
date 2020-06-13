@@ -119,7 +119,7 @@ void ipc::IPCServer::Loop()
 
 bool ipc::IPCServer::BlockForMessages(const std::string& type, int timeoutMsec)
 {
-	int msecElapsed = 0;
+	long long msecElapsed = 0;
 	auto begin = std::chrono::steady_clock::now();
 
 	if (msgQueue.find(type) != msgQueue.end()) {
@@ -144,13 +144,14 @@ bool ipc::IPCServer::BlockForMessages(const std::string& type, int timeoutMsec)
 	}
 }
 
-void ipc::IPCServer::AddCallback(std::string type, MsgCallback callback)
+void ipc::IPCServer::AddCallback(std::string type, MsgCallback callback, bool blocking)
 {
 	callbacks[type] = callback;
+	blockingMap[type] = blocking;
 	msgQueue[type] = std::vector<nlohmann::json>();
 }
 
-void ipc::IPCServer::SendMsg(nlohmann::json msg)
+void ipc::IPCServer::SendMsg(const nlohmann::json& msg)
 {
 	if (clientSocket == SOCKET_ERROR) {
 		Print("No client connected.\n");
@@ -160,7 +161,7 @@ void ipc::IPCServer::SendMsg(nlohmann::json msg)
 	std::string out = msg.dump();
 	const char* string = out.c_str();
 
-	for (int i = 0; i <= out.size();)
+	for (std::size_t i = 0; i <= out.size();)
 	{
 		int result = send(clientSocket, string, out.size() - i + 1, 0);
 		if (result == SOCKET_ERROR) {
@@ -228,20 +229,26 @@ void ipc::IPCServer::ReadMessages()
 				nlohmann::json msg = nlohmann::json::parse(str, RECV_BUFFER + i);
 
 				if (msg.find("type") != msg.end()) {
-					auto type = msg["type"];
+					std::string type = msg["type"];
 
-					if (msgQueue.find(type) == msgQueue.end()) {
-						msgQueue[type] = std::vector<nlohmann::json>();
+					if (callbacks.find(type) == callbacks.end())
+					{
+						Print("No callback for message type %s\n", type.c_str());
 					}
+					else {
+						if (msgQueue.find(type) == msgQueue.end()) {
+							msgQueue[type] = std::vector<nlohmann::json>();
+						}
 
-					msgQueue[type].push_back(msg);
+						msgQueue[type].push_back(msg);
+					}
 				}
 				else {
 					Print("Bad message received.\n");
 				}
 			}
 			catch (const std::exception& ex) {
-				Print("Error parsing json: %s\n", ex.what());
+				Print("Error parsing message: %s\n", ex.what());
 			}		
 			startIndex = i + 1;
 		}
@@ -292,7 +299,7 @@ void ipc::IPCServer::CheckForConnections()
 void ipc::IPCServer::DispatchMessages()
 {
 	for (auto& pair : msgQueue) {
-		if (!pair.second.empty()) {
+		if (!blockingMap[pair.first] && !pair.second.empty()) {
 			DispatchMessages(pair.first);
 		}
 	}
@@ -325,7 +332,13 @@ void ipc::Print(const char* msg, ...)
 	}
 }
 
-void ipc::Shutdown()
+void ipc::Shutdown_IPC()
 {
 	WSACleanup();
+	WINSOCK_INITIALIZED = false;
+}
+
+bool ipc::Winsock_Initialized()
+{
+	return WINSOCK_INITIALIZED;
 }
