@@ -24,6 +24,7 @@ extern cvar_t tas_view_yaw;
 extern cvar_t tas_view_pitch;
 extern cvar_t tas_anglespeed;
 extern cvar_t tas_strafe_version;
+extern cvar_t tas_strafe_maxlength;
 extern const float INVALID_ANGLE;
 enum class StrafeType
 {

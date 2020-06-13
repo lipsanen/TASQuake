@@ -141,6 +141,7 @@ void TAS_Init()
 	Cmd_AddCommand("tas_test_generate", Cmd_Test_Generate);
 
 	Cmd_AddCommand("tas_ls", Cmd_TAS_LS);
+	Cmd_AddCommand("tas_savestate", Cmd_TAS_Savestate);
 	Cvar_Register(&tas_playing);
 	Cvar_Register(&tas_pause_onload);
 	Cvar_Register(&tas_strafe);
@@ -149,6 +150,7 @@ void TAS_Init()
 	Cvar_Register(&tas_strafe_pitch);
 	Cvar_Register(&tas_strafe_lgagst_speed);
 	Cvar_Register(&tas_strafe_version);
+	Cvar_Register(&tas_strafe_maxlength);
 	Cvar_Register(&tas_view_pitch);
 	Cvar_Register(&tas_view_yaw);
 	Cvar_Register(&tas_anglespeed);
