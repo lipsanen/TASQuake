@@ -227,6 +227,7 @@
     <ClInclude Include="Source\tas\hooks.h" />
     <ClInclude Include="Source\tas\hud.hpp" />
     <ClInclude Include="Source\tas\ipc.hpp" />
+    <ClInclude Include="Source\tas\ipc_main.hpp" />
     <ClInclude Include="Source\tas\json.hpp" />
     <ClInclude Include="Source\tas\reset.hpp" />
     <ClInclude Include="Source\tas\savestate.hpp" />
@@ -311,6 +312,7 @@
     <ClCompile Include="Source\tas\hooks.cpp" />
     <ClCompile Include="Source\tas\hud.cpp" />
     <ClCompile Include="Source\tas\ipc.cpp" />
+    <ClCompile Include="Source\tas\ipc_main.cpp" />
     <ClCompile Include="Source\tas\reset.cpp" />
     <ClCompile Include="Source\tas\savestate.cpp" />
     <ClCompile Include="Source\tas\script_parse.cpp" />

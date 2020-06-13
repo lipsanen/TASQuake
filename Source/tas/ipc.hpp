@@ -7,7 +7,8 @@ namespace ipc {
 	typedef void (*MsgCallback) (const nlohmann::json& msg);
 
 	void Print(const char* msg, ...);
-	void Shutdown();
+	void Shutdown_IPC();
+	bool Winsock_Initialized();
 
 	class IPCServer {
 	public:
@@ -18,8 +19,8 @@ namespace ipc {
 		void CloseConnections();
 		void Loop();
 		bool BlockForMessages(const std::string& msg, int timeoutMsec);
-		void AddCallback(std::string type, MsgCallback callback);
-		void SendMsg(nlohmann::json msg);
+		void AddCallback(std::string type, MsgCallback callback, bool blocking);
+		void SendMsg(const nlohmann::json& msg);
 		bool ClientConnected();
 		~IPCServer();
 	private:
@@ -32,6 +33,7 @@ namespace ipc {
 		char* RECV_BUFFER;
 
 		std::unordered_map<std::string, MsgCallback> callbacks;
+		std::unordered_map<std::string, bool> blockingMap;
 		std::unordered_map<std::string, std::vector<nlohmann::json>> msgQueue;
 	};
 
