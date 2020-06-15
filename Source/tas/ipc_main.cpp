@@ -6,6 +6,7 @@ static qboolean OnChange_tas_ipc(cvar_t* var, char* string);
 static ipc::IPCServer server;
 
 cvar_t tas_ipc = { "tas_ipc", "0", 0, OnChange_tas_ipc };
+cvar_t tas_ipc_feedback = { "tas_ipc_feedback", "0", 0  };
 cvar_t tas_ipc_port = { "tas_ipc_port", "10001"};
 cvar_t tas_ipc_verbose = { "tas_ipc_verbose", "1"};
 cvar_t tas_ipc_timeout = { "tas_ipc_timeout", "200"};
@@ -79,21 +80,39 @@ void IPC_Init()
 	server.AddPrintFunc(IPC_Print);
 }
 
-void IPC_Block_For_Response()
-{
-	int timeout = static_cast<int>(bound(1, tas_ipc_timeout.value, MAX_TIMEOUT));
-	server.BlockForMessages("response", timeout);
-}
-
 bool IPC_Active()
 {
 	return ipc::Winsock_Initialized() && server.ClientConnected();
+}
+
+static void Feedback()
+{
+	Con_Printf("Current feedback: %f\n", tas_ipc_feedback.value);
+	nlohmann::json playerData;
+	playerData["type"] = "playerdata";
+	playerData["pos[0]"] = sv_player->v.origin[0];
+	playerData["pos[1]"] = sv_player->v.origin[1];
+	playerData["pos[2]"] = sv_player->v.origin[2];
+	playerData["vel[0]"] = sv_player->v.velocity[0];
+	playerData["vel[1]"] = sv_player->v.velocity[1];
+	playerData["vel[2]"] = sv_player->v.velocity[2];
+	IPC_Send(playerData);
+
+	int timeout = static_cast<int>(bound(1, tas_ipc_timeout.value, MAX_TIMEOUT));
+	bool result = server.BlockForMessages("response", timeout);
+	if (!result) {
+		tas_ipc_feedback.value = 0;
+		Con_Print("Response timed out, turning off feedback mode.\n");
+	}
 }
 
 void IPC_Loop()
 {
 	if (ipc::Winsock_Initialized()) {
 		server.Loop();
+		if (server.ClientConnected() && tas_ipc_feedback.value != 0) {
+			Feedback();
+		}
 	}
 }
 

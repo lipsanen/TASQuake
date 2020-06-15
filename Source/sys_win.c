@@ -697,10 +697,10 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 				SleepUntilInput (PAUSE_SLEEP);
 				scr_skipupdate = 1;		// no point in bothering to draw
 			}
-			else if (!ActiveApp && !DDActive)
+			/*else if (!ActiveApp && !DDActive)
 			{
 				SleepUntilInput (NOT_FOCUS_SLEEP);
-			}
+			}*/
 
 			newtime = Sys_DoubleTime();
 			time = newtime - oldtime;
