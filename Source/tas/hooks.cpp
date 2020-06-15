@@ -175,6 +175,7 @@ void TAS_Init()
 	Cvar_Register(&tas_hud_strafeinfo);
 	Cvar_Register(&tas_hud_movemessages);
 	Cvar_Register(&tas_ipc);
+	Cvar_Register(&tas_ipc_feedback);
 	Cvar_Register(&tas_ipc_port);
 	Cvar_Register(&tas_ipc_timeout);
 	Cvar_Register(&tas_ipc_verbose);
@@ -264,18 +265,11 @@ void _Host_Frame_Hook()
 
 	Simulate_Frame_Hook();
 	Script_Playback_Host_Frame_Hook();
-	IPC_Loop();
 
 	if (set_seed && tas_gamestate == unpaused)
 	{
 		set_seed = false;
 		srand(seed_number);
-	}
-
-	char* queued = GetQueuedCommands();
-	if (queued)
-	{
-		Cbuf_AddText(queued);
 	}
 }
 
@@ -283,4 +277,11 @@ void _Host_Frame_After_FilterTime_Hook()
 {
 	Test_Host_Frame_Hook();
 	Test_Runner_Frame_Hook();
+	IPC_Loop();
+
+	char* queued = GetQueuedCommands();
+	if (queued)
+	{
+		Cbuf_AddText(queued);
+	}
 }
