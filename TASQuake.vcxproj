@@ -230,6 +230,7 @@
     <ClInclude Include="Source\tas\ipc_main.hpp" />
     <ClInclude Include="Source\tas\json.hpp" />
     <ClInclude Include="Source\tas\reset.hpp" />
+    <ClInclude Include="Source\tas\rewards.hpp" />
     <ClInclude Include="Source\tas\savestate.hpp" />
     <ClInclude Include="Source\tas\script_parse.hpp" />
     <ClInclude Include="Source\tas\script_playback.hpp" />
@@ -314,6 +315,7 @@
     <ClCompile Include="Source\tas\ipc.cpp" />
     <ClCompile Include="Source\tas\ipc_main.cpp" />
     <ClCompile Include="Source\tas\reset.cpp" />
+    <ClCompile Include="Source\tas\rewards.cpp" />
     <ClCompile Include="Source\tas\savestate.cpp" />
     <ClCompile Include="Source\tas\script_parse.cpp" />
     <ClCompile Include="Source\tas\script_playback.cpp" />

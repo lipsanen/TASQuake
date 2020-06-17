@@ -907,6 +907,7 @@ void Simulate_Frame_Hook()
 	static int frame = 0;
 	static double last_sim_time = 0;
 	static SimulationInfo info;
+	const std::array<float, 4> color = {0, 0, 1, 0.5};
 
 	if (last_updated < playback.last_edited)
 	{
@@ -947,13 +948,7 @@ void Simulate_Frame_Hook()
 		if (block && block->frame == frame)
 		{
 			ApplyFrameblock(info, block);
-			Rect rect;
-			rect.id = PREDICTION_ID;
-			VectorCopy(vec3_origin, rect.color);
-			rect.color[2] = 1;
-			VectorCopy(info.ent.v.origin, rect.center);
-			rect.width = 3;
-			rect.height = 3;
+			Rect rect = Rect::Get_Rect(color, info.ent.v.origin, 3, 3, PREDICTION_ID);
 			AddRectangle(rect);
 		}
 

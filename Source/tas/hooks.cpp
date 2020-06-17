@@ -14,6 +14,7 @@
 #include "data_export.hpp"
 #include "test_runner.hpp"
 #include "ipc_main.hpp"
+#include "rewards.hpp"
 
 // desc: When set to 1, pauses the game on load
 cvar_t tas_pause_onload = {"tas_pause_onload", "0"};
@@ -137,6 +138,14 @@ void TAS_Init()
 	Cmd_AddCommand("+tas_lgagst", IN_TAS_Lgagst_Down);
 	Cmd_AddCommand("-tas_lgagst", IN_TAS_Lgagst_Up);
 
+	Cmd_AddCommand("tas_reward_delete_all", Cmd_TAS_Reward_Delete_All);
+	Cmd_AddCommand("tas_reward_dump", Cmd_TAS_Reward_Dump);
+	Cmd_AddCommand("tas_reward_gate", Cmd_TAS_Reward_Gate);
+	Cmd_AddCommand("tas_reward_intermission", Cmd_TAS_Reward_Intermission);
+	Cmd_AddCommand("tas_reward_load", Cmd_TAS_Reward_Load);
+	Cmd_AddCommand("tas_reward_pop", Cmd_TAS_Reward_Pop);
+	Cmd_AddCommand("tas_reward_save", Cmd_TAS_Reward_Save);
+
 	Cmd_AddCommand("tas_test_script", Cmd_Test_Script);
 	Cmd_AddCommand("tas_test_run", Cmd_Test_Run);
 	Cmd_AddCommand("tas_test_generate", Cmd_Test_Generate);
@@ -183,6 +192,8 @@ void TAS_Init()
 	Cvar_Register(&tas_predict);
 	Cvar_Register(&tas_predict_per_frame);
 	Cvar_Register(&tas_predict_amount);
+	Cvar_Register(&tas_reward_display);
+	Cvar_Register(&tas_reward_size);
 	Cvar_Register(&tas_savestate_auto);
 	Cvar_Register(&tas_savestate_enabled);
 

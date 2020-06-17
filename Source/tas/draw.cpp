@@ -36,7 +36,43 @@ void RemoveCurve(int id)
 		lines.erase(id);
 }
 
-#define DrawSide(vec)
+static void Draw_Rectangle(const Rect& rect)
+{
+
+	glBegin(GL_QUADS);
+	glColor4fv(rect.color._Elems);
+	glVertex3f(rect.mins[0], rect.mins[1], rect.mins[2]);
+	glVertex3f(rect.mins[0], rect.maxs[1], rect.mins[2]);
+	glVertex3f(rect.maxs[0], rect.maxs[1], rect.mins[2]);
+	glVertex3f(rect.maxs[0], rect.mins[1], rect.mins[2]);
+
+	glVertex3f(rect.mins[0], rect.mins[1], rect.mins[2]);
+	glVertex3f(rect.mins[0], rect.mins[1], rect.maxs[2]);
+	glVertex3f(rect.mins[0], rect.maxs[1], rect.maxs[2]);
+	glVertex3f(rect.mins[0], rect.maxs[1], rect.mins[2]);
+
+	glVertex3f(rect.mins[0], rect.mins[1], rect.mins[2]);
+	glVertex3f(rect.maxs[0], rect.mins[1], rect.mins[2]);
+	glVertex3f(rect.maxs[0], rect.mins[1], rect.maxs[2]);
+	glVertex3f(rect.mins[0], rect.mins[1], rect.maxs[2]);
+
+	glVertex3f(rect.maxs[0], rect.maxs[1], rect.maxs[2]);
+	glVertex3f(rect.mins[0], rect.maxs[1], rect.maxs[2]);
+	glVertex3f(rect.mins[0], rect.mins[1], rect.maxs[2]);
+	glVertex3f(rect.maxs[0], rect.mins[1], rect.maxs[2]);
+
+	glVertex3f(rect.maxs[0], rect.maxs[1], rect.maxs[2]);
+	glVertex3f(rect.maxs[0], rect.mins[1], rect.maxs[2]);
+	glVertex3f(rect.maxs[0], rect.mins[1], rect.mins[2]);
+	glVertex3f(rect.maxs[0], rect.maxs[1], rect.mins[2]);
+
+	glVertex3f(rect.maxs[0], rect.maxs[1], rect.maxs[2]);
+	glVertex3f(rect.maxs[0], rect.maxs[1], rect.mins[2]);
+	glVertex3f(rect.mins[0], rect.maxs[1], rect.mins[2]);
+	glVertex3f(rect.mins[0], rect.maxs[1], rect.maxs[2]);
+
+	glEnd();
+}
 
 void Draw_Elements()
 {
@@ -44,50 +80,10 @@ void Draw_Elements()
 		return;
 
 	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
 	for (auto& rect : rects)
 	{
-		auto corner1 = rect.center;
-		auto corner2 = rect.center;
-		corner1[0] -= rect.width / 2;
-		corner1[1] -= rect.width / 2;
-		corner1[2] -= rect.height / 2;
-		corner2[0] += rect.width / 2;
-		corner2[1] += rect.width / 2;
-		corner2[2] += rect.height / 2;
-
-		glBegin(GL_QUADS);
-		glColor4fv(rect.color._Elems);
-		glVertex3f(corner1[0], corner1[1], corner1[2]);
-		glVertex3f(corner1[0], corner2[1], corner1[2]);
-		glVertex3f(corner2[0], corner2[1], corner1[2]);
-		glVertex3f(corner2[0], corner1[1], corner1[2]);
-
-		glVertex3f(corner1[0], corner1[1], corner1[2]);
-		glVertex3f(corner1[0], corner1[1], corner2[2]);
-		glVertex3f(corner1[0], corner2[1], corner2[2]);
-		glVertex3f(corner1[0], corner2[1], corner1[2]);
-
-		glVertex3f(corner1[0], corner1[1], corner1[2]);
-		glVertex3f(corner2[0], corner1[1], corner1[2]);
-		glVertex3f(corner2[0], corner1[1], corner2[2]);
-		glVertex3f(corner1[0], corner1[1], corner2[2]);
-
-		glVertex3f(corner2[0], corner2[1], corner2[2]);
-		glVertex3f(corner1[0], corner2[1], corner2[2]);
-		glVertex3f(corner1[0], corner1[1], corner2[2]);
-		glVertex3f(corner2[0], corner1[1], corner2[2]);
-
-		glVertex3f(corner2[0], corner2[1], corner2[2]);
-		glVertex3f(corner2[0], corner1[1], corner2[2]);
-		glVertex3f(corner2[0], corner1[1], corner1[2]);
-		glVertex3f(corner2[0], corner2[1], corner1[2]);
-
-		glVertex3f(corner2[0], corner2[1], corner2[2]);
-		glVertex3f(corner2[0], corner2[1], corner1[2]);
-		glVertex3f(corner1[0], corner2[1], corner1[2]);
-		glVertex3f(corner1[0], corner2[1], corner2[2]);
-
-		glEnd();
+		Draw_Rectangle(rect);
 	}
 
 	for (auto pair : lines)
@@ -100,12 +96,13 @@ void Draw_Elements()
 			auto& vec2 = pair.second->at(i + 1);
 
 			glColor4fv(vec1.color._Elems);
-			glVertex3fv(vec1.point._Elems);
-			glVertex3fv(vec2.point._Elems);
+			glVertex3fv(vec1.point);
+			glVertex3fv(vec2.point);
 		}
 		glEnd();
 	}
 	glEnable(GL_TEXTURE_2D);
+	glDisable(GL_BLEND);
 }
 
 PathPoint::PathPoint()
@@ -119,7 +116,66 @@ PathPoint::PathPoint()
 Rect::Rect()
 {
 	for (int i = 0; i < 3; ++i)
-		center[i] = 0;
+		mins[i] = 0;
+	for (int i = 0; i < 3; ++i)
+		maxs[i] = 0;
 	for (int i = 0; i < 4; ++i)
 		color[i] = 0;
+}
+
+Rect::Rect(const std::array<float, 4>& _color, vec3_t _mins, vec3_t _maxs, int _id)
+{
+	VectorCopy(_mins, mins);
+	VectorCopy(_maxs, maxs);
+	color = _color;
+	id = _id;
+}
+
+Rect Rect::Get_Rect(const std::array<float, 4>& _color, vec3_t center, float width, float height, int id)
+{
+	Rect r;
+	r.color = _color;
+	r.id = id;
+	VectorCopy(center, r.mins);
+	r.mins[0] -= width;
+	r.mins[1] -= width;
+	r.mins[2] -= height;
+
+	VectorCopy(center, r.maxs);
+	r.maxs[0] += width;
+	r.maxs[1] += width;
+	r.maxs[2] += height;
+
+	return r;
+}
+
+#define VectorScaledAdd(old, addition, _scale, target) target[0] = old[0] + addition[0] * _scale; target[1] = old[1] + addition[1] * _scale; target[2] = old[2] + addition[2] * _scale;
+
+Rect Rect::Get_Rect(const std::array<float, 4>& _color, vec3_t center, vec3_t angles, float length, float width, float height, int id)
+{
+	vec3_t fwd, right, up;
+	vec3_t corner1, corner2;
+	AngleVectors(angles, fwd, right, up);
+	Rect r;
+	r.color = _color;
+	r.id = id;
+
+	VectorCopy(center, corner1);
+	VectorCopy(center, corner2);
+	VectorScaledAdd(corner1, fwd, length / 2, corner1);
+	VectorScaledAdd(corner2, fwd, -length / 2, corner2);
+	VectorScaledAdd(corner1, right, width / 2, corner1);
+	VectorScaledAdd(corner2, right, -width / 2, corner2);
+	VectorScaledAdd(corner1, up, height / 2, corner1);
+	VectorScaledAdd(corner2, up, -height / 2, corner2);
+
+	r.mins[0] = min(corner1[0], corner2[0]);
+	r.mins[1] = min(corner1[1], corner2[1]);
+	r.mins[2] = min(corner1[2], corner2[2]);
+
+	r.maxs[0] = max(corner1[0], corner2[0]);
+	r.maxs[1] = max(corner1[1], corner2[1]);
+	r.maxs[2] = max(corner1[2], corner2[2]);
+
+	return r;
 }
