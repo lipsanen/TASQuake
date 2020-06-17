@@ -22,6 +22,7 @@ std::string& rtrim(std::string& s, const char* t = " \t\n\r\f\v");
 std::string& trim(std::string& s, const char* t = " \t\n\r\f\v");
 float Round(double val, double acc);
 float Get_Default_Value(const char* cvar);
+char* Format_String(const char* value, ...);
 void CenterPrint(const char* value, ...);
 
 template<typename T>

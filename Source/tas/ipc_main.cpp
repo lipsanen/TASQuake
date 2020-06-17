@@ -110,7 +110,7 @@ void IPC_Loop()
 {
 	if (ipc::Winsock_Initialized()) {
 		server.Loop();
-		if (server.ClientConnected() && tas_ipc_feedback.value != 0) {
+		if (server.ClientConnected() && tas_ipc_feedback.value != 0 && sv.active) {
 			Feedback();
 		}
 	}

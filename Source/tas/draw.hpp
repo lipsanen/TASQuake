@@ -4,11 +4,12 @@
 #include "cpp_quakedef.hpp"
 
 #define PREDICTION_ID 1
+const int REWARD_ID = 2;
 
 struct PathPoint
 {
 	PathPoint();
-	std::array<float, 3> point;
+	vec3_t point;
 	std::array<float, 4> color;
 };
 
@@ -16,9 +17,11 @@ struct Rect
 {
 	Rect();
 	std::array<float, 4> color;
-	std::array<float, 3> center;
-	float width;
-	float height;
+	vec3_t mins;
+	vec3_t maxs;
+	Rect(const std::array<float, 4>& _color, vec3_t _mins, vec3_t _maxs, int id);
+	static Rect Get_Rect(const std::array<float, 4>& _color, vec3_t center, float width, float height, int id);
+	static Rect Get_Rect(const std::array<float, 4>& _color, vec3_t center, vec3_t angles, float length, float width, float height, int id);
 	int id;
 };
 

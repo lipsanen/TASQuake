@@ -258,6 +258,17 @@ float Get_Default_Value(const char* name)
 	return f;
 }
 
+static char FORMAT_BUFFER[256];
+
+char* Format_String(const char* value, ...)
+{
+	va_list args;
+	va_start(args, value);
+	vsprintf_s(FORMAT_BUFFER, ARRAYSIZE(FORMAT_BUFFER), value, args);
+	return FORMAT_BUFFER;
+}
+
+
 void CenterPrint(const char* value, ...)
 {
 	va_list args;
