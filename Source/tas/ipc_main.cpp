@@ -1,6 +1,7 @@
 #include "ipc_main.hpp"
 #include "ipc.hpp"
 #include "afterframes.hpp"
+#include "simulate.hpp"
 
 static qboolean OnChange_tas_ipc(cvar_t* var, char* string);
 static ipc::IPCServer server;
@@ -11,6 +12,8 @@ cvar_t tas_ipc_port = { "tas_ipc_port", "10001"};
 cvar_t tas_ipc_verbose = { "tas_ipc_verbose", "1"};
 cvar_t tas_ipc_timeout = { "tas_ipc_timeout", "200"};
 constexpr float MAX_TIMEOUT = 20000;
+static bool running_sim = false;
+static Simulator sim;
 
 
 static void IPC_Print(const char* string)
@@ -27,7 +30,14 @@ static void Cmd_Callback(const nlohmann::json& msg)
 	if (msg.find("cmd") != msg.end())
 	{
 		std::string cmd = msg["cmd"];
-		AddAfterframes(0, cmd.c_str(), NoFilter);
+		if (running_sim)
+		{
+			sim.RunFrame(cmd);
+		}
+		else
+		{
+			AddAfterframes(0, cmd.c_str(), NoFilter);
+		}
 	}
 	else
 	{
@@ -70,6 +80,61 @@ static qboolean OnChange_tas_ipc(cvar_t* var, char* string)
 	return qfalse;
 }
 
+static void Sim_Feedback()
+{
+	nlohmann::json playerData;
+	playerData["type"] = "playerdata";
+	playerData["pos[0]"] = sim.info.ent.v.origin[0];
+	playerData["pos[1]"] = sim.info.ent.v.origin[1];
+	playerData["pos[2]"] = sim.info.ent.v.origin[2];
+	playerData["vel[0]"] = sim.info.ent.v.velocity[0];
+	playerData["vel[1]"] = sim.info.ent.v.velocity[1];
+	playerData["vel[2]"] = sim.info.ent.v.velocity[2];
+	IPC_Send(playerData);
+}
+
+void Cmd_TAS_IPC_Simulate()
+{
+	if (!IPC_Active())
+	{
+		IPC_Print("No active IPC connection\n");
+		return;
+	}
+
+	sim = Simulator();
+	running_sim = true;
+	int timeout = static_cast<int>(bound(1, tas_ipc_timeout.value, MAX_TIMEOUT));
+
+	while (running_sim)
+	{
+		Sim_Feedback();
+		bool response = server.BlockForMessages("sim_response", timeout);
+		if (!response) 
+			break;
+	}
+}
+
+static void Sim_Callback(const nlohmann::json& msg)
+{
+	if (msg.find("cmd") != msg.end())
+	{
+		std::string cmd = msg["cmd"];
+		sim.RunFrame(cmd);
+	}
+	else if (msg.find("terminate") != msg.end())
+	{
+		if (msg["terminate"])
+		{
+			running_sim = false;
+		}
+	}
+	else
+	{
+		IPC_Print("Message contained no appropriate fields!\n");
+		running_sim = false;
+	}
+}
+
 void IPC_Init()
 {
 	if (tas_ipc.value != 0) {
@@ -77,6 +142,7 @@ void IPC_Init()
 	}
 	server.AddCallback("cmd", Cmd_Callback, false);
 	server.AddCallback("response", Cmd_Callback, true);
+	server.AddCallback("sim_response", Sim_Callback, true);
 	server.AddPrintFunc(IPC_Print);
 }
 
@@ -87,7 +153,6 @@ bool IPC_Active()
 
 static void Feedback()
 {
-	Con_Printf("Current feedback: %f\n", tas_ipc_feedback.value);
 	nlohmann::json playerData;
 	playerData["type"] = "playerdata";
 	playerData["pos[0]"] = sv_player->v.origin[0];
