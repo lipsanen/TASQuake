@@ -904,9 +904,8 @@ void Simulate_Frame_Hook()
 	}
 
 	double currentTime = Sys_DoubleTime();
-	static int frame = 0;
 	static double last_sim_time = 0;
-	static SimulationInfo info;
+	static Simulator sim;
 	const std::array<float, 4> color = {0, 0, 1, 0.5};
 
 	if (last_updated < playback.last_edited)
@@ -916,23 +915,21 @@ void Simulate_Frame_Hook()
 		//infos.clear();
 		last_updated = currentTime;
 		startFrame = playback.current_frame;
-		frame = playback.current_frame;
-		info = Get_Sim_Info();
-		info.vars.simulated = true;
+		sim = Simulator();
 		last_sim_time = tas_predict_amount.value + sv.time;
 
-		int frames = static_cast<int>(std::ceil((last_sim_time - info.time) * 72));
+		int frames = static_cast<int>(std::ceil((last_sim_time - sim.info.time) * 72));
 		if (frames > 0)
 			points.reserve(frames);
 	}
 
 	double realTimeStart = Sys_DoubleTime();
 
-	for (; Sys_DoubleTime() - realTimeStart < tas_predict_per_frame.value && info.time < last_sim_time; ++frame)
+	while(Sys_DoubleTime() - realTimeStart < tas_predict_per_frame.value && sim.info.time < last_sim_time)
 	{
 		PathPoint vec;
 		vec.color[3] = 1;
-		if (info.collision)
+		if (sim.info.collision)
 		{
 			vec.color[0] = 1;
 		}
@@ -940,19 +937,18 @@ void Simulate_Frame_Hook()
 		{
 			vec.color[1] = 1;
 		}
-		VectorCopy(info.ent.v.origin, vec.point);
+		VectorCopy(sim.info.ent.v.origin, vec.point);
 		points.push_back(vec);
 		//infos.push_back(info);
 
-		auto block = playback.Get_Current_Block(frame);
-		if (block && block->frame == frame)
+		auto block = playback.Get_Current_Block(sim.frame);
+		if (block && block->frame == sim.frame)
 		{
-			ApplyFrameblock(info, block);
-			Rect rect = Rect::Get_Rect(color, info.ent.v.origin, 3, 3, PREDICTION_ID);
+			Rect rect = Rect::Get_Rect(color, sim.info.ent.v.origin, 3, 3, PREDICTION_ID);
 			AddRectangle(rect);
 		}
 
-		SimulateWithStrafePlusJump(info);
+		sim.RunFrame();
 	}
 
 	if (!path_assigned)
@@ -960,4 +956,63 @@ void Simulate_Frame_Hook()
 		AddCurve(&points, PREDICTION_ID);
 		path_assigned = true;
 	}
+}
+
+Simulator::Simulator()
+{
+	auto playback = GetPlaybackInfo();
+	info = Get_Sim_Info();
+	info.vars.simulated = true;
+	frame = playback.current_frame;
+}
+
+void Simulator::RunFrame(const std::string& cmd)
+{
+	if (!cmd.empty())
+	{
+		FrameBlock block;
+		int start = 0;
+		int end;
+		std::string line;
+		int garbage = 0;
+
+		for (end = 0; end < cmd.size(); ++end)
+		{
+			if (cmd[end] == ';' || cmd[end] == '\n')
+			{
+				if (start < end)
+				{
+					line = cmd.substr(start, end - start);
+					block.Parse_Line(line, garbage);
+				}
+				start = end + 1;
+			}
+		}
+
+		if (start < end)
+		{
+			line = cmd.substr(start, end - start);
+			block.Parse_Line(line, garbage);
+		}
+
+		ApplyFrameblock(info, &block);
+	}
+
+	this->RunFrame();
+}
+
+void Simulator::RunFrame()
+{
+	if (cls.state != ca_connected)
+		return;
+
+	auto& playback = GetPlaybackInfo();
+	auto block = playback.Get_Current_Block(frame);
+	if (block && block->frame == frame)
+	{
+		ApplyFrameblock(info, block);
+	}
+
+	SimulateWithStrafePlusJump(info);
+	++frame;
 }

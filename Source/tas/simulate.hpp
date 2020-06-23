@@ -50,6 +50,16 @@ struct SimulationInfo
 	KeyState key_speed;
 };
 
+struct Simulator
+{
+	SimulationInfo info;
+	int frame;
+
+	Simulator();
+	void RunFrame(const std::string& cmd);
+	void RunFrame();
+};
+
 SimulationInfo Get_Sim_Info();
 void SimulateFrame(SimulationInfo& info);
 void SimulateWithStrafe(SimulationInfo& info);

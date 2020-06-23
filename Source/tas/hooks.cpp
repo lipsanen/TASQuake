@@ -122,6 +122,7 @@ void TAS_Init()
 
 	Cmd_AddCommand("tas_cmd_reset", Cmd_TAS_Cmd_Reset);
 	Cmd_AddCommand("tas_reset_movement", Cmd_TAS_Reset_Movement);
+	Cmd_AddCommand("tas_ipc_simulate", Cmd_TAS_IPC_Simulate);
 	
 	Cmd_AddCommand("tas_print_seed", Cmd_Print_Seed);
 	Cmd_AddCommand("tas_print_time", Cmd_Print_Time);
