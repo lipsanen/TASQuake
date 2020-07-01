@@ -123,10 +123,7 @@ static void Sim_Callback(const nlohmann::json& msg)
 	}
 	else if (msg.find("terminate") != msg.end())
 	{
-		if (msg["terminate"])
-		{
-			running_sim = false;
-		}
+		running_sim = false;
 	}
 	else
 	{
