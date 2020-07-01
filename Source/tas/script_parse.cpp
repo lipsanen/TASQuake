@@ -337,15 +337,34 @@ void TASScript::Write_To_File()
 
 void TASScript::Prune(int min_frame, int max_frame)
 {
-	auto start = std::find_if(blocks.begin(), blocks.end(), [=](const FrameBlock& element) { return element.frame >= min_frame; });
-	auto end = std::find_if(blocks.rbegin(), blocks.rend(), [=](const FrameBlock& element) { return element.frame <= max_frame; });
-	blocks.erase(std::remove_if(start, end.base(), [](const FrameBlock& element) { return element.convars.empty() && element.commands.empty() && element.toggles.empty(); }));
+	auto remove_it = std::remove_if(blocks.begin(), blocks.end(), [=](const FrameBlock& element) {
+		return element.convars.empty() && element.commands.empty() && element.toggles.empty()
+		       && element.frame >= min_frame && element.frame <= max_frame;
+	});
+	blocks.erase(remove_it, blocks.end());
 }
 
 void TASScript::Prune(int min_frame)
 {
-	auto start = std::find_if(blocks.begin(), blocks.end(), [=](const FrameBlock& element) { return element.frame >= min_frame; });
-	blocks.erase(std::remove_if(start, blocks.end(), [](const FrameBlock& element) { return element.convars.empty() && element.commands.empty() && element.toggles.empty(); }));
+	auto remove_it = std::remove_if(blocks.begin(), blocks.end(), [=](const FrameBlock& element) {
+		return element.convars.empty() && element.commands.empty() && element.toggles.empty()
+		       && element.frame >= min_frame;
+	});
+	blocks.erase(remove_it, blocks.end());
+}
+
+void TASScript::RemoveTogglesFromRange(const std::string& name, int min_frame, int max_frame)
+{
+	auto elements = std::find_if(blocks.begin(), blocks.end(), [=](const FrameBlock& element) {
+		return element.frame >= min_frame && element.frame <= max_frame
+		       && element.toggles.find(name) != element.toggles.end();
+	});
+
+	std::for_each(elements, blocks.end(), [&](FrameBlock& block)
+	{
+		block.toggles.erase(name);
+	}
+	);
 }
 
 Bookmark::Bookmark() {}

@@ -309,7 +309,7 @@ void HUD_Draw_Hook()
 	auto player_data = GetPlayerData();
 	auto info = GetPlaybackInfo();
 	int last_frame = info.Get_Last_Frame();
-	int current_block_no = info.GetCurrentBlockNumber();
+	int current_block_no = info.GetBlockNumber();
 	int blocks = info.Get_Number_Of_Blocks();
 
 	Draw(y,

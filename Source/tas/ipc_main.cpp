@@ -101,7 +101,7 @@ void Cmd_TAS_IPC_Simulate()
 		return;
 	}
 
-	sim = Simulator();
+	sim = Simulator::GetSimulator();
 	running_sim = true;
 	int timeout = static_cast<int>(bound(1, tas_ipc_timeout.value, MAX_TIMEOUT));
 

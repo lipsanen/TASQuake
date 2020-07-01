@@ -55,9 +55,9 @@ struct Simulator
 	SimulationInfo info;
 	int frame;
 
-	Simulator();
 	void RunFrame(const std::string& cmd);
 	void RunFrame();
+	static Simulator GetSimulator();
 };
 
 SimulationInfo Get_Sim_Info();

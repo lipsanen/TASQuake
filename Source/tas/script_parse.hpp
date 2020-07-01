@@ -67,6 +67,7 @@ public:
 	std::string file_name;
 	void Prune(int min_frame, int max_frame);
 	void Prune(int min_frame);
+	void RemoveTogglesFromRange(const std::string& name, int min_frame, int max_frame);
 };
 
 class TestScript

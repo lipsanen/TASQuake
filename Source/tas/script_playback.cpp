@@ -147,11 +147,14 @@ static void Generic_Advance(int frame)
 	}
 }
 
-static bool CurrentFrameHasBlock()
+static bool CurrentFrameHasBlock(int frame=-1)
 {
+	if(frame == -1)
+		frame = playback.current_frame;
+
 	for (int i = 0; i < playback.current_script.blocks.size(); ++i)
 	{
-		if (playback.current_script.blocks[i].frame == playback.current_frame)
+		if (playback.current_script.blocks[i].frame == frame)
 		{
 			return true;
 		}
@@ -190,7 +193,7 @@ static int AddBlock(int frame)
 	}
 }
 
-static FrameBlock* GetBlockForFrame()
+static FrameBlock* GetBlockForFrame(int frame=-1)
 {
 	if (playback.current_script.blocks.empty())
 	{
@@ -198,12 +201,17 @@ static FrameBlock* GetBlockForFrame()
 		return nullptr;
 	}
 
-	if (CurrentFrameHasBlock())
+	if (frame == -1)
 	{
-		return &playback.current_script.blocks[playback.GetCurrentBlockNumber()];
+		frame = playback.current_frame;
 	}
 
-	int block = AddBlock(playback.current_frame);
+	if (CurrentFrameHasBlock(frame))
+	{
+		return &playback.current_script.blocks[playback.GetBlockNumber(frame)];
+	}
+
+	int block = AddBlock(frame);
 	return &playback.current_script.blocks[block];
 }
 
@@ -247,7 +255,7 @@ static bool Get_Existing_Toggle(const char* cmd_name)
 		return Get_Stacked_Toggle(cmd_name);
 }
 
-static void SetConvar(const char* name, float new_val, bool silent = false)
+static void SetConvar(const char* name, float new_val, bool silent = false, int frame = -1)
 {
 	float old_val = Get_Existing_Value(name);
 
@@ -259,7 +267,8 @@ static void SetConvar(const char* name, float new_val, bool silent = false)
 	}
 
 	playback.last_edited = Sys_DoubleTime();
-	auto block = GetBlockForFrame();
+	FrameBlock* block  = GetBlockForFrame(frame);
+
 	if (!silent)
 		CenterPrint("Block: Added %s %f", name, new_val);
 
@@ -271,11 +280,12 @@ static void SetConvar(const char* name, float new_val, bool silent = false)
 	Savestate_Script_Updated(playback.current_frame);
 }
 
-void SetToggle(const char* cmd, bool new_value)
+void SetToggle(const char* cmd, bool new_value, bool silent = false, int frame = -1)
 {
 	playback.last_edited = Sys_DoubleTime();
-	auto block = GetBlockForFrame();
-	CenterPrint("Block: Added %c%s", new_value ? '+' : '-', cmd);
+	auto block = GetBlockForFrame(frame);
+	if(!silent)
+		CenterPrint("Block: Added %c%s", new_value ? '+' : '-', cmd);
 
 	if (Get_Stacked_Toggle(cmd) == new_value && block->toggles.find(cmd) != block->toggles.end())
 		block->toggles.erase(cmd);
@@ -346,7 +356,7 @@ void Script_Playback_Host_Frame_Hook()
 		return;
 	}
 
-	int current_block = playback.GetCurrentBlockNumber();
+	int current_block = playback.GetBlockNumber();
 
 	while (current_block < playback.current_script.blocks.size()
 	       && playback.current_script.blocks[current_block].frame <= playback.current_frame)
@@ -567,7 +577,7 @@ void Cmd_TAS_Script_Advance_Block(void)
 	else
 		blocks = 1;
 
-	int target_block = playback.GetCurrentBlockNumber() + blocks;
+	int target_block = playback.GetBlockNumber() + blocks;
 	auto curblock = playback.Get_Current_Block();
 
 	if (curblock && curblock->frame != playback.current_frame && blocks > 0)
@@ -648,7 +658,7 @@ void Cmd_TAS_Edit_Set_View(void)
 
 void Cmd_TAS_Edit_Shrink(void)
 {
-	int current_block = playback.GetCurrentBlockNumber();
+	int current_block = playback.GetBlockNumber();
 	if (current_block >= playback.current_script.blocks.size())
 	{
 		Con_Printf("Already beyond last block.\n");
@@ -681,7 +691,7 @@ void Cmd_TAS_Edit_Shrink(void)
 
 void Cmd_TAS_Edit_Delete(void)
 {
-	int current_block = playback.GetCurrentBlockNumber();
+	int current_block = playback.GetBlockNumber();
 	if (current_block <= LOWEST_BLOCK)
 	{
 		Con_Print("Cannot delete first block.\n");
@@ -750,7 +760,7 @@ void Cmd_TAS_Edit_Shift(void)
 		return;
 	}
 
-	int current_block = playback.GetCurrentBlockNumber();
+	int current_block = playback.GetBlockNumber();
 	auto block = playback.current_script.blocks[current_block];
 	block.frame = new_frame;
 	playback.current_script.blocks.erase(playback.current_script.blocks.begin() + current_block);
@@ -767,7 +777,7 @@ void Cmd_TAS_Edit_Shift_Stack(void)
 	}
 
 	int frames = atoi(Cmd_Argv(1));
-	int current_block = playback.GetCurrentBlockNumber();
+	int current_block = playback.GetBlockNumber();
 
 	if (playback.current_frame >= playback.Get_Last_Frame())
 	{
@@ -809,6 +819,52 @@ void Cmd_TAS_Edit_Shift_Stack(void)
 void Cmd_TAS_Edit_Add_Empty(void)
 {
 	GetBlockForFrame();
+}
+
+void Cmd_TAS_Edit_Shots(void)
+{
+	if (playback.current_script.blocks.empty())
+	{
+		Con_Print("Empty script\n");
+		return;
+	}
+
+	if (Cmd_Argc() == 3)
+	{
+		int count = std::atoi(Cmd_Argv(1));
+		int frames = std::atoi(Cmd_Argv(2));
+		int delay = 36; // TODO: Make based on weapon
+		int min = playback.current_frame - frames;
+		int max = playback.current_frame - 1;
+
+		if (min < 0)
+		{
+			Con_Printf("Invalid lower bound %d\n", min);
+			return;
+		}
+
+		int* integers = GenerateRandomIntegers(count, min, max, delay);
+		if (integers == NULL)
+		{
+			return;
+		}
+
+		playback.current_script.RemoveTogglesFromRange("attack", min, max);
+		playback.current_script.Prune(min, max);
+
+		for (int i = 0; i < count; ++i)
+		{
+			int frame = integers[i];
+			SetToggle("attack", true, true, frame);
+			SetToggle("attack", false, true, frame+1);
+		}
+
+		Run_Script(playback.current_frame, true);
+	}
+	else
+	{
+		Con_Print("Usage: tas_edit_shots <count> <frames>\n");
+	}
 }
 
 void Cmd_TAS_Confirm(void)
@@ -914,7 +970,7 @@ void Cmd_TAS_Bookmark_Frame(void)
 
 void Cmd_TAS_Bookmark_Block(void)
 {
-	int current_block = playback.GetCurrentBlockNumber();
+	int current_block = playback.GetBlockNumber();
 
 	if (Cmd_Argc() == 1)
 	{
@@ -1023,7 +1079,7 @@ PlaybackInfo::PlaybackInfo()
 
 const FrameBlock* PlaybackInfo::Get_Current_Block(int frame) const
 {
-	int blck = GetCurrentBlockNumber(frame);
+	int blck = GetBlockNumber(frame);
 
 	if (blck >= playback.current_script.blocks.size())
 		return nullptr;
@@ -1036,7 +1092,7 @@ const FrameBlock* PlaybackInfo::Get_Stacked_Block() const
 	return &stacked;
 }
 
-int PlaybackInfo::GetCurrentBlockNumber(int frame) const
+int PlaybackInfo::GetBlockNumber(int frame) const
 {
 	if (frame == -1)
 		frame = current_frame;

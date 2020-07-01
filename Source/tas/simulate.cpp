@@ -915,7 +915,7 @@ void Simulate_Frame_Hook()
 		//infos.clear();
 		last_updated = currentTime;
 		startFrame = playback.current_frame;
-		sim = Simulator();
+		sim = Simulator::GetSimulator();
 		last_sim_time = tas_predict_amount.value + sv.time;
 
 		int frames = static_cast<int>(std::ceil((last_sim_time - sim.info.time) * 72));
@@ -956,14 +956,6 @@ void Simulate_Frame_Hook()
 		AddCurve(&points, PREDICTION_ID);
 		path_assigned = true;
 	}
-}
-
-Simulator::Simulator()
-{
-	auto playback = GetPlaybackInfo();
-	info = Get_Sim_Info();
-	info.vars.simulated = true;
-	frame = playback.current_frame;
 }
 
 void Simulator::RunFrame(const std::string& cmd)
@@ -1015,4 +1007,15 @@ void Simulator::RunFrame()
 
 	SimulateWithStrafePlusJump(info);
 	++frame;
+}
+
+Simulator Simulator::GetSimulator()
+{
+	Simulator sim;
+	auto playback = GetPlaybackInfo();
+	sim.info = Get_Sim_Info();
+	sim.info.vars.simulated = true;
+	sim.frame = playback.current_frame;
+
+	return sim;
 }
