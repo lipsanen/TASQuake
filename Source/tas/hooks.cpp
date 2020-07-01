@@ -111,6 +111,7 @@ void TAS_Init()
 	Cmd_AddCommand("tas_edit_shift", Cmd_TAS_Edit_Shift);
 	Cmd_AddCommand("tas_edit_shift_stack", Cmd_TAS_Edit_Shift_Stack);
 	Cmd_AddCommand("tas_edit_add_empty", Cmd_TAS_Edit_Add_Empty);
+	Cmd_AddCommand("tas_edit_shots", Cmd_TAS_Edit_Shots);
 
 	Cmd_AddCommand("tas_cancel", Cmd_TAS_Cancel);
 	Cmd_AddCommand("tas_confirm", Cmd_TAS_Confirm);

@@ -19,7 +19,7 @@ struct PlaybackInfo
 
 	const FrameBlock* Get_Stacked_Block() const;
 	const FrameBlock* Get_Current_Block(int frame = -1) const;
-	int GetCurrentBlockNumber(int frame = -1) const;
+	int GetBlockNumber(int frame = -1) const;
 	int Get_Number_Of_Blocks() const;
 	int Get_Last_Frame() const;
 	bool In_Edit_Mode() const;
@@ -83,6 +83,8 @@ void Cmd_TAS_Edit_Shift_Stack(void);
 // desc: Adds empty frameblock
 void Cmd_TAS_Edit_Add_Empty(void);
 //void Cmd_TAS_Edit_Delete_Cmd(void);
+// desc: Add a number of shots to an interval
+void Cmd_TAS_Edit_Shots(void);
 
 // desc: Confirms change in editing mode
 void Cmd_TAS_Confirm(void);
