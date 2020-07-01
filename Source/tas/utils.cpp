@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <string>
 #include <filesystem>
+#include <random>
 
 #include "cpp_quakedef.hpp"
 
@@ -343,4 +344,79 @@ bool Open_Stream(std::ifstream & in, const char * file_name, unsigned int mode)
 	in.open(file_name, mode);
 
 	return in.good();
+}
+
+int* GenerateRandomIntegers(int number, int min, int max, int minGap)
+{
+	const int MAX_N = 99;
+	static int result[MAX_N];
+	static int mins[MAX_N];
+	static int maxs[MAX_N];
+	int sentinel = min - 1;
+	int free_frames = (max - min) - (number - 1) * minGap;
+	static std::default_random_engine generator;
+
+	if (number <= 0)
+	{
+		Con_Print("GenerateRandomIntegers received number <= 0.\n");
+		return nullptr;
+	}
+	else if (free_frames < 0)
+	{
+		Con_Print("GenerateRandomIntegers received a too small interval.\n");
+		return nullptr;
+	}
+	else if (number > MAX_N)
+	{
+		Con_Print("GenerateRandomIntegers received number >= MAX_N\n");
+		return nullptr;
+	}
+
+	for (int i = 0; i < number; ++i)
+		result[i] = sentinel;
+
+	for (int i = 0; i < number; ++i)
+	{
+		mins[i] = i * minGap + min;
+		maxs[i] = max - (number - i - 1) * minGap;
+	}
+
+	std::uniform_int_distribution<int> index_dist(0, number);
+
+	for (int i = 0; i < number; ++i)
+	{
+		int next = index_dist(generator) % number;
+		while (result[next] != sentinel)
+		{
+			next = (next + 1) % number;
+		}
+
+		int min_next = next * minGap + min;
+		int max_next = max - (number - next - 1) * minGap;
+
+		if (mins[next] == maxs[next])
+		{
+			result[next] = mins[next];
+		}
+		else
+		{
+			std::uniform_int_distribution<int> frame_dist(mins[next], maxs[next]);
+			result[next] = frame_dist(generator);
+		}
+
+		mins[next] = result[next];
+		maxs[next] = result[next];
+
+		for (int u = next - 1; u >= 0 && maxs[u] > maxs[u + 1] - minGap; --u)
+		{
+			maxs[u] = maxs[u + 1] - minGap;
+		}
+
+		for (int u = next + 1; u < number && mins[u] < mins[u - 1] + minGap; ++u)
+		{
+			mins[u] = mins[u - 1] + minGap;
+		}
+	}
+
+	return result;
 }

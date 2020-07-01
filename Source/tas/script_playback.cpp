@@ -586,11 +586,15 @@ void Cmd_TAS_Script_Advance_Block(void)
 
 void Cmd_TAS_Edit_Prune(void)
 {
-	for (int i = playback.current_script.blocks.size() - 1; i >= LOWEST_FRAME; --i)
+	if (Cmd_Argc() == 3)
 	{
-		auto element = &playback.current_script.blocks[i];
-		if (element->convars.empty() && element->commands.empty() && element->toggles.empty())
-			playback.current_script.blocks.erase(playback.current_script.blocks.begin() + i);
+		int min = std::atoi(Cmd_Argv(1));
+		int max = std::atoi(Cmd_Argv(2));
+		playback.current_script.Prune(min, max);
+	}
+	else
+	{
+		playback.current_script.Prune(LOWEST_FRAME);
 	}
 }
 

@@ -47,6 +47,8 @@ bool Open_Stream(std::ofstream& os, const char* file_name, int mode=std::ios_bas
 bool Open_Stream(std::ifstream& in, const char* file_name, unsigned int mode=std::ios_base::in);
 int IRound(double val, double acc);
 double DRound(double val, double acc);
+int* GenerateRandomIntegers(int number, int min, int max, int minGap);
+
 
 #define VectorLength2D(x) std::sqrt(x[0] * x[0] + x[1] * x[1])
 

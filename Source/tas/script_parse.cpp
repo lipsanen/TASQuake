@@ -335,6 +335,19 @@ void TASScript::Write_To_File()
 	Con_Printf("Wrote script to file %s\n", file_name.c_str());
 }
 
+void TASScript::Prune(int min_frame, int max_frame)
+{
+	auto start = std::find_if(blocks.begin(), blocks.end(), [=](const FrameBlock& element) { return element.frame >= min_frame; });
+	auto end = std::find_if(blocks.rbegin(), blocks.rend(), [=](const FrameBlock& element) { return element.frame <= max_frame; });
+	blocks.erase(std::remove_if(start, end.base(), [](const FrameBlock& element) { return element.convars.empty() && element.commands.empty() && element.toggles.empty(); }));
+}
+
+void TASScript::Prune(int min_frame)
+{
+	auto start = std::find_if(blocks.begin(), blocks.end(), [=](const FrameBlock& element) { return element.frame >= min_frame; });
+	blocks.erase(std::remove_if(start, blocks.end(), [](const FrameBlock& element) { return element.convars.empty() && element.commands.empty() && element.toggles.empty(); }));
+}
+
 Bookmark::Bookmark() {}
 
 Bookmark::Bookmark(int index, bool frame)

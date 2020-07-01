@@ -65,6 +65,8 @@ public:
 	std::vector<FrameBlock> blocks;
 	std::map<std::string, Bookmark> bookmarks;
 	std::string file_name;
+	void Prune(int min_frame, int max_frame);
+	void Prune(int min_frame);
 };
 
 class TestScript
