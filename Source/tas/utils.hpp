@@ -48,7 +48,7 @@ bool Open_Stream(std::ifstream& in, const char* file_name, unsigned int mode=std
 int IRound(double val, double acc);
 double DRound(double val, double acc);
 int* GenerateRandomIntegers(int number, int min, int max, int minGap);
-
+int GetPlayerWeaponDelay();
 
 #define VectorLength2D(x) std::sqrt(x[0] * x[0] + x[1] * x[1])
 

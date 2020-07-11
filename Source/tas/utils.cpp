@@ -420,3 +420,26 @@ int* GenerateRandomIntegers(int number, int min, int max, int minGap)
 
 	return result;
 }
+
+int GetPlayerWeaponDelay()
+{
+	switch (static_cast<int>(sv_player->v.weapon))
+	{
+		case IT_AXE:
+			return 36;
+		case IT_SHOTGUN:
+			return 36;
+		case IT_SUPER_SHOTGUN:
+			return 51;
+		case IT_NAILGUN: case IT_SUPER_NAILGUN:
+			return 8;
+		case IT_GRENADE_LAUNCHER:
+			return 44;
+		case IT_ROCKET_LAUNCHER:
+			return 58;
+		case IT_LIGHTNING:
+			return 8;
+		default:
+			return 36;
+	}
+}
