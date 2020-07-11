@@ -833,7 +833,7 @@ void Cmd_TAS_Edit_Shots(void)
 	{
 		int count = std::atoi(Cmd_Argv(1));
 		int frames = std::atoi(Cmd_Argv(2));
-		int delay = 36; // TODO: Make based on weapon
+		int delay = GetPlayerWeaponDelay();
 		int min = playback.current_frame - frames;
 		int max = playback.current_frame - 1;
 

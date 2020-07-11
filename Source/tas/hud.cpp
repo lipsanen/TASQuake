@@ -254,11 +254,11 @@ void Draw_StrafeStuff(const PlayerData& player_data)
 
 	if (player_data.onGround)
 	{
-		scale = 15.0f;
+		scale = 15.0f * M_DEG2RAD;
 	}
 	else
 	{
-		scale = 6.0f;
+		scale = 4.5f * M_DEG2RAD;
 	}
 
 	float vel_theta;
@@ -268,10 +268,10 @@ void Draw_StrafeStuff(const PlayerData& player_data)
 		vel_theta = player_data.vel_theta;
 
 	float accel_theta = NormalizeRad(AccelTheta(fwd_scale, player_data, vars));
-	float diff = NormalizeRad(vel_theta - accel_theta) * M_RAD2DEG;
-	float angle = std::copysign(MaxAccelTheta(player_data, vars) * M_RAD2DEG, diff);
+	float diff = abs(accel_theta - vel_theta);
+	float angle = MaxAccelTheta(player_data, vars);
 
-	position = (angle - diff) / scale * 80 + 80;
+	position = (diff - angle) / scale * 80 + 80;
 	position = bound(0, position, 160);
 
 	x = vid.width / 2 - 80;
