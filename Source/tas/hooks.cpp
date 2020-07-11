@@ -73,7 +73,8 @@ void Cmd_TAS_Pause(void)
 void Cmd_Print_Seed(void)
 {
 	Con_Printf("Seed is %u\n", Get_RNG_Seed());
-	Con_Printf("Count is %d\n", Get_RNG_Count());
+	Con_Printf("Increment count this frame is %d\n", Get_RNG_Count());
+	Con_Printf("Index is %d\n", Get_RNG_Index());
 }
 
 void Cmd_Print_Time(void)
@@ -174,6 +175,7 @@ void TAS_Init()
 	Cvar_Register(&tas_hud_pos_inc);
 	Cvar_Register(&tas_hud_pos_x);
 	Cvar_Register(&tas_hud_pos_y);
+	Cvar_Register(&tas_hud_rng);
 	Cvar_Register(&tas_hud_vel);
 	Cvar_Register(&tas_hud_vel2d);
 	Cvar_Register(&tas_hud_vel3d);
