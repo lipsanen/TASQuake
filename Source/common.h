@@ -245,6 +245,7 @@ extern	int	rogue, hipnotic, nehahra, runequake;
 void Frame_RNG_Seed(void);
 unsigned int Get_RNG_Seed(void);
 int Get_RNG_Count(void);
+int Get_RNG_Index(void);
 int tas_rand(void);
 void tas_srand(unsigned int seed);
 

@@ -1720,6 +1720,11 @@ int Get_RNG_Count(void)
 	return count;
 }
 
+int Get_RNG_Index(void)
+{
+	return index;
+}
+
 int tas_rand(void) // RAND_MAX assumed to be 32767
 {
 	++index;

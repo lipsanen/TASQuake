@@ -19,5 +19,6 @@ extern cvar_t tas_hud_waterlevel;
 extern cvar_t tas_hud_strafe;
 extern cvar_t tas_hud_movemessages;
 extern cvar_t tas_hud_strafeinfo;
+extern cvar_t tas_hud_rng;
 
 void HUD_Draw_Hook();

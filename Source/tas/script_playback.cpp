@@ -829,17 +829,35 @@ void Cmd_TAS_Edit_Shots(void)
 		return;
 	}
 
-	if (Cmd_Argc() == 3)
+	if (Cmd_Argc() >= 3)
 	{
-		int count = std::atoi(Cmd_Argv(1));
-		int frames = std::atoi(Cmd_Argv(2));
+		int min, max, count;
+
+		if (Cmd_Argc() == 3)
+		{
+			count = std::atoi(Cmd_Argv(1));
+			int frames = std::atoi(Cmd_Argv(2));
+			int delay = GetPlayerWeaponDelay();
+			min = playback.current_frame - frames;
+			max = playback.current_frame - 1;
+		}
+		else
+		{
+			count = std::atoi(Cmd_Argv(1));
+			min = std::atoi(Cmd_Argv(2));
+			max = std::atoi(Cmd_Argv(3));
+		}
+
 		int delay = GetPlayerWeaponDelay();
-		int min = playback.current_frame - frames;
-		int max = playback.current_frame - 1;
 
 		if (min < 0)
 		{
 			Con_Printf("Invalid lower bound %d\n", min);
+			return;
+		}
+		else if (max < min)
+		{
+			Con_Printf("Invalid higher bound %d\n", max);
 			return;
 		}
 
@@ -856,14 +874,12 @@ void Cmd_TAS_Edit_Shots(void)
 		{
 			int frame = integers[i];
 			SetToggle("attack", true, true, frame);
-			SetToggle("attack", false, true, frame+1);
+			SetToggle("attack", false, true, frame + 1);
 		}
-
-		Run_Script(playback.current_frame, true);
 	}
 	else
 	{
-		Con_Print("Usage: tas_edit_shots <count> <frames>\n");
+		Con_Print("Usage: tas_edit_shots <count> <frames>\ntas_edit_shots <count> <min> <max>\n");
 	}
 }
 
