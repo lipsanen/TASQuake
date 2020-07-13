@@ -28,9 +28,11 @@ struct PlaybackInfo
 void Script_Playback_Host_Frame_Hook();
 qboolean Script_Playback_Cmd_ExecuteString_Hook(const char* text);
 void Script_Playback_IN_Move_Hook(usercmd_t* cmd);
-const PlaybackInfo& GetPlaybackInfo();
+PlaybackInfo& GetPlaybackInfo();
 bool TAS_Script_Load(const char* name);
 void Run_Script(int frame, bool skip = false, bool ss=true);
+bool CurrentFrameHasBlock(int frame = -1);
+void Skip_To_Block(int block);
 
 // desc: Usage: tas_script_init <filename> <map> <difficulty>. Initializes a TAS script.
 void Cmd_TAS_Script_Init(void);
@@ -92,11 +94,3 @@ void Cmd_TAS_Confirm(void);
 void Cmd_TAS_Cancel(void);
 // desc: Revert changes to current editing mode to pre-frame values
 void Cmd_TAS_Revert(void);
-
-void Clear_Bookmarks();
-// desc: Usage: tas_bookmark_frame <name>. Bookmarks the current frame with the name given as the argument.
-void Cmd_TAS_Bookmark_Frame(void);
-// desc: Usage: tas_bookmark_block <name>. Bookmarks the current block with the name given as the argument.
-void Cmd_TAS_Bookmark_Block(void);
-// desc: Usage: tas_bookmark_skip <name>. Skips to bookmark with the given name.
-void Cmd_TAS_Bookmark_Skip(void);

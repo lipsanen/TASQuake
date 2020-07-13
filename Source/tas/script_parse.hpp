@@ -1,16 +1,7 @@
 #pragma once
-#include <map>
+#include <unordered_map>
 #include <string>
 #include <vector>
-
-struct Bookmark
-{
-	Bookmark();
-	Bookmark(int index, bool frame);
-
-	int index;
-	bool frame;
-};
 
 enum class HookEnum
 {
@@ -63,7 +54,6 @@ public:
 	bool Load_From_File();
 	void Write_To_File();
 	std::vector<FrameBlock> blocks;
-	std::map<std::string, Bookmark> bookmarks;
 	std::string file_name;
 	void Prune(int min_frame, int max_frame);
 	void Prune(int min_frame);

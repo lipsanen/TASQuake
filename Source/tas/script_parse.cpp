@@ -367,14 +367,6 @@ void TASScript::RemoveTogglesFromRange(const std::string& name, int min_frame, i
 	);
 }
 
-Bookmark::Bookmark() {}
-
-Bookmark::Bookmark(int index, bool frame)
-{
-	this->index = index;
-	this->frame = frame;
-}
-
 TestScript::TestScript()
 {
 }

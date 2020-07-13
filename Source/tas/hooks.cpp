@@ -15,6 +15,7 @@
 #include "test_runner.hpp"
 #include "ipc_main.hpp"
 #include "rewards.hpp"
+#include "bookmark.hpp"
 
 // desc: When set to 1, pauses the game on load
 cvar_t tas_pause_onload = {"tas_pause_onload", "0"};
@@ -293,6 +294,7 @@ void _Host_Frame_After_FilterTime_Hook()
 	Test_Host_Frame_Hook();
 	Test_Runner_Frame_Hook();
 	IPC_Loop();
+	Bookmark_Frame_Hook();
 
 	char* queued = GetQueuedCommands();
 	if (queued)
