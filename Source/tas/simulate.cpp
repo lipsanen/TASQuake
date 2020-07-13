@@ -867,6 +867,9 @@ cvar_t tas_predict_amount{"tas_predict_amount", "3"};
 
 void Simulate_Frame_Hook()
 {
+	if (cls.state != ca_connected || tas_gamestate == unpaused)
+		return;
+
 	static double last_updated = 0;
 	static bool path_assigned = false;
 	const std::string pathName = "predict";
@@ -874,8 +877,6 @@ void Simulate_Frame_Hook()
 	//static std::vector<SimulationInfo> infos;
 	static int startFrame = 0;
 
-	if (cls.state != ca_connected)
-		return;
 	auto& playback = GetPlaybackInfo();
 	if (!playback.In_Edit_Mode() || !tas_predict.value)
 	{
@@ -1012,7 +1013,7 @@ void Simulator::RunFrame()
 Simulator Simulator::GetSimulator()
 {
 	Simulator sim;
-	auto playback = GetPlaybackInfo();
+	auto& playback = GetPlaybackInfo();
 	sim.info = Get_Sim_Info();
 	sim.info.vars.simulated = true;
 	sim.frame = playback.current_frame;

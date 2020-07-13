@@ -12,6 +12,7 @@
 #include "strafing.hpp"
 #include "utils.hpp"
 #include "savestate.hpp"
+#include "bookmark.hpp"
 
 static PlaybackInfo playback;
 const int LOWEST_FRAME = 0;
@@ -147,7 +148,7 @@ static void Generic_Advance(int frame)
 	}
 }
 
-static bool CurrentFrameHasBlock(int frame=-1)
+bool CurrentFrameHasBlock(int frame)
 {
 	if(frame == -1)
 		frame = playback.current_frame;
@@ -400,7 +401,7 @@ static int Get_Current_Frame()
 	return playback.current_frame;
 }
 
-const PlaybackInfo& GetPlaybackInfo()
+PlaybackInfo& GetPlaybackInfo()
 {
 	return playback;
 }
@@ -967,67 +968,6 @@ void Cmd_TAS_Revert(void)
 	m_state = MouseState::Locked;
 }
 
-void Clear_Bookmarks()
-{
-	playback.current_script.bookmarks.clear();
-}
-
-void Cmd_TAS_Bookmark_Frame(void)
-{
-	if (Cmd_Argc() == 1)
-	{
-		Con_Print("Usage: tas_bookmark_frame <bookmark name>\n");
-		return;
-	}
-
-	std::string name = Cmd_Argv(1);
-	playback.current_script.bookmarks[name] = Bookmark(playback.current_frame, true);
-}
-
-void Cmd_TAS_Bookmark_Block(void)
-{
-	int current_block = playback.GetBlockNumber();
-
-	if (Cmd_Argc() == 1)
-	{
-		Con_Print("Usage: tas_bookmark_block <bookmark name>\n");
-		return;
-	}
-	else if (!CurrentFrameHasBlock())
-	{
-		Con_Print("Current frame has no block.\n");
-		return;
-	}
-
-	std::string name = Cmd_Argv(1);
-	playback.current_script.bookmarks[name] = Bookmark(current_block, false);
-}
-
-void Cmd_TAS_Bookmark_Skip(void)
-{
-	if (Cmd_Argc() == 1)
-	{
-		Con_Print("Usage: tas_bookmark_block <bookmark name>\n");
-		return;
-	}
-
-	std::string name = Cmd_Argv(1);
-	if (playback.current_script.bookmarks.find(name) == playback.current_script.bookmarks.end())
-	{
-		Con_Printf("Usage: No bookmark with name %s\n", Cmd_Argv(1));
-		return;
-	}
-
-	auto& bookmark = playback.current_script.bookmarks[name];
-	if (bookmark.frame)
-	{
-		Run_Script(bookmark.index, true);
-	}
-	else
-	{
-		Skip_To_Block(bookmark.index);
-	}
-}
 
 qboolean Script_Playback_Cmd_ExecuteString_Hook(const char* text)
 {
