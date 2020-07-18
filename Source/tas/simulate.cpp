@@ -867,40 +867,23 @@ cvar_t tas_predict_amount{"tas_predict_amount", "3"};
 
 void Simulate_Frame_Hook()
 {
-	if (cls.state != ca_connected || tas_gamestate == unpaused)
-		return;
-
 	static double last_updated = 0;
 	static bool path_assigned = false;
 	const std::string pathName = "predict";
 	static std::vector<PathPoint> points;
-	//static std::vector<SimulationInfo> infos;
 	static int startFrame = 0;
 
 	auto& playback = GetPlaybackInfo();
-	if (!playback.In_Edit_Mode() || !tas_predict.value)
+	if (!playback.In_Edit_Mode() || !tas_predict.value || cls.state != ca_connected || tas_gamestate == unpaused)
 	{
-		/*
-		int index = playback.current_frame - startFrame;
-
-		if (index < points.size() && index >= 0)
+		if (path_assigned)
 		{
-			vec3_t diff;
-			VectorCopy(sv_player->v.origin, diff);
-			VectorSubtract(diff, points[index].point, diff);
-			float len = VectorLength(diff);
-			//auto& player = infos[index];
-			auto info = Get_Sim_Info();
-			SetStrafe(info);
-			if (len > 0.001)
-			{
-				Con_Printf("Prediction error: %f\n", len);		
-			}
-		}*/
+			points.clear();
+			RemoveCurve(PREDICTION_ID);
+			RemoveRectangles(PREDICTION_ID);
+			path_assigned = false;
+		}
 
-		RemoveCurve(PREDICTION_ID);
-		RemoveRectangles(PREDICTION_ID);
-		path_assigned = false;
 		return;
 	}
 
@@ -913,7 +896,6 @@ void Simulate_Frame_Hook()
 	{
 		RemoveRectangles(PREDICTION_ID);
 		points.clear();
-		//infos.clear();
 		last_updated = currentTime;
 		startFrame = playback.current_frame;
 		sim = Simulator::GetSimulator();
@@ -940,7 +922,6 @@ void Simulate_Frame_Hook()
 		}
 		VectorCopy(sim.info.ent.v.origin, vec.point);
 		points.push_back(vec);
-		//infos.push_back(info);
 
 		auto block = playback.Get_Current_Block(sim.frame);
 		if (block && block->frame == sim.frame)
