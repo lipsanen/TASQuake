@@ -25,6 +25,48 @@ static void IPC_Print(const char* string)
 	}
 }
 
+void Cmd_TAS_IPC_Print_Seed()
+{
+	if (!IPC_Active())
+		return;
+
+	nlohmann::json data;
+	data["type"] = "seed";
+	data["seed"] = Get_RNG_Seed();
+	IPC_Send(data);
+}
+
+void Cmd_TAS_IPC_Print_Posvel()
+{
+	if(!IPC_Active())
+		return;
+
+	nlohmann::json data;
+	data["type"] = "playerdata";
+	data["pos[0]"] = sv_player->v.origin[0];
+	data["pos[1]"] = sv_player->v.origin[1];
+	data["pos[2]"] = sv_player->v.origin[2];
+	data["vel[0]"] = sv_player->v.velocity[0];
+	data["vel[1]"] = sv_player->v.velocity[1];
+	data["vel[2]"] = sv_player->v.velocity[2];
+	data["map"] = sv.name;
+	IPC_Send(data);
+}
+
+void Cmd_TAS_IPC_Print_Playback()
+{
+	if (!IPC_Active())
+		return;
+
+	auto& playback = GetPlaybackInfo();
+	nlohmann::json data;
+	data["type"] = "playback";
+	data["frame"] = playback.current_frame;
+	data["pause_frame"] = playback.pause_frame;
+	data["script_running"] = playback.script_running;
+	IPC_Send(data);
+}
+
 static void Cmd_Callback(const nlohmann::json& msg)
 {
 	if (msg.find("cmd") != msg.end())

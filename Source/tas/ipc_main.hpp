@@ -12,3 +12,6 @@ bool IPC_Active();
 void IPC_Loop();
 void IPC_Send(const nlohmann::json& msg);
 void Cmd_TAS_IPC_Simulate();
+void Cmd_TAS_IPC_Print_Posvel();
+void Cmd_TAS_IPC_Print_Seed();
+void Cmd_TAS_IPC_Print_Playback();
