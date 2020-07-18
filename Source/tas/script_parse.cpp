@@ -355,14 +355,11 @@ void TASScript::Prune(int min_frame)
 
 void TASScript::RemoveTogglesFromRange(const std::string& name, int min_frame, int max_frame)
 {
-	auto elements = std::find_if(blocks.begin(), blocks.end(), [=](const FrameBlock& element) {
-		return element.frame >= min_frame && element.frame <= max_frame
-		       && element.toggles.find(name) != element.toggles.end();
-	});
-
-	std::for_each(elements, blocks.end(), [&](FrameBlock& block)
+	std::for_each(blocks.begin(), blocks.end(), [&](FrameBlock& block)
 	{
-		block.toggles.erase(name);
+		if(block.frame >= min_frame && block.frame <= max_frame
+			&& block.toggles.find(name) != block.toggles.end())
+			block.toggles.erase(name);
 	}
 	);
 }
