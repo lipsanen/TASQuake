@@ -258,6 +258,11 @@ static bool Get_Existing_Toggle(const char* cmd_name)
 
 static void SetConvar(const char* name, float new_val, bool silent = false, int frame = -1)
 {
+	if (frame == -1)
+	{
+		frame = playback.current_frame;
+	}
+
 	float old_val = Get_Existing_Value(name);
 
 	if (new_val == old_val)
@@ -278,11 +283,16 @@ static void SetConvar(const char* name, float new_val, bool silent = false, int 
 	else
 		block->convars[name] = new_val;
 
-	Savestate_Script_Updated(playback.current_frame);
+	Savestate_Script_Updated(frame);
 }
 
 void SetToggle(const char* cmd, bool new_value, bool silent = false, int frame = -1)
 {
+	if (frame == -1)
+	{
+		frame = playback.current_frame;
+	}
+
 	playback.last_edited = Sys_DoubleTime();
 	auto block = GetBlockForFrame(frame);
 	if(!silent)
@@ -292,7 +302,8 @@ void SetToggle(const char* cmd, bool new_value, bool silent = false, int frame =
 		block->toggles.erase(cmd);
 	else
 		block->toggles[cmd] = new_value;
-	Savestate_Script_Updated(playback.current_frame);
+
+	Savestate_Script_Updated(frame);
 }
 
 static void ApplyMouseStuff()
