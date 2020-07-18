@@ -221,6 +221,7 @@
     <ClInclude Include="Source\spritegn.h" />
     <ClInclude Include="Source\sys.h" />
     <ClInclude Include="Source\tas\afterframes.hpp" />
+    <ClInclude Include="Source\tas\bookmark.hpp" />
     <ClInclude Include="Source\tas\cpp_quakedef.hpp" />
     <ClInclude Include="Source\tas\draw.hpp" />
     <ClInclude Include="Source\tas\data_export.hpp" />
@@ -308,6 +309,7 @@
     <ClCompile Include="Source\sv_user.c" />
     <ClCompile Include="Source\sys_win.c" />
     <ClCompile Include="Source\tas\afterframes.cpp" />
+    <ClCompile Include="Source\tas\bookmark.cpp" />
     <ClCompile Include="Source\tas\draw.cpp" />
     <ClCompile Include="Source\tas\data_export.cpp" />
     <ClCompile Include="Source\tas\hooks.cpp" />
