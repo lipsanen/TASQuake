@@ -529,6 +529,7 @@ SimulationInfo Get_Sim_Info()
 	info.tas_jump = Is_TAS_Jump_Down();
 	info.tas_lgagst = Is_TAS_Lgagst_Down();
 	info.collision = false;
+	info.movemessages = cl.movemessages;
 
 	VectorCopy(cl.prev_viewangles, info.viewangles);
 	for (int i = 0; i < 3; ++i)
@@ -651,7 +652,7 @@ static void CalculateMoves(SimulationInfo& info)
 
 static void SetStrafe(SimulationInfo& info)
 {
-	if (info.time <= 1.425)
+	if (info.movemessages < 2)
 	{
 		info.fmove = 0;
 		info.smove = 0;
@@ -849,6 +850,7 @@ void SimulateFrame(SimulationInfo& info)
 	PlayerPhysics(info);
 	PlayerPostThink(info);
 	CheckHalfPresses(info);
+	++info.movemessages;
 	simulating = qfalse;
 }
 

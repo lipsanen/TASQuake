@@ -19,6 +19,7 @@ struct SimulationInfo
 	float jumpflag;
 	double time;
 	bool collision;
+	int movemessages;
 
 	// Low level stuff that is modified before the frame
 	float smove;
