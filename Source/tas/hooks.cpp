@@ -282,9 +282,6 @@ void _Host_Frame_Hook()
 		}
 	}
 
-	Simulate_Frame_Hook();
-	Script_Playback_Host_Frame_Hook();
-
 	if (set_seed && tas_gamestate == unpaused)
 	{
 		set_seed = false;
@@ -298,6 +295,8 @@ void _Host_Frame_After_FilterTime_Hook()
 	Test_Runner_Frame_Hook();
 	IPC_Loop();
 	Bookmark_Frame_Hook();
+	Simulate_Frame_Hook();
+	Script_Playback_Host_Frame_Hook();
 
 	char* queued = GetQueuedCommands();
 	if (queued)

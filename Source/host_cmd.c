@@ -538,10 +538,6 @@ void Host_Savegame_f (void)
 	}
 	
 	fprintf (f, "%i\n", SAVEGAME_VERSION);
-	// Jukspa: save RNG
-	unsigned int seed = Get_RNG_Seed();
-	Con_Printf("saved seed %u\n", seed);
-	fprintf(f, "%u\n", seed);
 
 	Host_SavegameComment (comment);
 	fprintf (f, "%s\n", comment);
@@ -619,10 +615,6 @@ void Host_Loadgame_f (void)
 		return;
 	}
 
-	unsigned int seed;
-	fscanf(f, "%u\n", &seed);
-	TAS_Set_Seed(seed);
-
 	fscanf (f, "%s\n", str);
 	for (i=0 ; i<NUM_SPAWN_PARMS ; i++)
 		fscanf (f, "%f\n", &spawn_parms[i]);
@@ -645,6 +637,7 @@ void Host_Loadgame_f (void)
 	}
 	sv.paused = true;		// pause until all clients connect
 	sv.loadgame = true;
+	tas_gamestate = unpaused;
 
 // load the light styles
 	for (i=0 ; i<MAX_LIGHTSTYLES ; i++)
