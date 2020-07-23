@@ -50,5 +50,17 @@ double DRound(double val, double acc);
 int* GenerateRandomIntegers(int number, int min, int max, int minGap);
 int GetPlayerWeaponDelay();
 
-#define VectorLength2D(x) std::sqrt(x[0] * x[0] + x[1] * x[1])
+class RNG
+{
+public:
+	int tas_rand();
+	float random();
+	float crandom();
+	void SetSeed(unsigned int seed);
+private:
+	unsigned int seed;
+};
 
+
+#define VectorLength2D(x) std::sqrt(x[0] * x[0] + x[1] * x[1])
+#define VectorScaledAdd(old, addition, _scale, target) target[0] = old[0] + addition[0] * _scale; target[1] = old[1] + addition[1] * _scale; target[2] = old[2] + addition[2] * _scale;

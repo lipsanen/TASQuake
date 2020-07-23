@@ -3,8 +3,9 @@
 
 #include "cpp_quakedef.hpp"
 
-#define PREDICTION_ID 1
+const int PREDICTION_ID = 1;
 const int REWARD_ID = 2;
+const int GRENADE_ID = 3;
 
 struct PathPoint
 {

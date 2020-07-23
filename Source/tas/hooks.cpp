@@ -198,6 +198,7 @@ void TAS_Init()
 	Cvar_Register(&tas_ipc_verbose);
 	Cvar_Register(&tas_timescale);
 	Cvar_Register(&tas_predict);
+	Cvar_Register(&tas_predict_grenade);
 	Cvar_Register(&tas_predict_per_frame);
 	Cvar_Register(&tas_predict_amount);
 	Cvar_Register(&tas_reward_display);

@@ -238,6 +238,14 @@ static float Get_Existing_Value(const char* name)
 		return Get_Stacked_Value(name);
 }
 
+static bool Has_Existing_Value(const char* name)
+{
+	auto curblock = GetBlockForFrame();
+
+	return curblock->convars.find(name) != curblock->convars.end() ||
+	playback.stacked.convars.find(name) != playback.stacked.convars.end();
+}
+
 static bool Get_Stacked_Toggle(const char* cmd_name)
 {
 	if (playback.stacked.toggles.find(cmd_name) != playback.stacked.toggles.end())
@@ -631,10 +639,35 @@ void Cmd_TAS_Edit_Save(void)
 	playback.current_script.Write_To_File();
 }
 
+float Get_Pitch_Convar(const char* name)
+{
+	if (Has_Existing_Value(name))
+	{
+		return Get_Existing_Value(name);
+	}
+	else
+	{
+		return cl.viewangles[PITCH];
+	}
+}
+
+float Get_Yaw_Convar(const char* name)
+{
+	if (Has_Existing_Value(name))
+	{
+		return Get_Existing_Value(name);
+	}
+	else
+	{
+		return cl.viewangles[YAW];
+	}
+}
+
 void Cmd_TAS_Edit_Strafe(void)
 {
 	current_strafe = Get_Existing_Value("tas_strafe");
 	current_strafeyaw = Get_Existing_Value("tas_strafe_yaw");
+	cl.viewangles[YAW] = Get_Yaw_Convar("tas_strafe_yaw");
 	SetConvar("tas_strafe", 1, true);
 	m_state = MouseState::Strafe;
 }
@@ -643,7 +676,9 @@ void Cmd_TAS_Edit_Swim(void)
 {
 	current_strafe = Get_Existing_Value("tas_strafe");
 	current_strafeyaw = Get_Existing_Value("tas_strafe_yaw");
+	cl.viewangles[YAW] = Get_Yaw_Convar("tas_strafe_yaw");
 	current_strafepitch = Get_Existing_Value("tas_strafe_pitch");
+	cl.viewangles[PITCH] = Get_Yaw_Convar("tas_strafe_pitch");
 	SetConvar("tas_strafe", 1, true);
 	SetConvar("tas_strafe_type", 4, true);
 	m_state = MouseState::Swim;
@@ -653,19 +688,23 @@ void Cmd_TAS_Edit_Set_Pitch(void)
 {
 	m_state = MouseState::Pitch;
 	current_pitch = Get_Existing_Value("tas_view_pitch");
+	cl.viewangles[PITCH] = Get_Pitch_Convar("tas_view_pitch");
 }
 
 void Cmd_TAS_Edit_Set_Yaw(void)
 {
 	m_state = MouseState::Yaw;
 	current_yaw = Get_Existing_Value("tas_view_yaw");
+	cl.viewangles[YAW] = Get_Yaw_Convar("tas_view_yaw");
 }
 
 void Cmd_TAS_Edit_Set_View(void)
 {
 	m_state = MouseState::Mixed;
 	current_pitch = Get_Existing_Value("tas_view_pitch");
+	cl.viewangles[PITCH] = Get_Pitch_Convar("tas_view_pitch");
 	current_yaw = Get_Existing_Value("tas_view_yaw");
+	cl.viewangles[YAW] = Get_Yaw_Convar("tas_view_yaw");
 }
 
 void Cmd_TAS_Edit_Shrink(void)

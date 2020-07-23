@@ -66,4 +66,5 @@ void SimulateFrame(SimulationInfo& info);
 void SimulateWithStrafe(SimulationInfo& info);
 bool Should_Jump(const SimulationInfo& info);
 void Simulate_Frame_Hook();
-extern cvar_t tas_predict_per_frame, tas_predict, tas_predict_amount;
+void Predict_Grenade(std::function<void(vec3_t)> frameCallback, std::function<void(vec3_t)> finalCallback, vec3_t origin, vec3_t viewangle);
+extern cvar_t tas_predict_per_frame, tas_predict, tas_predict_amount, tas_predict_grenade;

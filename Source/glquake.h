@@ -244,6 +244,8 @@ extern	const	char	*gl_renderer;
 extern	const	char	*gl_version;
 extern	const	char	*gl_extensions;
 
+extern qboolean in_overlay;
+
 void GL_Bind (int texnum);
 
 // Multitexture
