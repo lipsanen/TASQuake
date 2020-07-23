@@ -804,7 +804,7 @@ void Classic_DrawParticles (void)
 	unsigned char *at, theAlpha;
 #endif
 
-	if (!active_particles)
+	if (!active_particles || tas_gamestate == paused || in_overlay)
 		return;
 
 #ifdef GLQUAKE

@@ -443,3 +443,25 @@ int GetPlayerWeaponDelay()
 			return 36;
 	}
 }
+
+int RNG::tas_rand()
+{
+	seed = seed * 1103515245 + 12345;
+	int out = (unsigned int)(seed / 65536) % 32768;
+	return out;
+}
+
+float RNG::random()
+{
+	return (tas_rand() & 0x7fff) / ((float)0x7fff);
+}
+
+float RNG::crandom()
+{
+	return 2 * (random() - 0.5);
+}
+
+void RNG::SetSeed(unsigned int seed)
+{
+	this->seed = seed;
+}

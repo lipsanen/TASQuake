@@ -5,6 +5,79 @@
 #include "utils.hpp"
 #include "afterframes.hpp"
 
+/*
+=============
+SV_CheckWaterTransition
+=============
+*/
+void SV_CheckWaterTransition(edict_t* ent)
+{
+	int	cont;
+
+	cont = SV_PointContents(ent->v.origin);
+	if (!ent->v.watertype)
+	{	// just spawned here
+		ent->v.watertype = cont;
+		ent->v.waterlevel = 1;
+		return;
+	}
+
+	if (cont <= CONTENTS_WATER)
+	{
+		/*
+		if (ent->v.watertype == CONTENTS_EMPTY)
+		{	// just crossed into water
+			SV_StartSound(ent, 0, "misc/h2ohit1.wav", 255, 1);
+		}*/
+		ent->v.watertype = cont;
+		ent->v.waterlevel = 1;
+	}
+	else
+	{
+		/*
+		if (ent->v.watertype != CONTENTS_EMPTY)
+		{	// just crossed into water
+			SV_StartSound(ent, 0, "misc/h2ohit1.wav", 255, 1);
+		}*/
+		ent->v.watertype = CONTENTS_EMPTY;
+		ent->v.waterlevel = cont;
+	}
+}
+
+/*
+================
+SV_CheckVelocity
+================
+*/
+void SV_CheckVelocity(edict_t* ent)
+{
+	int	i;
+
+	// bound velocity
+	for (i = 0; i < 3; i++)
+	{
+		if (IS_NAN(ent->v.velocity[i]))
+		{
+			ent->v.velocity[i] = 0;
+		}
+		if (IS_NAN(ent->v.origin[i]))
+		{
+			ent->v.origin[i] = 0;
+		}
+		if (ent->v.velocity[i] > sv_maxvelocity.value)
+			ent->v.velocity[i] = sv_maxvelocity.value;
+		else if (ent->v.velocity[i] < -sv_maxvelocity.value)
+			ent->v.velocity[i] = -sv_maxvelocity.value;
+	}
+}
+
+void SimulateSetMinMaxSize(edict_t* e, float* rmin, float* rmax)
+{
+	VectorCopy(rmin, e->v.mins);
+	VectorCopy(rmax, e->v.maxs);
+	VectorSubtract(rmax, rmin, e->v.size);
+}
+
 trace_t SV_Move_Proxy(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int type, edict_t* passedict)
 {
 	return SV_Move(start, mins, maxs, end, type, sv_player);
@@ -470,6 +543,62 @@ void SV_CheckStuck(edict_t* ent)
 	VectorCopy(org, ent->v.origin);
 }
 
+/*
+=============
+SV_Physics_Toss
+
+Toss, bounce, and fly movement.  When onground, do nothing.
+=============
+*/
+void Simulate_SV_Physics_Toss(edict_t* ent, double hfr)
+{
+	float	backoff;
+	vec3_t	move;
+	trace_t	trace;
+
+	// regular thinking
+	/*if (!SV_RunThink(ent))
+		return;*/
+
+	// if onground, return without moving
+	if (((int)ent->v.flags & FL_ONGROUND))
+		return;
+
+	SV_CheckVelocity(ent);
+
+	// add gravity
+	if (ent->v.movetype != MOVETYPE_FLY && ent->v.movetype != MOVETYPE_FLYMISSILE)
+		SV_AddGravity(ent, hfr);
+
+	// move angles
+	VectorMA(ent->v.angles, host_frametime, ent->v.avelocity, ent->v.angles);
+
+	// move origin
+	VectorScale(ent->v.velocity, host_frametime, move);
+	trace = SV_PushEntity(ent, move);
+	if (trace.fraction == 1)
+		return;
+
+	backoff = (ent->v.movetype == MOVETYPE_BOUNCE) ? 1.5 : 1;
+
+	ClipVelocity(ent->v.velocity, trace.plane.normal, ent->v.velocity, backoff);
+
+	// stop if on ground
+	if (trace.plane.normal[2] > 0.7)
+	{
+		if (ent->v.velocity[2] < 60 || ent->v.movetype != MOVETYPE_BOUNCE)
+		{
+			ent->v.flags = (int)ent->v.flags | FL_ONGROUND;
+			ent->v.groundentity = EDICT_TO_PROG(trace.ent);
+			VectorCopy(vec3_origin, ent->v.velocity);
+			VectorCopy(vec3_origin, ent->v.avelocity);
+		}
+	}
+
+	// check for in water
+	SV_CheckWaterTransition(ent);
+}
+
 void PlayerPhysics(SimulationInfo& info)
 {
 	if (!SV_CheckWater(&info.ent) && !((int)info.ent.v.flags & FL_WATERJUMP))
@@ -864,35 +993,81 @@ void SimulateWithStrafe(SimulationInfo& info)
 cvar_t tas_predict_per_frame{"tas_predict_per_frame", "0.01"};
 // desc: Display position prediction while paused in a TAS.
 cvar_t tas_predict{"tas_predict", "1"};
+// desc: Display grenade prediction while paused in a TAS.
+cvar_t tas_predict_grenade { "tas_predict_grenade", "0" };
 // desc: Amount of time to predict
 cvar_t tas_predict_amount{"tas_predict_amount", "3"};
 
-void Simulate_Frame_Hook()
-{
-	static double last_updated = 0;
-	static bool path_assigned = false;
-	const std::string pathName = "predict";
-	static std::vector<PathPoint> points;
-	static int startFrame = 0;
+static bool path_assigned = false;
+static bool grenade_assigned = false;
 
-	auto& playback = GetPlaybackInfo();
-	if (!playback.In_Edit_Mode() || !tas_predict.value || cls.state != ca_connected || tas_gamestate == unpaused)
+static void Calculate_Grenade_Line()
+{
+	if (tas_predict_grenade.value == 0 && grenade_assigned)
+	{
+		if (grenade_assigned)
+		{
+			RemoveCurve(GRENADE_ID);
+			grenade_assigned = false;
+		}
+		return;
+	}
+	else if (tas_predict_grenade.value == 0)
+	{
+		return;
+	}
+
+	static vec3_t grenade_start_origin;
+	static vec3_t grenade_start_angles;
+	static std::vector<PathPoint> points;
+	const std::array<float, 4> color = { 1, 0, 1, 0.5 };
+	auto checkvec = [](vec3_t first, vec3_t second) { return first[0] == second[0] && first[1] == second[1] && first[2] == second[2]; };
+	
+	if (grenade_assigned && checkvec(sv_player->v.origin, grenade_start_origin) && checkvec(cl.viewangles, grenade_start_angles))
+	{
+		return;
+	}
+
+	points.clear();
+	points.reserve(static_cast<int>(2.5 * 72));
+	VectorCopy(sv_player->v.origin, grenade_start_origin);
+	VectorCopy(cl.viewangles, grenade_start_angles);
+
+	auto addpoint = [&](vec3_t point) { PathPoint p; p.color = color; VectorCopy(point, p.point); points.push_back(p);};
+	Predict_Grenade(addpoint, [](vec3_t){}, grenade_start_origin, grenade_start_angles);
+
+	if (!grenade_assigned)
+	{
+		grenade_assigned = true;
+		AddCurve(&points, GRENADE_ID);
+	}
+}
+
+void Calculate_Prediction_Line()
+{
+	if (tas_predict.value == 0 && path_assigned)
 	{
 		if (path_assigned)
 		{
-			points.clear();
 			RemoveCurve(PREDICTION_ID);
 			RemoveRectangles(PREDICTION_ID);
 			path_assigned = false;
 		}
-
+		return;
+	}
+	else if (tas_predict.value == 0)
+	{
 		return;
 	}
 
+	auto& playback = GetPlaybackInfo();
+	static double last_updated = 0; 
 	double currentTime = Sys_DoubleTime();
 	static double last_sim_time = 0;
 	static Simulator sim;
-	const std::array<float, 4> color = {0, 0, 1, 0.5};
+	const std::array<float, 4> color = { 0, 0, 1, 0.5 };
+	static std::vector<PathPoint> points;
+	static int startFrame = 0;
 
 	if (last_updated < playback.last_edited)
 	{
@@ -910,7 +1085,7 @@ void Simulate_Frame_Hook()
 
 	double realTimeStart = Sys_DoubleTime();
 
-	while(Sys_DoubleTime() - realTimeStart < tas_predict_per_frame.value && sim.info.time < last_sim_time)
+	while (Sys_DoubleTime() - realTimeStart < tas_predict_per_frame.value && sim.info.time < last_sim_time)
 	{
 		PathPoint vec;
 		vec.color[3] = 1;
@@ -940,6 +1115,28 @@ void Simulate_Frame_Hook()
 		AddCurve(&points, PREDICTION_ID);
 		path_assigned = true;
 	}
+}
+
+void Simulate_Frame_Hook()
+{
+	auto& playback = GetPlaybackInfo();
+	if (!playback.In_Edit_Mode() || cls.state != ca_connected || tas_gamestate == unpaused)
+	{
+		if (path_assigned || grenade_assigned)
+		{
+			RemoveCurve(PREDICTION_ID);
+			RemoveRectangles(PREDICTION_ID);
+			RemoveCurve(GRENADE_ID);
+			RemoveRectangles(GRENADE_ID);
+			path_assigned = false;
+			grenade_assigned = false;
+		}
+
+		return;
+	}
+
+	Calculate_Prediction_Line();
+	Calculate_Grenade_Line();
 }
 
 void Simulator::RunFrame(const std::string& cmd)
@@ -1002,4 +1199,44 @@ Simulator Simulator::GetSimulator()
 	sim.frame = playback.current_frame;
 
 	return sim;
+}
+
+void Predict_Grenade(std::function<void(vec3_t)> frameCallback, std::function<void(vec3_t)> finalCallback, vec3_t origin, vec3_t v_angle)
+{
+	if(origin == NULL)
+		origin = sv_player->v.origin;
+	if(v_angle == NULL)
+		v_angle = cl.viewangles;
+
+	RNG rng;
+	rng.SetSeed(Get_RNG_Seed());
+
+	edict_t t;
+	t.v.movetype = MOVETYPE_BOUNCE;
+	t.v.solid = SOLID_BBOX;
+	VectorCopy(vec3_origin, t.v.size);
+	VectorCopy(vec3_origin, t.v.velocity);
+	VectorCopy(origin, t.v.origin);
+	SimulateSetMinMaxSize(&t, vec3_origin, vec3_origin);
+	t.v.avelocity[0] = t.v.avelocity[1] = t.v.avelocity[2] = 300;
+
+	vec3_t fwd, right, up;
+	AngleVectors(v_angle, fwd, right, up);
+
+	VectorScaledAdd(t.v.velocity, fwd, 600, t.v.velocity);
+	VectorScaledAdd(t.v.velocity, right, 10 * rng.crandom(), t.v.velocity);
+	VectorScaledAdd(t.v.velocity, up, 10 * rng.crandom(), t.v.velocity);
+	VectorScaledAdd(t.v.velocity, up, 200, t.v.velocity);
+
+	const float alivetime = 2.5f;
+	double hfr = 1 / cl_maxfps.value;
+	int frames = alivetime * cl_maxfps.value;
+
+	for (int i = 0; i < frames; ++i)
+	{
+		Simulate_SV_Physics_Toss(&t, hfr);
+		frameCallback(t.v.origin);
+	}
+
+	finalCallback(t.v.origin);
 }

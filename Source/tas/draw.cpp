@@ -6,6 +6,7 @@
 #include "draw.hpp"
 
 #include "strafing.hpp"
+#include "utils.hpp"
 
 static std::map<int, std::vector<PathPoint>*> lines;
 static std::vector<Rect> rects;
@@ -148,8 +149,6 @@ Rect Rect::Get_Rect(const std::array<float, 4>& _color, vec3_t center, float wid
 
 	return r;
 }
-
-#define VectorScaledAdd(old, addition, _scale, target) target[0] = old[0] + addition[0] * _scale; target[1] = old[1] + addition[1] * _scale; target[2] = old[2] + addition[2] * _scale;
 
 Rect Rect::Get_Rect(const std::array<float, 4>& _color, vec3_t center, vec3_t angles, float length, float width, float height, int id)
 {

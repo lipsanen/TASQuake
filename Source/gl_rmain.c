@@ -160,7 +160,7 @@ cvar_t	gl_decal_sparks = {"gl_decal_sparks", "0"};
 cvar_t	gl_decal_explosions = {"gl_decal_explosions", "0"};
 
 int		lightmode = 2;
-static qboolean in_overlay = false;
+qboolean in_overlay = false;
 
 void R_MarkLeaves (void);
 void R_InitBubble (void);
