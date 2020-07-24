@@ -349,7 +349,7 @@ void Script_Playback_Host_Frame_Hook()
 	if (tas_gamestate == loading)
 		return;
 
-	Savestate_Frame_Hook(playback.current_frame);
+	Savestate_Frame_Hook(playback.current_frame, playback.pause_frame);
 
 	if (playback.In_Edit_Mode() && m_state != MouseState::Locked)
 	{

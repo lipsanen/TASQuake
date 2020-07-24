@@ -19,15 +19,17 @@ struct Savestate
 static int save_number = 0;
 static int current_frame = 0;
 static bool in_playback = false;
+const int MAX_PARTICLES = 2048;
 static std::map<int, Savestate> savestateMap;
 cvar_t tas_savestate_auto = {"tas_savestate_auto", "1"};
 cvar_t tas_savestate_enabled = {"tas_savestate_enabled", "1"};
+const int frequency = 100;
 
 void SS(const char* savename);
 
 static bool Can_Savestate()
 {
-	return cls.state == ca_connected && cls.signon == SIGNONS && tas_playing.value == 1;
+	return cls.state == ca_connected && cls.signon == SIGNONS && tas_playing.value == 1 && cl.intermission == 0;
 }
 
 static void Create_Savestate(int frame, bool force)
@@ -94,11 +96,23 @@ int Savestate_Load_State(int frame)
 	return savestate_frame;
 }
 
-void Savestate_Frame_Hook(int frame)
+static bool Should_Savestate(int frame, int target_frame)
+{
+	if(frame < 10)
+		return false;
+	else if(cl.movemessages == 0)
+		return true;
+	else if(frame % frequency == 0 && target_frame - frame < 500 && tas_savestate_auto.value != 0)
+		return true;
+	else
+		return false;
+}
+
+void Savestate_Frame_Hook(int frame, int target_frame)
 {
 	current_frame = frame;
 
-	if (cl.movemessages == 0 && frame > 10)
+	if (Should_Savestate(frame, target_frame))
 		Create_Savestate(frame, false);
 }
 
@@ -497,9 +511,14 @@ static void ReadEnts(std::ifstream& in, char* str)
 	}
 }
 
-static entity_t saved_ents[MAX_EDICTS];
-static int num_entities = 0;
+static entity_t* saved_ents;
+static int ss_num_entities = 0;
+static r_particle_t* saved_particles;
+static r_particle_t* saved_active_particles;
+static r_particle_t* saved_free_particles;
+static int ss_num_particles = 0;
 static client_state_t cl_backup;
+char* str;
 
 static void WriteClient(std::ofstream& out)
 {
@@ -516,7 +535,45 @@ static void WriteClient(std::ofstream& out)
 	Write(out, cl);
 }
 
-void Read_Client(std::ifstream& in)
+static void WriteParticleAddress(std::ofstream& out, r_particle_t* p)
+{
+	if (p)
+	{
+		Write(out, p - r_particles);
+	}
+	else
+	{
+		Write(out, -1);
+	}
+}
+
+static void WriteParticles(std::ofstream& out)
+{
+	int count = MAX_PARTICLES;
+
+	Write(out, count);
+	for (int i = 0; i < count; ++i)
+	{	
+		Write(out, r_particles[i]);
+		WriteParticleAddress(out, r_particles[i].next);
+	}
+
+	WriteParticleAddress(out, r_active_particles);
+	WriteParticleAddress(out, r_free_particles);
+}
+
+static r_particle_t* ReadParticleAddress(std::ifstream& in)
+{
+	int offset;
+	Read(in, offset);
+
+	if(offset == -1)
+		return NULL;
+	else
+		return r_particles + offset;
+}
+
+static void Read_Client(std::ifstream& in)
 {
 	for (int i = 1; i < MAX_EDICTS; ++i)
 	{
@@ -533,6 +590,21 @@ void Read_Client(std::ifstream& in)
 
 	Read(in, cl_backup);
 }
+
+static void Read_Particles(std::ifstream& in)
+{
+	Read(in, ss_num_particles);
+	for (int i = 0; i < ss_num_particles; ++i)
+	{
+		
+		Read(in, saved_particles[i]);
+		saved_particles[i].next = ReadParticleAddress(in);
+	}
+
+	saved_active_particles = ReadParticleAddress(in);
+	saved_free_particles = ReadParticleAddress(in);
+}
+
 
 static ddef_t* ED_FindGlobal(char* name)
 {
@@ -626,6 +698,20 @@ void Copy_Entity(int index)
 	COPY(istransparent);
 }
 
+static void Restore_Particles()
+{
+#define VecCopyMember(name, no) for(int u=0; u < no; ++u) p->name[u] = saved_particles[i].name[u];
+#define CopyMember(name) p->name = saved_particles[i].name;
+
+	for (int i = 0; i < ss_num_particles; ++i)
+	{
+		r_particles[i] = saved_particles[i];
+	}
+
+	r_active_particles = saved_active_particles;
+	r_free_particles = saved_free_particles;
+}
+
 void Restore_Client()
 {
 	for (int i = 1; i < MAX_EDICTS; ++i)
@@ -685,6 +771,15 @@ void Restore_Client()
 	VECCOPY2(punchangle);
 	VECCOPY2(velocity);
 	VECCOPY2(viewangles);
+
+	Restore_Particles();
+}
+
+void Savestate_Init()
+{
+	saved_ents = new entity_t[MAX_EDICTS];
+	saved_particles = new r_particle_t[MAX_PARTICLES];
+	str = new char[32768];
 }
 
 void SS(const char* savename)
@@ -721,14 +816,22 @@ void SS(const char* savename)
 	WriteEnts(out);
 	Write(out, svs.clients->spawn_parms);
 	WriteClient(out);
+	WriteParticles(out);
 
 	out.close();
 	Con_Printf("done.\n");
 }
 
+
+void Cmd_TAS_SS_Clear(void)
+{
+	savestateMap.clear();
+	save_number = 0;
+}
+
 void Cmd_TAS_LS(void)
 {
-	char	name[MAX_OSPATH], mapname[MAX_QPATH], str[32768];
+	char	name[MAX_OSPATH], mapname[MAX_QPATH];
 	int	i;
 
 	if (Cmd_Argc() != 2)
@@ -795,6 +898,7 @@ void Cmd_TAS_LS(void)
 	for (i = 0; i < NUM_SPAWN_PARMS; i++)
 		Read(in, svs.clients->spawn_parms[i]);
 	Read_Client(in);
+	Read_Particles(in);
 
 	in.close();
 

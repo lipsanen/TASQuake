@@ -136,7 +136,24 @@ extern	vec3_t		r_origin, vpn, vright, vup;
 
 extern	struct texture_s *r_notexture_mip;
 
+typedef enum
+{
+	pt_static, pt_grav, pt_slowgrav, pt_fire, pt_explode, pt_explode2, pt_blob, pt_blob2
+} r_ptype_t;
+
+typedef struct r_particle_s
+{
+	vec3_t	org;
+	float	color;
+	vec3_t	vel;
+	float	ramp;
+	float	die;
+	r_ptype_t	type;
+	struct r_particle_s* next;
+} r_particle_t;
+
 extern	entity_t	r_worldentity;
+extern r_particle_t* r_particles, * r_active_particles, * r_free_particles;
 
 void R_Init (void);
 void R_InitTextures (void);
