@@ -445,6 +445,7 @@ void IN_MouseMove (usercmd_t *cmd)
 
 	mouse_x *= sensitivity.value;
 	mouse_y *= sensitivity.value;
+	IN_MouseMove_Hook(mouse_x, mouse_y);
 
 // add mouse X/Y movement to cmd
 	if ((in_strafe.state & 1) || (lookstrafe.value && mlook_active))

@@ -13,6 +13,7 @@
 #include "utils.hpp"
 #include "savestate.hpp"
 #include "bookmark.hpp"
+#include "camera.hpp"
 
 static PlaybackInfo playback;
 const int LOWEST_FRAME = 0;
@@ -397,7 +398,7 @@ void Script_Playback_IN_Move_Hook(usercmd_t* cmd)
 {
 	if (tas_playing.value && tas_gamestate == paused)
 	{
-		if (m_state == MouseState::Locked)
+		if (m_state == MouseState::Locked || tas_freecam.value != 0)
 		{
 			VectorCopy(old_angles, cl.viewangles);
 		}
@@ -1032,7 +1033,12 @@ qboolean Script_Playback_Cmd_ExecuteString_Hook(const char* text)
 		lowercase[i] = tolower(name[i]);
 	}
 
-	if (IsGameplayCvar(lowercase))
+	if (tas_freecam.value != 0 && IsMovementCommand(lowercase))
+	{
+		SendMovementCommand(lowercase);
+		return qtrue;
+	}
+	else if (IsGameplayCvar(lowercase))
 	{
 		if (Cmd_Argc() == 1)
 		{
