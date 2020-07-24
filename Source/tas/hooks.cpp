@@ -3,6 +3,7 @@
 #include "hooks.h"
 
 #include "afterframes.hpp"
+#include "camera.hpp"
 #include "draw.hpp"
 #include "hud.hpp"
 #include "reset.hpp"
@@ -55,6 +56,11 @@ void CL_SendMove_Hook(usercmd_t* cmd)
 		return;
 
 	Strafe(cmd);
+}
+
+qboolean V_CalcRefDef_Hook(void)
+{
+	return Camera_Refdef_Hook();
 }
 
 void Cmd_TAS_Pause(void)
@@ -176,6 +182,8 @@ void TAS_Init()
 	Cvar_Register(&tas_anglespeed);
 	Cvar_Register(&tas_edit_backups);
 	Cvar_Register(&tas_edit_snap_threshold);
+	Cvar_Register(&tas_freecam);
+	Cvar_Register(&tas_freecam_speed);
 	Cvar_Register(&tas_hud_frame);
 	Cvar_Register(&tas_hud_block);
 	Cvar_Register(&tas_hud_particles);
@@ -268,6 +276,11 @@ void CL_SignonReply_Hook()
 
 	if (cls.signon == 4 && tas_gamestate == loading)
 		unpause_countdown = 4;
+}
+
+void IN_MouseMove_Hook(int mousex, int mousey)
+{
+	Camera_MouseMove_Hook(mousex, mousey);
 }
 
 void _Host_Frame_Hook()

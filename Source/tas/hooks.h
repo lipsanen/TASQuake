@@ -12,6 +12,8 @@ extern "C"
 
 	void SV_Physics_Client_Hook();
 	void CL_SendMove_Hook(usercmd_t* cmd);
+	qboolean V_CalcRefDef_Hook(void);
+	void IN_MouseMove_Hook(int mousex, int mousey);
 	void _Host_Frame_Hook();
 	void _Host_Frame_After_FilterTime_Hook();
 	void Host_Connect_f_Hook();

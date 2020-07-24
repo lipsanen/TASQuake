@@ -21,9 +21,12 @@ static const char* const EXCLUDE_CVARS[] = {"gl_texturemode",
 											"tas_savestate",
 											"r_wateralpha",
 											"tas_ipc",
-											"tas_reward"};
+											"tas_reward",
+											"tas_freecam"};
 
 static const char* const INCLUDE_SUBSTR[] = {"cl_", "sv_", "tas_", "gl_", "r_", "v_centerspeed"};
+
+static const char* const MOVEMENT_COMMANDS[] = {"forward", "back", "moveleft", "moveright", "moveup", "movedown"};
 
 bool IsUpCmd(cmd_function_t* func)
 {
@@ -80,6 +83,27 @@ bool IsGameplayCvar(const char* text)
 {
 	auto cvar = Cvar_FindVar(const_cast<char*>(text));
 	return cvar && IsGameplayCvar(cvar);
+}
+
+bool IsMovementCommand(const char* text)
+{
+	if (!IsDownCmd(text) && !IsUpCmd(text))
+		return false;
+
+	text += 1;
+
+	bool match = false;
+
+	for (auto included : MOVEMENT_COMMANDS)
+	{
+		if (strstr(text, included) == text)
+		{
+			match = true;
+			break;
+		}
+	}
+
+	return match;
 }
 
 bool IsUpCmd(const char* text)

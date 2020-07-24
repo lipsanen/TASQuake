@@ -1040,6 +1040,9 @@ void V_CalcRefdef (void)
 	vec3_t		forward;
 	float		bob;
 
+	if(!V_CalcRefDef_Hook())
+		return;
+
 	V_DriftPitch ();
 		
 	// ent is the player model (visible when out of body)
