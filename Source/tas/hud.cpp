@@ -42,6 +42,8 @@ cvar_t tas_hud_movemessages = {"tas_hud_movemessages", "0"};
 cvar_t tas_hud_strafeinfo = {"tas_hud_strafeinfo", "0"};
 //desc: Displays the index of the RNG
 cvar_t tas_hud_rng = {"tas_hud_rng", "0"};
+//desc: Displays the number of particles alive
+cvar_t tas_hud_particles = { "tas_hud_particles", "0" };
 
 void Draw(int& y, cvar_t* cvar, const char* format, ...)
 {
@@ -299,6 +301,19 @@ void Draw_StrafeInfo(int& y)
 	Draw(y, &tas_hud_strafeinfo, "jump: %d", info.jump ? 1 : 0);
 }
 
+static void DrawParticleCount(int& y)
+{
+	if(!tas_hud_particles.value)
+		return;
+
+	int count = 0;
+
+	r_particle_t* p = r_free_particles;
+
+	for(p=r_free_particles; p; p = p->next, ++count);
+	Draw(y, &tas_hud_particles, "particles: %d", count);
+}
+
 
 void HUD_Draw_Hook()
 {
@@ -335,6 +350,7 @@ void HUD_Draw_Hook()
 	Draw(y, &tas_hud_waterlevel, "waterlevel: %d", (int)sv_player->v.waterlevel);
 	Draw(y, &tas_hud_movemessages, "cl.movemessages: %d", cl.movemessages);
 	Draw(y, &tas_hud_rng, "rng index: %d", Get_RNG_Index());
+	DrawParticleCount(y);
 	Draw_PFlags(y);
 	DrawFrameState(y, info);
 	Draw_StrafeStuff(player_data);

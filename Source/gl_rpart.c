@@ -695,7 +695,7 @@ void QMB_DrawParticles (void)
 
 	particle_time = cl.time;
 
-	if (!cl.paused)
+	if (!cl.paused && tas_gamestate == unpaused)
 		QMB_UpdateParticles ();
 
 	VectorAdd (vup, vright, billboard[2]);

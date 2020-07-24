@@ -1,7 +1,7 @@
 #include "cpp_quakedef.hpp"
 
 int Savestate_Load_State(int frame);
-void Savestate_Frame_Hook(int frame);
+void Savestate_Frame_Hook(int frame, int target_frame);
 void Savestate_Script_Updated(int frame);
 void Savestate_Playback_Started(int target_frame);
 
@@ -14,4 +14,6 @@ extern cvar_t tas_savestate_auto;
 extern cvar_t tas_savestate_enabled;
 
 void Cmd_TAS_LS(void);
+void Cmd_TAS_SS_Clear(void);
 void Restore_Client();
+void Savestate_Init();

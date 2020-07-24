@@ -23,21 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef GLQUAKE
 
-typedef enum
-{
-	pt_static, pt_grav, pt_slowgrav, pt_fire, pt_explode, pt_explode2, pt_blob, pt_blob2
-} ptype_t;
-
-typedef struct particle_s
-{
-	vec3_t	org;
-	float	color;
-	vec3_t	vel;
-	float	ramp;
-	float	die;
-	ptype_t	type;
-	struct particle_s *next;
-} particle_t;
 
 #else		// software
 
@@ -54,7 +39,7 @@ static	int	ramp1[8] = {0x6f, 0x6d, 0x6b, 0x69, 0x67, 0x65, 0x63, 0x61};
 static	int	ramp2[8] = {0x6f, 0x6e, 0x6d, 0x6c, 0x6b, 0x6a, 0x68, 0x66};
 static	int	ramp3[8] = {0x6d, 0x6b, 6, 5, 4, 3};
 
-static	particle_t	*particles, *active_particles, *free_particles;
+r_particle_t	*r_particles, *r_active_particles, *r_free_particles;
 static	int		r_numparticles;
 
 vec3_t			r_pright, r_pup, r_ppn;
@@ -254,7 +239,7 @@ void Classic_InitParticles (void)
 		r_numparticles = DEFAULT_NUM_PARTICLES;
 	}
 
-	particles = (particle_t *)Hunk_AllocName (r_numparticles * sizeof(particle_t), "classic:particles");
+	r_particles = (r_particle_t *)Hunk_AllocName (r_numparticles * sizeof(r_particle_t), "classic:particles");
 
 #ifdef GLQUAKE
 	Classic_LoadParticleTexures ();
@@ -274,7 +259,7 @@ R_EntityParticles
 void R_EntityParticles (entity_t *ent)
 {
 	int		i, count;
-	particle_t	*p;
+	r_particle_t	*p;
 	float		angle, dist, sp, sy, cp, cy;
 	vec3_t		forward;
 	
@@ -298,12 +283,12 @@ void R_EntityParticles (entity_t *ent)
 		forward[1] = cp * sy;
 		forward[2] = -sp;
 
-		if (!free_particles)
+		if (!r_free_particles)
 			return;
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
+		p = r_free_particles;
+		r_free_particles = p->next;
+		p->next = r_active_particles;
+		r_active_particles = p;
 
 		p->die = cl.time + 0.01;
 		p->color = 0x6f;
@@ -324,12 +309,12 @@ void Classic_ClearParticles (void)
 {
 	int	i;
 	
-	free_particles = &particles[0];
-	active_particles = NULL;
+	r_free_particles = &r_particles[0];
+	r_active_particles = NULL;
 
 	for (i=0 ; i<r_numparticles ; i++)
-		particles[i].next = &particles[i+1];
-	particles[r_numparticles-1].next = NULL;
+		r_particles[i].next = &r_particles[i+1];
+	r_particles[r_numparticles-1].next = NULL;
 }
 
 
@@ -338,7 +323,7 @@ void R_ReadPointFile_f (void)
 	FILE		*f;
 	vec3_t		org;
 	int		r, c;
-	particle_t	*p;
+	r_particle_t	*p;
 	char		name[MAX_OSPATH];
 
 	Q_snprintfz (name, MAX_OSPATH, "maps/%s.pts", sv.name);
@@ -359,15 +344,15 @@ void R_ReadPointFile_f (void)
 			break;
 		c++;
 
-		if (!free_particles)
+		if (!r_free_particles)
 		{
 			Con_Printf ("Not enough free particles\n");
 			break;
 		}
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
+		p = r_free_particles;
+		r_free_particles = p->next;
+		p->next = r_active_particles;
+		r_active_particles = p;
 
 		p->die = 99999;
 		p->color = (-c)&15;
@@ -442,20 +427,20 @@ R_ParticleExplosion
 void Classic_ParticleExplosion (vec3_t org)
 {
 	int		i, j;
-	particle_t	*p;
+	r_particle_t	*p;
 
 	if (r_explosiontype.value == 1)	// just a sprite
 		return;
 
 	for (i=0 ; i<1024 ; i++)
 	{
-		if (!free_particles)
+		if (!r_free_particles)
 			return;
 
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
+		p = r_free_particles;
+		r_free_particles = p->next;
+		p->next = r_active_particles;
+		r_active_particles = p;
 
 		p->die = cl.time + 5;
 		p->color = ramp1[0];
@@ -478,20 +463,20 @@ R_ColorMappedExplosion		// joe: previously R_ParticleExplosion2
 void Classic_ColorMappedExplosion (vec3_t org, int colorStart, int colorLength)
 {
 	int		i, j, colorMod = 0;
-	particle_t	*p;
+	r_particle_t	*p;
 
 	if (r_explosiontype.value == 1)
 		return;
 
 	for (i=0 ; i<512 ; i++)
 	{
-		if (!free_particles)
+		if (!r_free_particles)
 			return;
 
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
+		p = r_free_particles;
+		r_free_particles = p->next;
+		p->next = r_active_particles;
+		r_active_particles = p;
 
 		p->die = cl.time + 0.3;
 		p->color = colorStart + (colorMod++ % colorLength);
@@ -513,17 +498,17 @@ R_BlobExplosion
 void Classic_BlobExplosion (vec3_t org)
 {
 	int		i, j;
-	particle_t	*p;
+	r_particle_t	*p;
 	
 	for (i=0 ; i<1024 ; i++)
 	{
-		if (!free_particles)
+		if (!r_free_particles)
 			return;
 
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
+		p = r_free_particles;
+		r_free_particles = p->next;
+		p->next = r_active_particles;
+		r_active_particles = p;
 
 		p->die = cl.time + 1 + (rand() & 8) * 0.05;
 
@@ -554,17 +539,17 @@ R_RunParticleEffect
 void Classic_RunParticleEffect (vec3_t org, vec3_t dir, int color, int count)
 {
 	int		i, j;
-	particle_t	*p;
+	r_particle_t	*p;
 
 	for (i=0 ; i<count ; i++)
 	{
-		if (!free_particles)
+		if (!r_free_particles)
 			return;
 
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
+		p = r_free_particles;
+		r_free_particles = p->next;
+		p->next = r_active_particles;
+		r_active_particles = p;
 
 		p->die = cl.time + 0.1 * (rand() % 5);
 		p->color = (color & ~7) + (rand() & 7);
@@ -586,7 +571,7 @@ R_LavaSplash
 void Classic_LavaSplash (vec3_t org)
 {
 	int		i, j, k;
-	particle_t	*p;
+	r_particle_t	*p;
 	float		vel;
 	vec3_t		dir;
 
@@ -596,13 +581,13 @@ void Classic_LavaSplash (vec3_t org)
 		{
 			for (k=0 ; k<1 ; k++)
 			{
-				if (!free_particles)
+				if (!r_free_particles)
 					return;
 
-				p = free_particles;
-				free_particles = p->next;
-				p->next = active_particles;
-				active_particles = p;
+				p = r_free_particles;
+				r_free_particles = p->next;
+				p->next = r_active_particles;
+				r_active_particles = p;
 		
 				p->die = cl.time + 2 + (rand() & 31) * 0.02;
 				p->color = 224 + (rand() & 7);
@@ -632,7 +617,7 @@ R_TeleportSplash
 void Classic_TeleportSplash (vec3_t org)
 {
 	int			i, j, k;
-	particle_t	*p;
+	r_particle_t	*p;
 	float		vel;
 	vec3_t		dir;
 
@@ -642,13 +627,13 @@ void Classic_TeleportSplash (vec3_t org)
 		{
 			for (k=-24 ; k<32 ; k+=4)
 			{
-				if (!free_particles)
+				if (!r_free_particles)
 					return;
 
-				p = free_particles;
-				free_particles = p->next;
-				p->next = active_particles;
-				active_particles = p;
+				p = r_free_particles;
+				r_free_particles = p->next;
+				p->next = r_active_particles;
+				r_active_particles = p;
 
 				p->die = cl.time + 0.2 + (rand() & 7) * 0.02;
 				p->color = 7 + (rand() & 7);
@@ -680,7 +665,7 @@ void Classic_RocketTrail (vec3_t start, vec3_t end, vec3_t *trail_origin, trail_
 	vec3_t		point, delta, dir;
 	float		len;
 	int		i, j, num_particles;
-	particle_t	*p;
+	r_particle_t	*p;
 	static	int	tracercount;
 
 	VectorCopy (start, point);
@@ -705,12 +690,12 @@ void Classic_RocketTrail (vec3_t start, vec3_t end, vec3_t *trail_origin, trail_
 
 	VectorScale (delta, 1.0 / num_particles, delta);
 
-	for (i=0 ; i < num_particles && free_particles ; i++)
+	for (i=0 ; i < num_particles && r_free_particles ; i++)
 	{
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
+		p = r_free_particles;
+		r_free_particles = p->next;
+		p->next = r_active_particles;
+		r_active_particles = p;
 		
 		VectorClear (p->vel);
 		p->die = cl.time + 2;
@@ -797,14 +782,14 @@ void Classic_DrawParticles (void)
 {
 	int			i;
 	float		grav, time1, time2, time3, dvel, frametime;
-	particle_t	*p, *kill;
+	r_particle_t	*p, *kill;
 #ifdef GLQUAKE
 	float		dist, scale, r_partscale;
 	vec3_t		up, right;
 	unsigned char *at, theAlpha;
 #endif
 
-	if (!active_particles || tas_gamestate == paused || in_overlay)
+	if (!r_active_particles || tas_gamestate == paused || in_overlay)
 		return;
 
 #ifdef GLQUAKE
@@ -836,18 +821,18 @@ void Classic_DrawParticles (void)
 
 	for ( ; ; ) 
 	{
-		kill = active_particles;
+		kill = r_active_particles;
 		if (kill && kill->die < cl.time)
 		{
-			active_particles = kill->next;
-			kill->next = free_particles;
-			free_particles = kill;
+			r_active_particles = kill->next;
+			kill->next = r_free_particles;
+			r_free_particles = kill;
 			continue;
 		}
 		break;
 	}
 
-	for (p = active_particles ; p ; p = p->next)
+	for (p = r_active_particles ; p ; p = p->next)
 	{
 		for ( ; ; )
 		{
@@ -855,8 +840,8 @@ void Classic_DrawParticles (void)
 			if (kill && kill->die < cl.time)
 			{
 				p->next = kill->next;
-				kill->next = free_particles;
-				free_particles = kill;
+				kill->next = r_free_particles;
+				r_free_particles = kill;
 				continue;
 			}
 			break;

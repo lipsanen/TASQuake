@@ -92,6 +92,8 @@ void TAS_Set_Seed(int seed)
 
 void TAS_Init()
 {
+	Savestate_Init();
+
 	Cmd_AddCommand("tas_script_init", Cmd_TAS_Script_Init);
 	Cmd_AddCommand("tas_script_stop", Cmd_TAS_Script_Stop);
 	Cmd_AddCommand("tas_script_play", Cmd_TAS_Script_Play);
@@ -158,6 +160,7 @@ void TAS_Init()
 	Cmd_AddCommand("tas_test_generate", Cmd_Test_Generate);
 
 	Cmd_AddCommand("tas_ls", Cmd_TAS_LS);
+	Cmd_AddCommand("tas_ss_clear", Cmd_TAS_SS_Clear);
 	Cmd_AddCommand("tas_savestate", Cmd_TAS_Savestate);
 	Cvar_Register(&tas_playing);
 	Cvar_Register(&tas_pause_onload);
@@ -175,6 +178,7 @@ void TAS_Init()
 	Cvar_Register(&tas_edit_snap_threshold);
 	Cvar_Register(&tas_hud_frame);
 	Cvar_Register(&tas_hud_block);
+	Cvar_Register(&tas_hud_particles);
 	Cvar_Register(&tas_hud_pos);
 	Cvar_Register(&tas_hud_pos_inc);
 	Cvar_Register(&tas_hud_pos_x);
