@@ -2,6 +2,7 @@
 #include <string>
 #include <fstream>
 
+void Cmd_TAS_Trace_Edict();
 bool IsZero(double number);
 double NormalizeRad(double rad);   // [-pi, pi]
 double NormalizeDeg(double angle); // [-180, 180]
@@ -9,6 +10,7 @@ double ToQuakeAngle(double angle); // [0, 360]
 float AngleModDeg(float deg);
 void ApproximateRatioWithIntegers(double& number1, double& number2, int max_int);
 void ApproximateRatioWithIntegers(double& number1, double& number2, double& number3, int max_int);
+float InBounds(float value, float min, float max);
 
 #ifndef M_PI
 const double M_PI = 3.14159265358979323846;

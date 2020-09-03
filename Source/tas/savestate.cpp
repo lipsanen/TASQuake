@@ -21,7 +21,7 @@ static int current_frame = 0;
 static bool in_playback = false;
 const int MAX_PARTICLES = 2048;
 static std::map<int, Savestate> savestateMap;
-cvar_t tas_savestate_auto = {"tas_savestate_auto", "1"};
+cvar_t tas_savestate_auto = {"tas_savestate_auto", "0"};
 cvar_t tas_savestate_enabled = {"tas_savestate_enabled", "1"};
 const int frequency = 100;
 
@@ -29,7 +29,7 @@ void SS(const char* savename);
 
 static bool Can_Savestate()
 {
-	return cls.state == ca_connected && cls.signon == SIGNONS && tas_playing.value == 1 && cl.intermission == 0;
+	return cls.state == ca_connected && cls.signon == SIGNONS && tas_playing.value == 1 && cl.intermission == 0 && tas_savestate_enabled.value != 0;;
 }
 
 static void Create_Savestate(int frame, bool force)
