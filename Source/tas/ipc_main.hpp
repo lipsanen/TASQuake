@@ -15,3 +15,5 @@ void Cmd_TAS_IPC_Simulate();
 void Cmd_TAS_IPC_Print_Posvel();
 void Cmd_TAS_IPC_Print_Seed();
 void Cmd_TAS_IPC_Print_Playback();
+void Cmd_TAS_IPC_Condition();
+void Cmd_TAS_IPC_Condition_Disable();

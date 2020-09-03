@@ -2,6 +2,21 @@
 #include "ipc.hpp"
 #include "afterframes.hpp"
 #include "simulate.hpp"
+#include "utils.hpp"
+
+struct IPCCondition
+{
+	int index;
+	vec3_t mins;
+	vec3_t maxs;
+	bool running_condition;
+
+	IPCCondition()
+	{
+		running_condition = false;
+	}
+
+};
 
 static qboolean OnChange_tas_ipc(cvar_t* var, char* string);
 static ipc::IPCServer server;
@@ -13,7 +28,89 @@ cvar_t tas_ipc_verbose = { "tas_ipc_verbose", "1"};
 cvar_t tas_ipc_timeout = { "tas_ipc_timeout", "200"};
 constexpr float MAX_TIMEOUT = 20000;
 static bool running_sim = false;
+static IPCCondition ipc_condition;
 static Simulator sim;
+
+static void SendConditionResult(bool result)
+{
+	ipc_condition.running_condition = false;
+	PlaybackInfo& playback = GetPlaybackInfo();
+	nlohmann::json msg;
+	msg["type"] = "condition";
+	msg["result"] = result;
+	msg["frame"] = playback.current_frame;
+	IPC_Send(msg);
+}
+
+
+static void ConditionIteration()
+{
+	if (!IPC_Active() || !ipc_condition.running_condition)
+	{
+		return;
+	}
+
+	edict_t* ent = EDICT_NUM(ipc_condition.index);
+	if (ipc_condition.index < sv.num_edicts && ent->free == qfalse)
+	{
+		bool inbounds = true;
+		for (int i = 0; i < 3; ++i)
+		{
+			inbounds = inbounds && InBounds(ent->v.origin[i], ipc_condition.mins[i], ipc_condition.maxs[i]);
+		}
+
+		if (inbounds)
+		{
+			SendConditionResult(true);
+		}
+	}
+}
+
+void Cmd_TAS_IPC_Condition_Disable()
+{
+	if (!IPC_Active())
+	{
+		Con_Print("IPC not active.\n");
+		return;
+	}
+	else if (!ipc_condition.running_condition)
+	{
+		Con_Print("Condition not active.\n");
+		return;
+	}
+
+	SendConditionResult(false);
+}
+
+void Cmd_TAS_IPC_Condition()
+{
+	if (!IPC_Active())
+	{
+		Con_Print("IPC not active.\n");
+		return;
+	}
+	else if(Cmd_Argc() < 8)
+	{
+		Con_Print("Usage: tas_ipc_condition <edict> <x1> <y1> <z1> <x2> <y2> <z2>\n");
+		return;
+	}
+	
+	ipc_condition.running_condition = true;
+	ipc_condition.index = std::atoi(Cmd_Argv(1));
+	float x1 = std::atof(Cmd_Argv(2));
+	float y1 = std::atof(Cmd_Argv(3));
+	float z1 = std::atof(Cmd_Argv(4));
+	float x2 = std::atof(Cmd_Argv(5));
+	float y2 = std::atof(Cmd_Argv(6));
+	float z2 = std::atof(Cmd_Argv(7));
+
+	ipc_condition.mins[0] = min(x1, x2);
+	ipc_condition.mins[1] = min(y1, y2);
+	ipc_condition.mins[2] = min(z1, z2);
+	ipc_condition.maxs[0] = max(x1, x2);
+	ipc_condition.maxs[1] = max(y1, y2);
+	ipc_condition.maxs[2] = max(z1, z2);
+}
 
 
 static void IPC_Print(const char* string)
@@ -213,6 +310,7 @@ static void Feedback()
 void IPC_Loop()
 {
 	if (ipc::Winsock_Initialized()) {
+		ConditionIteration();
 		server.Loop();
 		if (server.ClientConnected() && tas_ipc_feedback.value != 0 && sv.active) {
 			Feedback();

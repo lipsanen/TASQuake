@@ -17,6 +17,7 @@
 #include "ipc_main.hpp"
 #include "rewards.hpp"
 #include "bookmark.hpp"
+#include "utils.hpp"
 
 // desc: When set to 1, pauses the game on load
 cvar_t tas_pause_onload = {"tas_pause_onload", "0"};
@@ -134,6 +135,8 @@ void TAS_Init()
 	Cmd_AddCommand("tas_cmd_reset", Cmd_TAS_Cmd_Reset);
 	Cmd_AddCommand("tas_reset_movement", Cmd_TAS_Reset_Movement);
 	Cmd_AddCommand("tas_ipc_simulate", Cmd_TAS_IPC_Simulate);
+	Cmd_AddCommand("tas_ipc_condition", Cmd_TAS_IPC_Condition);
+	Cmd_AddCommand("tas_ipc_condition_disable", Cmd_TAS_IPC_Condition_Disable);
 	Cmd_AddCommand("tas_ipc_print_posvel", Cmd_TAS_IPC_Print_Posvel);
 	Cmd_AddCommand("tas_ipc_print_seed", Cmd_TAS_IPC_Print_Seed);
 	Cmd_AddCommand("tas_ipc_print_playback", Cmd_TAS_IPC_Print_Playback);
@@ -168,6 +171,7 @@ void TAS_Init()
 	Cmd_AddCommand("tas_ls", Cmd_TAS_LS);
 	Cmd_AddCommand("tas_ss_clear", Cmd_TAS_SS_Clear);
 	Cmd_AddCommand("tas_savestate", Cmd_TAS_Savestate);
+	Cmd_AddCommand("tas_trace_edict", Cmd_TAS_Trace_Edict);
 	Cvar_Register(&tas_playing);
 	Cvar_Register(&tas_pause_onload);
 	Cvar_Register(&tas_strafe);
