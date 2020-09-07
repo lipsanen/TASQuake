@@ -165,9 +165,9 @@ void TAS_Init()
 	Cmd_AddCommand("tas_reward_pop", Cmd_TAS_Reward_Pop);
 	Cmd_AddCommand("tas_reward_save", Cmd_TAS_Reward_Save);
 
-	Cmd_AddCommand("tas_test_script", Cmd_Test_Script);
-	Cmd_AddCommand("tas_test_run", Cmd_Test_Run);
-	Cmd_AddCommand("tas_test_generate", Cmd_Test_Generate);
+	Cmd_AddCommand("tas_test_script", Cmd_TAS_Test_Script);
+	Cmd_AddCommand("tas_test_run", Cmd_TAS_Test_Run);
+	Cmd_AddCommand("tas_test_generate", Cmd_TAS_Test_Generate);
 
 	Cmd_AddCommand("tas_ls", Cmd_TAS_LS);
 	Cmd_AddCommand("tas_ss_clear", Cmd_TAS_SS_Clear);

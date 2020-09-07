@@ -15,15 +15,26 @@ struct PlayerData
 	double vel_theta;
 };
 
+// desc: Set to 1 to activate automated strafing
 extern cvar_t tas_strafe;
+// desc: 1 = max accel, 2 = max angle, 3 = w strafing, 4 = swimming, 5 = reverse
 extern cvar_t tas_strafe_type;
+// desc: Yaw angle to strafe at
 extern cvar_t tas_strafe_yaw;
+// desc: Pitch angle to swim to. Only relevant while swimming.
 extern cvar_t tas_strafe_pitch;
+// deprecated
 extern cvar_t tas_strafe_lgagst_speed;
+// desc: When not set to 999, sets the yaw the player should look at. When set to 999 the player will look towards the strafe yaw.
 extern cvar_t tas_view_yaw;
+// desc: Player pitch.
 extern cvar_t tas_view_pitch;
+// desc: How fast the player's pitch/yaw angle changes visually. This has no impact on strafing speed \
+which works regardless of where you are looking at.
 extern cvar_t tas_anglespeed;
+// internal functionality for backwards compatibility
 extern cvar_t tas_strafe_version;
+// desc: Max length of the strafe vectors on each axis
 extern cvar_t tas_strafe_maxlength;
 extern const float INVALID_ANGLE;
 enum class StrafeType

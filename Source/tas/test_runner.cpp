@@ -46,12 +46,12 @@ static void Load_Test(bool generate)
 	GENERATION_RUNNING = generate;
 }
 
-void Cmd_Test_Generate(void)
+void Cmd_TAS_Test_Generate(void)
 {
 	Load_Test(true);
 }
 
-void Cmd_Test_Run(void)
+void Cmd_TAS_Test_Run(void)
 {
 	Load_Test(false);
 }

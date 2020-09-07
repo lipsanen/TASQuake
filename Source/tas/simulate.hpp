@@ -67,4 +67,12 @@ void SimulateWithStrafe(SimulationInfo& info);
 bool Should_Jump(const SimulationInfo& info);
 void Simulate_Frame_Hook();
 void Predict_Grenade(std::function<void(vec3_t)> frameCallback, std::function<void(vec3_t)> finalCallback, vec3_t origin, vec3_t viewangle);
-extern cvar_t tas_predict_per_frame, tas_predict, tas_predict_amount, tas_predict_grenade;
+
+// desc: How long the prediction algorithm should run per frame. High values will kill your fps.
+extern cvar_t tas_predict_per_frame;
+// desc: Display position prediction while paused in a TAS.
+extern cvar_t tas_predict;
+// desc: Amount of time to predict
+extern cvar_t tas_predict_amount;
+// desc: Display grenade prediction while paused in a TAS.
+extern cvar_t tas_predict_grenade;

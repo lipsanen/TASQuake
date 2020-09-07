@@ -1,5 +1,7 @@
-void Cmd_Test_Generate(void);
-void Cmd_Test_Run(void);
+// desc: Usage: tas_test_generate <filename>. Generates a test from script.
+void Cmd_TAS_Test_Generate(void);
+// desc: Usage: tas_test_run <filename>. Runs a test from file.
+void Cmd_TAS_Test_Run(void);
 bool Test_IsGeneratingTest();
 bool Test_IsRunningTest();
 void Test_Runner_Frame_Hook();

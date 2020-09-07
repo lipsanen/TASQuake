@@ -6,43 +6,25 @@
 #include "strafing.hpp"
 #include "utils.hpp"
 
-// desc: Display position in HUD
+
 cvar_t tas_hud_pos = {"tas_hud_pos", "0"};
-// desc: View angles element
 cvar_t tas_hud_angles = {"tas_hud_angles", "0"};
-// desc: Displays xyz-velocity in HUD
 cvar_t tas_hud_vel = {"tas_hud_vel", "0"};
-// desc: Displays 2d speed in HUD
 cvar_t tas_hud_vel2d = {"tas_hud_vel2d", "0"};
-// desc: Displays 3d speed in HUD
 cvar_t tas_hud_vel3d = {"tas_hud_vel3d", "0"};
-// desc: Displays velocity angle in HUD
 cvar_t tas_hud_velang = {"tas_hud_velang", "0"};
-// desc: Displays frame number in HUD
 cvar_t tas_hud_frame = {"tas_hud_frame", "0"};
-// desc: Displays block number in HUD
 cvar_t tas_hud_block = {"tas_hud_block", "0"};
-// desc: Displays lots of TAS info about frameblocks in HUD
 cvar_t tas_hud_state = {"tas_hud_state", "0"};
-// desc: Displays player flags in HUD
 cvar_t tas_hud_pflags = {"tas_hud_pflags", "0"};
-// desc: Displays waterlevel in HUD
 cvar_t tas_hud_waterlevel = {"tas_hud_waterlevel", "0"};
-// desc: X position of the HUD
 cvar_t tas_hud_pos_x = {"tas_hud_pos_x", "10"};
-// desc: Y position of the HUD
 cvar_t tas_hud_pos_y = {"tas_hud_pos_y", "60"};
-// desc: The vertical spacing between TAS HUD elements
 cvar_t tas_hud_pos_inc = {"tas_hud_pos_inc", "8"};
-//desc: Displays a bar that tells you how well you are strafing.
 cvar_t tas_hud_strafe = {"tas_hud_strafe", "0"};
-//desc: Displays movemessages sent
 cvar_t tas_hud_movemessages = {"tas_hud_movemessages", "0"};
-//desc: Draws output of strafe algorithm on previous frame
 cvar_t tas_hud_strafeinfo = {"tas_hud_strafeinfo", "0"};
-//desc: Displays the index of the RNG
 cvar_t tas_hud_rng = {"tas_hud_rng", "0"};
-//desc: Displays the number of particles alive
 cvar_t tas_hud_particles = { "tas_hud_particles", "0" };
 
 void Draw(int& y, cvar_t* cvar, const char* format, ...)

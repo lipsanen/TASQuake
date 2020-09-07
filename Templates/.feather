@@ -15,6 +15,13 @@ $END
 $ENTRY
 list=cvars
 props=desc
-ext=.cpp,.c
+ext=.hpp,.c
+format=extern cvar_t\s+(?P<name>\w+)
+$END
+
+$ENTRY
+list=cvars
+props=desc
+ext=.c
 format=cvar_t\s+(?P<name>\w+)
 $END
