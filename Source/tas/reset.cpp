@@ -20,6 +20,7 @@ static const char* const EXCLUDE_CVARS[] = {"gl_texturemode",
                                             "tas_predict",
 											"tas_savestate",
 											"r_wateralpha",
+											"r_fullbright",
 											"tas_ipc",
 											"tas_reward",
 											"tas_freecam"};
