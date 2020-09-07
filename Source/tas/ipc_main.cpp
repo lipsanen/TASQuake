@@ -50,18 +50,28 @@ static void ConditionIteration()
 		return;
 	}
 
-	edict_t* ent = EDICT_NUM(ipc_condition.index);
-	if (ipc_condition.index < sv.num_edicts && ent->free == qfalse)
-	{
-		bool inbounds = true;
-		for (int i = 0; i < 3; ++i)
-		{
-			inbounds = inbounds && InBounds(ent->v.origin[i], ipc_condition.mins[i], ipc_condition.maxs[i]);
-		}
+	int n = ipc_condition.index;
 
-		if (inbounds)
+	if (n < sv.num_edicts || n < 0)
+	{
+		edict_t* ent = EDICT_NUM(n);
+
+		if (ent->free == qtrue || ent->v.health <= 0)
 		{
-			SendConditionResult(true);
+			SendConditionResult(false);
+		}
+		else
+		{
+			bool inbounds = true;
+			for (int i = 0; i < 3; ++i)
+			{
+				inbounds = inbounds && InBounds(ent->v.origin[i], ipc_condition.mins[i], ipc_condition.maxs[i]);
+			}
+
+			if (inbounds)
+			{
+				SendConditionResult(true);
+			}
 		}
 	}
 }

@@ -935,6 +935,48 @@ void Cmd_TAS_Edit_Shots(void)
 	}
 }
 
+void Cmd_TAS_Edit_Random_Toggle(void)
+{
+	if (playback.current_script.blocks.empty())
+	{
+		Con_Print("Empty script\n");
+		return;
+	}
+
+	if (Cmd_Argc() >= 2)
+	{
+		auto toggle = Cmd_Argv(1);
+		int min = std::atoi(Cmd_Argv(2));
+		int max = std::atoi(Cmd_Argv(3));
+
+		if (min < 0)
+		{
+			Con_Printf("Invalid lower bound %d\n", min);
+			return;
+		}
+		else if (max < min)
+		{
+			Con_Printf("Invalid higher bound %d\n", max);
+			return;
+		}
+
+		int* integers = GenerateRandomIntegers(1, min, max, 1);
+		if (integers == NULL)
+		{
+			return;
+		}
+
+		playback.current_script.RemoveTogglesFromRange(toggle, min, max);
+		playback.current_script.Prune(min, max);
+		int frame = integers[0];
+		SetToggle(toggle, true, true, frame);
+	}
+	else
+	{
+		Con_Print("Usage: tas_edit_random_toggle <command> <min> <max>\n");
+	}
+}
+
 void Cmd_TAS_Confirm(void)
 {
 	if (m_state == MouseState::Locked)
