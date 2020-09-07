@@ -1,10 +1,15 @@
 #include "cpp_quakedef.hpp"
 #include "json.hpp"
 
+// desc: Turns on IPC.
 extern cvar_t tas_ipc;
+// desc: Turns on IPC feedback mode.
 extern cvar_t tas_ipc_feedback;
+// desc: IPC port
 extern cvar_t tas_ipc_port;
+// desc: IPC timeout in feedback mode
 extern cvar_t tas_ipc_timeout;
+// desc: Enables a bunch of debug messages in IPC
 extern cvar_t tas_ipc_verbose;
 
 void IPC_Init();

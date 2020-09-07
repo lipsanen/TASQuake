@@ -989,13 +989,9 @@ void SimulateWithStrafe(SimulationInfo& info)
 	SimulateFrame(info);
 }
 
-// desc: How long the prediction algorithm should run per frame. High values will kill your fps.
 cvar_t tas_predict_per_frame{"tas_predict_per_frame", "0.01"};
-// desc: Display position prediction while paused in a TAS.
 cvar_t tas_predict{"tas_predict", "1"};
-// desc: Display grenade prediction while paused in a TAS.
 cvar_t tas_predict_grenade { "tas_predict_grenade", "0" };
-// desc: Amount of time to predict
 cvar_t tas_predict_amount{"tas_predict_amount", "3"};
 
 static bool path_assigned = false;

@@ -2,6 +2,7 @@
 #include <string>
 #include <fstream>
 
+// desc: Prints the edict index that the player is looking at.
 void Cmd_TAS_Trace_Edict();
 bool IsZero(double number);
 double NormalizeRad(double rad);   // [-pi, pi]

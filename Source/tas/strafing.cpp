@@ -8,26 +8,16 @@
 #include "simulate.hpp"
 #include "utils.hpp"
 
-// desc: Set to 1 to activate automated strafing
+
 cvar_t tas_strafe = {"tas_strafe", "0"};
-// desc: 1 = max accel, 2 = max angle, 3 = w strafing, 4 = swimming, 5 = reverse
 cvar_t tas_strafe_type = {"tas_strafe_type", "1"};
-// desc: Yaw angle to strafe at
 cvar_t tas_strafe_yaw = {"tas_strafe_yaw", "0"};
-// desc: Pitch angle to swim to. Only relevant while swimming.
 cvar_t tas_strafe_pitch = {"tas_strafe_pitch", "0"};
-// deprecated
 cvar_t tas_strafe_lgagst_speed = {"tas_strafe_lgagst_speed", "460"};
-// desc: When not set to 999, sets the yaw the player should look at. When set to 999 the player will look towards the strafe yaw.
 cvar_t tas_view_yaw = {"tas_view_yaw", "999"};
-// desc: Player pitch.
 cvar_t tas_view_pitch = {"tas_view_pitch", "999"};
-// desc: How fast the player's pitch/yaw angle changes visually. This has no impact on strafing speed \
-which works regardless of where you are looking at.
 cvar_t tas_anglespeed = {"tas_anglespeed", "5"};
-// internal functionality for backwards compatibility
 cvar_t tas_strafe_version = {"tas_strafe_version", "2"};
-// desc: Max length of the strafe vectors on each axis
 cvar_t tas_strafe_maxlength = {"tas_strafe_maxlength", "32767"};
 
 const float INVALID_ANGLE = 999;

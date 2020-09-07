@@ -13,7 +13,9 @@ extern cvar_t tas_savestate_auto;
 // desc: Enable/disable savestates in TASes.
 extern cvar_t tas_savestate_enabled;
 
+// desc: Load savestate. Probably don't use this.
 void Cmd_TAS_LS(void);
+// desc: Clear savestates
 void Cmd_TAS_SS_Clear(void);
 void Restore_Client();
 void Savestate_Init();

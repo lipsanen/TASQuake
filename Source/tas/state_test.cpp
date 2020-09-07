@@ -120,7 +120,7 @@ static bool CheckTestConditions()
 	return true;
 }
 
-void Cmd_Test_Script(void)
+void Cmd_TAS_Test_Script(void)
 {
 	char testfile[260];
 	char script[260];

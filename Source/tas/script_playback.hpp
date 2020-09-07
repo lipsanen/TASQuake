@@ -88,6 +88,7 @@ void Cmd_TAS_Edit_Add_Empty(void);
 // desc: Add a number of shots to an interval
 void Cmd_TAS_Edit_Shots(void);
 
+// desc: Usage: tas_edit_random_toggle <command> <min> <max>. Add a toggle at a random point in the script.
 void Cmd_TAS_Edit_Random_Toggle(void);
 
 // desc: Confirms change in editing mode

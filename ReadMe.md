@@ -9,6 +9,3 @@ TASQuake is a Quake sourceport designed for tool assisted speedrunning. It is ba
 # Regular Thanks
 * YaLTeR for strafing algorithms
 * Sphere for optimization help
-
-# TODO
-* Do lots of testing on saves for desyncing issues
