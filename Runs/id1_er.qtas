@@ -1,0 +1,5013 @@
++1:
+	tas_strafe_version 2
+	disconnect
+	tas_set_seed
++1:
+	skill 0
+	record demo start
++6:
+	tas_strafe 1
+	tas_strafe_yaw 114.593
+	+tas_lgagst
++87:
+	tas_strafe_yaw 97.526
++87:
+	tas_strafe_yaw 148.211
+	-tas_lgagst
++50:
+	tas_strafe_yaw 184.955
++23:
+	tas_strafe_yaw 201.341
+	+tas_lgagst
++33:
+	tas_strafe_yaw 95.691
+	-tas_lgagst
++13:
+	+tas_jump
++6:
+	-tas_jump
+	+tas_lgagst
++109:
+	tas_strafe_yaw 180.341
++11:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++67:
+	tas_strafe_type 3
+	tas_strafe_yaw 259.091
+	tas_view_yaw 45
+	-tas_lgagst
++111:
+	tas_strafe_type 1
+	tas_strafe_yaw 41.32
+	tas_view_yaw 999
++1:
+	tas_strafe_yaw 76.597
++27:
+	+tas_lgagst
++6:
+	tas_strafe_yaw 80.217
++1:
+	-attack
++49:
+	tas_strafe_yaw 89.214
++50:
+	+attack
++2:
+	-attack
++48:
+	tas_view_pitch 25.6
+	tas_view_yaw 0.0384521
++1:
+	tas_strafe_yaw 121.745
++1:
+	tas_strafe_yaw 121.234
+	tas_view_pitch 25.7
+	tas_view_yaw 0.0549316
++26:
+	tas_strafe_yaw 180.692
++8:
+	+attack
++1:
+	tas_strafe_type 1
+	tas_strafe_yaw 77.833
+	tas_view_pitch 999
+	tas_view_yaw 999
++3:
+	tas_strafe_type 2
+	tas_strafe_yaw 89.951
++1:
+	-attack
++27:
+	tas_strafe_type 1
+	tas_strafe_yaw 86.979
++4:
+	tas_strafe_yaw 56.135
++4:
+	tas_strafe_yaw 90.132
+	-tas_lgagst
++7:
+	+tas_lgagst
++3:
+	tas_strafe_type 2
+	tas_strafe_yaw 355.836
++12:
+	tas_strafe_type 1
++42:
+	tas_strafe_yaw 8.317
+	+attack
++1:
+	-attack
++49:
+	tas_strafe_yaw 30.992
++13:
+	tas_strafe_type 2
+	tas_strafe_yaw 268.248
++10:
+	tas_strafe_type 1
++14:
+	tas_strafe_type 2
++36:
+	tas_strafe_type 1
++2:
+	tas_strafe_yaw 204.521
++16:
+	tas_strafe_yaw 3.334
++26:
+	tas_strafe_yaw 3.093
++5:
+	-tas_lgagst
++40:
+	tas_strafe_yaw 3.032
+	+tas_lgagst
++14:
+	tas_strafe_yaw 82.985
++35:
+	tas_strafe_yaw 58.821
++15:
+	tas_strafe_yaw 128.485
++25:
+	tas_strafe_yaw 240.974
++51:
+	tas_strafe_yaw 225.071
++29:
+	tas_strafe_yaw 280.778
++35:
+	tas_strafe_yaw 24.999
++37:
+	tas_strafe_yaw 268.25
++151:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++146:
+	+attack
++6:
+	tas_strafe_yaw 276.092
+	-attack
+	-tas_lgagst
++22:
+	+tas_lgagst
++71:
+	tas_strafe_yaw 262.04
+	-tas_lgagst
++23:
+	tas_strafe_yaw 242.49
++40:
+	tas_strafe_yaw 191.492
++21:
+	+tas_lgagst
++13:
+	tas_strafe_yaw 313.654
++37:
+	tas_strafe_yaw 353.298
++42:
+	tas_strafe_yaw 306.76
++16:
+	tas_view_pitch 8
+	tas_view_yaw 287.413
++29:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++26:
+	tas_strafe_yaw 340.867
++21:
+	tas_strafe_yaw 174.974
++25:
+	tas_strafe_type 2
++13:
+	tas_strafe_type 1
++47:
+	tas_strafe_yaw 301.772
++9:
+	tas_view_pitch -2
+	tas_view_yaw 323.855
++16:
+	tas_strafe_type 2
+	tas_strafe_yaw 347.558
++8:
+	tas_strafe_type 1
+	-tas_lgagst
++5:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++17:
+	tas_strafe_yaw 270.06
++24:
+	tas_strafe_yaw 198.556
++6:
+	tas_strafe_yaw 178.11
+	+tas_lgagst
++95:
+	tas_strafe_yaw 94.131
++48:
+	tas_strafe_yaw 81.37
++33:
+	-tas_lgagst
++4:
+	tas_strafe_type 2
+	tas_strafe_yaw 270.242
++12:
+	tas_strafe_type 1
+	tas_strafe_yaw 263.798
+	+tas_lgagst
++140:
+	tas_strafe_yaw 96.086
++44:
+	tas_strafe_yaw 98.119
++29:
+	tas_strafe_yaw 82.842
+	-tas_lgagst
++48:
+	tas_strafe_yaw 136.011
+	+tas_lgagst
++31:
+	tas_strafe_yaw 147.761
++31:
+	tas_strafe_type 3
+	tas_strafe_yaw 0
+	tas_view_yaw 90
+	-tas_lgagst
++14:
+	tas_strafe_yaw 90
++5:
+	tas_strafe_type 1
+	tas_strafe_yaw 113.412
+	tas_view_yaw 999
++34:
+	tas_strafe_yaw 131.325
+	+tas_lgagst
++37:
+	-tas_lgagst
++26:
+	tas_strafe_type 3
+	tas_strafe_yaw 95.295
++19:
+	tas_strafe_yaw 152.43
++52:
+	tas_strafe 0
+	tas_view_yaw 359.412
++250:
+	tas_strafe 1
+	tas_strafe_type 1
+	tas_strafe_yaw 358.039
+	tas_view_yaw 999
++16:
+	tas_strafe_yaw 270.461
++8:
+	tas_strafe_yaw 273.571
+	+tas_jump
++41:
+	tas_strafe_yaw 276.185
++1:
+	tas_strafe_yaw 272.433
++15:
+	tas_strafe_yaw 264.864
++10:
+	-tas_jump
++3:
+	tas_strafe_yaw 256.998
++51:
+	tas_strafe_yaw 185.927
++40:
+	tas_strafe_yaw 182.192
++27:
+	tas_strafe_yaw 174.117
++6:
+	tas_strafe_type 3
+	tas_strafe_yaw 112.736
++11:
+	tas_strafe_yaw 180
++1:
+	tas_strafe_type 1
++159:
+	+attack
++6:
+	tas_strafe_yaw 318.785
+	-attack
+	+tas_lgagst
++62:
+	tas_strafe_yaw 90.066
++5:
+	impulse 2
++69:
+	tas_view_pitch 5.7
+	tas_view_yaw 176.776
++3:
+	tas_strafe_yaw 146.008
++20:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++5:
+	tas_strafe_yaw 179.912
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
+	-tas_lgagst
++8:
+	tas_strafe_yaw 238.195
++17:
+	tas_strafe_yaw 121.108
++26:
+	tas_strafe_yaw 180.066
+	+tas_lgagst
++13:
+	tas_strafe_yaw 106.172
+	impulse 6
++38:
+	tas_strafe_type 2
+	tas_strafe_yaw 207.307
+	-tas_lgagst
++2:
+	tas_view_pitch 10
+	tas_view_yaw 140.5
++19:
+	tas_strafe_type 1
++11:
+	+attack
++2:
+	tas_strafe_yaw 66.896
+	tas_view_pitch 43.8
+	tas_view_yaw 240.095
+	-attack
++113:
+	tas_strafe_yaw 95.839
++28:
+	tas_strafe_type 3
+	tas_strafe_yaw 286.024
+	tas_view_yaw 999
++13:
+	tas_strafe_type 1
+	tas_strafe_yaw 294.868
++14:
+	+tas_jump
++8:
+	tas_strafe_type 1
+	tas_strafe_yaw 21
+	tas_view_pitch 999
+	-tas_jump
++91:
+	tas_strafe_type 3
+	tas_strafe_yaw 51.663
++13:
+	tas_strafe_yaw 356.907
++1:
+	tas_strafe_type 1
++10:
+	tas_strafe_yaw 310.496
++58:
+	+tas_lgagst
++10:
+	tas_strafe_yaw 353.952
++24:
+	tas_strafe_yaw 90.428
++59:
+	-tas_lgagst
++2:
+	tas_strafe_yaw 342.142
++52:
+	tas_strafe_yaw 273.505
++16:
+	tas_strafe_type 3
+	tas_strafe_yaw 351.7
++113:
+	tas_strafe_yaw 349.162
++30:
+	tas_strafe_yaw 360
++40:
+	tas_strafe_type 1
++26:
+	tas_strafe_yaw 355.589
+	+tas_lgagst
++22:
+	tas_view_pitch 51.9
+	tas_view_yaw 173.853
++42:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++1:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++6:
+	tas_strafe_type 2
+	tas_strafe_yaw 105.535
++20:
+	tas_strafe_type 1
+	tas_strafe_yaw 88.89
++26:
+	tas_strafe_type 2
+	tas_strafe_yaw 149.672
++26:
+	tas_strafe_type 1
+	tas_strafe_yaw 162.493
+	-tas_lgagst
++8:
+	tas_strafe_yaw 72.554
+	tas_view_pitch 8
+	tas_view_yaw 298.18
++12:
+	tas_strafe_yaw 8.635
+	impulse 2
++17:
+	tas_strafe_type 3
+	tas_strafe_yaw 14.2603
++2:
+	tas_strafe_yaw 239.886
++6:
+	tas_strafe_yaw 307.853
++72:
+	+attack
++1:
+	-attack
++152:
+	+attack
++51:
+	tas_strafe_yaw 348.124
+	-attack
++126:
+	tas_strafe_type 1
+	tas_strafe_yaw 120.031
++42:
+	tas_strafe_type 3
+	tas_strafe_yaw 282.799
+	tas_view_pitch 999
+	tas_view_yaw 999
++11:
+	tas_strafe_type 1
++50:
+	tas_strafe_yaw 359.55
++23:
+	tas_strafe_type 3
+	tas_strafe_yaw 180
+	tas_view_pitch 0
+	tas_view_yaw 359.555
++8:
+	tas_strafe 0
+	tas_strafe_type 1
++24:
+	tas_strafe 1
+	tas_strafe_yaw 356.594
++37:
+	tas_strafe_yaw 91.714
+	tas_view_pitch 999
+	tas_view_yaw 999
++52:
+	tas_strafe_type 3
+	tas_strafe_yaw 100
++13:
+	tas_strafe_yaw 90
++157:
+	+attack
++6:
+	tas_strafe_type 1
+	tas_strafe_yaw 270
+	-attack
++23:
+	+tas_jump
++1:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++7:
+	tas_view_pitch 40
+	-tas_jump
++68:
+	tas_strafe_type 3
+	tas_strafe_yaw 61.611
++8:
+	tas_strafe_type 1
+	tas_strafe_yaw 348.19
++43:
+	tas_view_pitch 999
++22:
+	tas_strafe_yaw 278.058
++23:
+	tas_strafe_yaw 311.347
++20:
+	+tas_jump
++1:
+	-tas_jump
++21:
+	tas_strafe_yaw 304.711
++38:
+	tas_strafe_pitch -3.4
+	tas_strafe_type 4
+	tas_strafe_yaw 302.426
++42:
+	tas_view_pitch -8
+	tas_view_yaw 293
++25:
+	impulse 6
++5:
+	+attack
++1:
+	-attack
++1:
+	tas_strafe_yaw 296.318
+	-attack
++120:
+	tas_strafe_pitch -16.1
+	tas_strafe_yaw 344.471
++56:
+	tas_strafe_pitch -29.2
+	tas_strafe_yaw 331.809
+	+jump
++1:
+	-jump
++1:
+	tas_strafe_pitch 0
+	tas_strafe_type 1
+	tas_strafe_yaw 300.119
+	tas_view_pitch 999
+	tas_view_yaw 999
++12:
+	tas_strafe_yaw 136.022
++5:
+	tas_view_pitch -8.4
+	tas_view_yaw 114.099
+	impulse 2
++32:
+	tas_strafe_yaw 127.37
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++11:
+	tas_strafe_yaw 87.067
++27:
+	tas_strafe_yaw 23.593
++44:
+	tas_view_pitch 5.3
+	tas_view_yaw 19.5062
++5:
+	tas_strafe_yaw 67.725
++25:
+	+attack
++1:
+	tas_view_pitch 5.3
+	tas_view_yaw 19.5007
+	-attack
++20:
+	tas_strafe_type 3
+	tas_strafe_yaw 81.931
++6:
+	tas_view_yaw 999
++4:
+	tas_strafe_type 1
+	impulse 6
++156:
+	+attack
++6:
+	tas_strafe_yaw 1.395
+	tas_view_pitch 1.4
+	tas_view_yaw 100.942
++3:
+	tas_view_pitch 1.4
+	tas_view_yaw 100.937
+	-attack
++21:
+	tas_strafe_type 3
+	tas_strafe_yaw 113.351
++57:
+	tas_strafe_yaw 340.604
++13:
+	tas_strafe 0
+	tas_strafe_type 1
+	tas_view_pitch 1.4
+	tas_view_yaw 163.037
++48:
+	tas_strafe 1
+	tas_strafe_yaw 160.818
+	tas_view_pitch 999
+	tas_view_yaw 999
++36:
+	+jump
++1:
+	-jump
++18:
+	-tas_jump
++7:
+	tas_strafe_yaw 93.164
++43:
+	tas_strafe_yaw 90
++21:
+	tas_strafe_type 3
+	tas_strafe_yaw 354.353
+	tas_view_pitch 0
+	tas_view_yaw 90
++13:
+	tas_strafe_yaw 259.865
++47:
+	tas_strafe_yaw 90
++7:
+	tas_strafe_type 1
+	tas_view_yaw 999
++16:
+	+tas_lgagst
++17:
+	tas_strafe_yaw 169.744
++37:
+	tas_strafe_yaw 267.973
++7:
+	tas_strafe_type 2
++1:
+	tas_strafe_type 1
++6:
+	tas_strafe_yaw 291.742
++21:
+	tas_strafe_type 2
+	tas_strafe_yaw 175.342
++10:
+	tas_strafe_type 1
++29:
+	tas_strafe_yaw 185.394
++16:
+	tas_strafe_yaw 260.217
+	-tas_lgagst
++17:
+	tas_strafe_yaw 275.323
++12:
+	tas_strafe_yaw 193.541
++10:
+	tas_view_pitch 80
+	tas_view_yaw 180
++25:
+	+jump
++1:
+	-jump
++4:
+	+attack
++1:
+	tas_strafe_yaw 1.571
+	-attack
++9:
+	tas_strafe_yaw 159.68
++1:
+	tas_strafe_type 2
++8:
+	tas_strafe_type 1
+	tas_view_yaw 999
++15:
+	tas_strafe_yaw 179.489
++25:
+	+jump
++3:
+	+attack
++1:
+	tas_view_pitch 999
+	-attack
+	-jump
++6:
+	tas_strafe_yaw 71.845
++62:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++1:
+	tas_strafe_type 3
+	tas_strafe_yaw 90
++6:
+	tas_strafe_type 1
++23:
+	tas_strafe_type 3
+	tas_strafe_yaw 270
+	tas_view_pitch 0
+	tas_view_yaw 90
++38:
+	tas_strafe_yaw 90
++1:
+	tas_strafe_type 1
++58:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++146:
+	+attack
++6:
+	tas_anglespeed 10
+	tas_strafe_yaw 268.253
+	tas_view_pitch -50
+	tas_view_yaw 180
+	-attack
++15:
+	tas_strafe_yaw 333.424
++3:
+	+attack
+	+jump
++1:
+	tas_anglespeed 5
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
+	-jump
++8:
+	tas_strafe_yaw 357.089
+	+tas_lgagst
++17:
+	tas_strafe_yaw 270
++54:
+	-tas_lgagst
++29:
+	tas_strafe_type 3
+	tas_strafe_yaw 90
+	tas_view_pitch -10
+	tas_view_yaw 270
++2:
+	tas_strafe_type 1
++19:
+	+attack
+	+jump
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
+	-jump
+	impulse 4
++7:
+	tas_strafe_yaw 83.71
++24:
+	tas_view_pitch 2.8
+	tas_view_yaw 38.4302
++8:
+	tas_strafe_yaw 56.585
++20:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++1:
+	tas_strafe_type 3
+	tas_strafe_yaw 8.086
+	+attack
++1:
+	tas_strafe_yaw 38.43
+	-attack
+	impulse 7
++12:
+	tas_strafe_yaw 14.513
++2:
+	tas_view_pitch 10
+	tas_view_yaw 90
++6:
+	tas_strafe_type 1
+	tas_strafe_yaw 83.996
++35:
+	tas_strafe_type 3
+	tas_strafe_yaw 270
++3:
+	tas_strafe_type 1
++14:
+	+attack
+	+jump
++1:
+	tas_view_yaw 999
+	-attack
+	-jump
++30:
+	tas_strafe_yaw 316
++38:
+	tas_strafe_yaw 5.526
++6:
+	tas_strafe_type 3
+	tas_strafe_yaw 155.819
+	tas_view_pitch 999
+	tas_view_yaw 360
++8:
+	tas_strafe 0
+	tas_strafe_type 1
++1:
+	tas_strafe 1
+	tas_strafe_yaw 0
++14:
+	tas_view_yaw 999
++24:
+	tas_strafe_yaw 311.111
+	+jump
++15:
+	tas_strafe_yaw 70.016
++30:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++151:
+	tas_strafe_yaw 6.713
+	-jump
++16:
+	+jump
++1:
+	-jump
++32:
+	tas_view_pitch 80
+	tas_view_yaw 328.442
++5:
+	tas_strafe_yaw 328.964
+	+tas_lgagst
++15:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++4:
+	tas_strafe_yaw 286.002
++37:
+	tas_strafe_yaw 90
++13:
+	tas_view_pitch 28
+	tas_view_yaw 280
++30:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++6:
+	tas_strafe_yaw 91.115
+	-tas_lgagst
++54:
+	tas_strafe_type 3
+	tas_strafe_yaw 90
++13:
+	tas_strafe_type 1
+	tas_strafe_yaw 320.356
++42:
+	tas_strafe_yaw 326.129
+	+jump
++1:
+	-jump
++49:
+	tas_strafe_yaw 360
++11:
+	tas_strafe 0
+	tas_strafe_type 3
+	tas_view_pitch 16.8
+	tas_view_yaw 180
++43:
+	tas_strafe 1
+	tas_strafe_yaw 240
++52:
+	tas_view_pitch 8
+	tas_view_yaw 68
++66:
+	tas_strafe_yaw 270
++24:
+	tas_strafe 0
++11:
+	tas_strafe 1
+	tas_strafe_type 1
+	tas_strafe_yaw 78.5
+	tas_view_yaw 999
+	+tas_lgagst
++57:
+	tas_strafe_yaw 360
++6:
+	tas_view_pitch -70
+	tas_view_yaw 0
++19:
+	tas_strafe_yaw 223.572
+	tas_view_pitch 999
+	tas_view_yaw 360
+	+attack
++6:
+	-attack
++39:
+	tas_strafe 0
++11:
+	tas_strafe 1
+	tas_strafe_yaw 5
++37:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++2:
+	tas_view_yaw 999
+	+jump
+	-tas_lgagst
++221:
+	tas_strafe_yaw 103.925
+	-jump
+	+tas_lgagst
++52:
+	-tas_lgagst
++51:
+	+tas_lgagst
++29:
+	tas_strafe_yaw 184.614
++65:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++1:
+	tas_strafe_type 3
+	tas_strafe_yaw 0
+	tas_view_yaw 180
+	-tas_lgagst
++9:
+	tas_strafe_yaw 180
+	tas_view_yaw 999
++18:
+	tas_strafe_type 1
++16:
+	+tas_lgagst
++36:
+	tas_strafe_yaw 74.729
+	-tas_lgagst
++52:
+	tas_strafe_yaw 6.454
++13:
+	tas_strafe_yaw 4.246
+	+jump
++19:
+	tas_strafe_yaw 56.986
+	-jump
+	+tas_lgagst
++88:
+	tas_strafe_yaw 176.792
++44:
+	tas_strafe_yaw 128.232
++20:
+	tas_strafe_yaw 180
++25:
+	tas_strafe_yaw 181.28
++65:
+	tas_strafe_yaw 270
++50:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++1:
+	+jump
+	-tas_lgagst
++150:
+	tas_strafe_yaw 90
+	-jump
++8:
+	-attack
++11:
+	+tas_lgagst
++70:
+	tas_strafe_yaw 48.697
+	-tas_lgagst
++25:
+	tas_strafe_yaw 35.651
++10:
+	tas_strafe_yaw 32.525
++30:
+	tas_strafe_yaw 90
++11:
+	+tas_lgagst
++10:
+	tas_view_pitch -1
+	tas_view_yaw 74.1962
++13:
+	+attack
++1:
+	tas_view_yaw 117
++35:
+	tas_strafe_yaw 79.233
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++37:
+	tas_strafe_yaw 89.852
++12:
+	tas_strafe_yaw 103.826
++9:
+	+attack
++17:
+	-attack
++11:
+	tas_strafe_yaw 0
++35:
+	tas_strafe_yaw 135.28
++5:
+	tas_strafe_type 2
++12:
+	tas_strafe_yaw 155.484
++6:
+	impulse 2
++7:
+	+attack
++1:
+	-attack
++20:
+	tas_strafe_yaw 90
++13:
+	tas_strafe_type 1
+	-tas_lgagst
++31:
+	tas_strafe_type 5
++10:
+	tas_strafe 0
++44:
+	tas_strafe 1
+	tas_strafe_type 1
+	tas_strafe_yaw 91
++22:
+	+jump
++9:
+	tas_strafe_yaw 99.965
+	-jump
++71:
+	tas_strafe_yaw 260.074
+	+tas_lgagst
++18:
+	tas_view_pitch 9.5
+	tas_view_yaw 244.786
++13:
+	tas_strafe_yaw 257.877
++7:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
++8:
+	-attack
++35:
+	tas_strafe_yaw 266.254
++48:
+	tas_strafe_yaw 289.528
++56:
+	tas_strafe_type 2
+	tas_strafe_yaw 180
+	-tas_lgagst
+	impulse 2
++9:
+	tas_view_pitch 78
+	tas_view_yaw 37.5952
++7:
+	tas_strafe_type 1
++15:
+	tas_strafe_yaw 192.557
++8:
+	+attack
++1:
+	-attack
++5:
+	tas_view_pitch 31.7
+	tas_view_yaw 71.6913
++30:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 45
+	-attack
++9:
+	tas_strafe_yaw 225
+	tas_view_yaw 45
++3:
+	tas_strafe_type 5
++18:
+	tas_strafe_type 1
+	tas_strafe_yaw 26.422
+	tas_view_yaw 999
+	+tas_lgagst
++31:
+	tas_strafe_yaw 90
++17:
+	-tas_lgagst
++4:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++1:
+	tas_strafe_type 5
++14:
+	tas_strafe_type 3
+	tas_strafe_yaw 83
++4:
+	tas_strafe_type 1
++52:
+	+tas_lgagst
++55:
+	tas_strafe_yaw 90
++41:
+	tas_strafe_yaw 280.893
+	+attack
++23:
+	tas_strafe_type 2
+	tas_strafe_yaw 270
+	-attack
++5:
+	tas_strafe_type 1
++7:
+	-attack
++34:
+	tas_strafe_yaw 285.502
+	-tas_lgagst
++3:
+	-attack
++9:
+	-attack
++12:
+	-attack
++7:
+	-attack
++26:
+	tas_strafe_yaw 348.876
+	+tas_lgagst
++52:
+	cl_maxfps 10
+	-tas_lgagst
++1:
+	cl_maxfps 72
++1:
+	tas_strafe_type 5
+	tas_strafe_yaw 0
++1:
+	tas_strafe_yaw 300.751
+	-attack
++11:
+	-attack
++8:
+	tas_anglespeed 1
++2:
+	tas_view_pitch 14.9
+	tas_view_yaw 296.087
++1:
+	tas_strafe_type 3
+	tas_strafe_yaw 308.117
+	impulse 2
++7:
+	tas_strafe_type 1
+	+tas_lgagst
++16:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++13:
+	tas_anglespeed 5
+	tas_strafe_yaw 270
+	-attack
++29:
+	tas_strafe_yaw 0.385
++21:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++9:
+	tas_strafe_yaw 1.527
++34:
+	tas_strafe_yaw 270
++28:
+	tas_view_pitch 40
+	tas_view_yaw 158.115
++26:
+	+attack
++1:
+	-attack
++9:
+	tas_strafe_yaw 355.49
++3:
+	tas_view_pitch 18
+	tas_view_yaw 92.8125
++1:
+	tas_strafe_type 2
++25:
+	tas_strafe_yaw 80.618
++4:
+	tas_strafe_type 1
++1:
+	+attack
++9:
+	tas_strafe_yaw 346.185
+	tas_view_pitch 999
+	tas_view_yaw 0
++23:
+	-attack
+	-tas_lgagst
++5:
+	cl_maxfps 12
++1:
+	cl_maxfps 72
++1:
+	tas_strafe_type 2
+	tas_strafe_yaw 25.258
++7:
+	tas_strafe_type 3
+	tas_strafe_yaw 21.193
++6:
+	tas_strafe_type 1
+	tas_strafe_yaw 0
++1:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++1:
+	+jump
++150:
+	tas_strafe_yaw 148.612
+	-jump
++10:
+	tas_view_pitch -29
+	tas_view_yaw 140.29
++20:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++25:
+	tas_strafe_yaw 143.223
+	+tas_lgagst
++32:
+	tas_strafe_yaw 90
+	-tas_lgagst
++7:
+	tas_strafe_yaw 112.874
+	tas_view_yaw 90
++9:
+	tas_strafe_yaw 90
++1:
+	tas_strafe_type 3
++3:
+	tas_strafe_type 5
++77:
+	tas_strafe_type 1
++20:
+	tas_strafe_type 3
++6:
+	tas_strafe_type 1
++19:
+	tas_strafe_yaw 101.711
+	tas_view_yaw 999
+	+tas_lgagst
++21:
+	tas_strafe_yaw 357.841
++39:
+	tas_strafe_yaw 173.37
++7:
+	tas_strafe_yaw 180
++28:
+	tas_strafe_type 2
++19:
+	tas_strafe_yaw 27.839
++13:
+	tas_strafe_yaw 350.618
++8:
+	impulse 2
++3:
+	-attack
++6:
+	tas_strafe_type 1
++18:
+	tas_view_pitch 17.4
+	tas_view_yaw 59.8975
++8:
+	tas_strafe_yaw 90
++11:
+	tas_strafe_type 1
+	+attack
++3:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
+	impulse 6
++54:
+	tas_strafe_yaw 180.775
++6:
+	tas_view_pitch -20
+	tas_view_yaw 216.134
++20:
+	+attack
++1:
+	-attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
++28:
+	tas_strafe_type 3
+	tas_strafe_yaw 217.65
+	-tas_lgagst
++16:
+	tas_strafe_type 1
++20:
+	tas_strafe_yaw 257.465
++35:
+	tas_strafe_yaw 195.848
+	tas_view_yaw 0
++30:
+	tas_strafe_yaw 180
++6:
+	tas_strafe 0
++39:
+	tas_view_pitch -30
+	tas_view_yaw 310
++3:
+	tas_strafe 1
+	tas_strafe_yaw 0
+	+jump
++1:
+	tas_strafe 1
+	tas_strafe_yaw 10.602
+	-jump
++20:
+	tas_strafe_yaw 272.247
+	+tas_lgagst
++6:
+	+attack
++14:
+	tas_strafe_yaw 315.95
++6:
+	tas_anglespeed 5
+	tas_view_pitch 7.6
+	tas_view_yaw 270
++1:
+	tas_strafe_yaw 9.102
++11:
+	tas_strafe_yaw 248.802
++13:
+	tas_strafe_type 5
+	tas_strafe_yaw 297.751
++8:
+	tas_strafe_type 3
+	tas_strafe_yaw 269.692
+	impulse 3
++2:
+	tas_strafe_type 1
+	tas_strafe_yaw 279.822
++22:
+	tas_view_pitch 5.3
+	tas_view_yaw 256.113
++12:
+	tas_view_pitch 999
+	tas_view_yaw 999
++17:
+	tas_strafe_yaw 192
+	impulse 2
++13:
+	tas_view_pitch 13.4
+	tas_view_yaw 184.164
++24:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++15:
+	tas_strafe_yaw 188.992
++6:
+	tas_strafe_yaw 202.324
++13:
+	tas_strafe_yaw 184.636
++30:
+	-tas_lgagst
++5:
+	tas_anglespeed 2.5
+	tas_strafe_yaw 198.023
++11:
+	+tas_lgagst
++9:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++2:
+	tas_anglespeed 5
+	+jump
+	-tas_lgagst
++149:
+	tas_strafe_yaw 138.082
+	-jump
++25:
+	tas_strafe_yaw 204.758
+	+jump
++49:
+	tas_strafe_yaw 180
++24:
+	tas_strafe_yaw 89.868
+	-jump
++62:
+	tas_strafe_pitch 80
+	tas_strafe_type 4
+	tas_strafe_yaw 80.2113
++24:
+	tas_strafe_pitch -2
+	tas_strafe_yaw 42
++75:
+	tas_strafe_pitch -16.3
+	tas_strafe_yaw 35.4803
++142:
+	tas_strafe_pitch 0
+	tas_strafe_yaw 34.904
++130:
+	tas_strafe_yaw 118.18
++22:
+	tas_strafe_yaw 170.024
++69:
+	tas_strafe_yaw 91.302
++188:
+	tas_strafe_yaw 184.488
++30:
+	tas_strafe_yaw 255.855
++6:
+	-attack
++86:
+	tas_strafe_yaw 180
+	tas_view_yaw 180
++27:
+	+attack
++1:
+	tas_view_yaw 90
+	-attack
++43:
+	tas_strafe 0
++1:
+	tas_strafe 1
+	tas_strafe_pitch -2
+	tas_view_pitch 0
++1:
+	cl_maxfps 10
+	tas_strafe_pitch -90
+	tas_view_pitch 0
+	tas_view_yaw 180
++2:
+	cl_maxfps 72
++1:
+	tas_strafe_type 5
++3:
+	cl_maxfps 72
+	tas_strafe_maxlength 32767
+	tas_strafe_type 3
++1:
+	tas_strafe_type 3
++15:
+	tas_strafe_pitch 0
+	tas_strafe_type 1
+	tas_strafe_yaw 191.728
+	tas_view_pitch 999
+	tas_view_yaw 999
+	+attack
++1:
+	-attack
++34:
+	tas_strafe_yaw 177.913
++5:
+	+attack
++6:
+	-attack
++4:
+	tas_strafe_yaw 171.859
+	+tas_lgagst
++12:
+	tas_strafe_yaw 182.219
+	tas_view_pitch 80
++29:
+	tas_strafe_yaw 89.764
++19:
+	+attack
++1:
+	-attack
++4:
+	tas_strafe_type 2
++6:
+	tas_strafe_yaw 179.033
+	tas_view_pitch 999
++13:
+	tas_strafe_yaw 193.041
++11:
+	tas_strafe_yaw 14.26
++30:
+	tas_strafe_yaw 356.138
++7:
+	tas_strafe_type 1
+	tas_strafe_yaw 349.03
++52:
+	tas_view_pitch 70
+	tas_view_yaw 272.373
++16:
+	tas_strafe_yaw 64.111
++4:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++16:
+	tas_strafe_yaw 77.245
+	impulse 7
++14:
+	impulse 2
++10:
+	tas_strafe_yaw 51.141
+	-tas_lgagst
++1:
+	tas_strafe_yaw 350
+	tas_view_pitch 70
++10:
+	+attack
++4:
+	-attack
+	impulse 7
++34:
+	+attack
+	+jump
++1:
+	tas_view_pitch 999
+	-attack
+	-jump
++4:
+	tas_strafe_yaw 91.252
++26:
+	tas_strafe_type 5
++10:
+	tas_strafe_type 1
++40:
+	tas_strafe_yaw 235.887
++38:
+	tas_strafe_yaw 211.575
++27:
+	+tas_lgagst
++19:
+	tas_strafe_yaw 212.272
++58:
+	tas_strafe_yaw 280.536
+	-tas_lgagst
++3:
+	tas_strafe_yaw 296.428
+	+jump
++10:
+	-jump
++24:
+	tas_strafe_yaw 180.862
++38:
+	tas_strafe_yaw 180
+	+tas_lgagst
++36:
+	tas_view_pitch -8.7
+	tas_view_yaw 270.912
++20:
+	tas_strafe_yaw 270.06
++10:
+	+attack
++1:
+	tas_strafe_yaw 267.55
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
+	-tas_lgagst
++32:
+	tas_strafe_yaw 180
++19:
+	tas_strafe_type 5
++8:
+	tas_strafe_type 3
++6:
+	tas_strafe_type 1
++17:
+	tas_strafe_yaw 189.25
++12:
+	+tas_lgagst
++9:
+	tas_strafe_yaw 209.02
++21:
+	-tas_lgagst
++7:
+	tas_strafe_yaw 184.213
+	tas_view_pitch 60
++19:
+	+attack
+	+jump
++4:
+	tas_strafe_type 2
+	tas_strafe_yaw 76.772
+	tas_view_pitch 999
+	-attack
+	-jump
++21:
+	tas_strafe_type 1
+	tas_strafe_yaw 356.314
++25:
+	tas_strafe_yaw 15.595
++22:
+	tas_strafe_type 3
+	tas_strafe_yaw 146.805
+	tas_view_pitch 5.2
+	tas_view_yaw 3.15308
+	impulse 2
++4:
+	tas_view_pitch 3.9
+	tas_view_yaw 351.31
++20:
+	+attack
++1:
+	-attack
++1:
+	tas_strafe_type 1
+	tas_strafe_yaw 184.296
+	tas_view_pitch 999
+	tas_view_yaw 999
+	impulse 7
++38:
+	tas_strafe_yaw 185.438
+	tas_view_pitch 50
+	tas_view_yaw 360
++23:
+	tas_strafe_type 5
++3:
+	tas_strafe_type 3
+	+jump
++10:
+	tas_strafe_type 1
+	tas_strafe_yaw 180
+	+attack
+	-jump
++7:
+	tas_view_pitch 999
++6:
+	-attack
++31:
+	tas_strafe_type 5
++162:
+	tas_view_pitch -59.3
+	tas_view_yaw 322.778
++1:
+	tas_strafe_type 1
+	tas_strafe_yaw 236.981
+	impulse 2
++28:
+	tas_strafe_type 5
+	+attack
++1:
+	tas_view_pitch 26
+	tas_view_yaw 0.164795
++7:
+	impulse 7
++4:
+	tas_strafe_type 1
+	tas_strafe_yaw 176.71
++22:
+	+jump
++1:
+	-jump
++9:
+	tas_strafe_yaw 170.024
++7:
+	impulse 2
++13:
+	tas_view_pitch -16.5
+	tas_view_yaw 17.5
++13:
+	tas_strafe 0
++18:
+	tas_view_pitch -23.8
+	tas_view_yaw 0
++36:
+	tas_strafe 1
+	tas_strafe_type 5
+	tas_strafe_yaw 180
+	-attack
++12:
+	tas_strafe_type 3
++6:
+	tas_strafe_type 1
++15:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++1:
+	+jump
++150:
+	tas_strafe_yaw 1.56
+	tas_view_pitch 0
+	tas_view_yaw 90
+	-jump
++25:
+	tas_strafe_yaw 90
++2:
+	tas_strafe_yaw 96.586
++37:
+	+tas_lgagst
++53:
+	tas_strafe_yaw 0
+	tas_view_pitch 999
+	tas_view_yaw 999
+	impulse 7
++20:
+	tas_view_pitch 80
++27:
+	tas_strafe_yaw 69.34
++2:
+	tas_view_pitch 80
+	+attack
++2:
+	tas_view_pitch 999
+	-attack
++19:
+	tas_strafe_yaw 36.497
++25:
+	tas_strafe_yaw 81.969
++27:
+	tas_strafe_yaw 348.223
++19:
+	tas_strafe_type 2
+	tas_strafe_yaw 345.69
++34:
+	tas_strafe_yaw 110.539
+	-tas_lgagst
++20:
+	tas_strafe_type 1
+	tas_strafe_yaw 129.062
++32:
+	+tas_lgagst
++11:
+	tas_view_pitch 80
+	tas_view_yaw 271.351
++3:
+	tas_strafe_yaw 89.225
+	+tas_lgagst
++20:
+	tas_strafe_yaw 181.868
++26:
+	tas_strafe_yaw 90
+	+attack
++1:
+	tas_strafe_yaw 90
+	-attack
+	impulse 6
++6:
+	tas_strafe_yaw 19.023
++6:
+	tas_view_pitch 10.7
+	tas_view_yaw 100
++4:
+	tas_strafe_yaw 189.229
++40:
+	tas_strafe_yaw 267.643
++11:
+	+attack
+	-tas_lgagst
++3:
+	tas_view_pitch 0
+	tas_view_yaw 90
++14:
+	tas_strafe_yaw 270
+	+jump
++33:
+	-attack
+	-jump
++33:
+	tas_strafe_type 5
++7:
+	tas_strafe_type 1
+	tas_strafe_yaw 92.571
++18:
+	cl_maxfps 71.99
++15:
+	tas_strafe_yaw 90
++118:
+	impulse 7
++77:
+	cl_maxfps 72
+	tas_strafe_yaw 90.39
++7:
+	+attack
++4:
+	-attack
+	+tas_lgagst
++82:
+	tas_strafe_yaw 185.477
+	tas_view_yaw 999
+	-tas_lgagst
++31:
+	tas_strafe_yaw 65.945
++19:
+	tas_view_pitch 42
+	tas_view_yaw 242.946
++7:
+	tas_strafe_yaw 46.038
++30:
+	tas_strafe_yaw 55.184
+	+tas_lgagst
++3:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++47:
+	tas_view_pitch 5.6
+	tas_view_yaw 159.543
+	impulse 7
++5:
+	tas_strafe_yaw 58.107
++24:
+	+attack
++2:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++5:
+	tas_strafe_type 2
+	tas_strafe_yaw 187.141
++25:
+	tas_strafe_type 1
++1:
+	+attack
++1:
+	tas_strafe_yaw 203.785
+	tas_view_pitch 10
+	tas_view_yaw 180.275
+	impulse 3
++24:
+	tas_view_pitch 11.3
+	tas_view_yaw 179.429
++3:
+	tas_strafe_yaw 132.632
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++26:
+	tas_strafe_yaw 76.536
++51:
+	tas_strafe_yaw 130
+	tas_view_yaw 180
++29:
+	tas_strafe_yaw 192.502
+	tas_view_yaw 180
++17:
+	tas_view_pitch 26
+	tas_view_yaw 0
++26:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
+	impulse 7
++1:
+	tas_strafe_yaw 171.332
++22:
+	tas_strafe_yaw 180
+	+attack
+	+jump
++12:
+	tas_strafe_yaw 171.991
++39:
+	tas_strafe_yaw 180
+	-attack
+	-jump
++14:
+	+jump
+	-tas_lgagst
++150:
+	tas_anglespeed 360
+	tas_strafe_yaw 28.993
+	tas_view_pitch 25
+	tas_view_yaw 209.141
+	+attack
+	-jump
+	+tas_lgagst
++3:
+	tas_anglespeed 10
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++21:
+	tas_strafe_yaw 96.026
++16:
+	tas_view_pitch 40
+	tas_view_yaw 20
++40:
+	tas_strafe_type 2
+	tas_strafe_yaw 170.607
+	tas_view_pitch 40
+	tas_view_yaw 20
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++8:
+	tas_strafe_yaw 106.447
++17:
+	tas_anglespeed 5
+	tas_strafe_yaw 74.855
++16:
+	tas_strafe_yaw 177.869
++16:
+	tas_strafe_type 1
++20:
+	-tas_lgagst
++44:
+	tas_strafe_yaw 180
++17:
+	tas_strafe_type 5
+	tas_view_pitch 2.7
+	tas_view_yaw 324
++8:
+	tas_strafe_type 3
+	tas_strafe_yaw 53.295
+	impulse 6
++21:
+	tas_strafe 0
+	+attack
++21:
+	tas_strafe 1
+	tas_strafe_yaw 185.51
++38:
+	tas_view_yaw 343
++9:
+	tas_strafe 0
++33:
+	tas_strafe_type 5
++10:
+	tas_view_pitch 8.3
+	tas_view_yaw 228.142
++1:
+	tas_strafe 1
+	tas_strafe_type 1
+	tas_strafe_yaw 344.125
+	-attack
++29:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++32:
+	tas_strafe_yaw 0
+	tas_view_pitch 999
+	tas_view_yaw 180
++6:
+	tas_strafe 0
++494:
+	impulse 7
++1:
+	tas_strafe 1
++38:
+	tas_view_pitch 40.7
+	tas_view_yaw 179.89
++30:
+	+attack
+	+jump
++8:
+	tas_strafe_yaw 52.954
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
+	-jump
++48:
+	tas_strafe_yaw 193.859
++33:
+	tas_view_pitch 11.3
+	tas_view_yaw 118.169
++25:
+	tas_strafe_yaw 103.266
++4:
+	+attack
++1:
+	-attack
++3:
+	impulse 3
++15:
+	tas_view_pitch 12.2
+	tas_view_yaw 344.202
++2:
+	tas_strafe_yaw 123.019
++40:
+	+attack
++2:
+	tas_view_pitch 3.7
+	tas_view_yaw 319.944
++62:
+	-attack
++111:
+	tas_strafe_yaw 340.56
+	tas_view_pitch 999
+	tas_view_yaw 999
++54:
+	tas_strafe_yaw 332.254
++21:
+	tas_strafe_yaw 357.907
++18:
+	tas_view_pitch 6.9
+	tas_view_yaw 71.3232
++23:
+	tas_strafe_yaw 85.825
++7:
+	+attack
++6:
+	tas_strafe_yaw 129.935
++7:
+	tas_strafe_type 3
+	tas_strafe_yaw 180.764
++8:
+	tas_view_pitch 5.4
+	tas_view_yaw 134.918
++8:
+	tas_strafe_yaw 329.771
++32:
+	tas_strafe_yaw 108.276
++11:
+	tas_view_pitch 5.3
+	tas_view_yaw 248.643
++21:
+	tas_strafe_yaw 183.955
++56:
+	tas_strafe_type 5
++4:
+	tas_view_pitch 9.2
+	tas_view_yaw 344.246
+	-attack
+	impulse 7
++1:
+	tas_strafe 0
++19:
+	+attack
++9:
+	-attack
++12:
+	tas_view_pitch 8.3
+	tas_view_yaw 269.813
++270:
+	tas_strafe 1
+	tas_strafe_type 1
+	tas_strafe_yaw 270.165
+	tas_view_pitch 80
++28:
+	+attack
+	+jump
++19:
+	tas_view_pitch 6.7
+	tas_view_yaw 221.336
+	-attack
+	-jump
++13:
+	impulse 2
++8:
+	tas_strafe_yaw 296.505
+	+attack
++15:
+	tas_view_pitch 80
+	tas_view_yaw 180.522
++8:
+	tas_strafe_yaw 359.291
+	impulse 7
++11:
+	tas_strafe_type 5
++6:
+	tas_strafe 0
++11:
+	tas_strafe 1
+	tas_strafe_type 1
++3:
+	+jump
++4:
+	tas_strafe 1
+	tas_strafe_type 1
+	tas_strafe_yaw 40.204
+	tas_view_pitch 999
+	tas_view_yaw 999
++3:
+	tas_strafe_yaw 359.528
+	-attack
+	-jump
++4:
+	tas_strafe_yaw 69.642
++27:
+	tas_strafe_yaw 34.014
++56:
+	tas_strafe_yaw 93.104
++12:
+	tas_strafe_yaw 78.162
+	+tas_lgagst
++37:
+	tas_strafe_yaw 186.526
++50:
+	-tas_lgagst
++13:
+	tas_strafe_yaw 270
++38:
+	tas_strafe_type 5
++13:
+	tas_strafe_type 1
+	tas_strafe_yaw 90.434
++25:
+	tas_strafe_yaw 4.395
++19:
+	tas_strafe_yaw 26.889
++19:
+	tas_strafe_yaw 0.439
+	+tas_lgagst
++26:
+	tas_strafe_yaw 257.948
++68:
+	tas_strafe_type 3
+	tas_strafe_yaw 0.247
+	tas_view_pitch 14.8
+	tas_view_yaw 179.203
+	-tas_lgagst
++55:
+	tas_strafe 0
++100:
+	tas_strafe 1
+	tas_strafe_yaw 140.521
++44:
+	tas_strafe_yaw 254.641
++29:
+	tas_strafe_yaw 191.354
+	tas_view_pitch 999
+	tas_view_yaw 999
++21:
+	tas_strafe_yaw 227.499
++60:
+	tas_strafe_type 2
+	tas_strafe_yaw 176.523
++36:
+	tas_strafe_type 1
+	tas_strafe_yaw 122.827
++18:
+	tas_strafe 0
++49:
+	tas_view_pitch 24.7
+	tas_view_yaw 320.603
++7:
+	tas_strafe 1
+	tas_strafe_type 3
+	tas_strafe_yaw 86.726
++15:
+	tas_strafe_yaw 167.618
++6:
+	tas_strafe_yaw 197.397
++10:
+	tas_strafe_yaw 162.081
++22:
+	+attack
++109:
+	tas_strafe_type 1
+	tas_strafe_yaw 272.049
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++19:
+	tas_strafe_yaw 180
++256:
+	tas_strafe_yaw 161.867
++16:
+	tas_view_pitch -55.8
+	tas_view_yaw 286.122
++6:
+	tas_strafe 0
++154:
+	impulse 6
++143:
+	+attack
++17:
+	tas_view_pitch -43.8
+	tas_view_yaw 288.556
++49:
+	tas_view_pitch -31
+	tas_view_yaw 288.896
++17:
+	impulse 3
++10:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++35:
+	tas_strafe 1
+	tas_strafe_yaw 298.394
++18:
+	+tas_lgagst
++38:
+	tas_strafe_yaw 358.791
++14:
+	impulse 7
++4:
+	-tas_lgagst
++28:
+	tas_view_pitch 38
+	tas_view_yaw 62.3419
++3:
+	tas_strafe_yaw 227.17
++24:
+	+tas_lgagst
++3:
+	+attack
++20:
+	tas_strafe_yaw 221.644
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
+	-tas_lgagst
++53:
+	tas_strafe_type 5
+	tas_strafe_yaw 90.873
++234:
+	tas_strafe_type 1
+	tas_strafe_yaw 142.894
++41:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++1:
+	tas_strafe_yaw 35.997
++84:
+	impulse 6
++6:
+	tas_view_pitch 5.5
+	tas_view_yaw 201.517
++432:
+	+attack
++1:
+	-attack
++96:
+	tas_strafe_yaw 208.592
+	+tas_lgagst
++29:
+	tas_view_pitch 35
+	tas_view_yaw 0
++30:
+	tas_strafe_yaw 180
+	-tas_lgagst
+	impulse 7
++20:
+	+attack
++5:
+	+jump
++5:
+	tas_anglespeed 10
+	tas_view_pitch 999
+	tas_view_yaw 180
+	-jump
++31:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++2:
+	-attack
+	+jump
++221:
+	tas_strafe_yaw 78.063
+	tas_view_yaw 999
+	-jump
+	+tas_lgagst
++68:
+	-tas_lgagst
++37:
+	+tas_lgagst
++20:
+	tas_strafe_yaw 354
++70:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++17:
+	tas_strafe_yaw 90.082
++116:
+	tas_anglespeed 5
+	tas_strafe_yaw 86.116
+	tas_view_yaw 180
+	-tas_lgagst
++3:
+	+attack
++1:
+	-attack
++27:
+	tas_strafe_yaw 270
++28:
+	tas_strafe_yaw 211.157
++11:
+	tas_strafe_type 2
++6:
+	tas_strafe_type 1
++3:
+	tas_strafe_type 3
+	tas_strafe_yaw 58.535
++12:
+	tas_strafe_type 1
++12:
+	tas_strafe_type 2
+	tas_strafe_yaw 308.425
+	impulse 2
++10:
+	tas_strafe_type 1
++9:
+	tas_strafe_yaw 186
+	tas_view_yaw 999
++18:
+	+tas_lgagst
++17:
+	+attack
++1:
+	-attack
++19:
+	-tas_lgagst
++39:
+	+attack
++1:
+	-attack
++27:
+	+tas_lgagst
++15:
+	tas_strafe_yaw 81.991
++30:
+	tas_strafe_type 2
+	tas_strafe_yaw 205
++11:
+	tas_strafe_type 1
++32:
+	tas_view_pitch 9.7
+	tas_view_yaw 276.91
++21:
+	+attack
++1:
+	tas_strafe_yaw 280.53
++1:
+	tas_view_pitch 999
+	tas_view_yaw 285
+	-attack
++25:
+	tas_strafe_yaw 283.953
++26:
+	tas_strafe_yaw 285.359
++4:
+	tas_strafe_yaw 280.569
++31:
+	tas_strafe_type 2
+	tas_strafe_yaw 338.225
+	tas_view_yaw 999
++4:
+	tas_strafe_type 1
++6:
+	tas_strafe_yaw 284.42
++21:
+	tas_strafe_type 2
+	tas_strafe_yaw 180
++11:
+	tas_strafe_type 1
++9:
+	-tas_lgagst
++20:
+	tas_anglespeed 10
+	tas_strafe_yaw 180
+	tas_view_yaw 0
++14:
+	tas_anglespeed 5
+	tas_strafe_type 1
+	tas_strafe_yaw 0
+	tas_view_yaw 999
++21:
+	+tas_lgagst
++1:
+	tas_strafe_yaw 319.444
++6:
+	-tas_lgagst
++20:
+	tas_strafe_yaw 0
++10:
+	tas_anglespeed 10
+	tas_strafe_type 3
+	tas_strafe_yaw 180.093
++18:
+	tas_anglespeed 5
+	tas_strafe_type 1
+	+tas_lgagst
++5:
+	tas_strafe_yaw 55.772
++47:
+	tas_strafe_yaw 90
+	-tas_lgagst
++69:
+	tas_strafe_yaw 127.826
+	tas_view_yaw 90
++1:
+	tas_strafe_yaw 130.567
+	+tas_lgagst
++10:
+	-tas_lgagst
++34:
+	tas_strafe_yaw 90
++2:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++2:
+	tas_strafe_type 3
++7:
+	tas_strafe_type 1
+	tas_strafe_yaw 23.192
+	tas_view_yaw 999
+	+tas_lgagst
+	impulse 3
++19:
+	tas_view_pitch 23.6
+	tas_view_yaw 316.45
++23:
+	tas_strafe_yaw 284.623
++6:
+	+attack
++1:
+	tas_strafe_yaw 290
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++25:
+	tas_view_pitch 13.1
+	tas_view_yaw 341.158
++25:
+	tas_strafe_yaw 33.657
+	tas_view_pitch 12.8
+	tas_view_yaw 343.394
+	-attack
++4:
+	tas_strafe_yaw 41.962
++3:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++8:
+	tas_strafe_type 2
++13:
+	tas_strafe_yaw 345.174
++2:
+	tas_strafe_type 1
++25:
+	tas_strafe_yaw 359.555
++45:
+	tas_strafe_yaw 37.134
++16:
+	tas_view_pitch 7
+	tas_view_yaw 3.82324
++13:
+	tas_strafe_yaw 0
++6:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++52:
+	tas_view_pitch 30.4
+	tas_view_yaw 5.24048
++29:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++15:
+	tas_strafe_yaw 350.612
++21:
+	tas_strafe_yaw 317.192
++3:
+	tas_view_pitch 7.5
+	tas_view_yaw 293.527
++29:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++3:
+	tas_strafe_yaw 319.026
++12:
+	tas_strafe_yaw 269
+	-tas_lgagst
++32:
+	+tas_lgagst
++2:
+	tas_strafe_yaw 341.548
++32:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++1:
+	+jump
+	-tas_lgagst
++150:
+	tas_strafe_yaw 270
+	-jump
+	impulse 2
++2:
+	impulse 2
++34:
+	tas_view_pitch 25
+	tas_view_yaw 203.522
++23:
+	cl_maxfps 10
+	tas_strafe_type 3
+	tas_strafe_yaw 224.203
++1:
+	cl_maxfps 72
++1:
+	tas_strafe_yaw 218.793
++5:
+	+attack
++1:
+	-attack
+	impulse 2
++14:
+	tas_strafe_type 1
+	tas_strafe_yaw 277.839
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
+	+jump
++1:
+	tas_strafe_type 1
+	-jump
++12:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++10:
+	+attack
++1:
+	-attack
++30:
+	tas_strafe_type 3
+	tas_strafe_yaw 63.561
++1:
+	tas_strafe_yaw 62.584
++3:
+	tas_strafe_type 1
+	+tas_lgagst
++20:
+	tas_strafe_yaw 4.57
++8:
+	+attack
++1:
+	-attack
++20:
+	tas_view_pitch 36.2
+	tas_view_yaw 333
++20:
+	cl_maxfps 10
+	tas_strafe_yaw 0
+	-tas_lgagst
++1:
+	cl_maxfps 72
+	tas_strafe_type 3
++1:
+	tas_strafe_type 5
++8:
+	+attack
+	impulse 6
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++5:
+	tas_strafe_type 3
++8:
+	tas_strafe_type 1
+	tas_strafe_yaw 336.127
++12:
+	+tas_lgagst
++21:
+	tas_strafe_yaw 258.673
++22:
+	tas_strafe_yaw 350.975
++28:
+	tas_strafe_yaw 270
++9:
+	tas_view_pitch 50
+	tas_view_yaw 269.978
++30:
+	+attack
++1:
+	-attack
++7:
+	tas_strafe_yaw 306.837
++12:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++1:
+	tas_strafe_type 3
+	tas_strafe_yaw 180
+	tas_view_yaw 270
++7:
+	tas_strafe_yaw 111.66
+	-tas_lgagst
++32:
+	tas_strafe_type 1
+	tas_strafe_yaw 90
+	-attack
++3:
+	tas_strafe_type 5
+	tas_strafe_yaw 100
++5:
+	tas_strafe_type 3
+	tas_strafe_yaw 90
++5:
+	tas_strafe_type 1
++5:
+	cl_maxfps 10
+	tas_strafe_type 3
++1:
+	cl_maxfps 72
++1:
+	tas_strafe_yaw 258.212
+	tas_view_pitch 70.9
+	tas_view_yaw 90
++20:
+	tas_strafe_type 1
+	tas_strafe_yaw 90.308
++25:
+	tas_strafe_yaw 40
++8:
+	tas_strafe_yaw 130
++32:
+	+jump
++4:
+	tas_strafe_yaw 90
+	tas_view_pitch 999
+	tas_view_yaw 999
++7:
+	tas_strafe_yaw 0
++18:
+	-jump
++7:
+	+tas_lgagst
++26:
+	tas_strafe_yaw 90
+	-jump
+	+tas_lgagst
++63:
+	tas_strafe_yaw 0
++18:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++1:
+	tas_strafe_yaw 182.763
+	tas_view_pitch 0
+	tas_view_yaw 0
++18:
+	tas_strafe_type 3
+	tas_strafe_yaw 0
+	-tas_lgagst
++6:
+	tas_strafe_type 1
++10:
+	tas_strafe_yaw 356.089
+	+tas_lgagst
++51:
+	+jump
+	-tas_lgagst
++150:
+	tas_strafe_yaw 268.737
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-jump
++2:
+	impulse 2
++5:
+	tas_strafe_yaw 275.411
++4:
+	+attack
++1:
+	-attack
++39:
+	+attack
++1:
+	-attack
++5:
+	tas_view_pitch -33.2
+	tas_view_yaw 222.303
++3:
+	tas_strafe_yaw 201.396
++22:
+	tas_strafe_yaw 275.674
++5:
+	+attack
+	impulse 6
++2:
+	tas_anglespeed 20
+	tas_strafe_yaw 274.307
+	tas_view_pitch 25
+	tas_view_yaw 90
+	-attack
++39:
+	tas_strafe_type 3
+	tas_strafe_yaw 93.911
++12:
+	tas_strafe_type 1
+	tas_strafe_yaw 106.584
++12:
+	tas_strafe 1
+	tas_strafe_type 1
+	tas_strafe_yaw 92.527
+	+jump
++4:
+	-jump
++12:
+	tas_strafe_yaw 272.988
+	impulse 2
++31:
+	tas_anglespeed 5
+	tas_view_pitch -3.2
+	tas_view_yaw 88.8684
++11:
+	tas_strafe_type 3
+	tas_strafe_yaw 47.39
++3:
+	tas_strafe_type 1
++14:
+	tas_strafe_yaw 90
++2:
+	+attack
++1:
+	impulse 6
++5:
+	tas_strafe_yaw 104.678
+	-attack
++11:
+	tas_anglespeed 5
++2:
+	tas_view_pitch 39.7001
+	tas_view_yaw 324.135
++17:
+	tas_strafe_yaw 96.202
+	+jump
++1:
+	tas_strafe_yaw 97.24
+	-jump
+	+tas_lgagst
++12:
+	+attack
++1:
+	-attack
++2:
+	tas_anglespeed 5
+	tas_strafe_yaw 90.093
+	tas_view_pitch 999
+	tas_view_yaw 999
+	+attack
++1:
+	-attack
++29:
+	tas_strafe_type 2
+	tas_strafe_yaw 149.107
++9:
+	tas_strafe_yaw 57.859
++7:
+	tas_strafe_type 1
++23:
+	tas_strafe_type 2
+	tas_strafe_yaw 180.516
++11:
+	tas_strafe_type 1
+	tas_strafe_yaw 89.209
+	-tas_lgagst
++40:
+	tas_strafe_yaw 336.132
++37:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
+	tas_strafe_type 3
++1:
+	tas_strafe_yaw 0
+	tas_view_yaw 0
++6:
+	+attack
++1:
+	tas_strafe_type 1
+	-attack
++4:
+	+jump
++1:
+	tas_strafe_yaw 354.139
+	impulse 2
++1:
+	tas_strafe_yaw 350.958
+	tas_view_yaw 999
++1:
+	tas_strafe_yaw 354.545
+	-jump
++51:
+	tas_strafe_yaw 87.825
++26:
+	+tas_lgagst
++36:
+	tas_strafe_type 2
+	tas_strafe_yaw 67.533
++15:
+	+attack
++1:
+	tas_strafe_type 5
+	-attack
++3:
+	tas_strafe_type 1
++15:
+	tas_strafe_type 2
+	tas_strafe_yaw 339.851
++6:
+	tas_strafe_type 1
++11:
+	+attack
++1:
+	-attack
++6:
+	tas_strafe_type 3
+	tas_strafe_yaw 135.055
+	-tas_lgagst
++10:
+	tas_strafe_type 1
++20:
+	tas_strafe_yaw 213.898
++43:
+	tas_strafe_yaw 270
++5:
+	+tas_lgagst
++17:
+	tas_view_pitch -8.8
+	tas_view_yaw 132.4
+	impulse 6
++29:
+	tas_strafe_yaw 336.489
++2:
+	+attack
++2:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
+	impulse 2
++14:
+	tas_strafe_yaw 336.281
+	-tas_lgagst
++22:
+	tas_strafe_type 3
+	tas_strafe_yaw 279.3
++6:
+	tas_strafe_yaw 155.226
++8:
+	tas_strafe_type 1
++2:
+	tas_strafe_yaw 154.709
++22:
+	+jump
++5:
+	-jump
+	+tas_lgagst
++11:
+	tas_strafe_yaw 102.722
++24:
+	tas_strafe_yaw 89.802
++5:
+	-attack
++26:
+	tas_strafe_type 2
+	tas_strafe_yaw 336.698
+	-tas_lgagst
++6:
+	tas_view_pitch -39
+	tas_view_yaw 20
++5:
+	tas_strafe_type 1
+	tas_strafe_yaw 341.164
++22:
+	tas_strafe_yaw 327.991
+	+jump
++3:
+	+attack
++1:
+	tas_anglespeed 5
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++3:
+	tas_strafe_type 2
+	tas_strafe_yaw 90
++27:
+	tas_strafe_type 5
++5:
+	tas_strafe_type 2
+	tas_strafe_yaw 333.276
+	tas_view_yaw 0
+	-jump
++6:
+	tas_strafe_yaw 270
++18:
+	tas_strafe_type 1
+	tas_strafe_yaw 36.832
+	+tas_lgagst
++33:
+	cl_maxfps 10
+	tas_strafe_yaw 0
++1:
+	cl_maxfps 72
++2:
+	+jump
+	-tas_lgagst
++149:
+	tas_strafe_yaw 283.469
+	tas_view_yaw 999
+	+attack
+	-jump
++1:
+	-attack
++63:
+	tas_strafe_yaw 313.89
++12:
+	+tas_lgagst
++3:
+	tas_strafe_yaw 287.748
+	-tas_lgagst
++5:
+	tas_strafe_yaw 0
++18:
+	tas_strafe_type 3
+	tas_view_pitch 0
++37:
+	tas_strafe_pitch -10
+	tas_strafe_type 4
++44:
+	tas_strafe_pitch -60
++32:
+	tas_view_pitch -2.8
+	tas_view_yaw 350.618
+	impulse 6
++11:
+	tas_strafe_pitch -23
+	tas_strafe_yaw 302.701
++29:
+	+attack
++1:
+	tas_view_pitch 0
+	tas_view_yaw 0
+	-attack
++7:
+	tas_strafe_pitch 0
+	tas_strafe_yaw 357.506
++157:
+	tas_strafe_pitch -80
++21:
+	tas_strafe_pitch 0
+	tas_strafe_type 1
+	tas_strafe_yaw 42.929
+	tas_view_pitch 999
+	tas_view_yaw 999
++29:
+	tas_strafe_yaw 150
++32:
+	tas_strafe_yaw 180
+	+tas_lgagst
++51:
+	tas_view_pitch 80
+	tas_view_yaw 180.011
++7:
+	-tas_lgagst
++33:
+	+attack
++2:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
+	+jump
++1:
+	tas_strafe_type 5
+	tas_strafe_yaw 0
+	tas_view_yaw 180
+	-jump
++10:
++2:
+	tas_strafe_type 1
+	tas_strafe_yaw 3.455
++20:
+	tas_strafe_yaw 180
++13:
+	tas_view_pitch 28
+	tas_view_yaw 0
++40:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++5:
+	+jump
++5:
+	-attack
+	impulse 7
++1:
+	tas_strafe_yaw 173.809
+	-attack
+	-jump
++38:
+	tas_strafe_type 5
++9:
+	tas_strafe_type 2
+	tas_strafe_yaw 285.524
++5:
+	tas_view_pitch 35
+	tas_view_yaw 89.6704
++2:
+	tas_strafe_type 1
++33:
+	tas_strafe_yaw 270
++5:
+	+attack
++3:
+	+jump
++6:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
+	-jump
+	+tas_lgagst
++117:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++1:
+	tas_strafe 0
+	-tas_lgagst
+	impulse 2
++36:
++1:
+	-attack
++20:
+	tas_strafe 1
+	tas_strafe_type 5
++32:
+	tas_strafe_type 3
+	tas_strafe_yaw 180
+	tas_view_yaw 270
++10:
+	tas_strafe_yaw 0
++4:
+	tas_strafe 0
++32:
++1:
+	-attack
++127:
++1:
+	-attack
++13:
+	tas_strafe 1
+	tas_strafe_type 1
+	tas_strafe_yaw 270
+	tas_view_yaw 999
++22:
+	tas_view_pitch 48.7
+	tas_view_yaw 153.523
++14:
+	tas_strafe_yaw 342.609
+	+tas_lgagst
++16:
+	+attack
+	impulse 7
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
+	impulse 2
++18:
+	tas_strafe_type 2
+	tas_strafe_yaw 90
++29:
++11:
+	tas_strafe_yaw 108.962
+	-tas_lgagst
++20:
++1:
+	tas_strafe_type 1
+	-attack
++33:
+	tas_strafe_yaw 40.001
+	-tas_lgagst
++22:
+	tas_strafe_type 5
++5:
+	tas_strafe_type 1
+	tas_strafe_yaw 90
++4:
+	-attack
++35:
+	tas_anglespeed 360
+	tas_view_pitch 0
+	tas_view_yaw 275
++12:
+	+jump
++2:
+	+attack
+	impulse 7
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
++1:
+	impulse 2
++4:
+	-attack
+	-jump
+	+tas_lgagst
++5:
+	tas_anglespeed 5
+	tas_strafe_yaw 91.961
++3:
++19:
+	tas_strafe_yaw 75.817
+	tas_view_yaw 90
++14:
+	tas_strafe_yaw 95.246
++12:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++2:
+	+jump
++149:
+	tas_strafe_yaw 90
+	tas_view_yaw 999
+	-jump
+	-tas_lgagst
++83:
+	+jump
++8:
+	tas_strafe_type 3
+	-jump
++121:
+	tas_strafe_type 1
+	tas_strafe_yaw 107.04
+	+tas_lgagst
++55:
+	-tas_lgagst
++35:
+	tas_strafe_yaw 69.697
++18:
+	+jump
++5:
+	tas_strafe_type 3
+	tas_strafe_yaw 180
+	-jump
++76:
+	tas_strafe_type 1
+	tas_strafe_yaw 198.913
++104:
+	tas_strafe_yaw 139
++7:
+	tas_view_pitch 24
+	tas_view_yaw 319.686
+	impulse 7
++10:
+	+tas_lgagst
++30:
+	+attack
++7:
+	tas_view_pitch 999
+	tas_view_yaw 180
+	-attack
++3:
+	tas_strafe_yaw 180
++39:
+	tas_strafe_yaw 172.035
+	tas_view_yaw 999
++13:
+	tas_strafe_type 2
+	tas_strafe_yaw 270.604
++14:
+	tas_strafe_type 1
++24:
+	tas_strafe_type 2
+	tas_strafe_yaw 0
++20:
+	tas_strafe_type 1
++20:
+	tas_strafe_type 2
+	tas_strafe_yaw 245.912
++19:
+	tas_strafe_type 1
++10:
+	tas_view_pitch 73.6001
+	tas_view_yaw 242.254
++28:
+	tas_strafe_yaw 0
++2:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++52:
+	tas_strafe_yaw 21.176
++6:
+	tas_strafe_type 2
+	tas_strafe_yaw 209.152
++15:
+	tas_strafe_type 1
+	tas_strafe_yaw 180
+	-tas_lgagst
++65:
+	tas_strafe_yaw 188.635
++20:
+	+jump
++2:
+	tas_strafe 0
+	tas_view_yaw 0
++31:
+	cl_maxfps 15
+	tas_strafe 1
+	tas_strafe_type 5
+	tas_strafe_yaw 0
++7:
+	cl_maxfps 72
++2:
+	tas_strafe 0
++60:
+	cl_maxfps 15
+	tas_strafe 1
+	-jump
++5:
+	cl_maxfps 72
++23:
+	tas_strafe_type 1
+	tas_strafe_yaw 180
++17:
+	tas_view_pitch 30
+	tas_view_yaw 180
++17:
+	tas_strafe_yaw 11.898
++7:
+	tas_strafe_type 1
++14:
+	+jump
++1:
+	+attack
++7:
+	tas_strafe_yaw 3.977
+	-attack
+	-jump
+	+tas_lgagst
++1:
+	tas_strafe_yaw 0.483
+	tas_view_pitch 999
+	tas_view_yaw 999
++69:
+	tas_strafe_yaw 61.512
++33:
+	tas_strafe_yaw 118.603
++43:
+	tas_strafe_yaw 180
++81:
+	tas_strafe_type 5
++16:
+	tas_strafe 0
++15:
+	cl_maxfps 10
+	tas_strafe 1
+	tas_strafe_pitch 90
+	tas_strafe_type 4
++3:
+	cl_maxfps 72
++56:
+	tas_strafe_pitch -2
++161:
+	tas_strafe_pitch -90
+	tas_view_yaw 0
++59:
+	tas_strafe_pitch -35.1
+	tas_strafe_yaw 24.6094
+	tas_view_yaw 999
++92:
+	tas_view_pitch 24
+	tas_view_yaw 315.077
++12:
+	tas_strafe_pitch -45
+	tas_strafe_yaw 90
++18:
+	+attack
++1:
++4:
+	tas_strafe_pitch 0
+	tas_strafe_type 1
+	tas_strafe_yaw 111.297
+	tas_view_pitch 35
+	tas_view_yaw 290
+	-tas_lgagst
++11:
+	tas_strafe_yaw 110.099
+	tas_view_pitch 35
++43:
+	tas_view_pitch 999
+	tas_view_yaw 0
+	-attack
++21:
+	tas_strafe 0
+	+jump
++8:
+	tas_strafe 1
+	tas_strafe_type 3
+	tas_strafe_yaw 0
++42:
+	tas_strafe_type 5
++58:
+	tas_strafe 0
+	tas_strafe_type 1
+	-jump
++5:
+	tas_strafe 1
+	tas_strafe_yaw 207.911
++2:
+	tas_view_pitch 70.4
+	tas_view_yaw 341.785
++11:
+	tas_strafe_yaw 152.397
++18:
++1:
+	+attack
++1:
+	-attack
++11:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++2:
+	+jump
++149:
+	tas_anglespeed 360
+	tas_strafe_type 1
+	tas_strafe_yaw 319.34
+	tas_view_pitch 30
+	tas_view_yaw 140.208
+	-jump
++25:
+	+tas_lgagst
++5:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++1:
+	tas_anglespeed 5
++5:
+	tas_strafe_yaw 313.852
++3:
+	tas_strafe_yaw 308.716
++26:
+	tas_strafe_type 2
+	tas_strafe_yaw 60.639
++27:
+	tas_strafe_type 1
+	tas_strafe_yaw 89.072
++13:
+	tas_strafe_yaw 298.861
++46:
+	tas_strafe_yaw 20.951
++36:
+	tas_strafe_yaw 10.887
++19:
+	tas_strafe_yaw 293.901
++64:
+	tas_strafe_yaw 216.881
+	-tas_lgagst
++37:
+	tas_strafe_yaw 180.181
++8:
+	tas_strafe_type 2
+	tas_strafe_yaw 354.089
+	tas_view_pitch 20
+	tas_view_yaw 180
++15:
+	tas_strafe_type 1
++6:
+	+attack
++5:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
+	-jump
++2:
+	+jump
++1:
+	-jump
+	+tas_lgagst
++13:
+	tas_strafe_type 2
+	tas_strafe_yaw 120.729
+	-jump
++8:
+	tas_strafe_type 1
++58:
+	tas_strafe_yaw 115.73
++36:
+	tas_strafe_yaw 247.544
++2:
+	tas_strafe_yaw 270.33
++3:
+	tas_strafe_type 2
++5:
+	-tas_lgagst
++10:
+	tas_strafe_type 1
++16:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
+	tas_strafe_type 3
+	tas_strafe_yaw 270
++1:
+	tas_strafe_type 5
++4:
+	tas_strafe_type 3
++5:
+	tas_strafe_type 1
++12:
+	tas_strafe_yaw 251.543
++31:
+	tas_view_pitch 48.4
+	tas_view_yaw 90.8514
++2:
+	tas_strafe_yaw 269.577
++5:
++2:
+	tas_strafe_type 5
++3:
+	tas_strafe_type 1
+	tas_strafe_yaw 274.257
++28:
+	+attack
+	+jump
++4:
+	-attack
+	-jump
+	impulse 2
++48:
+	tas_strafe_type 5
++17:
+	tas_strafe_type 1
+	tas_strafe_yaw 119.822
+	tas_view_pitch 999
+	tas_view_yaw 999
++19:
+	tas_strafe_yaw 260.28
++24:
+	cl_maxfps 10
+	+attack
++1:
+	cl_maxfps 72
+	-attack
++1:
+	tas_strafe_type 3
+	tas_strafe_yaw 270
++10:
+	tas_strafe_type 1
++8:
+	tas_strafe_yaw 179.945
++14:
+	tas_view_pitch 0.399992
+	tas_view_yaw 101.788
+	impulse 7
++1:
+	+tas_lgagst
++13:
+	tas_strafe_yaw 270.33
++16:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++5:
+	tas_strafe_yaw 271
++1:
++4:
++10:
++3:
+	tas_strafe_yaw 271.884
++19:
+	tas_strafe_type 2
+	tas_strafe_yaw 249.192
+	-attack
++6:
+	tas_strafe_yaw 0.214
++20:
+	tas_strafe_type 1
+	tas_strafe_yaw 44.539
+	tas_view_yaw 270
+	-tas_lgagst
++50:
+	tas_strafe 0
++113:
+	tas_strafe 1
+	tas_strafe_yaw 181.247
++13:
+	tas_view_pitch 47.3999
+	tas_view_yaw 91.0382
++1:
+	tas_strafe_yaw 271.626
++39:
+	+attack
++3:
+	+jump
++1:
+	tas_anglespeed 5
+	tas_strafe_yaw 286.804
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++26:
+	tas_strafe_yaw 269.116
++51:
+	tas_strafe_yaw 270
+	-jump
++19:
+	+jump
++7:
+	tas_strafe_type 5
+	tas_view_yaw 270
++1:
+	tas_strafe_type 1
+	tas_strafe_yaw 90
++4:
+	tas_strafe_type 1
++12:
+	tas_strafe_yaw 269.994
++21:
+	tas_strafe_type 3
++1:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++223:
+	tas_strafe_type 1
+	tas_strafe_yaw 38.046
+	tas_view_yaw 999
+	-jump
++51:
+	tas_strafe_yaw 0
++43:
+	+jump
++7:
+	-jump
++43:
+	cl_maxfps 10
+	tas_strafe_pitch 90
+	tas_strafe_type 4
++2:
+	cl_maxfps 72
++2:
+	cl_maxfps 72
++23:
+	tas_strafe_pitch 0
+	tas_strafe_type 1
++37:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
+	tas_strafe_type 3
++1:
+	tas_strafe_type 5
+	tas_view_yaw 0
++10:
+	tas_strafe_type 1
+	tas_strafe_yaw 180.033
++24:
+	tas_strafe_type 3
+	tas_strafe_yaw 0
++9:
+	tas_strafe_type 1
++87:
+	tas_strafe_yaw 48.252
+	tas_view_yaw 999
++10:
+	+jump
++22:
+	tas_strafe_yaw 120.861
++21:
+	tas_strafe_type 5
++3:
+	tas_strafe_type 1
+	tas_strafe_yaw 156.011
++9:
+	tas_strafe_yaw 275.065
+	tas_view_yaw 270
++25:
+	tas_strafe_yaw 270
+	tas_view_yaw 999
+	-jump
++49:
+	tas_strafe_type 5
++6:
+	tas_strafe_type 1
+	tas_strafe_yaw 110.577
++6:
+	+jump
++6:
+	-jump
++30:
+	tas_strafe_yaw 3.972
++16:
+	tas_strafe_type 2
+	tas_strafe_yaw 273.801
++6:
+	tas_strafe_yaw 283.524
++4:
+	tas_strafe_type 1
+	tas_strafe_yaw 277.152
++25:
+	tas_strafe_yaw 0.148
++7:
+	tas_strafe_yaw 0
+	+jump
++47:
+	cl_maxfps 10
+	tas_strafe_pitch 90
+	tas_strafe_type 4
+	-jump
++2:
+	cl_maxfps 72
++20:
+	tas_strafe_pitch -1.75
++93:
+	tas_strafe_pitch -33.3
+	tas_strafe_yaw 355.699
+	tas_view_pitch -70
+	tas_view_yaw 90
++99:
+	tas_strafe_pitch -30
++14:
+	tas_strafe_pitch 0
+	tas_strafe_type 1
+	tas_strafe_yaw 358.215
+	tas_view_pitch 999
+	tas_view_yaw 999
++16:
++3:
+	tas_strafe_type 5
++6:
+	tas_strafe_type 1
+	tas_strafe_yaw 180.077
++21:
+	tas_strafe_yaw 190.223
++4:
+	tas_strafe_pitch 90
+	tas_strafe_type 4
+	tas_strafe_yaw 270
++136:
+	tas_strafe_pitch 0
++133:
+	tas_strafe_pitch -17.3
++5:
++71:
+	tas_view_pitch 25
+	tas_view_yaw 4.19678
+	-jump
++29:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++84:
+	tas_strafe_pitch -69.4
+	tas_strafe_yaw 297.136
+	tas_view_pitch -70
+	tas_view_yaw 0
++90:
+	tas_strafe_pitch 0
+	tas_strafe_type 1
+	tas_strafe_yaw 260.684
+	tas_view_pitch 999
+	tas_view_yaw 270
++9:
+	+tas_lgagst
++6:
++7:
+	tas_strafe_yaw 270.165
++9:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++2:
+	+jump
+	-tas_lgagst
++149:
+	tas_strafe_yaw 260.579
+	tas_view_yaw 999
+	-jump
+	+tas_lgagst
++33:
++1:
++32:
+	tas_strafe_type 2
+	tas_strafe_yaw 55.629
++10:
+	tas_strafe_yaw 114
++11:
+	tas_strafe_type 1
++64:
+	tas_strafe_yaw 117.153
++29:
+	tas_strafe_yaw 25.593
++38:
+	tas_strafe_type 2
+	tas_strafe_yaw 180
++18:
+	tas_strafe_type 1
+	tas_strafe_yaw 201.467
++30:
+	tas_view_pitch 15.8
+	tas_view_yaw 259.343
++25:
+	tas_strafe_yaw 270
++6:
+	tas_strafe_yaw 273.884
+	tas_view_pitch 999
+	tas_view_yaw 999
+	+attack
++1:
+	-attack
++82:
+	tas_strafe_type 2
+	tas_strafe_yaw 200
+	-tas_lgagst
++7:
+	tas_strafe_type 1
+	tas_strafe_yaw 182.565
++29:
+	tas_strafe_yaw 309.408
+	tas_view_pitch 50
++37:
+	tas_view_pitch 999
+	impulse 2
++6:
+	tas_strafe_yaw 302.844
+	+tas_lgagst
++48:
+	tas_strafe_yaw 283.491
++58:
+	tas_strafe_yaw 316.241
++27:
+	tas_strafe_yaw 305.118
++3:
++5:
+	tas_strafe_yaw 301.393
++60:
+	tas_strafe_yaw 307.013
++20:
+	tas_strafe_yaw 180.571
++30:
+	tas_strafe_type 2
+	tas_strafe_yaw 90
++23:
+	tas_strafe_yaw 137.021
++16:
+	tas_strafe_yaw 270
++6:
+	tas_strafe_type 1
+	tas_strafe_yaw 277.443
++51:
+	tas_strafe_yaw 283.118
+	-tas_lgagst
++8:
+	tas_anglespeed 2
+	tas_view_pitch -23.2
+	tas_view_yaw 269.22
++8:
+	tas_strafe_type 5
++11:
+	tas_strafe 0
++21:
+	+attack
++1:
+	-attack
++15:
+	tas_strafe 1
+	tas_strafe_type 1
+	tas_strafe_yaw 260.184
++13:
+	tas_strafe_type 2
+	tas_strafe_yaw 316.066
+	+jump
++11:
+	tas_strafe_yaw 239.623
+	tas_view_pitch 999
+	tas_view_yaw 270
+	-jump
++19:
+	tas_strafe_type 1
+	tas_strafe_yaw 270
++26:
+	tas_anglespeed 5
+	tas_strafe_type 3
+	tas_strafe_yaw 327.656
+	tas_view_yaw 90
++61:
+	tas_strafe_type 1
+	tas_strafe_yaw 127.299
++1:
+	tas_strafe_yaw 90.055
++22:
+	+jump
++1:
+	-jump
++27:
+	tas_view_pitch 80
+	tas_view_yaw 0
+	+jump
+	-tas_lgagst
++7:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++4:
+	tas_strafe_yaw 180.39
++4:
+	-jump
++20:
+	tas_strafe_yaw 356.83
++19:
+	tas_strafe_yaw 22.478
++5:
+	tas_view_pitch 4.4
+	tas_view_yaw 2.93335
++21:
+	tas_strafe_yaw 27.065
++19:
+	+attack
++1:
+	tas_strafe_yaw 18.748
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++26:
+	tas_strafe_yaw 359.962
++21:
+	+jump
++5:
+	cl_maxfps 10
+	tas_strafe_yaw 0.566
++1:
+	cl_maxfps 72
++1:
+	tas_strafe_yaw 1.895
+	-jump
+	+tas_lgagst
++47:
+	tas_strafe_yaw 259.947
++13:
+	tas_strafe_type 2
+	tas_strafe_yaw 179.434
++14:
+	tas_strafe_type 1
++41:
+	tas_strafe_yaw 220.825
++70:
+	tas_strafe_yaw 177.83
++48:
+	tas_strafe_yaw 90.033
++24:
+	tas_strafe_yaw 90
+	tas_view_pitch 20
+	-tas_lgagst
++56:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
+	tas_strafe_type 3
++1:
+	tas_strafe_type 1
+	tas_view_pitch 999
++7:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++2:
+	+jump
++149:
+	tas_strafe_yaw 176.836
+	-jump
++36:
+	+tas_lgagst
++51:
+	tas_strafe_yaw 270.132
++20:
+	tas_strafe_type 2
+	tas_strafe_yaw 31.119
++11:
+	tas_strafe_type 1
++28:
+	tas_strafe_type 1
+	tas_strafe_yaw 283.239
++48:
+	cl_maxfps 10
+	tas_strafe_type 3
+	-tas_lgagst
++1:
+	cl_maxfps 72
++1:
+	tas_strafe_yaw 90.099
+	tas_view_yaw 270
++23:
+	tas_strafe_yaw 270.049
+	tas_view_yaw 999
++7:
+	tas_strafe_type 1
++18:
+	+jump
++4:
+	-jump
+	+tas_lgagst
++2:
+	tas_strafe_yaw 258.074
++12:
+	tas_strafe_yaw 236.547
++18:
+	tas_strafe_yaw 231.702
++39:
+	tas_strafe_yaw 342.3
++55:
+	+attack
++1:
+	-attack
++39:
+	tas_strafe_yaw 275.032
++44:
+	+attack
++1:
+	-attack
++5:
+	tas_strafe_yaw 0
++77:
+	tas_view_pitch -70
+	tas_view_yaw 178.704
++26:
+	-tas_lgagst
++5:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++1:
+	tas_strafe_yaw 347.563
++7:
+	+attack
++1:
+	tas_view_pitch 0
+	tas_view_yaw 180
+	-attack
+	impulse 2
++1:
+	tas_strafe_type 5
++7:
+	tas_strafe_type 1
+	tas_strafe_yaw 0
++12:
+	tas_view_pitch 2.1
+	tas_view_yaw 214.014
++23:
+	tas_strafe 0
++7:
+	+attack
++4:
++2:
+	tas_view_pitch 2.5
+	tas_view_yaw 154.265
++33:
+	-attack
+	impulse 6
++23:
+	tas_view_pitch 32.4
+	tas_view_yaw 285.244
++22:
+	tas_strafe 1
+	tas_strafe_yaw 185.751
++25:
++3:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
++1:
+	tas_strafe_yaw 170.887
+	-attack
++13:
++1:
++2:
+	tas_strafe_yaw 182.549
+	+jump
++1:
+	-jump
++1:
+	+tas_lgagst
++45:
+	tas_strafe_yaw 90.593
++14:
+	tas_strafe_type 2
+	tas_strafe_yaw 62.106
++32:
+	tas_strafe_yaw 180.522
++30:
+	tas_strafe_type 1
+	tas_strafe_yaw 187.8
++71:
+	tas_strafe_yaw 90.582
++29:
+	tas_strafe_type 2
+	tas_strafe_yaw 348.069
++36:
+	tas_strafe_type 1
++8:
+	tas_strafe_yaw 93
++6:
+	tas_strafe_type 2
++6:
+	tas_strafe_type 1
+	tas_strafe_yaw 95.268
++85:
+	tas_view_pitch 11.9
+	tas_view_yaw 84.2267
++25:
+	tas_strafe_yaw 356.182
++15:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++9:
+	tas_strafe_yaw 356.902
++53:
+	tas_view_pitch -37
+	tas_view_yaw 3.20251
++23:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++1:
+	tas_strafe_type 5
+	tas_strafe_yaw 356.913
+	-tas_lgagst
++15:
+	+attack
++1:
+	tas_anglespeed 5
+	tas_view_pitch 999
+	tas_view_yaw 0
+	-attack
++4:
+	tas_strafe_yaw 2.087
++11:
+	tas_strafe_type 3
++7:
+	tas_strafe_type 1
++18:
+	+jump
++1:
+	-jump
+	+tas_lgagst
++90:
+	cl_maxfps 10
+	-tas_lgagst
++1:
+	cl_maxfps 72
++1:
+	tas_strafe_type 3
+	tas_strafe_yaw 112.989
++7:
+	tas_strafe_type 1
+	tas_strafe_yaw 152.595
++15:
+	tas_strafe_type 3
+	tas_strafe_yaw 326.519
++10:
+	tas_strafe_type 1
++6:
+	+jump
++5:
+	tas_strafe_yaw 29.053
+	-jump
+	+tas_lgagst
+	impulse 2
++3:
+	+attack
++8:
+	-attack
++13:
+	tas_strafe_yaw 270
+	tas_view_yaw 999
++15:
+	tas_view_pitch 7.19999
+	tas_view_yaw 265.512
+	impulse 2
++4:
+	tas_strafe_type 2
++2:
+	tas_strafe_type 1
++34:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++6:
+	tas_anglespeed 8
+	tas_view_pitch 2.5
+	tas_view_yaw 93.3893
+	impulse 6
++9:
+	-tas_lgagst
++21:
+	+attack
++1:
+	tas_anglespeed 5
+	-attack
++19:
+	tas_strafe_type 2
+	tas_strafe_yaw 96.498
++18:
+	tas_strafe_type 1
+	tas_strafe_yaw 87.259
+	tas_view_pitch 999
+	tas_view_yaw 999
+	+tas_lgagst
+	impulse 2
++126:
+	tas_strafe_yaw 180
++17:
+	tas_strafe_yaw 176.863
++29:
+	tas_strafe_yaw 179.006
++40:
+	tas_strafe_yaw 175.589
++56:
+	tas_strafe_type 2
+	tas_strafe_yaw 218.606
++25:
+	tas_strafe_yaw 270.357
++17:
+	tas_strafe_type 1
+	tas_strafe_yaw 279.492
++18:
+	tas_strafe_type 2
+	tas_strafe_yaw 180
++9:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++1:
+	tas_strafe_type 1
+	tas_strafe_yaw 0
+	tas_view_yaw 180
+	-tas_lgagst
++16:
+	tas_strafe_type 3
+	tas_strafe_yaw 183.593
++3:
+	tas_strafe_type 1
++1:
+	tas_strafe_type 1
++16:
+	+tas_lgagst
++37:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++11:
+	tas_strafe_yaw 180
++14:
+	+jump
++150:
+	tas_strafe_yaw 271.846
+	tas_view_yaw 999
+	-jump
+	impulse 6
++14:
+	impulse 6
++30:
+	tas_view_pitch -23.2
+	tas_view_yaw 268.039
++30:
+	+attack
++1:
+	-attack
++51:
+	tas_view_pitch 22.7
+	tas_view_yaw 334.666
++12:
+	tas_strafe_yaw 190.53
++24:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++4:
+	tas_strafe_yaw 188.7
++39:
+	tas_strafe_yaw 210
++38:
+	tas_strafe_yaw 112.665
++8:
+	tas_strafe_type 2
+	tas_strafe_yaw 90.335
++23:
+	tas_strafe_type 1
+	tas_strafe_yaw 128.474
++9:
+	tas_view_pitch 60.7
+	tas_view_yaw 269.709
++2:
+	tas_strafe_yaw 153.726
++5:
+	tas_strafe_type 5
++6:
+	tas_strafe_type 1
++4:
+	tas_strafe_type 2
+	tas_strafe_yaw 0.137
++33:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++2:
+	tas_strafe_yaw 113.884
+	-tas_lgagst
++23:
+	tas_strafe_type 1
+	tas_strafe_yaw 109.039
+	+tas_lgagst
++12:
+	tas_strafe_yaw 87.594
++40:
+	tas_strafe_type 2
+	tas_strafe_yaw 0.313
++10:
+	tas_strafe_yaw 331.128
++27:
+	tas_strafe_yaw 141.493
++14:
+	tas_strafe_type 2
++2:
++6:
+	tas_strafe_type 1
+	tas_strafe_yaw 90.901
++30:
+	tas_strafe_yaw 72.96
++15:
+	tas_strafe_yaw 150
++12:
+	tas_strafe_type 2
++14:
+	tas_strafe_yaw 0.077
++1:
+	tas_view_pitch -12
+	tas_view_yaw 322.877
++19:
+	tas_strafe_type 1
++2:
+	tas_strafe_type 2
++29:
+	tas_strafe_type 1
+	tas_strafe_yaw 287
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++109:
+	tas_strafe_yaw 90.928
++22:
+	tas_strafe_type 2
++4:
+	-tas_lgagst
++12:
+	tas_strafe_type 1
++15:
+	+jump
++20:
+	tas_strafe_yaw 179.236
+	-jump
++27:
+	tas_strafe_yaw 355.82
++1:
+	tas_strafe_type 2
++2:
+	tas_strafe_type 1
++16:
+	tas_strafe_type 2
++9:
+	tas_strafe_type 1
+	tas_strafe_yaw 2.5
+	tas_view_yaw 0
+	+tas_lgagst
++50:
++2:
++27:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++1:
+	tas_strafe_yaw 180
++17:
+	tas_strafe_type 5
+	-tas_lgagst
++7:
+	tas_strafe_type 1
+	tas_strafe_yaw 2.25
++16:
+	+tas_lgagst
++27:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++1:
+	tas_strafe_yaw 354.672
++6:
+	cl_maxfps 10
+	tas_strafe_yaw 0
++1:
+	cl_maxfps 72
++1:
+	cl_maxfps 72
++1:
+	+jump
+	-tas_lgagst
++149:
+	tas_strafe_yaw 166.19
+	tas_view_yaw 999
+	-jump
+	+tas_lgagst
++1:
+	tas_view_pitch 14.8
+	tas_view_yaw 307.024
++30:
+	tas_strafe_yaw 180.308
++8:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++2:
+	tas_strafe_yaw 197.298
++17:
+	tas_strafe_yaw 44
++21:
+	tas_strafe_type 2
++7:
+	tas_strafe_type 1
++85:
+	tas_strafe_yaw 111.226
++58:
+	tas_strafe_yaw 180
++28:
+	tas_strafe_yaw 113
++40:
+	tas_strafe_yaw 83.54
++12:
+	tas_view_pitch 7.20001
+	tas_view_yaw 118.647
++30:
+	tas_strafe_yaw 38.403
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++6:
+	tas_strafe_yaw 26.076
+	tas_view_pitch 999
+	tas_view_yaw 999
++4:
+	tas_strafe_yaw 36.425
++9:
+	tas_strafe_type 2
+	tas_strafe_yaw 162.565
++26:
+	tas_strafe_type 1
++5:
+	tas_strafe_yaw 94.741
++50:
+	tas_strafe_type 5
++1:
+	tas_strafe_type 1
++1:
+	cl_maxfps 10
+	tas_strafe_type 1
++1:
+	cl_maxfps 72
++1:
+	tas_strafe_yaw 90.082
++14:
+	+jump
++150:
+	tas_strafe_yaw 58.804
+	-jump
+	-tas_lgagst
++27:
+	tas_strafe_yaw 165.685
++2:
+	+jump
++22:
+	tas_strafe_yaw 350.178
++9:
+	tas_strafe_type 2
++17:
+	tas_strafe_type 1
+	-jump
+	+tas_lgagst
++26:
+	tas_strafe_yaw 33.519
++61:
+	tas_strafe_yaw 54.498
++34:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++1:
+	tas_strafe_yaw 69.049
++7:
+	tas_strafe_yaw 139.796
++22:
+	tas_strafe_type 2
+	tas_strafe_yaw 0
++28:
+	tas_strafe_type 5
++3:
+	tas_strafe_type 1
++5:
+	tas_strafe_pitch 3
+	tas_strafe_type 4
+	tas_strafe_yaw 52
++75:
+	tas_strafe_pitch 33.1
+	tas_strafe_yaw 91.6809
++69:
+	tas_strafe_yaw 93.0927
+	tas_strafe_pitch 3.59565e-05
++48:
+	tas_strafe_pitch 0
+	tas_strafe_yaw 128.842
++93:
+	tas_strafe_yaw 97.251
++20:
+	tas_view_pitch -15.6
+	tas_view_yaw 65.3851
++31:
+	+attack
++1:
+	tas_view_pitch -53
+	tas_view_yaw 115
+	-attack
++6:
+	tas_strafe_yaw 73.718
+	-attack
++17:
+	tas_strafe_pitch -26.2
+	tas_strafe_yaw 54.712
++70:
+	tas_strafe_type 3
+	tas_strafe_yaw 48.884
+	-tas_lgagst
++6:
++9:
+	tas_strafe 0
++27:
+	tas_strafe 1
+	tas_strafe_pitch -53.3
+	tas_strafe_type 4
+	tas_strafe_yaw 119.905
++45:
+	tas_strafe_pitch 0
+	tas_strafe_type 1
+	tas_strafe_yaw 141.998
+	tas_view_pitch 999
+	tas_view_yaw 999
++20:
+	tas_strafe_yaw 204.868
++27:
+	tas_strafe_yaw 90.22
++35:
+	tas_strafe_yaw 51.46
++5:
+	tas_strafe_yaw 296.329
+	+tas_lgagst
++55:
+	tas_view_pitch 43.4
+	tas_view_yaw 254.636
++24:
+	tas_strafe_yaw 32.888
+	-tas_lgagst
++6:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++7:
+	tas_strafe_yaw 29.916
++25:
+	tas_strafe_yaw 0
++8:
+	tas_strafe 0
++26:
+	tas_strafe 1
+	tas_strafe_pitch 90
+	tas_strafe_type 4
++101:
+	tas_strafe_pitch 0
++12:
+	tas_strafe_pitch -45
+	tas_view_pitch 0
++51:
+	tas_anglespeed 360
+	tas_view_pitch 7
+	tas_view_yaw 151.309
+	+attack
++1:
+	tas_strafe_pitch 0
+	tas_strafe_type 1
+	tas_view_pitch 0
+	tas_view_yaw 999
++6:
+	impulse 2
++1:
+	tas_strafe_yaw 359.072
+	+jump
++50:
+	tas_anglespeed 360
+	tas_view_pitch 16
+	tas_view_yaw 191.431
++1:
+	cl_maxfps 72
+	tas_view_pitch 999
+	tas_view_yaw 0
+	+tas_lgagst
++1:
+	tas_anglespeed 5
+	tas_strafe_type 5
+	tas_strafe_yaw 1.62
++2:
+	tas_strafe_type 1
+	tas_strafe_yaw 3.373
++9:
+	tas_strafe_yaw 0.687
++2:
+	tas_strafe_type 2
+	tas_strafe_yaw 334.808
+	tas_view_yaw 999
+	-attack
+	-jump
++18:
+	tas_strafe_type 2
+	tas_strafe_yaw 125.041
++8:
+	tas_strafe_yaw 180.209
++21:
+	tas_strafe_type 1
++7:
+	tas_strafe_yaw 90
++52:
+	+jump
+	-tas_lgagst
++150:
+	tas_strafe_yaw 96
+	-jump
++1:
+	tas_view_pitch 30
+	tas_view_yaw 276.021
+	impulse 7
++41:
+	+attack
+	impulse 7
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++4:
+	+jump
++1:
+	-attack
+	-jump
+	+tas_lgagst
++48:
+	tas_strafe_yaw 136.6
++91:
+	tas_strafe_yaw 180
++14:
+	tas_strafe_type 3
+	tas_strafe_yaw 270
+	tas_view_yaw 180
++3:
+	tas_strafe_type 1
+	tas_strafe_yaw 0
+	-tas_lgagst
++11:
+	tas_strafe_type 3
+	tas_strafe_yaw 180
+	-tas_lgagst
++9:
+	tas_view_pitch 29.6
+	tas_view_yaw 83
++1:
+	tas_strafe_type 1
+	tas_strafe_yaw 196.062
++19:
+	tas_strafe_yaw 264
++10:
+	+attack
++5:
+	+jump
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
+	-jump
+	+tas_lgagst
+	impulse 2
++4:
++54:
+	tas_strafe_yaw 270.8
++1:
+	+attack
++1:
+	-attack
++23:
+	tas_strafe_yaw 180
++13:
+	+attack
++1:
+	-attack
++35:
+	+attack
++1:
+	-attack
++1:
+	tas_strafe_yaw 195.145
+	tas_view_yaw 0
+	-tas_lgagst
++34:
+	+attack
++1:
+	-attack
++1:
+	tas_strafe 0
++46:
+	+attack
++1:
+	-attack
++12:
+	tas_strafe 1
+	tas_strafe_yaw 270.071
+	tas_view_yaw 90
++24:
+	tas_view_pitch -20.1
+	tas_view_yaw 278.053
++30:
+	tas_strafe_yaw 251.576
++10:
+	+attack
++1:
+	tas_strafe 0
+	tas_strafe_type 3
+	tas_view_pitch 20
+	tas_view_yaw 90
+	-attack
++25:
+	+tas_jump
++3:
+	tas_strafe 1
+	tas_strafe_yaw 1.32336
++73:
+	+attack
++1:
+	-attack
++38:
+	tas_strafe_yaw 270
+	-tas_jump
++6:
+	+attack
++1:
+	-attack
++63:
+	tas_strafe_type 1
+	tas_strafe_yaw 91.456
+	+tas_lgagst
++5:
+	+attack
++1:
+	tas_view_yaw 90
+	-attack
+	-tas_lgagst
+	impulse 7
++17:
+	tas_strafe_yaw 0.06
++23:
+	tas_strafe_type 3
+	tas_strafe_yaw 185.246
++4:
+	tas_strafe 0
++22:
+	tas_strafe 1
+	tas_strafe_yaw 180.253
++36:
+	tas_strafe 0
++12:
+	tas_strafe 1
+	tas_strafe_type 1
+	tas_strafe_yaw 298.174
++7:
+	tas_view_pitch 39.4
+	tas_view_yaw 118.444
++30:
+	+attack
++3:
+	+jump
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
+	-jump
++11:
+	tas_strafe_yaw 317.631
++41:
+	tas_strafe_yaw 0.126
++25:
+	tas_strafe_type 3
+	tas_strafe_yaw 210.482
+	tas_view_pitch 35
+	tas_view_yaw 30.3827
++2:
+	tas_strafe_type 1
++22:
+	+attack
++4:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
+	+jump
++2:
++5:
+	tas_strafe_yaw 217.634
++33:
+	tas_strafe_yaw 250.95
+	-jump
++18:
+	tas_view_pitch 10.1
+	tas_view_yaw 270
++10:
+	tas_strafe_yaw 270.231
++13:
+	tas_strafe_type 3
+	tas_strafe_yaw 92.598
+	tas_view_yaw 270
++2:
+	tas_strafe_type 1
++5:
+	+attack
++1:
+	+jump
++1:
+	tas_strafe_yaw 90.659
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
+	-jump
+	+tas_lgagst
++8:
+	tas_strafe_yaw 96.465
++21:
+	tas_strafe_yaw 99.141
++9:
+	tas_view_pitch 26.1
+	tas_view_yaw 115.856
++1:
+	tas_strafe_yaw 89.797
++3:
++9:
+	tas_strafe_type 2
+	tas_strafe_yaw 0.17
++18:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++4:
+	tas_strafe_type 1
+	tas_strafe_yaw 350.211
+	tas_view_yaw 270
+	-tas_lgagst
++17:
+	tas_view_pitch 40.7001
+	tas_view_yaw 85.166
++6:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++1:
++1:
+	tas_strafe_yaw 106.128
++8:
+	tas_strafe_type 3
+	tas_strafe_yaw 272.236
++7:
+	tas_strafe_type 1
++6:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
++3:
+	tas_strafe_yaw 256.52
++21:
+	tas_strafe_type 2
+	tas_strafe_yaw 0.011
+	+tas_lgagst
++3:
+	tas_view_pitch 41
+	tas_view_yaw 200
++18:
++2:
+	tas_strafe_type 1
++16:
+	tas_view_pitch 0
+	tas_view_yaw 180
++36:
+	tas_strafe 0
+	tas_strafe_yaw 10.256
+	-tas_lgagst
++17:
++9:
+	tas_strafe 1
+	tas_strafe_yaw 16.298
+	-tas_lgagst
++18:
+	tas_view_pitch -18.8
+	tas_view_yaw 133.467
++6:
+	+tas_lgagst
++9:
+	tas_strafe_yaw 0
++5:
+	tas_strafe_type 2
+	tas_strafe_yaw 58.782
++12:
+	tas_strafe_type 1
+	tas_strafe_yaw 357.962
+	-attack
+	-jump
+	+tas_lgagst
++13:
+	cl_maxfps 10
++1:
+	cl_maxfps 72
++2:
+	+jump
+	-tas_lgagst
++293:
+	tas_strafe_yaw 110.841
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-jump
++85:
+	+tas_lgagst
++11:
+	tas_strafe_yaw 188
++47:
+	tas_strafe_yaw 270
++75:
+	tas_strafe 0
+	tas_view_pitch 70
+	tas_view_yaw 270
+	-tas_lgagst
++38:
+	tas_strafe 1
+	tas_strafe_yaw 270
++16:
+	+attack
++1:
+	-attack
++17:
+	tas_strafe_pitch 20
+	tas_strafe_type 4
+	tas_strafe_yaw 264.666
+	tas_view_pitch 999
+	tas_view_yaw 999
++23:
++27:
+	tas_strafe_pitch 34
+	tas_strafe_yaw 267
++127:
+	tas_strafe_pitch 51.3
+	tas_strafe_yaw 180
++17:
+	tas_strafe_pitch 0
++10:
+	+attack
++1:
++60:
+	-attack
++42:
+	tas_strafe_pitch -55
+	tas_strafe_yaw 90
+	tas_view_pitch -45
++39:
+	tas_strafe 0
++73:
+	tas_anglespeed 2
+	tas_view_pitch -29.3
+	tas_view_yaw 92.4609
++14:
+	tas_strafe 1
+	tas_strafe_pitch -43
++16:
+	+attack
++26:
+	tas_view_pitch 0.499993
+	tas_view_yaw 78.1622
++2:
++8:
+	-attack
++20:
+	+attack
++1:
+	tas_view_pitch 999
+	tas_view_yaw 999
+	-attack
++39:
+	tas_strafe_pitch -85
+	tas_strafe_yaw 0.187
+	tas_view_yaw 90
++23:
++7:
+	tas_strafe_pitch -30.7
+	tas_strafe_yaw 168.201
++24:
+	tas_anglespeed 5
+	tas_strafe_pitch 0
+	tas_strafe_type 1
+	tas_strafe_yaw 166.245
+	tas_view_yaw 170
++8:
+	+jump
++12:
+	-jump
++11:
+	tas_strafe_yaw 172.09
++13:
+	tas_strafe_yaw 167.256
+	+tas_lgagst
++18:
+	tas_strafe_yaw 180
++10:
+	tas_strafe_yaw 73.856
+	tas_view_yaw 999
+	-tas_lgagst
++26:
+	tas_strafe_yaw 72.268
+	+tas_lgagst
++42:
+	tas_strafe_yaw 16.688
++23:
+	tas_strafe_yaw 93
++44:
+	tas_strafe_yaw 170
++50:
+	-tas_lgagst
++13:
+	impulse 7
++3:
+	tas_strafe_yaw 130.325
+	+tas_lgagst
++50:
++5:
+	tas_view_pitch 80
+	tas_view_yaw 272.906
++8:
+	tas_strafe_yaw 94.856
++32:
+	+attack
++1:
+	-attack
++2:
+	tas_strafe_yaw 95.208
+	tas_view_pitch 8
+	tas_view_yaw 300
++52:
+	tas_strafe 0
+	-attack
+	-tas_lgagst
++49:
++1132:
+	tas_strafe 1
+	tas_strafe_yaw 342.12
++35:
+	tas_strafe 0
+	tas_strafe_yaw 0
+	tas_view_pitch 999
+	tas_view_yaw 999
+	say :^)
++2994:
