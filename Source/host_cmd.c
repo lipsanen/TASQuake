@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // host_cmd.c
 
 #include "quakedef.h"
-#include "tas\hooks.h"
+#include "tas/hooks.h"
 
 extern	cvar_t	pausable;
 

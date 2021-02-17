@@ -1693,7 +1693,7 @@ void COM_InitFilesystem (void)
 static unsigned int next = 0;
 static unsigned int frame_seed = 0;
 static int prev_index = 0;
-static int index = 0;
+static int rng_index = 0;
 static int count = 0;
 
 
@@ -1701,8 +1701,8 @@ void Frame_RNG_Seed(void)
 {
 	if(tas_gamestate == unpaused)
 	{
-		count = index - prev_index;
-		prev_index = index;
+		count = rng_index - prev_index;
+		prev_index = rng_index;
 	}		
 	frame_seed = next;
 }
@@ -1722,12 +1722,12 @@ int Get_RNG_Count(void)
 
 int Get_RNG_Index(void)
 {
-	return index;
+	return rng_index;
 }
 
 int tas_rand(void) // RAND_MAX assumed to be 32767
 {
-	++index;
+	++rng_index;
 	next = next * 1103515245 + 12345;
 	int out = (unsigned int)(next / 65536) % 32768;
 	return out;
@@ -1738,7 +1738,7 @@ void tas_srand(unsigned int seed)
 #ifdef TRACK_RANDOM
 	Con_Printf("RNG seed set to %u\n", seed);
 #endif
-	index = 0;
+	rng_index = 0;
 	prev_index = 0;
 	next = seed;
 }

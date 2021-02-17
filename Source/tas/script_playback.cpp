@@ -459,7 +459,7 @@ void Cmd_TAS_Script_Init(void)
 	b1.frame = 1;
 	b1.Add_Command("disconnect");
 	b1.Add_Command("tas_set_seed");
-	sprintf_s(BUFFER, "tas_strafe_version %s", tas_strafe_version.defaultvalue);
+	sprintf(BUFFER, "tas_strafe_version %s", tas_strafe_version.defaultvalue);
 	b1.Add_Command(BUFFER);
 
 	FrameBlock b2;
@@ -1114,7 +1114,7 @@ qboolean Script_Playback_Cmd_ExecuteString_Hook(const char* text)
 		auto block = GetBlockForFrame();
 		CenterPrint("Block: Added impulse %s", Cmd_Argv(1));
 		block->commands.clear();
-		sprintf_s(BUFFER, ARRAYSIZE(BUFFER), "impulse %s", Cmd_Argv(1));
+		snprintf(BUFFER, ARRAYSIZE(BUFFER), "impulse %s", Cmd_Argv(1));
 		block->Add_Command(BUFFER);
 
 		return qtrue;

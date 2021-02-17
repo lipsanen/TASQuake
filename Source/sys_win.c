@@ -172,8 +172,8 @@ Sys_Init
 */
 void Sys_Init (void)
 {
-	MaskExceptions ();
-	Sys_SetFPCW ();
+	//MaskExceptions ();
+	//Sys_SetFPCW ();
 
 	Sys_InitDoubleTime ();
 

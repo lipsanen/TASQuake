@@ -275,5 +275,15 @@ __pycache__/
 # tools/
 
 
-# Build directory
+# Build files
 _build/
+.cmake/
+out/
+CMakeFiles/
+TASQuake
+*.id0
+CMakeCache.txt
+cmake_install.cmake
+libzlib.a
+Makefile
+

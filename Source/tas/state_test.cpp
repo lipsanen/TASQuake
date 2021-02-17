@@ -1,4 +1,3 @@
-#include <direct.h>
 #include <fstream>
 #include <map>
 #include <sstream>
@@ -12,6 +11,14 @@
 #include "reset.hpp"
 #include "test_runner.hpp"
 #include "script_playback.hpp"
+
+#ifdef _WINDOWS
+#include <direct.h>
+#define GetCurrentDir _getcwd
+#else
+#include <unistd.h>
+#define GetCurrentDir getcwd
+#endif
 
 class TestCase
 {
@@ -217,7 +224,7 @@ void TestCase::Clear()
 void TestCase::SaveToFile()
 {
 	char buff[FILENAME_MAX];
-	_getcwd(buff, FILENAME_MAX);
+	GetCurrentDir(buff, FILENAME_MAX);
 	Con_Printf("Writing test case to %s/%s...", buff, path.c_str());
 	std::ofstream os;
 	if (!Open_Stream(os, path.c_str(), std::ios::out))

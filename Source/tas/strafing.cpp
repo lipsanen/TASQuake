@@ -205,7 +205,7 @@ static double MaxAngleTheta(const PlayerData& data, const StrafeVars& vars)
 				return std::acos(accelspeed / data.vel2d);
 			else
 			{
-				return std::acos(min(accelspeed, wishspeed_capped) / data.vel2d);
+				return std::acos(fmin(accelspeed, wishspeed_capped) / data.vel2d);
 			}
 		}
 	}
@@ -367,7 +367,7 @@ float MoveViewTowards(float target, float current, bool yaw, const StrafeVars& v
 		current = target;
 	else
 	{
-		abs_diff = min(abs_diff, vars.tas_anglespeed);
+		abs_diff = fmin(abs_diff, vars.tas_anglespeed);
 		current += std::copysign(abs_diff, diff);
 	}
 

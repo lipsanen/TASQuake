@@ -41,7 +41,7 @@ static void Draw_Rectangle(const Rect& rect)
 {
 
 	glBegin(GL_QUADS);
-	glColor4fv(rect.color._Elems);
+	glColor4fv(rect.color.data());
 	glVertex3f(rect.mins[0], rect.mins[1], rect.mins[2]);
 	glVertex3f(rect.mins[0], rect.maxs[1], rect.mins[2]);
 	glVertex3f(rect.maxs[0], rect.maxs[1], rect.mins[2]);
@@ -96,7 +96,7 @@ void Draw_Elements()
 			auto& vec1 = pair.second->at(i);
 			auto& vec2 = pair.second->at(i + 1);
 
-			glColor4fv(vec1.color._Elems);
+			glColor4fv(vec1.color.data());
 			glVertex3fv(vec1.point);
 			glVertex3fv(vec2.point);
 		}
@@ -168,13 +168,13 @@ Rect Rect::Get_Rect(const std::array<float, 4>& _color, vec3_t center, vec3_t an
 	VectorScaledAdd(corner1, up, height / 2, corner1);
 	VectorScaledAdd(corner2, up, -height / 2, corner2);
 
-	r.mins[0] = min(corner1[0], corner2[0]);
-	r.mins[1] = min(corner1[1], corner2[1]);
-	r.mins[2] = min(corner1[2], corner2[2]);
+	r.mins[0] = fmin(corner1[0], corner2[0]);
+	r.mins[1] = fmin(corner1[1], corner2[1]);
+	r.mins[2] = fmin(corner1[2], corner2[2]);
 
-	r.maxs[0] = max(corner1[0], corner2[0]);
-	r.maxs[1] = max(corner1[1], corner2[1]);
-	r.maxs[2] = max(corner1[2], corner2[2]);
+	r.maxs[0] = fmax(corner1[0], corner2[0]);
+	r.maxs[1] = fmax(corner1[1], corner2[1]);
+	r.maxs[2] = fmax(corner1[2], corner2[2]);
 
 	return r;
 }

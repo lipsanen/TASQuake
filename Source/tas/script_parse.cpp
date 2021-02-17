@@ -496,17 +496,17 @@ TestBlock::TestBlock(const std::string& line)
 			if (filter[i] == '1')
 				this->afterframes_filter |= 1 << (4 - i);
 			else if (filter[i] != '0')
-				throw std::exception("Invalid bit in filter.");
+				throw std::runtime_error("Invalid bit in filter.");
 		}
 
 		if (this->hook_count < 0)
-			throw std::exception("Hook count cannot be negative.");
+			throw std::runtime_error("Hook count cannot be negative.");
 
 		command = sm[4];
 	}
 	else
 	{
-		throw std::exception("Unable to read all required variables from line.");
+		throw std::runtime_error("Unable to read all required variables from line.");
 	}
 }
 
