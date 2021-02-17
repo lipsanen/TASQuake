@@ -280,7 +280,7 @@ float Get_Default_Value(const char* name)
 	if (!var)
 		return 0.0f;
 
-	sscanf_s(var->defaultvalue, "%f", &f);
+	sscanf(var->defaultvalue, "%f", &f);
 
 	return f;
 }
@@ -291,7 +291,7 @@ char* Format_String(const char* value, ...)
 {
 	va_list args;
 	va_start(args, value);
-	vsprintf_s(FORMAT_BUFFER, ARRAYSIZE(FORMAT_BUFFER), value, args);
+	vsprintf(FORMAT_BUFFER, value, args);
 	return FORMAT_BUFFER;
 }
 
@@ -301,7 +301,7 @@ void CenterPrint(const char* value, ...)
 	va_list args;
 	va_start(args, value);
 	static char BUFFER[80];
-	vsprintf_s(BUFFER, 80, value, args);
+	vsprintf(BUFFER, value, args);
 	SCR_CenterPrint(BUFFER);
 }
 
@@ -350,7 +350,7 @@ bool Create_Folder_If_Not_Exists(const char* file_name)
 	return true;
 }
 
-bool Open_Stream(std::ofstream & os, const char * file_name, int mode)
+bool Open_Stream(std::ofstream & os, const char * file_name, std::ios_base::openmode mode)
 {
 	if(!Create_Folder_If_Not_Exists(file_name))
 		return false;
@@ -360,7 +360,7 @@ bool Open_Stream(std::ofstream & os, const char * file_name, int mode)
 	return os.good();
 }
 
-bool Open_Stream(std::ifstream & in, const char * file_name, unsigned int mode)
+bool Open_Stream(std::ifstream & in, const char * file_name, std::ios_base::openmode mode)
 {
 	std::filesystem::path path = file_name;
 

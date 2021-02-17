@@ -137,7 +137,7 @@ void Cmd_TAS_Cmd_Reset(void)
 	{
 		if (IsGameplayCvar(var))
 		{
-			sprintf_s(BUFFER, 256, "%s %s", var->name, var->defaultvalue);
+			snprintf(BUFFER, 256, "%s %s", var->name, var->defaultvalue);
 			Cmd_ExecuteString(BUFFER, src_command);
 		}
 		var = var->next;

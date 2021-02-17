@@ -27,7 +27,7 @@ static void Update_Drawing_Stuff(bool force=false, float size=-1.0f)
 		size = tas_reward_size.value;
 	}
 
-	size = max(1, size);
+	size = fmax(1, size);
 
 	RemoveRectangles(REWARD_ID);
 	for (auto& reward : rewards) {

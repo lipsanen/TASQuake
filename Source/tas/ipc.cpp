@@ -1,24 +1,32 @@
 #include "ipc.hpp"
+
+#ifdef _WINDOWS
 #include <chrono>
 #include <thread>
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <iphlpapi.h>
+#endif
 
+#ifdef _WINDOWS
 #pragma comment(lib, "Ws2_32.lib")
+static u_long BLOCKING = 1;
+#endif
 using namespace ipc;
 
 static PrintFunc PRINT_FUNC = nullptr;
 static bool WINSOCK_INITIALIZED = false;
-static u_long BLOCKING = 1;
 const int BUFLEN = 32767;
 
 void CloseSocket(int& socket) {
+#ifdef _WINDOWS
 	closesocket(socket);
 	socket = INVALID_SOCKET;
+#endif
 }
 
 static bool DataAvailable(int&socket) {
+#ifdef _WINDOWS
 	fd_set read;
 	timeval timeout;
 	timeout.tv_sec = 0;
@@ -29,17 +37,23 @@ static bool DataAvailable(int&socket) {
 	int result = select(socket+1, &read, &read, &read, &timeout);
 
 	return result > 0;
+#else
+	return false;
+#endif
 }
 
 ipc::IPCServer::IPCServer()
 {
+#ifdef _WINDOWS
 	listenSocket = INVALID_SOCKET;
 	clientSocket = INVALID_SOCKET;
+#endif
 	RECV_BUFFER = new char[BUFLEN];
 }
 
 void IPCServer::InitWinsock()
 {
+#ifdef _WINDOWS
 	WSADATA wsaData;
 	int iResult;
 
@@ -52,6 +66,7 @@ void IPCServer::InitWinsock()
 	}
 
 	WINSOCK_INITIALIZED = true;
+#endif
 }
 
 void IPCServer::AddPrintFunc(PrintFunc func)
@@ -61,6 +76,7 @@ void IPCServer::AddPrintFunc(PrintFunc func)
 
 void IPCServer::StartListening(const char* port)
 {
+#ifdef _WINDOWS
 	struct addrinfo* result = NULL, * ptr = NULL, hints;
 
 	ZeroMemory(&hints, sizeof(hints));
@@ -100,14 +116,17 @@ void IPCServer::StartListening(const char* port)
 		CloseSocket(listenSocket);
 		return;
 	}
+#endif
 }
 
 void ipc::IPCServer::CloseConnections()
 {
+#ifdef _WINDOWS
 	if(listenSocket != SOCKET_ERROR)
 		CloseSocket(listenSocket);
 	if (clientSocket != SOCKET_ERROR)
 		CloseSocket(clientSocket);
+#endif
 }
 
 void ipc::IPCServer::Loop()
@@ -119,6 +138,7 @@ void ipc::IPCServer::Loop()
 
 bool ipc::IPCServer::BlockForMessages(const std::string& type, int timeoutMsec)
 {
+#ifdef _WINDOWS
 	long long msecElapsed = 0;
 	auto begin = std::chrono::steady_clock::now();
 
@@ -142,6 +162,9 @@ bool ipc::IPCServer::BlockForMessages(const std::string& type, int timeoutMsec)
 		Print("Message type has no callback!\n");
 		return false;
 	}
+#else
+	return false;
+#endif
 }
 
 void ipc::IPCServer::AddCallback(std::string type, MsgCallback callback, bool blocking)
@@ -153,6 +176,7 @@ void ipc::IPCServer::AddCallback(std::string type, MsgCallback callback, bool bl
 
 void ipc::IPCServer::SendMsg(const nlohmann::json& msg)
 {
+#ifdef _WINDOWS
 	if (clientSocket == SOCKET_ERROR) {
 		Print("No client connected.\n");
 		return;
@@ -173,11 +197,17 @@ void ipc::IPCServer::SendMsg(const nlohmann::json& msg)
 		i += result;
 		string += result;
 	}
+#else
+#endif
 }
 
 bool ipc::IPCServer::ClientConnected()
 {
+#ifdef _WINDOWS
 	return clientSocket != SOCKET_ERROR;
+#else
+	return false;
+#endif
 }
 
 ipc::IPCServer::~IPCServer()
@@ -187,6 +217,7 @@ ipc::IPCServer::~IPCServer()
 
 void ipc::IPCServer::ReadMessages()
 {
+#ifdef _WINDOWS
 	if (clientSocket == SOCKET_ERROR || !DataAvailable(clientSocket)) {
 		return;
 	}
@@ -253,10 +284,12 @@ void ipc::IPCServer::ReadMessages()
 			startIndex = i + 1;
 		}
 	}
+#endif
 }
 
 void ipc::IPCServer::CheckForConnections()
 {
+#ifdef _WINDOWS
 	if (listenSocket == SOCKET_ERROR || clientSocket != SOCKET_ERROR)
 	{
 		return;
@@ -294,6 +327,7 @@ void ipc::IPCServer::CheckForConnections()
 
 	Print("Got client\n");
 	ioctlsocket(clientSocket, FIONBIO, &BLOCKING);
+#endif
 }
 
 void ipc::IPCServer::DispatchMessages()
@@ -312,7 +346,7 @@ void ipc::IPCServer::DispatchMessages(const std::string& type)
 	if (callbackIt != callbacks.end()) {
 		MsgCallback callback = callbackIt->second;
 
-		for (auto item : vec) {
+		for (auto& item : vec) {
 			callback(item);
 		}
 	}
@@ -321,6 +355,7 @@ void ipc::IPCServer::DispatchMessages(const std::string& type)
 
 void ipc::Print(const char* msg, ...)
 {
+#ifdef _WINDOWS
 	if (PRINT_FUNC != nullptr) {
 		const int buflen = 256;
 		char buffer[buflen];
@@ -330,12 +365,15 @@ void ipc::Print(const char* msg, ...)
 
 		PRINT_FUNC(buffer);
 	}
+#endif
 }
 
 void ipc::Shutdown_IPC()
 {
+#ifdef _WINDOWS
 	WSACleanup();
 	WINSOCK_INITIALIZED = false;
+#endif
 }
 
 bool ipc::Winsock_Initialized()

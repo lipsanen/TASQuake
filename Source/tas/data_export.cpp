@@ -116,7 +116,7 @@ nlohmann::json Dump_SV()
 		auto ptr = EDICT_NUM(i);
 		if (!ptr->free)
 		{
-			sprintf_s(BUFFER, 5, "%04d", i);
+			snprintf(BUFFER, 5, "%04d", i);
 			ents[BUFFER] = Ent_To_Json(ptr);
 		}
 	}

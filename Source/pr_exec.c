@@ -345,7 +345,6 @@ int PR_LeaveFunction (void)
 	return pr_stack[pr_depth].s;
 }
 
-
 /*
 ====================
 PR_ExecuteProgram
@@ -490,7 +489,7 @@ while (1)
 					(a->vector[2] == b->vector[2]);
 		break;
 	case OP_EQ_S:
-		c->_float = !strcmp(pr_strings+a->string,pr_strings+b->string);
+		c->_float = !strcmp(pr_strings + a->string, pr_strings + b->string);
 		break;
 	case OP_EQ_E:
 		c->_float = a->_int == b->_int;
@@ -509,7 +508,7 @@ while (1)
 					(a->vector[2] != b->vector[2]);
 		break;
 	case OP_NE_S:
-		c->_float = strcmp(pr_strings+a->string,pr_strings+b->string);
+		c->_float = strcmp(pr_strings + a->string, pr_strings + b->string);
 		break;
 	case OP_NE_E:
 		c->_float = a->_int != b->_int;
