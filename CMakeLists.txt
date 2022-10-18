@@ -12,7 +12,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/out")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
 
-FILE(GLOB_RECURSE SOURCES 
+FILE(GLOB_RECURSE SOURCES
 	 Source/cd_linux.c
 	 Source/chase.c
 	 Source/cl_demo.c
@@ -78,6 +78,6 @@ FILE(GLOB_RECURSE SOURCES
 
 add_executable(TASQuake ${SOURCES})
 add_compile_definitions(GLQUAKE __linux__)
-target_link_libraries(TASQuake PUBLIC GL dl m png jpeg X11 Xxf86vm Xxf86dga SDL2)
+target_link_libraries(TASQuake PUBLIC GL dl m png jpeg X11 Xxf86vm SDL2)
 set_target_properties(TASQuake PROPERTIES COMPILE_FLAGS "-m32 -ffp-contract=off -ffloat-store" LINK_FLAGS "-m32")
 set_target_properties(TASQuake PROPERTIES LINKER_LANGUAGE CXX)
