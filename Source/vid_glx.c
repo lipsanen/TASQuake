@@ -267,35 +267,13 @@ static void install_grabs (void)
 
 	XGrabPointer (dpy, win, True, 0, GrabModeAsync, GrabModeAsync, win, None, CurrentTime);
 
-	if (!COM_CheckParm("-nomdga"))
-		DGAflags |= XF86DGADirectMouse;
-	if (!COM_CheckParm("-nokdga"))
-		DGAflags |= XF86DGADirectKeyb;
-
-	if (!COM_CheckParm("-nodga") && DGAflags)
-	{
-		XF86DGADirectVideo (dpy, DefaultScreen(dpy), DGAflags);
-		if (DGAflags & XF86DGADirectMouse)
-			dgamouse = true;
-		if (DGAflags & XF86DGADirectKeyb)
-			dgakeyb = true;
-	} 
-	else
-	{
-		XWarpPointer (dpy, None, win, 0, 0, 0, 0, vid.width / 2, vid.height / 2);
-	}
+	XWarpPointer (dpy, None, win, 0, 0, 0, 0, vid.width / 2, vid.height / 2);
 
 	XGrabKeyboard (dpy, win, False, GrabModeAsync, GrabModeAsync, CurrentTime);
 }
 
 static void uninstall_grabs (void)
 {
-	if (dgamouse || dgakeyb)
-	{
-		XF86DGADirectVideo (dpy, DefaultScreen(dpy), 0);
-		dgamouse = dgakeyb = false;
-	}
-
 	XUngrabPointer (dpy, CurrentTime);
 	XUngrabKeyboard (dpy, CurrentTime);
 }
@@ -475,8 +453,6 @@ GL_EndRendering
 */
 void GL_EndRendering (void)
 {
-	if (glxSwapIntervalEXT && update_vsync && vid_vsync.string[0])
-		glxSwapIntervalEXT(vid_vsync.value ? 1 : 0);
 	update_vsync = false;
 
 	static qboolean old_hwgamma_enabled;
