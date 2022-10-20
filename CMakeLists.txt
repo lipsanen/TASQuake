@@ -41,6 +41,7 @@ FILE(GLOB_RECURSE SOURCES
 	 Source/host.c
 	 Source/host_cmd.c
 	 Source/image.c
+	 Source/in_sdl.c
 	 Source/iplog.c
 	 Source/keys.c
 	 Source/mathlib.c
@@ -69,7 +70,7 @@ FILE(GLOB_RECURSE SOURCES
 	 Source/sys_linux.c
 	 Source/version.c
 	 Source/vid_common_gl.c
-	 Source/vid_glx.c
+	 Source/vid_sdl.c
 	 Source/view.c
 	 Source/wad.c
 	 Source/world.c
@@ -78,6 +79,6 @@ FILE(GLOB_RECURSE SOURCES
 
 add_executable(TASQuake ${SOURCES})
 add_compile_definitions(GLQUAKE __linux__)
-target_link_libraries(TASQuake PUBLIC GL dl m png jpeg X11 Xxf86vm SDL2)
+target_link_libraries(TASQuake PUBLIC GL dl m png jpeg SDL2)
 set_target_properties(TASQuake PROPERTIES COMPILE_FLAGS "-m32 -ffp-contract=off -ffloat-store" LINK_FLAGS "-m32")
 set_target_properties(TASQuake PROPERTIES LINKER_LANGUAGE CXX)
