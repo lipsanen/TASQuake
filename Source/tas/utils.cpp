@@ -220,14 +220,23 @@ static void ApproximateRatioWithIntegers(double* numbers, int max_int)
 
 void ApproximateRatioWithIntegers(double& number1, double& number2, double& number3, int max_int)
 {
-	double numbers[3];
-	numbers[0] = number1;
-	numbers[1] = number2;
-	numbers[2] = number3;
-	ApproximateRatioWithIntegers(numbers, max_int);
-	number1 = numbers[0];
-	number2 = numbers[1];
-	number3 = numbers[2];
+	static thread_local double prevNumbers[3] = {0, 0, 0};
+	static thread_local double cachedNumbers[3] = {0, 0, 0};
+
+	bool same = true;
+	if(prevNumbers[0] == number1 && prevNumbers[1] == number2 && prevNumbers[2] == number3) {
+		number1 = cachedNumbers[0];
+		number2 = cachedNumbers[1];
+		number3 = cachedNumbers[2];
+	} else {
+		prevNumbers[0] = cachedNumbers[0] = number1;
+		prevNumbers[1] = cachedNumbers[1] = number2;
+		prevNumbers[2] = cachedNumbers[2] = number3;
+		ApproximateRatioWithIntegers(cachedNumbers, max_int);
+		number1 = cachedNumbers[0];
+		number2 = cachedNumbers[1];
+		number3 = cachedNumbers[2];
+	}
 }
 
 float InBounds(float value, float min, float max)
