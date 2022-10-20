@@ -275,7 +275,7 @@ __pycache__/
 # tools/
 
 
-# Build files
+# Misc
 _build/
 .cmake/
 out/
@@ -286,4 +286,4 @@ CMakeCache.txt
 cmake_install.cmake
 libzlib.a
 Makefile
-
+.vscode/

@@ -284,7 +284,7 @@ int main (int argc, char **argv)
 	parms.argv = com_argv;
 	argv0 = argv[0];
 
-	parms.memsize = 16 * 1024 * 1024;
+	parms.memsize = 32 * 1024 * 1024;
 
 	if ((j = COM_CheckParm("-mem")) && j + 1 < com_argc)
 		parms.memsize = Q_atoi(com_argv[j+1]) * 1024 * 1024;
