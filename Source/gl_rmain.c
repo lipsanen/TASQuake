@@ -846,6 +846,9 @@ R_DrawAliasModel
 */
 void R_DrawAliasModel (entity_t *ent)
 {
+	if(r_norefresh.value != 0)
+		return;
+
 	int			i, anim, skinnum, distance, texture, fb_texture;
 	vec3_t		mins, maxs;
 	aliashdr_t	*paliashdr;
