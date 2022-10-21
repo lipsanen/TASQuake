@@ -11,15 +11,30 @@ qboolean mouseactive = false;
 static int total_dx = 0, total_dy = 0;
 
 static int ToQuakeKey(SDL_Scancode scancode);
+void IN_DeactivateMouse();
 
 void IN_MouseMotion(int dx, int dy)
 {
-	total_dx += dx;
-	total_dy += dy;
+	if(!mouseactive)
+		return;
+
+	if(!VID_Has_Focus())
+	{
+		IN_DeactivateMouse ();
+	}
+	else 
+	{
+		if(key_dest == key_game && mouseactive) {
+			total_dx += dx;
+			total_dy += dy;
+		}
+	}
 }
 
 void IN_ActivateMouse()
 {
+	total_dx = 0;
+	total_dy = 0;
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	mouseactive = true;
 }
@@ -65,6 +80,21 @@ void IN_MouseMove(usercmd_t *cmd)
 	}
 }
 
+static void IN_MouseButton(SDL_Event* event, qboolean down) {
+	if(down && event->button.button == SDL_BUTTON_LEFT && !mouseactive && key_dest == key_game) {
+		IN_ActivateMouse();
+	} else {
+		switch(event->button.button) {
+		case SDL_BUTTON_LEFT: Key_Event(K_MOUSE1, down); break;
+		case SDL_BUTTON_RIGHT: Key_Event(K_MOUSE2, down); break;
+		case SDL_BUTTON_MIDDLE: Key_Event(K_MOUSE3, down); break;
+		case SDL_BUTTON_X1: Key_Event(K_MOUSE4, down); break;
+		case SDL_BUTTON_X2: Key_Event(K_MOUSE5, down); break;
+		default: break;
+		}
+	}
+}
+
 int IN_SDL_Event(SDL_Event* event)
 {
     switch(event->type) {
@@ -87,6 +117,10 @@ int IN_SDL_Event(SDL_Event* event)
         case SDL_MOUSEMOTION:
             IN_MouseMotion(event->motion.xrel, event->motion.yrel);
         break;
+		case SDL_MOUSEBUTTONUP:
+		case SDL_MOUSEBUTTONDOWN:
+			IN_MouseButton(event, event->type == SDL_MOUSEBUTTONDOWN);
+			break;
         default:
         break;
     }
@@ -216,7 +250,7 @@ static int ToQuakeKey(SDL_Scancode scancode)
 
 void IN_Move (usercmd_t *cmd)
 {
-	if ((vid_window_flags & SDL_WINDOW_INPUT_FOCUS) != 0 && (tas_playing.value == 0 || tas_gamestate == paused))
+	if (mouseactive && (tas_playing.value == 0 || tas_gamestate == paused))
 	{
 		IN_MouseMove (cmd);
 	}

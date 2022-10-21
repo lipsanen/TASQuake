@@ -1,5 +1,3 @@
 #pragma once
 
-#include <stdint.h>
-
-extern uint32_t vid_window_flags;
+int VID_Has_Focus();
