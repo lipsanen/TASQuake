@@ -122,6 +122,9 @@ int IN_SDL_Event(SDL_Event* event)
 			IN_MouseButton(event, event->type == SDL_MOUSEBUTTONDOWN);
 			break;
         default:
+		case SDL_WINDOWEVENT:
+			VID_Window_Event(event);
+		break;
         break;
     }
 
