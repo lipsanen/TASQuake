@@ -287,3 +287,4 @@ cmake_install.cmake
 libzlib.a
 Makefile
 .vscode/
+build/
