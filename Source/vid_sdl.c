@@ -56,20 +56,16 @@ void GL_BeginRendering (int *x, int *y, int *width, int *height)
 
 void GL_EndRendering (void)
 {
-	vid_window_flags = SDL_GetWindowFlags(window);
     SDL_GL_SwapWindow(window);
 
 	if (fullsbardraw)
 		Sbar_Changed ();
 
-    if (key_dest == key_game && !mouseactive)
-    {
-        IN_ActivateMouse ();
-    }
-    else if (mouseactive && key_dest != key_game)
-    {
-        IN_DeactivateMouse ();
-    }
+}
+
+int VID_Has_Focus()
+{
+	return (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) != 0;
 }
 
 void Sys_SendKeyEvents (void)
