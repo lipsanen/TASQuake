@@ -137,8 +137,13 @@ static int Tasquake_SDL_Init()
     return 0;
 }
 
-void VID_Init (unsigned char *palette)
+static void VID_Calc_Params()
 {
+	if(scr_width < 320)
+		scr_width = 320;
+	if(scr_height < 240)
+		scr_height = 240;
+
 	vid.maxwarpwidth = 320;
 	vid.maxwarpheight = 200;
 	vid.colormap = host_colormap;
@@ -151,7 +156,7 @@ void VID_Init (unsigned char *palette)
 		vid.conwidth = 320;
 
 	// pick a conheight that matches with correct aspect
-	vid.conheight = vid.conwidth * 3 / 4;
+	vid.conheight = vid.conwidth * (float)scr_height / scr_width;
 
 	if (vid.conheight > scr_height)
 		vid.conheight = scr_height;
@@ -162,7 +167,35 @@ void VID_Init (unsigned char *palette)
 
 	vid.aspect = ((float)vid.height / (float)vid.width) * (320.0 / 240.0);
 	vid.numpages = 2;
+	vid.recalc_refdef = 1;
+}
 
+void VID_Window_Event(SDL_WindowEvent* event)
+{
+	if(event->event == SDL_WINDOWEVENT_RESIZED)
+	{
+		scr_width = event->data1;
+		scr_height = event->data2;
+		VID_Calc_Params();
+	}
+}
+
+void VID_Init (unsigned char *palette)
+{
+	int width_index = COM_CheckParm("-width");
+	int height_index = COM_CheckParm("-height");
+
+	if(width_index > 0)
+	{
+		scr_width = Q_atoi(com_argv[width_index+1]);
+	}
+
+	if(height_index > 0)
+	{
+		scr_height = Q_atoi(com_argv[height_index+1]);
+	}
+
+	VID_Calc_Params();
     InitSig();
     Tasquake_SDL_Init();
 	GL_Init ();
@@ -174,8 +207,6 @@ void VID_Init (unsigned char *palette)
 
 	if (fullscreen)
 		vid_windowedmouse = false;
-
-	vid.recalc_refdef = 1;			// force a surface cache flush
 
 	if (COM_CheckParm("-fullsbar"))
 		fullsbardraw = true;

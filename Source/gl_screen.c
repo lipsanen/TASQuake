@@ -350,8 +350,8 @@ static void SCR_CalcRefdef (void)
 		else
 			r_refdef.vrect.y = (h - r_refdef.vrect.height) / 2;
 
-		r_refdef.fov_x = scr_fov.value;
-		r_refdef.fov_y = CalcFov(r_refdef.fov_x, r_refdef.vrect.width, r_refdef.vrect.height);
+		r_refdef.fov_y = CalcFov(scr_fov.value, 4, 3);
+		r_refdef.fov_x = InvCalcFov(r_refdef.fov_y, r_refdef.vrect.width, r_refdef.vrect.height);
 	}
 	else
 	{
