@@ -101,31 +101,31 @@ int IN_SDL_Event(SDL_Event* event)
         case SDL_KEYDOWN:
         case SDL_KEYUP:
             Key_Event (ToQuakeKey(event->key.keysym.scancode), event->type == SDL_KEYDOWN);
-        break;
+        	break;
         case SDL_MOUSEWHEEL:
-        if (event->wheel.y > 0)
-        {
-            Key_Event(K_MWHEELUP, true);
-            Key_Event(K_MWHEELUP, false);
-        }
-        else if (event->wheel.y < 0)
-        {
-            Key_Event(K_MWHEELDOWN, true);
-            Key_Event(K_MWHEELDOWN, false);
-        }
-        break;
+			if (event->wheel.y > 0)
+			{
+				Key_Event(K_MWHEELUP, true);
+				Key_Event(K_MWHEELUP, false);
+			}
+			else if (event->wheel.y < 0)
+			{
+				Key_Event(K_MWHEELDOWN, true);
+				Key_Event(K_MWHEELDOWN, false);
+			}
+			break;
         case SDL_MOUSEMOTION:
             IN_MouseMotion(event->motion.xrel, event->motion.yrel);
-        break;
+        	break;
 		case SDL_MOUSEBUTTONUP:
 		case SDL_MOUSEBUTTONDOWN:
 			IN_MouseButton(event, event->type == SDL_MOUSEBUTTONDOWN);
 			break;
-        default:
 		case SDL_WINDOWEVENT:
-			VID_Window_Event(event);
-		break;
-        break;
+			VID_Window_Event(&event->window);
+			break;
+        default:
+        	break;
     }
 
     if (event->type == SDL_QUIT) {
