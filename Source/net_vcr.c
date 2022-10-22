@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "quakedef.h"
 #include "net_vcr.h"
+#include <stdint.h>
 
 extern	FILE*	vcrFile;
 
@@ -33,7 +34,7 @@ static struct
 {
 	double	time;
 	int		op;
-	long	session;
+	uint32_t	session;
 }	next;
 
 int VCR_Init (void)
