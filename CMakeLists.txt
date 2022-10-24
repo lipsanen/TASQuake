@@ -80,6 +80,6 @@ FILE(GLOB_RECURSE SOURCES
 
 add_executable(TASQuake ${SOURCES})
 add_compile_definitions(GLQUAKE __linux__)
-target_link_libraries(TASQuake PUBLIC GL dl m png jpeg SDL2)
-set_target_properties(TASQuake PROPERTIES COMPILE_FLAGS "-m32 -ffp-contract=off -ffloat-store -Wno-write-strings" LINK_FLAGS "-m32")
+target_link_libraries(TASQuake PUBLIC GL png jpeg SDL2)
+set_target_properties(TASQuake PROPERTIES COMPILE_FLAGS "-m32 -ffp-contract=off -mfpmath=sse -Wno-write-strings" LINK_FLAGS "-m32")
 set_target_properties(TASQuake PROPERTIES LINKER_LANGUAGE CXX)
