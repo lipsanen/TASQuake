@@ -41,15 +41,15 @@ void Cmd_TAS_Bookmark_Frame(void)
 		return;
 	}
 
-	auto& playback = GetPlaybackInfo();
+	auto playback = GetPlaybackInfo();
 	std::string name = Cmd_Argv(1);
-	bookmarks[name] = Bookmark(playback.current_frame, BookmarkType::Frame);
+	bookmarks[name] = Bookmark(playback->current_frame, BookmarkType::Frame);
 }
 
 void Cmd_TAS_Bookmark_Block(void)
 {
-	auto& playback = GetPlaybackInfo();
-	int current_block = playback.GetBlockNumber();
+	auto playback = GetPlaybackInfo();
+	int current_block = playback->GetBlockNumber();
 
 	if (Cmd_Argc() == 1)
 	{
@@ -68,7 +68,7 @@ void Cmd_TAS_Bookmark_Block(void)
 
 void Cmd_TAS_Bookmark_Skip(void)
 {
-	auto& playback = GetPlaybackInfo();
+	auto playback = GetPlaybackInfo();
 
 	if (Cmd_Argc() == 1)
 	{
@@ -96,10 +96,10 @@ void Cmd_TAS_Bookmark_Skip(void)
 
 void Bookmark_Frame_Hook()
 {
-	auto& playback = GetPlaybackInfo();
-	if (cl.movemessages == 0 && playback.current_frame > 0 && tas_playing.value != 0 && tas_gamestate == unpaused && cls.signon == SIGNONS)
+	auto playback = GetPlaybackInfo();
+	if (cl.movemessages == 0 && playback->current_frame > 0 && tas_playing.value != 0 && tas_gamestate == unpaused && cls.signon == SIGNONS)
 	{
 		std::string map = sv.name;
-		bookmarks[map] = Bookmark(playback.current_frame, BookmarkType::Map);
+		bookmarks[map] = Bookmark(playback->current_frame, BookmarkType::Map);
 	}
 }

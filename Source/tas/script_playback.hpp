@@ -28,7 +28,7 @@ struct PlaybackInfo
 void Script_Playback_Host_Frame_Hook();
 qboolean Script_Playback_Cmd_ExecuteString_Hook(const char* text);
 void Script_Playback_IN_Move_Hook(usercmd_t* cmd);
-PlaybackInfo& GetPlaybackInfo();
+PlaybackInfo* GetPlaybackInfo();
 bool TAS_Script_Load(const char* name);
 void Run_Script(int frame, bool skip = false, bool ss=true);
 bool CurrentFrameHasBlock(int frame = -1);

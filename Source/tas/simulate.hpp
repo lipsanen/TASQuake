@@ -54,6 +54,7 @@ struct SimulationInfo
 struct Simulator
 {
 	SimulationInfo info;
+	const PlaybackInfo* playback;
 	int frame;
 
 	void RunFrame(const std::string& cmd);

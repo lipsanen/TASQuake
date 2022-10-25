@@ -34,11 +34,11 @@ static Simulator sim;
 static void SendConditionResult(bool result)
 {
 	ipc_condition.running_condition = false;
-	PlaybackInfo& playback = GetPlaybackInfo();
+	const PlaybackInfo* playback = GetPlaybackInfo();
 	nlohmann::json msg;
 	msg["type"] = "condition";
 	msg["result"] = result;
-	msg["frame"] = playback.current_frame;
+	msg["frame"] = playback->current_frame;
 	IPC_Send(msg);
 }
 
@@ -165,12 +165,12 @@ void Cmd_TAS_IPC_Print_Playback()
 	if (!IPC_Active())
 		return;
 
-	auto& playback = GetPlaybackInfo();
+	auto playback = GetPlaybackInfo();
 	nlohmann::json data;
 	data["type"] = "playback";
-	data["frame"] = playback.current_frame;
-	data["pause_frame"] = playback.pause_frame;
-	data["script_running"] = playback.script_running;
+	data["frame"] = playback->current_frame;
+	data["pause_frame"] = playback->pause_frame;
+	data["script_running"] = playback->script_running;
 	IPC_Send(data);
 }
 

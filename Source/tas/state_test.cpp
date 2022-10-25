@@ -79,8 +79,8 @@ void Write_To_File()
 
 void Test_Host_Frame_Hook()
 {
-	auto& playback = GetPlaybackInfo();
-	if (tas_gamestate != unpaused || playback.current_frame < START_OFFSET)
+	auto playback = GetPlaybackInfo();
+	if (tas_gamestate != unpaused || playback->current_frame < START_OFFSET)
 		return;
 
 	bool runningComparison = !Test_IsGeneratingTest();
@@ -152,8 +152,8 @@ void Cmd_TAS_Test_Script(void)
 		return;
 	}
 
-	auto& playback = GetPlaybackInfo();
-	int frames = playback.Get_Last_Frame() - START_OFFSET;
+	auto playback = GetPlaybackInfo();
+	int frames = playback->Get_Last_Frame() - START_OFFSET;
 	COLLECTING_DATA = true;
 	TEST_FRAME = 0;
 	TEST_LENGTH = frames;
