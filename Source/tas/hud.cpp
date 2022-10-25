@@ -65,19 +65,19 @@ bool Should_Print_Cvar(const std::string& name, float value)
 	return cvar != NULL && default_value != value;
 }
 
-void DrawFrameState(int& y, const PlaybackInfo& info)
+void DrawFrameState(int& y, const PlaybackInfo* info)
 {
-	if (!tas_hud_state.value || info.Get_Last_Frame() == 0 || !tas_playing.value)
+	if (!tas_hud_state.value || info->Get_Last_Frame() == 0 || !tas_playing.value)
 		return;
 
-	auto current_block = info.Get_Current_Block();
+	auto current_block = info->Get_Current_Block();
 
-	if (current_block && current_block->frame != info.current_frame)
+	if (current_block && current_block->frame != info->current_frame)
 		current_block = nullptr;
 
 	Draw(y, &tas_hud_state, "");
 	Draw(y, &tas_hud_state, "Cvars:");
-	for (auto& cvar : info.stacked.convars)
+	for (auto& cvar : info->stacked.convars)
 	{
 		if (current_block && current_block->HasConvar(cvar.first)
 		    && current_block->convars.at(cvar.first) != cvar.second)
@@ -100,7 +100,7 @@ void DrawFrameState(int& y, const PlaybackInfo& info)
 	{
 		for (auto& cvar : current_block->convars)
 		{
-			if (!info.stacked.HasConvar(cvar.first) && Should_Print_Cvar(cvar.first, cvar.second))
+			if (!info->stacked.HasConvar(cvar.first) && Should_Print_Cvar(cvar.first, cvar.second))
 			{
 				Draw(y, &tas_hud_state, "%s -> %.3f", cvar.first.c_str(), cvar.second);
 			}
@@ -109,7 +109,7 @@ void DrawFrameState(int& y, const PlaybackInfo& info)
 
 	Draw(y, &tas_hud_state, "");
 	Draw(y, &tas_hud_state, "Toggles:");
-	for (auto& toggle : info.stacked.toggles)
+	for (auto& toggle : info->stacked.toggles)
 	{
 		if (toggle.second)
 		{
@@ -306,10 +306,10 @@ void HUD_Draw_Hook()
 	int y = tas_hud_pos_y.value;
 
 	auto player_data = GetPlayerData();
-	auto& info = GetPlaybackInfo();
-	int last_frame = info.Get_Last_Frame();
-	int current_block_no = info.GetBlockNumber();
-	int blocks = info.Get_Number_Of_Blocks();
+	auto info = GetPlaybackInfo();
+	int last_frame = info->Get_Last_Frame();
+	int current_block_no = info->GetBlockNumber();
+	int blocks = info->Get_Number_Of_Blocks();
 
 	Draw(y,
 	     &tas_hud_pos,
@@ -327,7 +327,7 @@ void HUD_Draw_Hook()
 	Draw(y, &tas_hud_vel2d, "vel2d: %.3f", player_data.vel2d);
 	Draw(y, &tas_hud_vel3d, "vel3d: %.3f", VectorLength(player_data.velocity));
 	Draw_VelAngle(y, player_data);
-	Draw(y, &tas_hud_frame, "frame: %d / %d", info.current_frame, last_frame);
+	Draw(y, &tas_hud_frame, "frame: %d / %d", info->current_frame, last_frame);
 	Draw(y, &tas_hud_block, "block: %d / %d", current_block_no, blocks - 1);
 	Draw(y, &tas_hud_waterlevel, "waterlevel: %d", (int)sv_player->v.waterlevel);
 	Draw(y, &tas_hud_movemessages, "cl.movemessages: %d", cl.movemessages);

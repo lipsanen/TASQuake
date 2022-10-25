@@ -421,9 +421,9 @@ static int Get_Current_Frame()
 	return playback.current_frame;
 }
 
-PlaybackInfo& GetPlaybackInfo()
+PlaybackInfo* GetPlaybackInfo()
 {
-	return playback;
+	return &playback;
 }
 
 bool TAS_Script_Load(const char* name)

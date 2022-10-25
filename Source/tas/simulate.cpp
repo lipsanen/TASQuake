@@ -1056,7 +1056,7 @@ void Calculate_Prediction_Line()
 		return;
 	}
 
-	auto& playback = GetPlaybackInfo();
+	auto playback = GetPlaybackInfo();
 	static double last_updated = 0; 
 	double currentTime = Sys_DoubleTime();
 	static double last_sim_time = 0;
@@ -1065,12 +1065,12 @@ void Calculate_Prediction_Line()
 	static std::vector<PathPoint> points;
 	static int startFrame = 0;
 
-	if (last_updated < playback.last_edited)
+	if (last_updated < playback->last_edited)
 	{
 		RemoveRectangles(PREDICTION_ID);
 		points.clear();
 		last_updated = currentTime;
-		startFrame = playback.current_frame;
+		startFrame = playback->current_frame;
 		sim = Simulator::GetSimulator();
 		last_sim_time = tas_predict_amount.value + sv.time;
 
@@ -1096,7 +1096,7 @@ void Calculate_Prediction_Line()
 		VectorCopy(sim.info.ent.v.origin, vec.point);
 		points.push_back(vec);
 
-		auto block = playback.Get_Current_Block(sim.frame);
+		auto block = playback->Get_Current_Block(sim.frame);
 		if (block && block->frame == sim.frame)
 		{
 			Rect rect = Rect::Get_Rect(color, sim.info.ent.v.origin, 3, 3, PREDICTION_ID);
@@ -1115,8 +1115,7 @@ void Calculate_Prediction_Line()
 
 void Simulate_Frame_Hook()
 {
-	auto& playback = GetPlaybackInfo();
-	if (!playback.In_Edit_Mode() || cls.state != ca_connected || tas_gamestate == unpaused)
+	if (cls.state != ca_connected || tas_gamestate == unpaused)
 	{
 		if (path_assigned || grenade_assigned)
 		{
@@ -1175,8 +1174,7 @@ void Simulator::RunFrame()
 	if (cls.state != ca_connected)
 		return;
 
-	auto& playback = GetPlaybackInfo();
-	auto block = playback.Get_Current_Block(frame);
+	auto block = playback->Get_Current_Block(frame);
 	if (block && block->frame == frame)
 	{
 		ApplyFrameblock(info, block);
@@ -1189,10 +1187,10 @@ void Simulator::RunFrame()
 Simulator Simulator::GetSimulator()
 {
 	Simulator sim;
-	auto& playback = GetPlaybackInfo();
+	sim.playback = GetPlaybackInfo();
 	sim.info = Get_Sim_Info();
 	sim.info.vars.simulated = true;
-	sim.frame = playback.current_frame;
+	sim.frame = sim.playback->current_frame;
 
 	return sim;
 }
