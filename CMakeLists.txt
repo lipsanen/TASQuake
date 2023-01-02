@@ -5,8 +5,6 @@ project(TASQuake VERSION 1.4.0)
 set(CMAKE_C_STANDARD 90)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_C_COMPILER "gcc")
-set(CMAKE_CXX_COMPILER "g++")
 set(CMAKE_EXPORT_COMPILE_COMMANDS True)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/out")
@@ -78,8 +76,12 @@ FILE(GLOB_RECURSE SOURCES
 	 Source/zone.c
 	 Source/*.cpp)
 
-add_executable(TASQuake ${SOURCES})
 add_compile_definitions(GLQUAKE __linux__)
-target_link_libraries(TASQuake PUBLIC GL png jpeg SDL2)
-set_target_properties(TASQuake PROPERTIES COMPILE_FLAGS "-m32 -ffp-contract=off -mfpmath=sse -Wno-write-strings" LINK_FLAGS "-m32")
+add_compile_options(-m32 -ffp-contract=off -mfpmath=sse -Wno-write-strings)
+add_link_options(-m32)
+add_executable(TASQuake ${SOURCES})
+target_link_libraries(TASQuake PUBLIC GL png jpeg SDL2 libtasquake)
 set_target_properties(TASQuake PROPERTIES LINKER_LANGUAGE CXX)
+
+enable_testing()
+add_subdirectory(libtasquake)
