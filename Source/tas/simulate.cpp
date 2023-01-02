@@ -2,7 +2,7 @@
 
 #include "draw.hpp"
 #include "strafing.hpp"
-#include "utils.hpp"
+#include "libtasquake/utils.hpp"
 #include "afterframes.hpp"
 
 /*

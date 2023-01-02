@@ -10,6 +10,7 @@
 #include "reset.hpp"
 #include "script_parse.hpp"
 #include "strafing.hpp"
+#include "libtasquake/utils.hpp"
 #include "utils.hpp"
 #include "savestate.hpp"
 #include "bookmark.hpp"

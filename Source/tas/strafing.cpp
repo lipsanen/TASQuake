@@ -6,7 +6,7 @@
 
 #include "afterframes.hpp"
 #include "simulate.hpp"
-#include "utils.hpp"
+#include "libtasquake/utils.hpp"
 
 
 cvar_t tas_strafe = {"tas_strafe", "0"};

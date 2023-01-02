@@ -2,7 +2,7 @@
 #include "test_runner.hpp"
 #include "script_parse.hpp"
 #include "afterframes.hpp"
-#include "utils.hpp"
+#include "libtasquake/utils.hpp"
 #include <sstream>
 
 static std::vector<TestScript> TEST_VECTOR;

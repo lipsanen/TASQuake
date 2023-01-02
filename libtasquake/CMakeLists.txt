@@ -1,5 +1,6 @@
 list(APPEND LIBTASQUAKE_SOURCES
-  "src/test.c"
+  "src/log.cpp"
+  "src/utils.cpp"
 )
 
 add_library(libtasquake ${LIBTASQUAKE_SOURCES})
