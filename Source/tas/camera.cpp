@@ -1,5 +1,5 @@
 #include "camera.hpp"
-#include "utils.hpp"
+#include "libtasquake/utils.hpp"
 
 cvar_t tas_freecam = {"tas_freecam", "0"};
 cvar_t tas_freecam_speed = {"tas_freecam_speed", "320"};

@@ -6,7 +6,7 @@
 #include "draw.hpp"
 
 #include "strafing.hpp"
-#include "utils.hpp"
+#include "libtasquake/utils.hpp"
 
 static std::map<int, std::vector<PathPoint>*> lines;
 static std::vector<Rect> rects;

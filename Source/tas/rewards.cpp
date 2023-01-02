@@ -1,6 +1,6 @@
 #include "rewards.hpp"
 #include "draw.hpp"
-#include "utils.hpp"
+#include "libtasquake/utils.hpp"
 #include "ipc_main.hpp"
 
 static qboolean OnChange_tas_reward_display(cvar_t* var, char* value);

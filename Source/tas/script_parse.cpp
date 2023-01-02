@@ -17,7 +17,7 @@
 #include "reset.hpp"
 #include "script_playback.hpp"
 #include "strafing.hpp"
-#include "utils.hpp"
+#include "libtasquake/utils.hpp"
 
 std::regex FRAME_NO_REGEX(R"#((\+?)(\d+):)#");
 std::regex TOGGLE_REGEX(R"#(([\+\-])(\w+))#");

@@ -4,7 +4,7 @@
 #include "cpp_quakedef.hpp"
 #include "savestate.hpp"
 #include "afterframes.hpp"
-#include "utils.hpp"
+#include "libtasquake/utils.hpp"
 #include "hooks.h"
 
 struct Savestate

@@ -17,7 +17,8 @@
 #include "ipc_main.hpp"
 #include "rewards.hpp"
 #include "bookmark.hpp"
-#include "utils.hpp"
+#include "libtasquake/log.hpp"
+#include "libtasquake/utils.hpp"
 
 // desc: When set to 1, pauses the game on load
 cvar_t tas_pause_onload = {"tas_pause_onload", "0"};
@@ -100,6 +101,7 @@ void TAS_Set_Seed(int seed)
 void TAS_Init()
 {
 	Savestate_Init();
+	TASQuake::SetLog(Con_Print);
 
 	Cmd_AddCommand("tas_script_init", Cmd_TAS_Script_Init);
 	Cmd_AddCommand("tas_script_stop", Cmd_TAS_Script_Stop);

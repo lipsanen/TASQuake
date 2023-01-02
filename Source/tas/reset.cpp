@@ -3,7 +3,7 @@
 #include "reset.hpp"
 
 #include "afterframes.hpp"
-#include "utils.hpp"
+#include "libtasquake/utils.hpp"
 
 static const char* const EXCLUDE_CVARS[] = {"gl_texturemode",
                                             "gl_consolefont",

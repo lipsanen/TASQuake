@@ -4,7 +4,7 @@
 
 #include "script_playback.hpp"
 #include "strafing.hpp"
-#include "utils.hpp"
+#include "libtasquake/utils.hpp"
 
 
 cvar_t tas_hud_pos = {"tas_hud_pos", "0"};

@@ -6,7 +6,7 @@
 
 #include "cpp_quakedef.hpp"
 #include "data_export.hpp"
-#include "utils.hpp"
+#include "libtasquake/utils.hpp"
 #include "state_test.hpp"
 #include "reset.hpp"
 #include "test_runner.hpp"

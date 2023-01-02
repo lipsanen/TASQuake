@@ -2,7 +2,7 @@
 #include "ipc.hpp"
 #include "afterframes.hpp"
 #include "simulate.hpp"
-#include "utils.hpp"
+#include "libtasquake/utils.hpp"
 
 struct IPCCondition
 {
