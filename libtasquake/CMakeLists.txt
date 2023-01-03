@@ -1,5 +1,8 @@
 list(APPEND LIBTASQUAKE_SOURCES
-  "src/log.cpp"
+  "src/game_funcs.cpp"
+  "src/script_parse.cpp"
+  "src/script_playback.cpp"
+  "src/ipc.cpp"
   "src/utils.cpp"
 )
 

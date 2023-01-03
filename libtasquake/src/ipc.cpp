@@ -1,4 +1,4 @@
-#include "ipc.hpp"
+#include "libtasquake/ipc.hpp"
 
 #ifdef _WINDOWS
 #include <chrono>

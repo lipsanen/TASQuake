@@ -1,5 +1,5 @@
 #include "cpp_quakedef.hpp"
-#include "json.hpp"
+#include "libtasquake/json.hpp"
 
 // desc: Turns on IPC.
 extern cvar_t tas_ipc;

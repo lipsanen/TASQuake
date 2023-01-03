@@ -10,7 +10,9 @@ extern "C"
 #undef min
 #undef rand
 #endif
-#include "json.hpp"
+
+#include "libtasquake/json.hpp"
+#include "libtasquake/utils.hpp"
 
 #ifdef __linux__
 #define rand tas_rand

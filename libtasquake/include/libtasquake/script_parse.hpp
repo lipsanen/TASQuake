@@ -26,10 +26,10 @@ struct TestBlock
 struct FrameBlock
 {
 	FrameBlock();
-	bool parsed;
-	int frame;
-	std::map<std::string, float> convars;
-	std::map<std::string, bool> toggles;
+	bool parsed = false;
+	int frame = 0;
+	std::unordered_map<std::string, float> convars;
+	std::unordered_map<std::string, bool> toggles;
 	std::vector<std::string> commands;
 
 	void Stack(const FrameBlock& new_block);

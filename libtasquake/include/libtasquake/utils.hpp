@@ -2,6 +2,28 @@
 #include <string>
 #include <fstream>
 
+namespace TASQuake {
+    typedef void(*LogFunc)(char* text);
+	typedef bool(*IsConvarFunc)(char* cvar);
+	typedef int(*NumBackupsFunc)();
+	typedef bool(*GamePausedFunc)();
+
+    struct LibTASQuakeSettings {
+		LibTASQuakeSettings();
+
+        LogFunc logger = nullptr;
+		IsConvarFunc isConvar = nullptr;
+		NumBackupsFunc numBackupsFunc = nullptr;
+		GamePausedFunc gamePausedFunc = nullptr;
+    };
+
+	int GetNumBackups();
+	bool IsConvar(char* text);
+    void InitSettings(const LibTASQuakeSettings& settings);
+    void Log(const char* fmt, ...);
+	bool GamePaused();
+}
+
 // desc: Prints the edict index that the player is looking at.
 void Cmd_TAS_Trace_Edict();
 bool IsZero(double number);

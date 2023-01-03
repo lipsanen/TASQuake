@@ -17,7 +17,6 @@
 #include "ipc_main.hpp"
 #include "rewards.hpp"
 #include "bookmark.hpp"
-#include "libtasquake/log.hpp"
 #include "libtasquake/utils.hpp"
 
 // desc: When set to 1, pauses the game on load
@@ -98,10 +97,26 @@ void TAS_Set_Seed(int seed)
 	seed_number = seed;
 }
 
+static int Get_Num_Backups()
+{
+	return tas_edit_backups.value;
+}
+
+static bool Is_Convar(char* cmd)
+{
+	return Cvar_FindVar(cmd) != NULL;
+}
+
 void TAS_Init()
 {
 	Savestate_Init();
-	TASQuake::SetLog(Con_Print);
+	TASQuake::LibTASQuakeSettings settings;
+	settings.isConvar = nullptr;
+	settings.logger = Con_Print;
+	settings.numBackupsFunc = Get_Num_Backups;
+	settings.isConvar = Is_Convar;
+	settings.gamePausedFunc = TAS_Game_Paused;
+	TASQuake::InitSettings(settings);
 
 	Cmd_AddCommand("tas_script_init", Cmd_TAS_Script_Init);
 	Cmd_AddCommand("tas_script_stop", Cmd_TAS_Script_Stop);
