@@ -6,7 +6,6 @@
 #include <random>
 #include <cstdarg>
 
-#include "libtasquake/log.hpp"
 #include "libtasquake/utils.hpp"
 
 bool IsZero(double number)

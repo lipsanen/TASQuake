@@ -5,18 +5,9 @@
 #include <regex>
 #include <sstream>
 #include <string>
+#include <cstring>
 #include <vector>
-
-#include "cpp_quakedef.hpp"
-
-#include "script_parse.hpp"
-
-#include "hooks.h"
-
-#include "afterframes.hpp"
-#include "reset.hpp"
-#include "script_playback.hpp"
-#include "strafing.hpp"
+#include "libtasquake/script_parse.hpp"
 #include "libtasquake/utils.hpp"
 
 std::regex FRAME_NO_REGEX(R"#((\+?)(\d+):)#");
@@ -46,10 +37,7 @@ bool Is_Convar(const std::string& line)
 	std::smatch sm;
 	std::regex_match(line, sm, CONVAR_REGEX);
 
-	if (Cvar_FindVar((char*)sm[1].str().c_str()))
-		return true;
-	else
-		return false;
+	return TASQuake::IsConvar((char*)sm[1].str().c_str());
 }
 
 bool Is_Toggle(const std::string& line)
@@ -192,7 +180,7 @@ bool TASScript::Load_From_File()
 
 	if (!Open_Stream(stream, file_name.c_str()))
 	{
-		Con_Printf("Unable to open script %s\n", file_name.c_str());
+		TASQuake::Log("Unable to open script %s\n", file_name.c_str());
 		return false;
 	}
 
@@ -216,12 +204,12 @@ bool TASScript::Load_From_File()
 		}
 		if (fb.parsed)
 			blocks.push_back(fb);
-		Con_Printf("Script %s loaded with %u blocks.\n", file_name.c_str(), blocks.size());
+		TASQuake::Log("Script %s loaded with %u blocks.\n", file_name.c_str(), blocks.size());
 		return true;
 	}
 	catch (const std::exception& e)
 	{
-		Con_Printf("Error parsing line %d: %s\n", line_number, e.what());
+		TASQuake::Log("Error parsing line %d: %s\n", line_number, e.what());
 		return false;
 	}
 }
@@ -255,7 +243,7 @@ static bool Move_Saves(const char* file_name)
 {
 	static char old_filename[256];
 	static char new_filename[256];
-	int backups = (int)tas_edit_backups.value;
+	int backups = TASQuake::GetNumBackups();
 
 	if (backups <= 0)
 		return true;
@@ -263,7 +251,7 @@ static bool Move_Saves(const char* file_name)
 	bool result = Get_Backup_Save(new_filename, file_name, backups - 1);
 	if (!result)
 	{
-		Con_Printf("Failed to move saves for file %s\n", file_name);
+		TASQuake::Log("Failed to move saves for file %s\n", file_name);
 		return false;
 	}
 
@@ -275,7 +263,7 @@ static bool Move_Saves(const char* file_name)
 		result = Get_Backup_Save(old_filename, file_name, i);
 		if (!result)
 		{
-			Con_Printf("Failed to move save %d for file %s\n", file_name);
+			TASQuake::Log("Failed to move save %d for file %s\n", file_name);
 			return false;
 		}
 		if (std::filesystem::exists(old_filename))
@@ -290,7 +278,7 @@ void TASScript::Write_To_File()
 {
 	if (blocks.empty())
 	{
-		Con_Printf("Cannot write an empty script to file!\n");
+		TASQuake::Log("Cannot write an empty script to file!\n");
 		return;
 	}
 
@@ -305,7 +293,7 @@ void TASScript::Write_To_File()
 
 	if (!Open_Stream(os, file_name.c_str()))
 	{
-		Con_Printf("Unable to write to %s\n", file_name.c_str());
+		TASQuake::Log("Unable to write to %s\n", file_name.c_str());
 		return;
 	}
 
@@ -332,7 +320,7 @@ void TASScript::Write_To_File()
 			os << '\t' << cmd << '\n';
 		}
 	}
-	Con_Printf("Wrote script to file %s\n", file_name.c_str());
+	TASQuake::Log("Wrote script to file %s\n", file_name.c_str());
 }
 
 void TASScript::Prune(int min_frame, int max_frame)
@@ -379,7 +367,7 @@ bool TestScript::Load_From_File()
 
 	if (!Open_Stream(stream, file_name.c_str()))
 	{
-		Con_Printf("Unable to open test %s\n", file_name.c_str());
+		TASQuake::Log("Unable to open test %s\n", file_name.c_str());
 		return true;
 	}
 
@@ -406,12 +394,12 @@ bool TestScript::Load_From_File()
 			++line_number;
 		}
 		
-		Con_Printf("Test %s loaded with %u blocks.\n", file_name.c_str(), blocks.size());
+		TASQuake::Log("Test %s loaded with %u blocks.\n", file_name.c_str(), blocks.size());
 		return true;
 	}
 	catch (const std::exception& e)
 	{
-		Con_Printf("Error parsing line %d: %s\n", line_number, e.what());
+		TASQuake::Log("Error parsing line %d: %s\n", line_number, e.what());
 		return false;
 	}
 }
@@ -420,7 +408,7 @@ void TestScript::Write_To_File()
 {
 	if (blocks.empty())
 	{
-		Con_Printf("Cannot write an empty test to file!\n");
+		TASQuake::Log("Cannot write an empty test to file!\n");
 		return;
 	}
 
@@ -428,7 +416,7 @@ void TestScript::Write_To_File()
 
 	if (!Open_Stream(os, file_name.c_str()))
 	{
-		Con_Printf("Unable to write to %s\n", file_name.c_str());
+		TASQuake::Log("Unable to write to %s\n", file_name.c_str());
 		return;
 	}
 
@@ -439,7 +427,7 @@ void TestScript::Write_To_File()
 		block.Write_To_Stream(os);
 	}
 
-	Con_Printf("Wrote script to file %s\n", file_name.c_str());
+	TASQuake::Log("Wrote script to file %s\n", file_name.c_str());
 }
 
 void TestBlock::Write_To_Stream(std::ostream & os)

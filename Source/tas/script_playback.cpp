@@ -8,8 +8,8 @@
 
 #include "afterframes.hpp"
 #include "reset.hpp"
-#include "script_parse.hpp"
 #include "strafing.hpp"
+#include "libtasquake/script_parse.hpp"
 #include "libtasquake/utils.hpp"
 #include "utils.hpp"
 #include "savestate.hpp"
@@ -1124,61 +1124,7 @@ qboolean Script_Playback_Cmd_ExecuteString_Hook(const char* text)
 	return qfalse;
 }
 
-PlaybackInfo::PlaybackInfo()
-{
-	pause_frame = -1;
-	current_frame = -1;
-	script_running = false;
-	should_unpause = false;
+bool TAS_Game_Paused() {
+	return tas_gamestate == paused && tas_playing.value;
 }
 
-const FrameBlock* PlaybackInfo::Get_Current_Block(int frame) const
-{
-	int blck = GetBlockNumber(frame);
-
-	if (blck >= playback.current_script.blocks.size())
-		return nullptr;
-	else
-		return &playback.current_script.blocks[blck];
-}
-
-const FrameBlock* PlaybackInfo::Get_Stacked_Block() const
-{
-	return &stacked;
-}
-
-int PlaybackInfo::GetBlockNumber(int frame) const
-{
-	if (frame == -1)
-		frame = current_frame;
-
-	for (int i = 0; i < current_script.blocks.size(); ++i)
-	{
-		if (current_script.blocks[i].frame >= frame)
-		{
-			return i;
-		}
-	}
-
-	return current_script.blocks.size();
-}
-
-int PlaybackInfo::Get_Number_Of_Blocks() const
-{
-	return current_script.blocks.size();
-}
-
-int PlaybackInfo::Get_Last_Frame() const
-{
-	if (playback.current_script.blocks.empty())
-		return 0;
-	else
-	{
-		return playback.current_script.blocks[playback.current_script.blocks.size() - 1].frame;
-	}
-}
-
-bool PlaybackInfo::In_Edit_Mode() const
-{
-	return !script_running && tas_gamestate == paused && tas_playing.value && !current_script.blocks.empty();
-}

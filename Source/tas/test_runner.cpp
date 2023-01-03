@@ -1,7 +1,7 @@
 #include "cpp_quakedef.hpp"
 #include "test_runner.hpp"
-#include "script_parse.hpp"
 #include "afterframes.hpp"
+#include "libtasquake/script_parse.hpp"
 #include "libtasquake/utils.hpp"
 #include <sstream>
 

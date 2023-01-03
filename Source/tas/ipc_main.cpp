@@ -1,5 +1,5 @@
 #include "ipc_main.hpp"
-#include "ipc.hpp"
+#include "libtasquake/ipc.hpp"
 #include "afterframes.hpp"
 #include "simulate.hpp"
 #include "libtasquake/utils.hpp"
