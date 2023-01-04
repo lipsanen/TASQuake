@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <vector>
 #include "script_parse.hpp"
 #include "script_playback.hpp"
@@ -18,6 +19,9 @@ namespace TASQuake {
         virtual int IterationsExpected() { return 1; } // How many iterations the algorithm is expected to run
         // The iteration count is used to divided the time evenly between different algorithms
     };
+
+    std::vector<double> GetCompoundingProbs(const std::vector<std::shared_ptr<OptimizerAlgorithm>> algorithms);
+    size_t SelectIndex(double value, const std::vector<double>& compoundingProbs);
 
     struct Vector {
         float x = 0.0f, y = 0.0f, z = 0.0f;
@@ -60,10 +64,15 @@ namespace TASQuake {
         OptimizerState OnRunnerFrame(const FrameData* data);
         // Run the init function with the actual full script, the optimizer figures out the relevant bit from playbackInfo
         bool Init(const PlaybackInfo* playback, const OptimizerSettings* settings);
+        void Seed(std::uint32_t value);
+        double Random(double min, double max);
+        size_t RandomizeIndex();
 
         OptimizerRun m_currentBest; // The current best run
         OptimizerRun m_currentRun; // The current run
         OptimizerSettings m_settings; // Current settings for the optimizer
+        std::mt19937 m_RNG;
+        std::vector<double> m_vecCompoundingProbs;
         std::int32_t m_iCurrentAlgorithm = -1;
         std::uint32_t m_uLastFrame = 1;
         std::uint32_t m_uIterationsWithoutProgress = 0; // How many iterations have been ran without progress, determines when we should reset back to best
