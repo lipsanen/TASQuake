@@ -5,18 +5,6 @@
 static TASQuake::LibTASQuakeSettings lib_settings;
 static char FORMAT_BUFFER[1024];
 
-static void default_print(char* text) {
-	printf(text);
-}
-
-static bool default_is_convar(char * cvar) {
-	return true;
-}
-
-static int default_num_backups() {
-	return 100;
-}
-
 TASQuake::LibTASQuakeSettings::LibTASQuakeSettings() = default;
 
 void TASQuake::InitSettings(const LibTASQuakeSettings& settings) {
@@ -30,7 +18,6 @@ bool TASQuake::IsConvar(char* text) {
 }
 
 void TASQuake::Log(const char* fmt, ...) {
-
 	va_list args;
 	va_start(args, fmt);
 

@@ -6,11 +6,11 @@ struct PlaybackInfo
 {
 	PlaybackInfo();
 
-	int pause_frame;
-	int current_frame;
-	bool script_running;
-	bool should_unpause;
-	double last_edited;
+	int pause_frame = 0;
+	int current_frame = 0;
+	bool script_running = false;
+	bool should_unpause = false;
+	double last_edited = 0.0;
 
 	FrameBlock stacked;
 	TASScript current_script;
@@ -21,4 +21,6 @@ struct PlaybackInfo
 	int Get_Number_Of_Blocks() const;
 	int Get_Last_Frame() const;
 	bool In_Edit_Mode() const;
+
+	static PlaybackInfo GetTimeShiftedVersion(const PlaybackInfo* info, int start_frame = -1);
 };
