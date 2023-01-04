@@ -40,6 +40,13 @@ OptimizerState Optimizer::OnRunnerFrame(const FrameData* data) {
         if(m_uIterationsWithoutProgress >= m_settings.m_uGiveUpAfterNoProgress) {
             state = OptimizerState::Stop;
         } else {
+            // Might be empty in some test cases
+            if(!m_settings.m_vecAlgorithms.empty()) {
+                size_t index = RandomizeIndex();
+                auto ptr = m_settings.m_vecAlgorithms[index];
+                ptr->Mutate(&m_currentRun.playbackInfo.current_script);
+            }
+
             state = OptimizerState::NewIteration;
         }
 
@@ -53,8 +60,22 @@ OptimizerState Optimizer::OnRunnerFrame(const FrameData* data) {
     return state;
 }
 
+void Optimizer::Seed(std::uint32_t value) {
+    m_RNG.seed(value);
+}
+
+
+double Optimizer::Random(double min, double max) {
+    double val = m_RNG() / (double)m_RNG.max();
+    return min + (max - min) * val;
+}
+
+size_t Optimizer::RandomizeIndex() {
+    double val = Random(0, 1);
+    return SelectIndex(val, m_vecCompoundingProbs);
+}
+
 bool Optimizer::Init(const PlaybackInfo* playback, const TASQuake::OptimizerSettings* settings) {
-    // TODO: Cut off frames from the start
     if(playback->current_frame == 0) {
         m_currentBest.playbackInfo = *playback;
     } else {
@@ -63,7 +84,7 @@ bool Optimizer::Init(const PlaybackInfo* playback, const TASQuake::OptimizerSett
 
     std::int32_t last_frame = playback->Get_Last_Frame() + settings->m_iEndOffset;
 
-    if(last_frame <= 0) {
+    if(last_frame < 0) {
         return false; // Init failed
     }
     
@@ -73,8 +94,43 @@ bool Optimizer::Init(const PlaybackInfo* playback, const TASQuake::OptimizerSett
     m_uIterationsWithoutProgress = 0;
     m_iCurrentAlgorithm = -1;
     m_uLastFrame = last_frame;
+    m_vecCompoundingProbs = GetCompoundingProbs(settings->m_vecAlgorithms);
 
     return true;
+}
+
+std::vector<double> TASQuake::GetCompoundingProbs(const std::vector<std::shared_ptr<OptimizerAlgorithm>> algorithms) {
+    double totalIterations = 0;
+
+    for(auto alg : algorithms) {
+        totalIterations += alg->IterationsExpected();
+    }
+
+    std::vector<double> output;
+    output.reserve(algorithms.size());
+
+    double compounding = 0;
+
+    for(auto alg : algorithms) {
+        compounding += alg->IterationsExpected() / totalIterations;
+        output.push_back(compounding);
+    }
+
+    if(!output.empty()) {
+        output[output.size() - 1] = 1.0;
+    }
+
+    return output;
+}
+
+size_t TASQuake::SelectIndex(double value, const std::vector<double>& compoundingProbs) {
+    for(size_t i=0; i < compoundingProbs.size(); ++i) {
+        if(value <= compoundingProbs[i]) {
+            return i;
+        }
+    }
+
+    return compoundingProbs.size() - 1;
 }
 
 OptimizerGoal TASQuake::AutoGoal(const std::vector<FrameData>& vecData) {

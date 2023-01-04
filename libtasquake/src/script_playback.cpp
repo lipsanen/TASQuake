@@ -68,14 +68,30 @@ PlaybackInfo PlaybackInfo::GetTimeShiftedVersion(const PlaybackInfo* info, int s
 		start_frame = info->current_frame;
 	}
 
+	FrameBlock stacked;
+	stacked.frame = 0;
+	stacked.parsed = true;
+	bool added_stack = false;
+
 	for (int i = 0; i < info->current_script.blocks.size(); ++i)
 	{
 		FrameBlock block = info->current_script.blocks[i];
-		if (block.frame >= start_frame)
-		{
+		if (block.frame <= start_frame) {
+			stacked.Stack(block);
+		} else {
+			if(!added_stack) {
+				output.current_script.blocks.push_back(stacked);
+				added_stack = true;
+			}
+
 			block.frame -= start_frame;
 			output.current_script.blocks.push_back(block);
 		}
+	}
+
+	if(!added_stack) {
+		output.current_script.blocks.push_back(stacked);
+		added_stack = true;
 	}
 	
 	return output;
