@@ -3,8 +3,8 @@
 
 PlaybackInfo::PlaybackInfo()
 {
-	pause_frame = -1;
-	current_frame = -1;
+	pause_frame = 0;
+	current_frame = 0;
 	script_running = false;
 	should_unpause = false;
 }
@@ -58,4 +58,25 @@ int PlaybackInfo::Get_Last_Frame() const
 bool PlaybackInfo::In_Edit_Mode() const
 {
 	return !script_running && TASQuake::GamePaused() && !current_script.blocks.empty();
+}
+
+PlaybackInfo PlaybackInfo::GetTimeShiftedVersion(const PlaybackInfo* info, int start_frame) {
+	PlaybackInfo output;
+	output.current_script.file_name = info->current_script.file_name;
+	int old_start_frame = info->current_frame;
+	if(start_frame == -1) {
+		start_frame = info->current_frame;
+	}
+
+	for (int i = 0; i < info->current_script.blocks.size(); ++i)
+	{
+		FrameBlock block = info->current_script.blocks[i];
+		if (block.frame >= start_frame)
+		{
+			block.frame -= start_frame;
+			output.current_script.blocks.push_back(block);
+		}
+	}
+	
+	return output;
 }
