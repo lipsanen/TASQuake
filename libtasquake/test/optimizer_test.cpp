@@ -6,7 +6,7 @@ public:
     size_t count;
     size_t iterations;
     ProbTester(size_t count) : count(count) { iterations = 0; }
-    virtual void Mutate(TASScript* script) { ++iterations; };
+    virtual void Mutate(TASScript* script, double efficacy) { ++iterations; };
     virtual void Reset() {};
     virtual bool WantsToRun() { return true; }
     virtual bool WantsToContinue() { return false; };

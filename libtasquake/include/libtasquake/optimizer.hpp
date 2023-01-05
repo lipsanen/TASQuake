@@ -12,12 +12,58 @@ namespace TASQuake {
 
     class OptimizerAlgorithm {
     public:
-        virtual void Mutate(TASScript* script) = 0;
+        virtual void Mutate(TASScript* script, double efficacy) = 0;
+        virtual void ReportResult(double efficacy) {};
         virtual void Reset() = 0;
         virtual bool WantsToRun() { return true; } // True if the algorithm could do something useful
         virtual bool WantsToContinue() = 0; // In some case the algorithm might want to run multiple iterations in a row
         virtual int IterationsExpected() { return 1; } // How many iterations the algorithm is expected to run
         // The iteration count is used to divided the time evenly between different algorithms
+    };
+
+    enum class BinarySearchState { 
+        NoSearch, // No search is in progress
+        Probe, // Sent out a positive or negative probe
+        MappingSpace, // Some improvement found, looking for max that gives worse result than current value
+        BinarySearch // Found min and max, now searching
+    };
+
+    struct BinSearcher {
+        // If min addition set, provides a lower bound for the next value to be tried
+        void Init(double orig, double start, double min_addition, double min, double max, double orig_efficacy);
+        void SetRandomStartOffset(double orig, double rng_seed);
+        double GiveNewValue() const;
+        void Report(double result); // Report the result of the iteration in higher = better format
+        void Reset();
+
+        // Constant
+        const std::uint32_t m_uMappingIterations = 5;
+        double m_dMinAddition = 0;
+        double m_dRangeMin = 0;
+        double m_dRangeMax = 0;
+
+        bool m_bInitialized = false;
+        double m_dOrigEfficacy = 0;
+        double m_dMinEfficacy = 0, m_dMaxEfficacy = 0;
+        double m_dMin = 0, m_dMax = 1;
+        double m_dOriginalValue = 0;
+        std::uint32_t m_uMappingIteration = 0;
+        BinarySearchState m_eSearchState = BinarySearchState::NoSearch;
+        bool m_bIsInteger = true;
+    };
+
+    class FrameBlockMover : public OptimizerAlgorithm {
+    public:
+        virtual void Mutate(TASScript* script);
+        virtual void Reset();
+        virtual bool WantsToRun();
+        virtual bool WantsToContinue();
+        virtual int IterationsExpected() { return 1; }
+    private:
+        // These values are only non-default in the case that the algorithm found some improvement
+        // and now wants to binary search over it
+        std::int32_t m_iCurrentBlockIndex = -1;
+        BinSearcher m_searcher;
     };
 
     std::vector<double> GetCompoundingProbs(const std::vector<std::shared_ptr<OptimizerAlgorithm>> algorithms);
@@ -42,7 +88,8 @@ namespace TASQuake {
     struct OptimizerRun {
         PlaybackInfo playbackInfo;
         std::vector<FrameData> m_vecData;
-        bool IsBetterThan(const OptimizerRun& run, OptimizerGoal goal);
+        double RunEfficacy(OptimizerGoal goal) const;
+        bool IsBetterThan(const OptimizerRun& run, OptimizerGoal goal) const;
     };
 
     OptimizerGoal AutoGoal(const std::vector<FrameData>& data);
@@ -50,7 +97,7 @@ namespace TASQuake {
     struct OptimizerSettings {
         // Determine which algorithms should be used
         OptimizerGoal m_Goal = OptimizerGoal::Undetermined; // Automatically determined by first run
-        std::uint32_t m_uMaxIterationsNoProgress = 3;
+        std::uint32_t m_uResetToBestIterations = 3;
         std::uint32_t m_uGiveUpAfterNoProgress = 999;
         std::int32_t m_iEndOffset = 36; // Where to end the optimizer path as frames from the last frame
         std::vector<std::shared_ptr<OptimizerAlgorithm>> m_vecAlgorithms;
