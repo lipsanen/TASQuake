@@ -76,7 +76,7 @@ OptimizerState Optimizer::OnRunnerFrame(const FrameData* data)
 				  m_iCurrentAlgorithm = RandomizeIndex();
         }
 				auto ptr = m_settings.m_vecAlgorithms[m_iCurrentAlgorithm];
-				ptr->Mutate(&m_currentRun.playbackInfo.current_script, efficacy);
+				ptr->Mutate(&m_currentRun.playbackInfo.current_script, efficacy, &m_RNG);
 			}
 
 			state = OptimizerState::NewIteration;
@@ -367,4 +367,111 @@ void BinSearcher::Reset()
   m_dMinEfficacy = 0;
   m_dMaxEfficacy = 0;
   m_dOrigEfficacy = 0;
+}
+
+void RollingStone::Init(double efficacy, double startValue, double startDelta, double maxValue)
+{
+  m_dPrevEfficacy = efficacy;
+  m_dCurrentValue = startValue;
+  m_dPrevDelta = startDelta;
+  m_dMax = maxValue;
+}
+
+bool RollingStone::ShouldContinue(double newEfficacy) const {
+  if(newEfficacy <= m_dPrevEfficacy) {
+    return false;
+  } else if(m_dCurrentValue == m_dMax) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+void RollingStone::NextValue() {
+  m_dPrevDelta *= 2;
+  m_dCurrentValue += m_dPrevDelta;
+  if(m_dPrevDelta < 0) {
+    m_dCurrentValue = std::max(m_dCurrentValue, m_dMax);
+  } else {
+    m_dCurrentValue = std::min(m_dCurrentValue, m_dMax);
+  }
+}
+
+void FrameBlockMover::Mutate(TASScript* script, double efficacy, std::mt19937* rng) {
+  if(script->blocks.empty()) {
+    return;
+  }
+
+  if(m_iCurrentBlockIndex == -1) {
+    m_iCurrentBlockIndex = rng->operator()() % script->blocks.size();
+    FrameBlock* block = &script->blocks[m_iCurrentBlockIndex];
+
+    double orig = block->frame;
+    double min;
+    double max;
+    double delta;
+    bool positive;
+
+    if(m_iCurrentBlockIndex == script->blocks.size() - 1) {
+      max = block->frame + 36;
+    } else {
+      max = script->blocks[m_iCurrentBlockIndex + 1].frame - 1;
+    }
+
+    if(m_iCurrentBlockIndex == 0) {
+      min = 0;
+    } else {
+      min = script->blocks[m_iCurrentBlockIndex - 1].frame + 1;
+    }
+
+    bool positive_legal = max != block->frame;
+    bool negative_legal = min != block->frame;
+
+    if(!positive_legal && !negative_legal) {
+      return;
+    }
+
+    double value = (rng->operator()() / (double)rng->max());
+
+    if(!positive_legal) {
+      positive = false;
+    } else if(!negative_legal) {
+      positive = true;
+    } else {
+      positive = value > 0.5;
+    }
+
+    if(positive) {
+      delta = 1;
+    } else {
+      delta = -1;
+      max = min;
+    }
+  
+    m_Stone.Init(efficacy, orig + delta, delta, max);
+  }
+  
+  FrameBlock* block = &script->blocks[m_iCurrentBlockIndex];
+  block->frame = m_Stone.m_dCurrentValue;
+  int a = 0;
+}
+
+void FrameBlockMover::Reset() {
+  
+}
+
+bool FrameBlockMover::WantsToRun() {
+  return true;
+}
+
+bool FrameBlockMover::WantsToContinue() {
+  return m_iCurrentBlockIndex != -1;
+}
+
+void FrameBlockMover::ReportResult(double efficacy) {
+  if(m_Stone.ShouldContinue(efficacy)) {
+    m_Stone.NextValue();
+  } else {
+    m_iCurrentBlockIndex = -1;
+  }
 }

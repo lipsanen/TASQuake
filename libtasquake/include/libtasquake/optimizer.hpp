@@ -12,7 +12,7 @@ namespace TASQuake {
 
     class OptimizerAlgorithm {
     public:
-        virtual void Mutate(TASScript* script, double efficacy) = 0;
+        virtual void Mutate(TASScript* script, double efficacy, std::mt19937* rng) = 0;
         virtual void ReportResult(double efficacy) {};
         virtual void Reset() = 0;
         virtual bool WantsToRun() { return true; } // True if the algorithm could do something useful
@@ -52,18 +52,31 @@ namespace TASQuake {
         bool m_bIsInteger = true;
     };
 
+    // The world's only stone that rolls uphill
+    struct RollingStone {
+        void Init(double efficacy, double startValue, double startDelta, double maxValue);
+        bool ShouldContinue(double newEfficacy) const;
+        void NextValue();
+
+        double m_dPrevEfficacy = 0;
+        double m_dCurrentValue = 0;
+        double m_dPrevDelta = 0;
+        double m_dMax = 0;
+    };
+
     class FrameBlockMover : public OptimizerAlgorithm {
     public:
-        virtual void Mutate(TASScript* script);
-        virtual void Reset();
-        virtual bool WantsToRun();
-        virtual bool WantsToContinue();
-        virtual int IterationsExpected() { return 1; }
+        virtual void Mutate(TASScript* script, double efficacy, std::mt19937* rng) override;
+        virtual void Reset() override;
+        virtual bool WantsToRun() override;
+        virtual bool WantsToContinue() override;
+        virtual int IterationsExpected() override { return 1; }
+        virtual void ReportResult(double efficacy) override;
     private:
         // These values are only non-default in the case that the algorithm found some improvement
         // and now wants to binary search over it
         std::int32_t m_iCurrentBlockIndex = -1;
-        BinSearcher m_searcher;
+        RollingStone m_Stone;
     };
 
     std::vector<double> GetCompoundingProbs(const std::vector<std::shared_ptr<OptimizerAlgorithm>> algorithms);

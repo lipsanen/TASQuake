@@ -1,6 +1,8 @@
 list(APPEND LIBTASQUAKE_TEST_SOURCES
+  "bench.cpp"
   "binsearch_test.cpp"
   "catch_amalgamated.cpp"
+  "rollingstone_test.cpp"
   "optimizer_test.cpp"
   "test.cpp"
 )
