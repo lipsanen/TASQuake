@@ -288,3 +288,4 @@ libzlib.a
 Makefile
 .vscode/
 build/
+build_release/
