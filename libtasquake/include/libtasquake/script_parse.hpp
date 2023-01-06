@@ -42,6 +42,7 @@ struct FrameBlock
 	void Parse_Line(const std::string& line, int& running_frame);
 	void Reset();
 
+	bool HasCvarValue(const std::string& cmd, float value) const;
 	bool HasToggle(const std::string& cmd) const;
 	bool HasConvar(const std::string& cvar) const;
 };

@@ -20,8 +20,6 @@ cvar_t tas_anglespeed = {"tas_anglespeed", "5"};
 cvar_t tas_strafe_version = {"tas_strafe_version", "2"};
 cvar_t tas_strafe_maxlength = {"tas_strafe_maxlength", "32767"};
 
-const float INVALID_ANGLE = 999;
-
 static bool autojump = false;
 static bool tas_lgagst = false;
 static bool print_origin = false;
@@ -379,7 +377,7 @@ float MoveViewTowards(float target, float current, bool yaw, const StrafeVars& v
 
 void SetView(float* yaw, float* pitch, const StrafeVars& vars)
 {
-	if (vars.tas_view_pitch != INVALID_ANGLE)
+	if (vars.tas_view_pitch != TASQuake::INVALID_ANGLE)
 	{
 		*pitch = MoveViewTowards(vars.tas_view_pitch, *pitch, false, vars);
 	}
@@ -392,7 +390,7 @@ void SetView(float* yaw, float* pitch, const StrafeVars& vars)
 	float tas_yaw = NormalizeDeg(vars.tas_view_yaw);
 	float strafe_yaw = NormalizeDeg(vars.tas_strafe_yaw);
 
-	if (vars.tas_view_yaw != INVALID_ANGLE)
+	if (vars.tas_view_yaw != TASQuake::INVALID_ANGLE)
 	{
 		*yaw = MoveViewTowards(tas_yaw, *yaw, true, vars);
 	}

@@ -36,7 +36,7 @@ extern cvar_t tas_anglespeed;
 extern cvar_t tas_strafe_version;
 // desc: Max length of the strafe vectors on each axis
 extern cvar_t tas_strafe_maxlength;
-extern const float INVALID_ANGLE;
+
 enum class StrafeType
 {
 	None = 0,

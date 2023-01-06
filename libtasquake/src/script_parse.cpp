@@ -157,6 +157,14 @@ void FrameBlock::Reset()
 	commands.clear();
 }
 
+bool FrameBlock::HasCvarValue(const std::string& cmd, float value) const {
+	if(HasConvar(cmd)) {
+		return convars.at(cmd) == value;
+	} else {
+		return false;
+	}
+}
+
 bool FrameBlock::HasToggle(const std::string& cmd) const
 {
 	return toggles.find(cmd) != toggles.end();
