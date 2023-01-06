@@ -1,6 +1,7 @@
 #include "catch_amalgamated.hpp"
 #include "bench.hpp"
 #include "libtasquake/utils.hpp"
+#include <thread>
 
 using namespace TASQuake;
 
@@ -49,6 +50,10 @@ void TASQuake::BenchTest(SimFunc func, const OptimizerSettings* settings, const 
       }
       player.Reset();
       opt.ResetIteration();
+
+      // The simulation is expected to take longer than the lib code in a real world case
+      // Sleep a bit to simulate this
+      std::this_thread::sleep_for(std::chrono::microseconds(5));
     } else {
       ++frame;
     }

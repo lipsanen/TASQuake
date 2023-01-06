@@ -11,6 +11,7 @@ struct PlaybackInfo
 	bool script_running = false;
 	bool should_unpause = false;
 	double last_edited = 0.0;
+	mutable int prev_block_number = 0;
 
 	FrameBlock stacked;
 	TASScript current_script;
