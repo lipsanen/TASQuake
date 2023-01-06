@@ -12,10 +12,10 @@ namespace TASQuake {
 
     class OptimizerAlgorithm {
     public:
-        virtual void Mutate(TASScript* script, double efficacy, std::mt19937* rng) = 0;
+        virtual void Mutate(TASScript* script, Optimizer* opt) = 0;
         virtual void ReportResult(double efficacy) {};
         virtual void Reset() = 0;
-        virtual bool WantsToRun() { return true; } // True if the algorithm could do something useful
+        virtual bool WantsToRun(TASScript* script) { return true; } // True if the algorithm could do something useful
         virtual bool WantsToContinue() = 0; // In some case the algorithm might want to run multiple iterations in a row
         virtual int IterationsExpected() { return 1; } // How many iterations the algorithm is expected to run
         // The iteration count is used to divided the time evenly between different algorithms
@@ -58,23 +58,59 @@ namespace TASQuake {
         bool ShouldContinue(double newEfficacy) const;
         void NextValue();
 
+        double m_dMultiplicationFactor = 2;
         double m_dPrevEfficacy = 0;
         double m_dCurrentValue = 0;
         double m_dPrevDelta = 0;
         double m_dMax = 0;
     };
 
-    class FrameBlockMover : public OptimizerAlgorithm {
+    class RNGStrafer : public OptimizerAlgorithm {
     public:
-        virtual void Mutate(TASScript* script, double efficacy, std::mt19937* rng) override;
+        virtual void Mutate(TASScript* script, Optimizer* opt) override;
         virtual void Reset() override;
-        virtual bool WantsToRun() override;
+        virtual bool WantsToRun(TASScript* script) override;
+        virtual bool WantsToContinue() override;
+        virtual int IterationsExpected() override { return 1; }
+        virtual void ReportResult(double efficacy) override;
+    };
+
+    class RNGBlockMover : public OptimizerAlgorithm {
+    public:
+        virtual void Mutate(TASScript* script, Optimizer* opt) override;
+        virtual void Reset() override;
+        virtual bool WantsToRun(TASScript* script) override;
+        virtual bool WantsToContinue() override;
+        virtual int IterationsExpected() override { return 1; }
+        virtual void ReportResult(double efficacy) override;
+    };
+
+    class StrafeAdjuster : public OptimizerAlgorithm {
+    public:
+        virtual void Mutate(TASScript* script, Optimizer* opt) override;
+        virtual void Reset() override;
+        virtual bool WantsToRun(TASScript* script) override;
         virtual bool WantsToContinue() override;
         virtual int IterationsExpected() override { return 1; }
         virtual void ReportResult(double efficacy) override;
     private:
         // These values are only non-default in the case that the algorithm found some improvement
-        // and now wants to binary search over it
+        // and now wants to RollingStone over it
+        std::int32_t m_iCurrentBlockIndex = -1;
+        RollingStone m_Stone;
+    };
+
+    class FrameBlockMover : public OptimizerAlgorithm {
+    public:
+        virtual void Mutate(TASScript* script, Optimizer* opt) override;
+        virtual void Reset() override;
+        virtual bool WantsToRun(TASScript* script) override;
+        virtual bool WantsToContinue() override;
+        virtual int IterationsExpected() override { return 1; }
+        virtual void ReportResult(double efficacy) override;
+    private:
+        // These values are only non-default in the case that the algorithm found some improvement
+        // and now wants to RollingStone over it
         std::int32_t m_iCurrentBlockIndex = -1;
         RollingStone m_Stone;
     };
@@ -88,11 +124,8 @@ namespace TASQuake {
 
     struct FrameData {
         Vector pos;
-        std::uint32_t m_uKills = 0;
-        std::uint32_t m_uSecrets = 0;
-        std::uint32_t m_uButtonPresses = 0;
-        std::int32_t m_iHealth = 100;
-        bool m_bIntermission = false;
+        double m_dVelTheta = 999.0;
+        void FindSmallestStrafeYawIncrements(float strafe_yaw, float& min, float& max) const; 
     };
 
     enum class OptimizerState { ContinueIteration, NewIteration, Stop };
@@ -103,6 +136,7 @@ namespace TASQuake {
         std::vector<FrameData> m_vecData;
         double RunEfficacy(OptimizerGoal goal) const;
         bool IsBetterThan(const OptimizerRun& run, OptimizerGoal goal) const;
+        void StrafeBounds(size_t blockIndex, float& min, float& max) const;
     };
 
     OptimizerGoal AutoGoal(const std::vector<FrameData>& data);

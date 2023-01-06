@@ -8,6 +8,8 @@
 
 #include "libtasquake/utils.hpp"
 
+const float TASQuake::INVALID_ANGLE = 999;
+
 bool IsZero(double number)
 {
 	return std::abs(number) < 0.01;
@@ -433,4 +435,8 @@ float RNG::crandom()
 void RNG::SetSeed(unsigned int seed)
 {
 	this->seed = seed;
+}
+
+bool TASQuake::DoubleEqual(double v1,  double v2, double EPS) {
+	return std::abs(v1 - v2) < EPS;
 }

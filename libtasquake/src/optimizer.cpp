@@ -1,8 +1,7 @@
-#include <limits>
-
 #include "libtasquake/optimizer.hpp"
-
 #include "libtasquake/utils.hpp"
+#include <functional>
+#include <limits>
 
 using namespace TASQuake;
 
@@ -56,9 +55,9 @@ OptimizerState Optimizer::OnRunnerFrame(const FrameData* data)
 		}
 		else
 		{
-      double efficacy = m_currentRun.RunEfficacy(m_settings.m_Goal);
       if(m_iCurrentAlgorithm != -1) { 
 				auto ptr = m_settings.m_vecAlgorithms[m_iCurrentAlgorithm];
+        double efficacy = m_currentRun.RunEfficacy(m_settings.m_Goal);
         ptr->ReportResult(efficacy);
         if(!ptr->WantsToContinue()) {
           m_iCurrentAlgorithm = -1;
@@ -76,7 +75,7 @@ OptimizerState Optimizer::OnRunnerFrame(const FrameData* data)
 				  m_iCurrentAlgorithm = RandomizeIndex();
         }
 				auto ptr = m_settings.m_vecAlgorithms[m_iCurrentAlgorithm];
-				ptr->Mutate(&m_currentRun.playbackInfo.current_script, efficacy, &m_RNG);
+				ptr->Mutate(&m_currentRun.playbackInfo.current_script, this);
 			}
 
 			state = OptimizerState::NewIteration;
@@ -127,6 +126,10 @@ bool Optimizer::Init(const PlaybackInfo* playback, const TASQuake::OptimizerSett
 	{
 		return false; // Init failed
 	}
+
+  for(auto& alg : m_settings.m_vecAlgorithms) {
+    alg->Reset();
+  }
 
 	m_settings = *settings;
 	m_currentBest.m_vecData.clear();
@@ -264,6 +267,46 @@ bool OptimizerRun::IsBetterThan(const OptimizerRun& run, OptimizerGoal goal) con
 	return ours > theirs;
 }
 
+
+void OptimizerRun::StrafeBounds(size_t blockIndex, float& min, float& max) const {
+  min = -TASQuake::INVALID_ANGLE;
+  max = TASQuake::INVALID_ANGLE;
+
+  FrameBlock block = playbackInfo.current_script.blocks[blockIndex];
+  int start_frame = block.frame;
+
+  if(block.convars.find("tas_strafe_yaw") == block.convars.end()) {
+    return;
+  } else if(block.HasCvarValue("tas_strafe_type", 3)) {
+    // Direction strafing = any change affects the result
+    min = -0.01;
+    max = 0.01;
+    return;
+  }
+
+  float strafe_yaw = block.convars["tas_strafe_yaw"];
+  int last_frame = -1;
+  size_t blocks = playbackInfo.current_script.blocks.size();
+
+  for(size_t i=blockIndex+1; i < blocks; ++i) {
+    if(playbackInfo.current_script.blocks[i].convars.find("tas_strafe_yaw") != block.convars.end()) {
+      last_frame = playbackInfo.current_script.blocks[i].frame;
+    } else if(playbackInfo.current_script.blocks[i].HasCvarValue("tas_strafe_type", 3)) {
+      min = -0.01;
+      max = 0.01;
+      return;
+    }
+  }
+
+  if (last_frame == -1) {
+    last_frame = m_vecData.size();
+  }
+
+  for(size_t i=start_frame; i < last_frame; ++i) {
+    m_vecData[i].FindSmallestStrafeYawIncrements(strafe_yaw, min, max);
+  }
+}
+
 void BinSearcher::Init(double orig, double start, double min_addition, double min, double max, double orig_efficacy)
 {
 	m_eSearchState = BinarySearchState::Probe;
@@ -388,7 +431,7 @@ bool RollingStone::ShouldContinue(double newEfficacy) const {
 }
 
 void RollingStone::NextValue() {
-  m_dPrevDelta *= 2;
+  m_dPrevDelta *= m_dMultiplicationFactor;
   m_dCurrentValue += m_dPrevDelta;
   if(m_dPrevDelta < 0) {
     m_dCurrentValue = std::max(m_dCurrentValue, m_dMax);
@@ -397,13 +440,176 @@ void RollingStone::NextValue() {
   }
 }
 
-void FrameBlockMover::Mutate(TASScript* script, double efficacy, std::mt19937* rng) {
+static std::int32_t FindSuitableBlock(std::function<bool(TASScript*, size_t)> predicate, TASScript* script, Optimizer* opt) {
+  std::int32_t index = opt->m_RNG() % script->blocks.size();
+  if(predicate(script, index)) {
+    return index;
+  }
+
+  // Randomize the probe direction in order to 
+  std::int32_t probe_direction = opt->m_RNG() % 2;
+  if(probe_direction == 0)
+    probe_direction = -1;
+  
+  std::int32_t probe_index = (index + probe_direction) % script->blocks.size();
+
+  while(!predicate(script, probe_index) && probe_index != index) {
+    probe_index += probe_direction;
+    probe_index = probe_index % script->blocks.size();
+  }
+
+  // Went through every index
+  if(probe_index == index) {
+    return -1;
+  } else {
+    return probe_index;
+  }
+}
+
+void RNGBlockMover::Reset() {}
+bool RNGBlockMover::WantsToRun(TASScript* script) { return !script->blocks.empty(); }
+bool RNGBlockMover::WantsToContinue() { return false; }
+void RNGBlockMover::ReportResult(double efficacy) {}
+
+void RNGStrafer::Mutate(TASScript* script, Optimizer* opt) {
+  size_t blockIndex = opt->m_RNG() % script->blocks.size();
+  bool hasExistingValue = false;
+
+  if(script->blocks[blockIndex].convars.find("tas_strafe_yaw") != script->blocks[blockIndex].convars.end()) {
+    hasExistingValue = true;
+  }
+
+  if(hasExistingValue && opt->Random(0, 1) < 0.8) {
+    float prev = script->blocks[blockIndex].convars["tas_strafe_yaw"];
+    script->blocks[blockIndex].convars["tas_strafe_yaw"] = NormalizeDeg(prev + opt->Random(-5, 5)); 
+  } else {
+    script->blocks[blockIndex].convars["tas_strafe_yaw"] = opt->Random(0, 360);
+  }
+}
+
+void RNGStrafer::Reset() {
+
+}
+
+bool RNGStrafer::WantsToRun(TASScript* script) {
+  return !script->blocks.empty();
+}
+
+bool RNGStrafer::WantsToContinue() {
+  return false;
+}
+
+void RNGStrafer::ReportResult(double efficacy) {
+
+}
+
+void StrafeAdjuster::Mutate(TASScript* script, Optimizer* opt) {
+  if(m_iCurrentBlockIndex == -1) {
+    m_iCurrentBlockIndex = FindSuitableBlock([](TASScript* script, size_t blockIndex) { 
+      return script->blocks[blockIndex].HasConvar("tas_strafe_yaw"); 
+      }, script, opt);
+    if(m_iCurrentBlockIndex == -1)
+      return; // Shouldn't happen
+
+    float min, max;
+    FrameBlock* block = &script->blocks[m_iCurrentBlockIndex];
+    float strafe_yaw = block->convars["tas_strafe_yaw"];
+    opt->m_currentRun.StrafeBounds(m_iCurrentBlockIndex, min, max);
+    double efficacy = opt->m_currentRun.RunEfficacy(opt->m_settings.m_Goal);
+
+    if(min == -TASQuake::INVALID_ANGLE && max == TASQuake::INVALID_ANGLE) {
+      // Strafe angle does nothing
+      m_iCurrentBlockIndex = -1;
+      return;
+    }
+    bool pickMin;
+
+    if (min == -TASQuake::INVALID_ANGLE) {
+      pickMin = false;
+    } else if (max == TASQuake::INVALID_ANGLE) {
+      pickMin = true;
+    } else {
+      pickMin = opt->Random(0, 1) > 0.5;
+    }
+
+    if(pickMin) {
+      m_Stone.Init(efficacy, strafe_yaw + max, max, strafe_yaw + 180.0);
+    } else {
+      m_Stone.Init(efficacy, strafe_yaw + min, min, strafe_yaw - 180.0);
+    }
+  }
+
+  script->blocks[m_iCurrentBlockIndex].convars["tas_strafe_yaw"] = NormalizeDeg(m_Stone.m_dCurrentValue);
+}
+
+void StrafeAdjuster::Reset() {
+  m_iCurrentBlockIndex = -1;
+}
+
+bool StrafeAdjuster::WantsToRun(TASScript* script) {
+  for(size_t i=0; i < script->blocks.size(); ++i) {
+    if(script->blocks[i].HasConvar("tas_strafe_yaw")) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+bool StrafeAdjuster::WantsToContinue() {
+  return m_iCurrentBlockIndex != -1;
+}
+
+void StrafeAdjuster::ReportResult(double efficacy) {
+  if(m_Stone.ShouldContinue(efficacy)) {
+    m_Stone.NextValue();
+  } else {
+    m_iCurrentBlockIndex = -1;
+  }
+}
+
+static bool MovableBlock(TASScript* script, size_t index) {
+  int frame = script->blocks[index].frame;
+  if(index == script->blocks.size() - 1) {
+    return true;
+  } else if(script->blocks[index + 1].frame > frame + 1) {
+    return true;
+  } else if(index > 0 && script->blocks[index-1].frame < frame - 1) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+static void find_block_minmax(TASScript* script, size_t index, size_t& min, size_t& max) {
+  if(index == script->blocks.size() - 1) {
+    max = script->blocks[index].frame + 36;
+  } else {
+    max = script->blocks[index + 1].frame - 1;
+  }
+
+  if(index == 0) {
+    min = 0;
+  } else {
+    min = script->blocks[index - 1].frame + 1;
+  }
+}
+
+void RNGBlockMover::Mutate(TASScript* script, Optimizer* opt) {
+  auto index = FindSuitableBlock(MovableBlock, script, opt);
+  FrameBlock* block = &script->blocks[index];
+  size_t min, max;
+  find_block_minmax(script, index, min, max);
+  block->frame = opt->Random(min, max + 1);
+}
+
+void FrameBlockMover::Mutate(TASScript* script, Optimizer* opt) {
   if(script->blocks.empty()) {
     return;
   }
 
   if(m_iCurrentBlockIndex == -1) {
-    m_iCurrentBlockIndex = rng->operator()() % script->blocks.size();
+    m_iCurrentBlockIndex = FindSuitableBlock(MovableBlock, script, opt);
     FrameBlock* block = &script->blocks[m_iCurrentBlockIndex];
 
     double orig = block->frame;
@@ -431,7 +637,7 @@ void FrameBlockMover::Mutate(TASScript* script, double efficacy, std::mt19937* r
       return;
     }
 
-    double value = (rng->operator()() / (double)rng->max());
+    double value = (opt->m_RNG() / (double)opt->m_RNG.max());
 
     if(!positive_legal) {
       positive = false;
@@ -447,7 +653,8 @@ void FrameBlockMover::Mutate(TASScript* script, double efficacy, std::mt19937* r
       delta = -1;
       max = min;
     }
-  
+
+    double efficacy = opt->m_currentRun.RunEfficacy(opt->m_settings.m_Goal);
     m_Stone.Init(efficacy, orig + delta, delta, max);
   }
   
@@ -460,7 +667,7 @@ void FrameBlockMover::Reset() {
   
 }
 
-bool FrameBlockMover::WantsToRun() {
+bool FrameBlockMover::WantsToRun(TASScript* script) {
   return true;
 }
 
@@ -473,5 +680,23 @@ void FrameBlockMover::ReportResult(double efficacy) {
     m_Stone.NextValue();
   } else {
     m_iCurrentBlockIndex = -1;
+  }
+}
+
+void FrameData::FindSmallestStrafeYawIncrements(float strafe_yaw, float& min, float& max) const {
+  const float EPS_DIFF = 1e-5;
+  const float EPS_DEG = 1e-2;
+	if(m_dVelTheta == 999.0 || std::isnan(m_dVelTheta)) {
+		return;
+	}
+
+	double target_theta = strafe_yaw * M_DEG2RAD;
+	double diff = NormalizeRad(target_theta - m_dVelTheta);
+  float absDiffDeg = std::abs(diff * M_RAD2DEG) + EPS_DEG;
+	
+  if(diff >= 0) {
+    min = std::max(min, -absDiffDeg);
+	} else if(diff < 0) {
+    max = std::min(max, absDiffDeg);
   }
 }

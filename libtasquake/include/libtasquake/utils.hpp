@@ -73,6 +73,11 @@ double DRound(double val, double acc);
 int* GenerateRandomIntegers(int number, int min, int max, int minGap);
 int GetPlayerWeaponDelay();
 
+namespace TASQuake {
+	extern const float INVALID_ANGLE;
+	bool DoubleEqual(double v1,  double v2, double EPS=1e-3);
+}
+
 class RNG
 {
 public:
