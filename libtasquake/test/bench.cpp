@@ -41,14 +41,14 @@ void TASQuake::BenchTest(SimFunc func, const OptimizerSettings* settings, const 
     if(state == TASQuake::OptimizerState::Stop) {
       break;
     } else if(state == TASQuake::OptimizerState::NewIteration) {
-      player.Reset();
-      opt.ResetIteration();
       ++iterations;
       frame = 0;
       currentBest = opt.m_currentBest.RunEfficacy(opt.m_settings.m_Goal);
       if(currentBest >= passThreshold) {
         break;
       }
+      player.Reset();
+      opt.ResetIteration();
     } else {
       ++frame;
     }
