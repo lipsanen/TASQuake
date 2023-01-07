@@ -124,7 +124,13 @@ bool Optimizer::Init(const PlaybackInfo* playback, const TASQuake::OptimizerSett
 		m_currentBest.playbackInfo = PlaybackInfo::GetTimeShiftedVersion(playback);
 	}
 
-	std::int32_t last_frame = playback->Get_Last_Frame() + settings->m_iEndOffset;
+	std::int32_t last_frame;
+
+  if(playback->Get_Last_Frame() > playback->current_frame) {
+    last_frame = playback->Get_Last_Frame() - playback->current_frame + settings->m_iEndOffset;
+  } else {
+    last_frame = settings->m_iEndOffset;
+  }
 
 	if (last_frame < 0)
 	{
@@ -410,6 +416,16 @@ void RollingStone::NextValue() {
   }
 }
 
+static std::int32_t modulo(std::int32_t index, std::int32_t size) {
+  if(index == -1) {
+    return size - 1;
+  } else if(index == size) {
+    return 0;
+  } else {
+    return index;
+  }
+}
+
 static std::int32_t FindSuitableBlock(std::function<bool(TASScript*, size_t)> predicate, TASScript* script, Optimizer* opt) {
   if(script->blocks.size() == 0) {
     return -1;
@@ -422,16 +438,12 @@ static std::int32_t FindSuitableBlock(std::function<bool(TASScript*, size_t)> pr
 
   // Randomize the probe direction in order to get rid of bias
   std::int32_t probe_direction = (opt->Random(0, 1) > 0.5) ? 1 : -1;
-  std::int32_t probe_index = (index + probe_direction) % script->blocks.size();
+  std::int32_t probe_index = index + probe_direction;
+  probe_index = modulo(probe_index, script->blocks.size());
 
   while(!predicate(script, probe_index) && probe_index != index) {
     probe_index += probe_direction;
-
-    if(probe_index == -1) {
-      probe_index = script->blocks.size() -1;
-    } else if(probe_index == script->blocks.size()) {
-      probe_index = 0;
-    }
+    probe_index = modulo(probe_index, script->blocks.size());
   }
 
   // Went through every index
