@@ -411,21 +411,27 @@ void RollingStone::NextValue() {
 }
 
 static std::int32_t FindSuitableBlock(std::function<bool(TASScript*, size_t)> predicate, TASScript* script, Optimizer* opt) {
+  if(script->blocks.size() == 0) {
+    return -1;
+  }
+
   std::int32_t index = opt->m_RNG() % script->blocks.size();
   if(predicate(script, index)) {
     return index;
   }
 
   // Randomize the probe direction in order to get rid of bias
-  std::int32_t probe_direction = opt->m_RNG() % 2;
-  if(probe_direction == 0)
-    probe_direction = -1;
-  
+  std::int32_t probe_direction = (opt->Random(0, 1) > 0.5) ? 1 : -1;
   std::int32_t probe_index = (index + probe_direction) % script->blocks.size();
 
   while(!predicate(script, probe_index) && probe_index != index) {
     probe_index += probe_direction;
-    probe_index = probe_index % script->blocks.size();
+
+    if(probe_index == -1) {
+      probe_index = script->blocks.size() -1;
+    } else if(probe_index == script->blocks.size()) {
+      probe_index = 0;
+    }
   }
 
   // Went through every index
