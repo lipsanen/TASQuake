@@ -59,6 +59,7 @@ public:
 	void Prune(int min_frame, int max_frame);
 	void Prune(int min_frame);
 	void RemoveTogglesFromRange(const std::string& name, int min_frame, int max_frame);
+	bool ShiftBlocks(size_t blockIndex, int delta);
 };
 
 class TestScript
