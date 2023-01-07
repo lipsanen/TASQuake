@@ -137,6 +137,7 @@ TEST_CASE("Optimizer playback stacking works")
     auto it = received->convars.find("tas_strafe_yaw");
     REQUIRE(it != received->convars.end());
     REQUIRE(it->second == 0.0);
+    REQUIRE(opt.m_uLastFrame == settings.m_iEndOffset);
 }
 
 TEST_CASE("Compounding index selection works")
