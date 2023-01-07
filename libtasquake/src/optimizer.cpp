@@ -570,7 +570,9 @@ void RNGBlockMover::Mutate(TASScript* script, Optimizer* opt) {
   FrameBlock* block = &script->blocks[index];
   size_t min, max;
   find_block_minmax(script, index, min, max);
-  block->frame = opt->Random(min, max + 1);
+  int result = opt->Random(min, max + 1);
+  int delta = result - block->frame;
+  script->ShiftBlocks(index, delta);
 }
 
 void FrameBlockMover::Mutate(TASScript* script, Optimizer* opt) {
@@ -629,8 +631,8 @@ void FrameBlockMover::Mutate(TASScript* script, Optimizer* opt) {
   }
   
   FrameBlock* block = &script->blocks[m_iCurrentBlockIndex];
-  block->frame = m_Stone.m_dCurrentValue;
-  int a = 0;
+  int delta = m_Stone.m_dCurrentValue - block->frame;
+  script->ShiftBlocks(m_iCurrentBlockIndex, delta);
 }
 
 void FrameBlockMover::Reset() {
@@ -830,8 +832,7 @@ void TurnOptimizer::Init(TASScript* script, Optimizer* opt) {
     m_iStrafeIndex = m_iTurnIndex;
   }
 
-  int frameDelta = opt->Random(1, 5);
-  int signedDelta = opt->Random(0, 1) > 0.5 ? frameDelta : -frameDelta;
+  int signedDelta = opt->Random(0, 1) > 0.5 ? 1 : -1;
 
   if(!script->ShiftBlocks(m_iTurnIndex, signedDelta)) {
     m_iTurnIndex = -1;
