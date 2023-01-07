@@ -8,6 +8,7 @@
 #include "strafing.hpp"
 #include "libtasquake/utils.hpp"
 
+const int OPTIMIZER_ID = 4;
 static std::map<int, std::vector<PathPoint>*> lines;
 static std::vector<Rect> rects;
 static byte color_green[4] = {0, 255, 0, 0};

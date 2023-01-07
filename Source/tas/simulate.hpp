@@ -77,3 +77,6 @@ extern cvar_t tas_predict;
 extern cvar_t tas_predict_amount;
 // desc: Display grenade prediction while paused in a TAS.
 extern cvar_t tas_predict_grenade;
+
+void Simulate_SV_Physics_Toss(edict_t* ent, double hfr);
+void SimulateSetMinMaxSize(edict_t* e, float* rmin, float* rmax);

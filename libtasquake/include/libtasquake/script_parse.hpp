@@ -56,10 +56,13 @@ public:
 	void Write_To_File();
 	std::vector<FrameBlock> blocks;
 	std::string file_name;
+	mutable int prev_block_number = 0;
 	void Prune(int min_frame, int max_frame);
 	void Prune(int min_frame);
 	void RemoveTogglesFromRange(const std::string& name, int min_frame, int max_frame);
+	void AddScript(const TASScript* script, int frame);
 	bool ShiftBlocks(size_t blockIndex, int delta);
+	int GetBlockIndex(int frame) const;
 };
 
 class TestScript

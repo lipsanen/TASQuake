@@ -29,57 +29,7 @@ int PlaybackInfo::GetBlockNumber(int frame) const
 	if (frame == -1)
 		frame = current_frame;
 
-	const size_t MAX_LINEAR_SEARCH_SIZE = 16;
-	size_t blocks = current_script.blocks.size();
-
-	if(blocks == 0) {
-		return blocks;
-	}
-
-	if(blocks < MAX_LINEAR_SEARCH_SIZE) {
-		for (int i = 0; i < blocks; ++i)
-		{
-			if (current_script.blocks[i].frame >= frame)
-			{
-				return i;
-			}
-		}
-	} else {
-		size_t low = 0;
-		size_t high = blocks;
-
-		if(current_script.blocks[prev_block_number].frame >= frame) {
-			if(prev_block_number == 0) {
-				return prev_block_number;
-			} else if(current_script.blocks[prev_block_number-1].frame < frame) {
-				return prev_block_number;
-			}
-		}
-
-		// Binary search for higher block counts
-		while(low < high - 1) {
-			size_t mid = (low + high) / 2;
-			if (current_script.blocks[mid].frame == frame) {
-				low = mid;
-				break;
-			} else if (current_script.blocks[mid].frame > frame) {
-				high = mid;
-			} else {
-				low = mid;
-			}
-		}
-
-		// Fix up the index
-		if(current_script.blocks[low].frame < frame) {
-			prev_block_number = low + 1;
-		} else {
-			prev_block_number = low;
-		}
-
-		return prev_block_number;
-	}
-
-	return current_script.blocks.size();
+	return current_script.GetBlockIndex(frame);
 }
 
 int PlaybackInfo::Get_Number_Of_Blocks() const

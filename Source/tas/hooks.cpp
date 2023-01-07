@@ -6,6 +6,7 @@
 #include "camera.hpp"
 #include "draw.hpp"
 #include "hud.hpp"
+#include "optimizer.hpp"
 #include "reset.hpp"
 #include "script_playback.hpp"
 #include "simulate.hpp"
@@ -174,6 +175,8 @@ void TAS_Init()
 	Cmd_AddCommand("+tas_lgagst", IN_TAS_Lgagst_Down);
 	Cmd_AddCommand("-tas_lgagst", IN_TAS_Lgagst_Up);
 
+	Cmd_AddCommand("tas_optimizer_accept", Cmd_TAS_Optimizer_Accept);
+
 	Cmd_AddCommand("tas_reward_delete_all", Cmd_TAS_Reward_Delete_All);
 	Cmd_AddCommand("tas_reward_dump", Cmd_TAS_Reward_Dump);
 	Cmd_AddCommand("tas_reward_gate", Cmd_TAS_Reward_Gate);
@@ -190,6 +193,8 @@ void TAS_Init()
 	Cmd_AddCommand("tas_ss_clear", Cmd_TAS_SS_Clear);
 	Cmd_AddCommand("tas_savestate", Cmd_TAS_Savestate);
 	Cmd_AddCommand("tas_trace_edict", Cmd_TAS_Trace_Edict);
+	Cvar_Register(&tas_optimizer_goal);
+	Cvar_Register(&tas_optimizer);
 	Cvar_Register(&tas_playing);
 	Cvar_Register(&tas_pause_onload);
 	Cvar_Register(&tas_strafe);
@@ -208,6 +213,7 @@ void TAS_Init()
 	Cvar_Register(&tas_freecam_speed);
 	Cvar_Register(&tas_hud_frame);
 	Cvar_Register(&tas_hud_block);
+	Cvar_Register(&tas_hud_optimizer);
 	Cvar_Register(&tas_hud_particles);
 	Cvar_Register(&tas_hud_pos);
 	Cvar_Register(&tas_hud_pos_inc);

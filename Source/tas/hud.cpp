@@ -3,9 +3,9 @@
 #include "hooks.h"
 
 #include "script_playback.hpp"
+#include "optimizer.hpp"
 #include "strafing.hpp"
 #include "libtasquake/utils.hpp"
-
 
 cvar_t tas_hud_pos = {"tas_hud_pos", "0"};
 cvar_t tas_hud_angles = {"tas_hud_angles", "0"};
@@ -26,6 +26,7 @@ cvar_t tas_hud_movemessages = {"tas_hud_movemessages", "0"};
 cvar_t tas_hud_strafeinfo = {"tas_hud_strafeinfo", "0"};
 cvar_t tas_hud_rng = {"tas_hud_rng", "0"};
 cvar_t tas_hud_particles = { "tas_hud_particles", "0" };
+cvar_t tas_hud_optimizer = { "tas_hud_optimizer", "0" };
 
 void Draw(int& y, cvar_t* cvar, const char* format, ...)
 {
@@ -63,6 +64,17 @@ bool Should_Print_Cvar(const std::string& name, float value)
 	sscanf(cvar->defaultvalue, "%f", &default_value);
 
 	return cvar != NULL && default_value != value;
+}
+
+static void DrawOptimizerState(int& y, const PlaybackInfo* info) {
+	if (!tas_hud_optimizer.value || info->Get_Last_Frame() == 0 || !tas_playing.value)
+		return;
+	
+	Draw(y, &tas_hud_optimizer, "Optimizer:");
+	Draw(y, &tas_hud_optimizer, "Goal: %s", TASQuake::OptimizerGoalStr());
+	Draw(y, &tas_hud_optimizer, "Original: %f", TASQuake::OriginalEfficacy());
+	Draw(y, &tas_hud_optimizer, "Optimized: %f", TASQuake::OptimizedEfficacy());
+	Draw(y, &tas_hud_optimizer, "Iterations: %lu", TASQuake::OptimizerIterations());
 }
 
 void DrawFrameState(int& y, const PlaybackInfo* info)
@@ -332,6 +344,7 @@ void HUD_Draw_Hook()
 	Draw(y, &tas_hud_waterlevel, "waterlevel: %d", (int)sv_player->v.waterlevel);
 	Draw(y, &tas_hud_movemessages, "cl.movemessages: %d", cl.movemessages);
 	Draw(y, &tas_hud_rng, "rng index: %d", Get_RNG_Index());
+	DrawOptimizerState(y, info);
 	DrawParticleCount(y);
 	Draw_PFlags(y);
 	DrawFrameState(y, info);

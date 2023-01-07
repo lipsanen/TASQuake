@@ -41,6 +41,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 
 qboolean isDedicated = false;
+extern cvar_t tas_playing;
+extern cvar_t tas_timescale;
 
 int	nostdout = 0;
 
@@ -307,24 +309,25 @@ int main (int argc, char **argv)
 	while (1)
 	{
 // find time spent rendering last frame
-		newtime = Sys_DoubleTime ();
+		newtime = Sys_DoubleTime();
 		time = newtime - oldtime;
 
-		if (cls.state == ca_dedicated)
-		{	// play vcrfiles at max speed
-			if (time < sys_ticrate.value && (!vcrFile || recording))
+		if (tas_playing.value != 0)
+		{	
+			float effective_fps = bound(10, cl_maxfps.value, 72);
+
+			if (tas_playing.value)
+				effective_fps *= tas_timescale.value;
+
+			while (time < 1 / effective_fps)
 			{
 				usleep (1);
-				continue;       // not time to run a server only tic yet
+				newtime = Sys_DoubleTime();
+				time = newtime - oldtime;
 			}
-			time = sys_ticrate.value;
 		}
 
-		if (time > sys_ticrate.value * 2)
-			oldtime = newtime;
-		else
-			oldtime += time;
-
+		oldtime = newtime;
 		Host_Frame (time);
 
 // graphic debugging aids
