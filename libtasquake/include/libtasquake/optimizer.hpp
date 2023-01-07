@@ -23,33 +23,52 @@ namespace TASQuake {
 
     enum class BinarySearchState { 
         NoSearch, // No search is in progress
-        Probe, // Sent out a positive or negative probe
         MappingSpace, // Some improvement found, looking for max that gives worse result than current value
-        BinarySearch // Found min and max, now searching
+        BinarySearch, // Found min and max, now searching
+        Finished
+    };
+
+    struct ValueEfficacyPair {
+        double value = 0;
+        double efficacy = 0;
+    };
+
+    enum class CliffState { NotCliffing, InProgress, Finished };
+
+    // In finding a cliff, we expect the function to rise until it falls off a cliff
+    // Therefore we can expect the value to steadily rise until we reach the edge
+    struct CliffFinder {
+        void Init(double edgeEfficacy, double edgePosition, double groundEfficacy, double groundPosition, double epsilon=1e-5);
+        void Init(const std::vector<TASQuake::ValueEfficacyPair>& vec, double epsilon=1e-5);
+        void Report(double result);
+        double GetValue() const;
+        void Reset();
+
+        CliffState m_eState = CliffState::NotCliffing;
+        double m_dEdgeEfficacy = 0;
+        double m_dEdge = 0;
+        double m_dGroundEfficacy = 0;
+        double m_dGround = 0;
+        double m_dEpsilon = 1e-5;
     };
 
     struct BinSearcher {
         // If min addition set, provides a lower bound for the next value to be tried
-        void Init(double orig, double start, double min_addition, double min, double max, double orig_efficacy);
-        void SetRandomStartOffset(double orig, double rng_seed);
-        double GiveNewValue() const;
+        void Init(double orig, double orig_efficacy, double max, double eps=1e-5);
+        double GetValue() const;
         void Report(double result); // Report the result of the iteration in higher = better format
         void Reset();
 
-        // Constant
         const std::uint32_t m_uMappingIterations = 5;
-        double m_dMinAddition = 0;
-        double m_dRangeMin = 0;
-        double m_dRangeMax = 0;
+        CliffFinder m_Cliffer;
 
-        bool m_bInitialized = false;
-        double m_dOrigEfficacy = 0;
-        double m_dMinEfficacy = 0, m_dMaxEfficacy = 0;
-        double m_dMin = 0, m_dMax = 1;
+        double m_dRangeMax = 0;
         double m_dOriginalValue = 0;
+        double m_dEPS = 1e-5;
+        std::vector<ValueEfficacyPair> m_vecMapping;
         std::uint32_t m_uMappingIteration = 0;
         BinarySearchState m_eSearchState = BinarySearchState::NoSearch;
-        bool m_bIsInteger = true;
+        bool m_bInitialized = false;
     };
 
     // The world's only stone that rolls uphill
@@ -65,25 +84,6 @@ namespace TASQuake {
         double m_dMax = 0;
     };
 
-    enum class CliffState { NotCliffing, InProgress, Finished };
-
-    // In finding a cliff, we expect the function to rise until it falls off a cliff
-    // Therefore we can expect the value to steadily rise until we reach the edge
-    struct CliffFinder {
-        void Init(double edgeEfficacy, double edgePosition, double groundEfficacy, double groundPosition, double epsilon=1e-5);
-        void Report(double result);
-        double GetValue() const;
-        CliffState GetState() const;
-        void Reset();
-
-        CliffState m_eState = CliffState::NotCliffing;
-        double m_dEdgeEfficacy = 0;
-        double m_dEdge = 0;
-        double m_dGroundEfficacy = 0;
-        double m_dGround = 0;
-        double m_dEpsilon = 1e-5;
-    };
-
     class TurnOptimizer : public OptimizerAlgorithm {
     public:
         virtual void Mutate(TASScript* script, Optimizer* opt) override;
@@ -93,9 +93,12 @@ namespace TASQuake {
         virtual int IterationsExpected() override { return 1; }
         virtual void ReportResult(double efficacy) override;
     private:
+        void Init(TASScript* script, Optimizer* opt);
         std::int32_t m_iTurnIndex = -1;
-        RollingStone m_Stone;
-        CliffFinder m_CliffFinder;
+        std::int32_t m_iStrafeIndex = -1;
+        float m_fOrigStrafeYaw = 0.0f;
+        double m_dSearchMax = 0.0;
+        BinSearcher m_Searcher;
     };
 
     class RNGStrafer : public OptimizerAlgorithm {

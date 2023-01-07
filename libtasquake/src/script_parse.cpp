@@ -360,6 +360,32 @@ void TASScript::RemoveTogglesFromRange(const std::string& name, int min_frame, i
 	);
 }
 
+bool TASScript::ShiftBlocks(size_t blockIndex, int delta) {
+	int current_frame = blocks[blockIndex].frame;
+
+	if(delta < 0) {
+		int minValue;
+		if(blockIndex == 0) {
+			minValue = 0;
+		} else {
+			minValue = blocks[blockIndex - 1].frame;
+		}
+		int minDelta = minValue - current_frame;
+		if(minDelta > delta) {
+			delta = minDelta;
+		}
+	}
+
+	if(delta == 0)
+		return false;
+
+	for(size_t i=blockIndex; i < blocks.size(); ++i) {
+		blocks[i].frame += delta;
+	}
+
+	return true;
+}
+
 TestScript::TestScript()
 {
 }

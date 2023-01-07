@@ -110,3 +110,29 @@ TEST_CASE("Optimizer bench") {
         meter.measure([&]{TASQuake::BenchTest(CornerFunc, &settings, &info, optimal);});
     };
 }
+
+
+TEST_CASE("Turn bench") {
+    BENCHMARK_ADVANCED("Turn bench")(Catch::Benchmark::Chronometer meter) {
+        PlaybackInfo info;
+        FrameBlock block1;
+        block1.convars["tas_strafe_yaw"] = 0.0;
+        block1.convars["tas_strafe"] = 1.0;
+
+        FrameBlock block2;
+        block2.convars["tas_strafe_yaw"] = 90.0;
+        block2.frame = 100;
+
+        info.current_script.blocks.push_back(block1);
+        info.current_script.blocks.push_back(block2);
+
+        TASQuake::OptimizerSettings settings;
+        settings.m_uResetToBestIterations = 1;
+        settings.m_vecAlgorithms.push_back(std::shared_ptr<TASQuake::OptimizerAlgorithm>(new TASQuake::StrafeAdjuster()));
+        settings.m_vecAlgorithms.push_back(std::shared_ptr<TASQuake::OptimizerAlgorithm>(new TASQuake::FrameBlockMover()));
+        settings.m_vecAlgorithms.push_back(std::shared_ptr<TASQuake::OptimizerAlgorithm>(new TASQuake::TurnOptimizer()));
+        double optimal = 132.5;
+
+        meter.measure([&]{TASQuake::BenchTest(CornerFunc, &settings, &info, optimal);});
+    };
+}

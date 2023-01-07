@@ -1,6 +1,7 @@
 #include "libtasquake/optimizer.hpp"
 #include "libtasquake/utils.hpp"
 #include <functional>
+#include <cmath>
 #include <limits>
 
 using namespace TASQuake;
@@ -39,9 +40,11 @@ OptimizerState Optimizer::OnRunnerFrame(const FrameData* data)
 			m_settings.m_Goal = AutoGoal(m_currentRun.m_vecData);
 		}
 
+
 		if (m_currentRun.IsBetterThan(m_currentBest, m_settings.m_Goal))
 		{
 			m_currentBest = m_currentRun;
+      double efficacy = m_currentRun.RunEfficacy(m_settings.m_Goal);
 			m_uIterationsWithoutProgress = 0;
 		}
 		else
@@ -60,6 +63,7 @@ OptimizerState Optimizer::OnRunnerFrame(const FrameData* data)
         double efficacy = m_currentRun.RunEfficacy(m_settings.m_Goal);
         ptr->ReportResult(efficacy);
         if(!ptr->WantsToContinue()) {
+          ptr->Reset();
           m_iCurrentAlgorithm = -1;
           if(m_uIterationsWithoutProgress >= m_settings.m_uResetToBestIterations) {
             m_currentRun.playbackInfo.current_script = m_currentBest.playbackInfo.current_script;
@@ -307,109 +311,75 @@ void OptimizerRun::StrafeBounds(size_t blockIndex, float& min, float& max) const
   }
 }
 
-void BinSearcher::Init(double orig, double start, double min_addition, double min, double max, double orig_efficacy)
+void BinSearcher::Init(double orig, double orig_efficacy, double max, double eps)
 {
-	m_eSearchState = BinarySearchState::Probe;
-	m_dOriginalValue = orig;
-	m_dMin = start;
-  m_dMinAddition = min_addition;
-  m_dRangeMin = min;
+	m_eSearchState = BinarySearchState::MappingSpace;
+  m_Cliffer.Reset();
+	m_vecMapping.clear();
+  m_dOriginalValue = orig;
   m_dRangeMax = max;
   m_bInitialized = true;
+  m_dEPS = eps;
+  m_vecMapping.push_back({orig, orig_efficacy});
 }
 
-void BinSearcher::SetRandomStartOffset(double orig, double rng_seed) {
-  double start = orig;
-  if(rng_seed > 0.5) {
-    start += m_dMinAddition;
-  } else {
-    start -= m_dMinAddition;
-  }
+static double GetMappingValue(size_t iteration, size_t totalIterations, double rangeMax, double orig) {
+  double range = (rangeMax - orig);
+  double m_uMappingDelta = totalIterations - iteration;
+  // Try different deltas with log scaling
+  double addition = range * std::pow(2, -m_uMappingDelta);
+  return orig + addition;
 }
 
-double BinSearcher::GiveNewValue() const
+double BinSearcher::GetValue() const
 {
 	if (m_eSearchState == BinarySearchState::NoSearch)
 	{
 		abort(); // Not initialized on entry
-	}
-
-	double output;
-
-  if(m_eSearchState == BinarySearchState::Probe) {
-    output = m_dMin;
-  } else if (m_eSearchState == BinarySearchState::MappingSpace) {
-    double range;
-
-    if(m_dMin > m_dOriginalValue) {
-      range = m_dRangeMax - m_dMin;
+	} else if(m_eSearchState == BinarySearchState::Finished) {
+    if(m_Cliffer.m_eState == CliffState::Finished) {
+      return m_Cliffer.GetValue();
     } else {
-      range = m_dMin - m_dRangeMin;
+      return m_dOriginalValue;
     }
+  }
 
-		double m_uMappingDelta = m_uMappingIterations - m_uMappingIteration;
-		// Try different deltas with log scaling
-		double addition = range * std::pow(2, -m_uMappingDelta);
-		output = m_dOriginalValue + addition;
+  if (m_eSearchState == BinarySearchState::MappingSpace) {
+		return GetMappingValue(m_uMappingIteration, m_uMappingIterations, m_dRangeMax, m_dOriginalValue);
+	} else {
+		return m_Cliffer.GetValue();
 	}
-	else {
-		output = (m_dMax + m_dMin) / 2;
-	}
-
-	return output;
 }
 
 void BinSearcher::Report(double result) {
   if(m_eSearchState == BinarySearchState::NoSearch) {
     abort();
-  } else if(m_eSearchState == BinarySearchState::Probe) {
-    if(result > m_dOrigEfficacy) {
-      m_dMinEfficacy = result;
-      m_eSearchState = BinarySearchState::MappingSpace;
-    } else {
-      m_eSearchState = BinarySearchState::NoSearch;
-    }
   } else if (m_eSearchState == BinarySearchState::MappingSpace) {
-    m_dMax = GiveNewValue();
-    if(result < m_dMinEfficacy || m_uMappingIterations < m_uMappingIteration) {
-      m_dMaxEfficacy = result;
+    m_vecMapping.push_back({GetValue(), result});
+    if(m_uMappingIterations == m_uMappingIteration) {
+      m_Cliffer.Init(m_vecMapping, m_dEPS);
       m_eSearchState = BinarySearchState::BinarySearch;
     } else {
-      m_dMinEfficacy = result;
-      m_dMin = m_dMax;
+      ++m_uMappingIteration;
     }
-    ++m_uMappingIteration;
   } else {
-    if(m_dMax > m_dMin) {
-      m_dMin = (m_dMax + m_dMin) / 2;
-      m_dMinEfficacy = result;
-    } else {
-      m_dMax = (m_dMax + m_dMin) / 2;
-      m_dMaxEfficacy;
-    }
+    m_Cliffer.Report(result);
 
-    double delta = std::abs(m_dMax - m_dMin);
-    if(delta <= m_dMinAddition) {
-      m_eSearchState = BinarySearchState::NoSearch;
+    if(m_Cliffer.m_eState == TASQuake::CliffState::Finished) {
+      m_eSearchState = BinarySearchState::Finished;
     }
   }
 }
 
 void BinSearcher::Reset()
 {
-  m_dMinAddition = 0;
-  m_dRangeMin = 0;
   m_dRangeMax = 0;
   m_bInitialized = false;
-  m_dMin = 0;
-  m_dMax = 1;
   m_dOriginalValue = 0;
   m_uMappingIteration = 0;
   m_eSearchState = BinarySearchState::NoSearch;
-  m_bIsInteger = true;
-  m_dMinEfficacy = 0;
-  m_dMaxEfficacy = 0;
-  m_dOrigEfficacy = 0;
+  m_dEPS = 1e-5;
+  m_Cliffer.Reset();
 }
 
 void RollingStone::Init(double efficacy, double startValue, double startDelta, double maxValue)
@@ -446,7 +416,7 @@ static std::int32_t FindSuitableBlock(std::function<bool(TASScript*, size_t)> pr
     return index;
   }
 
-  // Randomize the probe direction in order to 
+  // Randomize the probe direction in order to get rid of bias
   std::int32_t probe_direction = opt->m_RNG() % 2;
   if(probe_direction == 0)
     probe_direction = -1;
@@ -710,6 +680,52 @@ void CliffFinder::Init(double edgeEfficacy, double edgePosition, double groundEf
   m_dEpsilon = epsilon;
 }
 
+void CliffFinder::Init(const std::vector<TASQuake::ValueEfficacyPair>& vec, double epsilon) {
+  if(vec.size() < 2) {
+    return;
+  }
+
+  size_t rising_index = 0;
+  double rising_max_value = vec[0].efficacy;
+  double rising_drop = 0;
+
+  for(size_t i=1; i < vec.size(); ++i) {
+    if(vec[i].efficacy >= rising_max_value) {
+      rising_max_value = vec[i].efficacy;
+    } else if(vec[i-1].efficacy == rising_max_value) {
+      double drop = rising_max_value - vec[i].efficacy;
+
+      if(drop > rising_drop) {
+        rising_index = i-1;
+        rising_drop = drop;
+      }
+    }
+  }
+
+  int falling_index = vec.size() - 1;
+  double falling_max_value = vec[falling_index].efficacy;
+  double falling_drop = 0;
+
+  for(int i=vec.size()-2; i >= 0; --i) {
+    if(vec[i].efficacy >= falling_max_value) {
+      falling_max_value = vec[i].efficacy;
+    } else if(vec[i+1].efficacy == falling_max_value) {
+      double drop = falling_max_value - vec[i].efficacy;
+
+      if(drop > falling_drop) {
+        falling_index = i+1;
+        falling_drop = drop;
+      }
+    }
+  }
+
+  if(rising_drop > falling_drop) {
+    Init(vec[rising_index].efficacy, vec[rising_index].value, vec[rising_index+1].efficacy, vec[rising_index+1].value, epsilon);
+  } else if(rising_drop < falling_drop) {
+    Init(vec[falling_index].efficacy, vec[falling_index].value, vec[falling_index-1].efficacy, vec[falling_index-1].value, epsilon);
+  }
+}
+
 void CliffFinder::Report(double result) {
   double value = GetValue();
 
@@ -741,4 +757,91 @@ void CliffFinder::Reset() {
   m_dGroundEfficacy = 0;
   m_dGround = 0;
   m_dEpsilon = 1e-5;
+}
+
+void TurnOptimizer::Mutate(TASScript* script, Optimizer* opt) {
+  if(m_iTurnIndex == -1) {
+    Init(script, opt);
+  } else {
+    script->blocks[m_iStrafeIndex].convars["tas_strafe_yaw"] = NormalizeDeg(m_Searcher.GetValue());
+  }
+}
+
+void TurnOptimizer::Reset() {
+  m_Searcher.Reset();
+  m_iTurnIndex = -1;
+  m_iStrafeIndex = -1;
+  m_fOrigStrafeYaw = 0.0f;
+  m_dSearchMax = 0.0;
+}
+
+bool TurnOptimizer::WantsToRun(TASScript* script) {
+  return true;
+}
+
+bool TurnOptimizer::WantsToContinue() { 
+  bool isNotFinished = m_Searcher.m_eSearchState != BinarySearchState::Finished;
+  bool hasTurn = m_iTurnIndex != -1;
+  return hasTurn && isNotFinished;
+}
+
+void TurnOptimizer::ReportResult(double efficacy) {
+  if(m_Searcher.m_eSearchState == BinarySearchState::NoSearch) {
+    const double EPS = 1e-2;
+    m_Searcher.Init(m_fOrigStrafeYaw, efficacy, m_fOrigStrafeYaw + m_dSearchMax, EPS);
+  } else {
+    m_Searcher.Report(efficacy);
+  }
+}
+
+static size_t FindStrafeBlock(TASScript* script, size_t turnIndex) {
+  if(turnIndex == 0) {
+    return 0;
+  }
+
+  // Find the previous frameblock that altered strafe yaw
+  for(int i=turnIndex-1;i >= 0; --i) {
+    if(script->blocks[i].HasConvar("tas_strafe_yaw")) {
+      return i;
+    }
+  }
+
+  return turnIndex;
+}
+
+static bool IsTurnFrameBlock(TASScript* script, size_t blockIndex) {
+  bool has_yaw = script->blocks[blockIndex].HasConvar("tas_strafe_yaw");
+  bool has_prev = FindStrafeBlock(script, blockIndex) != blockIndex;
+
+  return has_yaw && has_prev;
+}
+
+void TurnOptimizer::Init(TASScript* script, Optimizer* opt) {
+  bool useDifferentIndex = true;
+  m_iTurnIndex = FindSuitableBlock(IsTurnFrameBlock, script, opt);
+
+  if(m_iTurnIndex == -1) {
+    return; // Failure, no turns
+  }
+
+  if(opt->Random(0, 1) > 0.25) {
+    m_iStrafeIndex = FindStrafeBlock(script, m_iTurnIndex);
+  } else {
+    m_iStrafeIndex = m_iTurnIndex;
+  }
+
+  int frameDelta = opt->Random(1, 5);
+  int signedDelta = opt->Random(0, 1) > 0.5 ? frameDelta : -frameDelta;
+
+  if(!script->ShiftBlocks(m_iTurnIndex, signedDelta)) {
+    m_iTurnIndex = -1;
+    m_iStrafeIndex = -1;
+    // Was unable to perform shift, give up
+    return;
+  }
+
+  m_fOrigStrafeYaw = script->blocks[m_iStrafeIndex].convars["tas_strafe_yaw"];
+  m_dSearchMax = opt->Random(-90, 90);
+  double absMax = std::max(0.1, std::abs(m_dSearchMax));
+  m_dSearchMax = std::copysign(absMax, m_dSearchMax);
 }
