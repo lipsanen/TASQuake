@@ -360,6 +360,80 @@ void TASScript::RemoveTogglesFromRange(const std::string& name, int min_frame, i
 	);
 }
 
+void TASScript::AddScript(const TASScript* script, int frame) {
+	size_t keep = 0;
+
+	for(size_t i=0; i < blocks.size(); ++i) {
+		if(blocks[i].frame < frame) {
+			++keep;
+		} else {
+			break;
+		}
+	}
+
+	blocks.resize(keep);
+	
+	for(size_t i=0; i < script->blocks.size(); ++i) {
+		FrameBlock block = script->blocks[i];
+		block.frame += frame;
+		blocks.push_back(std::move(block));
+	}
+}
+
+int TASScript::GetBlockIndex(int frame) const {
+	const size_t MAX_LINEAR_SEARCH_SIZE = 16;
+	size_t blockCount = blocks.size();
+
+	if(blockCount == 0) {
+		return blockCount;
+	}
+
+	if(blockCount < MAX_LINEAR_SEARCH_SIZE) {
+		for (int i = 0; i < blockCount; ++i)
+		{
+			if (blocks[i].frame >= frame)
+			{
+				return i;
+			}
+		}
+	} else {
+		size_t low = 0;
+		size_t high = blockCount;
+
+		if(blocks[prev_block_number].frame >= frame) {
+			if(prev_block_number == 0) {
+				return prev_block_number;
+			} else if(blocks[prev_block_number-1].frame < frame) {
+				return prev_block_number;
+			}
+		}
+
+		// Binary search for higher block counts
+		while(low < high - 1) {
+			size_t mid = (low + high) / 2;
+			if (blocks[mid].frame == frame) {
+				low = mid;
+				break;
+			} else if (blocks[mid].frame > frame) {
+				high = mid;
+			} else {
+				low = mid;
+			}
+		}
+
+		// Fix up the index
+		if(blocks[low].frame < frame) {
+			prev_block_number = low + 1;
+		} else {
+			prev_block_number = low;
+		}
+
+		return prev_block_number;
+	}
+
+	return blocks.size();
+}
+
 bool TASScript::ShiftBlocks(size_t blockIndex, int delta) {
 	int current_frame = blocks[blockIndex].frame;
 

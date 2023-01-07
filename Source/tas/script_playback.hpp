@@ -34,6 +34,8 @@ void Cmd_TAS_Script_Advance(void);
 // desc: Usage: tas_script_advance <frames>. Advances script by number of blocks given as argument. Use negative values \
 to go backwards.
 void Cmd_TAS_Script_Advance_Block(void);
+// desc: Applies the optimizer change to current script
+void Cmd_TAS_Optimizer_Accept(void);
 
 extern cvar_t tas_edit_backups;
 extern cvar_t tas_edit_snap_threshold;

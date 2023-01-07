@@ -7,14 +7,15 @@
 #include "hooks.h"
 
 #include "afterframes.hpp"
-#include "reset.hpp"
-#include "strafing.hpp"
-#include "libtasquake/script_parse.hpp"
-#include "libtasquake/utils.hpp"
-#include "utils.hpp"
-#include "savestate.hpp"
 #include "bookmark.hpp"
 #include "camera.hpp"
+#include "libtasquake/script_parse.hpp"
+#include "libtasquake/utils.hpp"
+#include "optimizer.hpp"
+#include "reset.hpp"
+#include "savestate.hpp"
+#include "strafing.hpp"
+#include "utils.hpp"
 
 static PlaybackInfo playback;
 const int LOWEST_FRAME = 0;
@@ -68,7 +69,6 @@ static bool Set_Pause_Frame(int pause_frame)
 	return true;
 }
 
-
 static void Savestate_Skip(int start_frame)
 {
 	playback.current_frame = start_frame;
@@ -81,7 +81,7 @@ static void Savestate_Skip(int start_frame)
 
 	for (auto& block : playback.current_script.blocks)
 	{
-		if(block.frame >= playback.current_frame)
+		if (block.frame >= playback.current_frame)
 			break;
 
 		playback.stacked.Stack(block);
@@ -101,7 +101,7 @@ static void Normal_Skip()
 
 void Run_Script(int frame, bool skip, bool ss)
 {
-	if(!Set_Pause_Frame(frame))
+	if (!Set_Pause_Frame(frame))
 		return;
 
 	playback.current_frame = 0;
@@ -152,7 +152,7 @@ static void Generic_Advance(int frame)
 
 bool CurrentFrameHasBlock(int frame)
 {
-	if(frame == -1)
+	if (frame == -1)
 		frame = playback.current_frame;
 
 	for (int i = 0; i < playback.current_script.blocks.size(); ++i)
@@ -196,7 +196,7 @@ static int AddBlock(int frame)
 	}
 }
 
-static FrameBlock* GetBlockForFrame(int frame=-1)
+static FrameBlock* GetBlockForFrame(int frame = -1)
 {
 	if (playback.current_script.blocks.empty())
 	{
@@ -244,8 +244,8 @@ static bool Has_Existing_Value(const char* name)
 {
 	auto curblock = GetBlockForFrame();
 
-	return curblock->convars.find(name) != curblock->convars.end() ||
-	playback.stacked.convars.find(name) != playback.stacked.convars.end();
+	return curblock->convars.find(name) != curblock->convars.end()
+	       || playback.stacked.convars.find(name) != playback.stacked.convars.end();
 }
 
 static bool Get_Stacked_Toggle(const char* cmd_name)
@@ -283,7 +283,7 @@ static void SetConvar(const char* name, float new_val, bool silent = false, int 
 	}
 
 	playback.last_edited = Sys_DoubleTime();
-	FrameBlock* block  = GetBlockForFrame(frame);
+	FrameBlock* block = GetBlockForFrame(frame);
 
 	if (!silent)
 		CenterPrint("Block: Added %s %f", name, new_val);
@@ -305,7 +305,7 @@ void SetToggle(const char* cmd, bool new_value, bool silent = false, int frame =
 
 	playback.last_edited = Sys_DoubleTime();
 	auto block = GetBlockForFrame(frame);
-	if(!silent)
+	if (!silent)
 		CenterPrint("Block: Added %c%s", new_value ? '+' : '-', cmd);
 
 	if (Get_Stacked_Toggle(cmd) == new_value && block->toggles.find(cmd) != block->toggles.end())
@@ -347,7 +347,7 @@ static void ApplyMouseStuff()
 void Script_Playback_Host_Frame_Hook()
 {
 	// TODO: Make this function less disgusting
-	
+
 	if (tas_gamestate == loading)
 		return;
 
@@ -369,8 +369,8 @@ void Script_Playback_Host_Frame_Hook()
 
 	if (tas_gamestate == paused || !playback.script_running)
 		return;
-	else if (playback.current_frame >= playback.pause_frame 
-	&& !svs.changelevel_issued && !scr_disabled_for_loading && (cls.state == ca_connected && cls.signon >= SIGNONS)) // make sure we dont TAS pause mid-load
+	else if (playback.current_frame >= playback.pause_frame && !svs.changelevel_issued && !scr_disabled_for_loading
+	         && (cls.state == ca_connected && cls.signon >= SIGNONS)) // make sure we dont TAS pause mid-load
 	{
 		tas_gamestate = paused;
 		playback.script_running = false;
@@ -492,13 +492,24 @@ void Cmd_TAS_Script_Load(void)
 	char name[256];
 	sprintf(name, "%s/tas/%s", com_gamedir, Cmd_Argv(1));
 	COM_ForceExtension(name, ".qtas");
-	
+
 	if (TAS_Script_Load(name))
 	{
 		tas_playing.value = 0;
 		tas_gamestate = unpaused;
 		Cbuf_AddText("disconnect");
 	}
+}
+
+void Cmd_TAS_Optimizer_Accept(void) {
+	if(!playback.In_Edit_Mode()) {
+		Con_Print("Need to be in edit mode to apply optimizer changes\n");
+		return;
+	}
+
+	auto* script = TASQuake::GetOptimizedVersion();
+	playback.current_script.AddScript(script, playback.current_frame);
+	playback.last_edited = Sys_DoubleTime();
 }
 
 void Cmd_TAS_Script_Play(void)
@@ -1062,17 +1073,17 @@ void Cmd_TAS_Revert(void)
 	m_state = MouseState::Locked;
 }
 
-
 qboolean Script_Playback_Cmd_ExecuteString_Hook(const char* text)
 {
 	if (!playback.In_Edit_Mode())
 		return qfalse;
 
 	char* name = Cmd_Argv(0);
-	static char lowercase [33];
+	static char lowercase[33];
 	strcpy(lowercase, name);
 	int len = strlen(name);
-	for (int i = 0; i <= len; ++i) {
+	for (int i = 0; i <= len; ++i)
+	{
 		lowercase[i] = tolower(name[i]);
 	}
 
@@ -1124,7 +1135,7 @@ qboolean Script_Playback_Cmd_ExecuteString_Hook(const char* text)
 	return qfalse;
 }
 
-bool TAS_Game_Paused() {
+bool TAS_Game_Paused()
+{
 	return tas_gamestate == paused && tas_playing.value;
 }
-

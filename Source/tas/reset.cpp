@@ -23,7 +23,8 @@ static const char* const EXCLUDE_CVARS[] = {"gl_texturemode",
 											"r_fullbright",
 											"tas_ipc",
 											"tas_reward",
-											"tas_freecam"};
+											"tas_freecam",
+											"tas_optimizer"};
 
 static const char* const INCLUDE_SUBSTR[] = {"cl_", "sv_", "tas_", "gl_", "r_", "v_centerspeed"};
 

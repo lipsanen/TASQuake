@@ -41,5 +41,7 @@ extern cvar_t tas_hud_strafeinfo;
 extern cvar_t tas_hud_rng;
 //desc: Displays the number of particles alive
 extern cvar_t tas_hud_particles;
+//desc: Displays the optimizer HUD
+extern cvar_t tas_hud_optimizer;
 
 void HUD_Draw_Hook();
