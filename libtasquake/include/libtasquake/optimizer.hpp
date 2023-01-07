@@ -65,6 +65,39 @@ namespace TASQuake {
         double m_dMax = 0;
     };
 
+    enum class CliffState { NotCliffing, InProgress, Finished };
+
+    // In finding a cliff, we expect the function to rise until it falls off a cliff
+    // Therefore we can expect the value to steadily rise until we reach the edge
+    struct CliffFinder {
+        void Init(double edgeEfficacy, double edgePosition, double groundEfficacy, double groundPosition, double epsilon=1e-5);
+        void Report(double result);
+        double GetValue() const;
+        CliffState GetState() const;
+        void Reset();
+
+        CliffState m_eState = CliffState::NotCliffing;
+        double m_dEdgeEfficacy = 0;
+        double m_dEdge = 0;
+        double m_dGroundEfficacy = 0;
+        double m_dGround = 0;
+        double m_dEpsilon = 1e-5;
+    };
+
+    class TurnOptimizer : public OptimizerAlgorithm {
+    public:
+        virtual void Mutate(TASScript* script, Optimizer* opt) override;
+        virtual void Reset() override;
+        virtual bool WantsToRun(TASScript* script) override;
+        virtual bool WantsToContinue() override;
+        virtual int IterationsExpected() override { return 1; }
+        virtual void ReportResult(double efficacy) override;
+    private:
+        std::int32_t m_iTurnIndex = -1;
+        RollingStone m_Stone;
+        CliffFinder m_CliffFinder;
+    };
+
     class RNGStrafer : public OptimizerAlgorithm {
     public:
         virtual void Mutate(TASScript* script, Optimizer* opt) override;

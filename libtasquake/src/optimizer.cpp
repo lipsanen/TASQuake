@@ -700,3 +700,45 @@ void FrameData::FindSmallestStrafeYawIncrements(float strafe_yaw, float& min, fl
     max = std::min(max, absDiffDeg);
   }
 }
+
+void CliffFinder::Init(double edgeEfficacy, double edgePosition, double groundEfficacy, double groundPosition, double epsilon) {
+  m_dEdge = edgePosition;
+  m_dEdgeEfficacy = edgeEfficacy;
+  m_dGround = groundPosition;
+  m_dGroundEfficacy = groundEfficacy;
+  m_eState = CliffState::InProgress;
+  m_dEpsilon = epsilon;
+}
+
+void CliffFinder::Report(double result) {
+  double value = GetValue();
+
+  if(result >= m_dEdgeEfficacy) {
+    m_dEdge = value;
+    m_dEdgeEfficacy = result;
+  } else {
+    m_dGround = value;
+    m_dGroundEfficacy = result;
+  }
+
+  if(std::abs(m_dEdge - m_dGround) < m_dEpsilon) {
+    m_eState = CliffState::Finished;
+  }
+}
+
+double CliffFinder::GetValue() const {
+  if(m_eState == CliffState::Finished) {
+    return m_dEdge;
+  } else {
+    return (m_dEdge + m_dGround) / 2;
+  }
+}
+
+void CliffFinder::Reset() {
+  m_eState = CliffState::NotCliffing;
+  m_dEdgeEfficacy = 0;
+  m_dEdge = 0;
+  m_dGroundEfficacy = 0;
+  m_dGround = 0;
+  m_dEpsilon = 1e-5;
+}

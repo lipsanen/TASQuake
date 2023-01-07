@@ -3,6 +3,7 @@ list(APPEND LIBTASQUAKE_TEST_SOURCES
   "bench_frameblock.cpp"
   "binsearch_test.cpp"
   "catch_amalgamated.cpp"
+  "cliff_tests.cpp"
   "framedata_tests.cpp"
   "rollingstone_test.cpp"
   "optimizer_test.cpp"
