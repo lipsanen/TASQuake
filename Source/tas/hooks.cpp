@@ -7,6 +7,7 @@
 #include "draw.hpp"
 #include "hud.hpp"
 #include "optimizer.hpp"
+#include "real_prediction.hpp"
 #include "reset.hpp"
 #include "script_playback.hpp"
 #include "simulate.hpp"
@@ -241,6 +242,7 @@ void TAS_Init()
 	Cvar_Register(&tas_predict_grenade);
 	Cvar_Register(&tas_predict_per_frame);
 	Cvar_Register(&tas_predict_amount);
+	Cvar_Register(&tas_predict_real);
 	Cvar_Register(&tas_reward_display);
 	Cvar_Register(&tas_reward_size);
 	Cvar_Register(&tas_savestate_auto);
@@ -341,6 +343,7 @@ void _Host_Frame_After_FilterTime_Hook()
 	Test_Runner_Frame_Hook();
 	IPC_Loop();
 	Bookmark_Frame_Hook();
+	GamePrediction_Frame_Hook();
 	Simulate_Frame_Hook();
 	Script_Playback_Host_Frame_Hook();
 
