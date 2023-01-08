@@ -27,6 +27,61 @@ const FrameBlock* Optimizer::GetCurrentFrameBlock() const
 	}
 }
 
+void Optimizer::_FinishIteration(OptimizerState& state) {
+  if (m_settings.m_Goal == OptimizerGoal::Undetermined)
+  {
+    m_settings.m_Goal = AutoGoal(m_currentRun.m_vecData);
+    
+    for(size_t i=0; i < m_currentRun.m_vecData.size(); i += 36) {
+      m_vecNodes.push_back(m_currentRun.m_vecData[i].pos);
+    }
+  }
+
+  if (m_currentRun.IsBetterThan(m_currentBest, m_settings.m_Goal, m_vecNodes))
+  {
+    m_currentBest = m_currentRun;
+    double efficacy = m_currentRun.RunEfficacy(m_settings.m_Goal, m_vecNodes);
+    m_uIterationsWithoutProgress = 0;
+  }
+  else
+  {
+    m_uIterationsWithoutProgress += 1;
+  }
+
+  if (m_uIterationsWithoutProgress >= m_settings.m_uGiveUpAfterNoProgress)
+  {
+    state = OptimizerState::Stop;
+  }
+  else
+  {
+    if(m_iCurrentAlgorithm != -1) { 
+      auto ptr = m_settings.m_vecAlgorithms[m_iCurrentAlgorithm];
+      double efficacy = m_currentRun.RunEfficacy(m_settings.m_Goal, m_vecNodes);
+      ptr->ReportResult(efficacy);
+      if(!ptr->WantsToContinue()) {
+        ptr->Reset();
+        m_iCurrentAlgorithm = -1;
+        if(m_uIterationsWithoutProgress >= m_settings.m_uResetToBestIterations) {
+          m_currentRun.playbackInfo.current_script = m_currentBest.playbackInfo.current_script;
+          efficacy = m_currentRun.RunEfficacy(m_settings.m_Goal, m_vecNodes);
+        }
+      }
+    }
+
+    // Might be empty in some test cases
+    if (!m_settings.m_vecAlgorithms.empty())
+    {
+      if(m_iCurrentAlgorithm == -1) {
+        m_iCurrentAlgorithm = RandomizeIndex();
+      }
+      auto ptr = m_settings.m_vecAlgorithms[m_iCurrentAlgorithm];
+      ptr->Mutate(&m_currentRun.playbackInfo.current_script, this);
+    }
+
+    state = OptimizerState::NewIteration;
+  }
+}
+
 OptimizerState Optimizer::OnRunnerFrame(const FrameData* data)
 {
 	m_currentRun.m_vecData.push_back(*data);
@@ -35,55 +90,7 @@ OptimizerState Optimizer::OnRunnerFrame(const FrameData* data)
 
 	if (m_currentRun.playbackInfo.current_frame == m_uLastFrame)
 	{
-		if (m_settings.m_Goal == OptimizerGoal::Undetermined)
-		{
-			m_settings.m_Goal = AutoGoal(m_currentRun.m_vecData);
-		}
-
-
-		if (m_currentRun.IsBetterThan(m_currentBest, m_settings.m_Goal))
-		{
-			m_currentBest = m_currentRun;
-      double efficacy = m_currentRun.RunEfficacy(m_settings.m_Goal);
-			m_uIterationsWithoutProgress = 0;
-		}
-		else
-		{
-			m_uIterationsWithoutProgress += 1;
-		}
-
-		if (m_uIterationsWithoutProgress >= m_settings.m_uGiveUpAfterNoProgress)
-		{
-			state = OptimizerState::Stop;
-		}
-		else
-		{
-      if(m_iCurrentAlgorithm != -1) { 
-				auto ptr = m_settings.m_vecAlgorithms[m_iCurrentAlgorithm];
-        double efficacy = m_currentRun.RunEfficacy(m_settings.m_Goal);
-        ptr->ReportResult(efficacy);
-        if(!ptr->WantsToContinue()) {
-          ptr->Reset();
-          m_iCurrentAlgorithm = -1;
-          if(m_uIterationsWithoutProgress >= m_settings.m_uResetToBestIterations) {
-            m_currentRun.playbackInfo.current_script = m_currentBest.playbackInfo.current_script;
-            efficacy = m_currentRun.RunEfficacy(m_settings.m_Goal);
-          }
-        }
-      }
-
-			// Might be empty in some test cases
-			if (!m_settings.m_vecAlgorithms.empty())
-			{
-        if(m_iCurrentAlgorithm == -1) {
-				  m_iCurrentAlgorithm = RandomizeIndex();
-        }
-				auto ptr = m_settings.m_vecAlgorithms[m_iCurrentAlgorithm];
-				ptr->Mutate(&m_currentRun.playbackInfo.current_script, this);
-			}
-
-			state = OptimizerState::NewIteration;
-		}
+    _FinishIteration(state);
 	}
 	else if (m_currentRun.playbackInfo.current_frame > m_uLastFrame)
 	{
@@ -143,6 +150,7 @@ bool Optimizer::Init(const PlaybackInfo* playback, const TASQuake::OptimizerSett
 
 	m_settings = *settings;
 	m_currentBest.m_vecData.clear();
+  m_vecNodes.clear();
 	m_currentRun = m_currentBest;
 	m_uIterationsWithoutProgress = 0;
 	m_iCurrentAlgorithm = -1;
@@ -227,12 +235,26 @@ OptimizerGoal TASQuake::AutoGoal(const std::vector<FrameData>& vecData)
 	}
 }
 
-double OptimizerRun::RunEfficacy(OptimizerGoal goal) const
+double OptimizerRun::RunEfficacy(OptimizerGoal goal, const std::vector<Vector>& nodes) const
 {
 	if (m_vecData.empty() || goal == OptimizerGoal::Undetermined)
 	{
-		return std::numeric_limits<double>::min();
+    return std::numeric_limits<double>::lowest();
 	}
+
+  size_t nodeIndex = 0;
+  const float MAX_DIST = 100.0f;
+  
+  for(size_t i=0; i < m_vecData.size() && nodeIndex < nodes.size(); ++i) {
+    float dist = nodes[nodeIndex].Distance(m_vecData[i].pos);
+    if(dist < MAX_DIST) {
+      ++nodeIndex;
+    }
+  }
+
+  if(nodeIndex != nodes.size()) {
+    return std::numeric_limits<double>::lowest();
+  }
 
 	size_t index = m_vecData.size() - 1;
 	Vector last = m_vecData[index].pos;
@@ -255,7 +277,7 @@ double OptimizerRun::RunEfficacy(OptimizerGoal goal) const
 	}
 }
 
-bool OptimizerRun::IsBetterThan(const OptimizerRun& run, OptimizerGoal goal) const 
+bool OptimizerRun::IsBetterThan(const OptimizerRun& run, OptimizerGoal goal, const std::vector<Vector>& nodes) const 
 {
   if (m_vecData.empty()) {
     return false;
@@ -271,8 +293,8 @@ bool OptimizerRun::IsBetterThan(const OptimizerRun& run, OptimizerGoal goal) con
 		return true;
 	}
 
-	double ours = RunEfficacy(goal);
-	double theirs = run.RunEfficacy(goal);
+	double ours = RunEfficacy(goal, nodes);
+	double theirs = run.RunEfficacy(goal, nodes);
 
 	return ours > theirs;
 }
@@ -503,7 +525,7 @@ void StrafeAdjuster::Mutate(TASScript* script, Optimizer* opt) {
     FrameBlock* block = &script->blocks[m_iCurrentBlockIndex];
     float strafe_yaw = block->convars["tas_strafe_yaw"];
     opt->m_currentRun.StrafeBounds(m_iCurrentBlockIndex, min, max);
-    double efficacy = opt->m_currentRun.RunEfficacy(opt->m_settings.m_Goal);
+    double efficacy = opt->m_currentRun.RunEfficacy(opt->m_settings.m_Goal, opt->m_vecNodes);
 
     if(min == -TASQuake::INVALID_ANGLE && max == TASQuake::INVALID_ANGLE) {
       // Strafe angle does nothing
@@ -644,7 +666,7 @@ void FrameBlockMover::Mutate(TASScript* script, Optimizer* opt) {
       max = min;
     }
 
-    double efficacy = opt->m_currentRun.RunEfficacy(opt->m_settings.m_Goal);
+    double efficacy = opt->m_currentRun.RunEfficacy(opt->m_settings.m_Goal, opt->m_vecNodes);
     m_Stone.Init(efficacy, orig + delta, delta, max);
   }
   
@@ -863,4 +885,9 @@ void TurnOptimizer::Init(TASScript* script, Optimizer* opt) {
   m_dSearchMax = opt->Random(-90, 90);
   double absMax = std::max(0.1, std::abs(m_dSearchMax));
   m_dSearchMax = std::copysign(absMax, m_dSearchMax);
+}
+
+
+float Vector::Distance(const Vector& rhs) const {
+  return std::sqrt((x - rhs.x) * (x - rhs.x) + (y - rhs.y) * (y - rhs.y) + (z - rhs.z) * (z - rhs.z));
 }
