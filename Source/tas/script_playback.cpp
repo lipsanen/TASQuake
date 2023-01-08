@@ -123,7 +123,6 @@ void Run_Script(int frame, bool skip, bool ss)
 	}
 
 	playback.script_running = true;
-	playback.last_edited = Sys_DoubleTime();
 }
 
 static void Continue_Script(int frames)
@@ -391,7 +390,6 @@ void Script_Playback_Host_Frame_Hook()
 		++current_block;
 	}
 
-	playback.last_edited = Sys_DoubleTime();
 	++playback.current_frame;
 }
 

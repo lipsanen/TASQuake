@@ -1054,26 +1054,10 @@ Simulator Simulator::GetSimulator()
 
 void Simulate_Frame_Hook()
 {
-	if (cls.state != ca_connected || tas_gamestate == unpaused)
-	{
-		if (path_assigned || grenade_assigned)
-		{
-			RemoveCurve(PREDICTION_ID);
-			RemoveRectangles(PREDICTION_ID);
-			RemoveCurve(GRENADE_ID);
-			RemoveRectangles(GRENADE_ID);
-			path_assigned = false;
-			grenade_assigned = false;
-		}
+	bool canPredict = cls.state == ca_connected && tas_gamestate == paused;
 
-		return;
-	}
-
-	bool predictionDone = Calculate_Prediction_Line();
-	Calculate_Grenade_Line();
-
-	if(predictionDone) {
-		TASQuake::RunOptimizer();
-	}
+	Calculate_Prediction_Line(canPredict);
+	Calculate_Grenade_Line(canPredict);
+	TASQuake::RunOptimizer(canPredict);
 }
 

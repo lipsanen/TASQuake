@@ -9,21 +9,16 @@ cvar_t tas_predict_amount{"tas_predict_amount", "3"};
 bool path_assigned = false;
 bool grenade_assigned = false;
 
-bool Calculate_Prediction_Line()
+bool Calculate_Prediction_Line(bool canPredict)
 {
-	if (tas_predict.value == 0 && path_assigned)
-	{
-		if (path_assigned)
-		{
+	static int startFrame = -1;
+	if((!canPredict || tas_predict.value == 0)) {
+		if(startFrame != -1) {
+			startFrame = -1;
 			RemoveCurve(PREDICTION_ID);
 			RemoveRectangles(PREDICTION_ID);
-            RemoveCurve(OPTIMIZER_ID);
 			path_assigned = false;
 		}
-		return false;
-	}
-	else if (tas_predict.value == 0)
-	{
 		return false;
 	}
 
@@ -34,9 +29,8 @@ bool Calculate_Prediction_Line()
 	static Simulator sim;
 	const std::array<float, 4> color = { 0, 0, 1, 0.5 };
 	static std::vector<PathPoint> points;
-	static int startFrame = 0;
 
-	if (last_updated < playback->last_edited)
+	if (last_updated < playback->last_edited || startFrame != playback->current_frame)
 	{
 		RemoveRectangles(PREDICTION_ID);
 		points.clear();
@@ -126,19 +120,15 @@ void Predict_Grenade(std::function<void(vec3_t)> frameCallback, std::function<vo
 	finalCallback(t.v.origin);
 }
 
-void Calculate_Grenade_Line()
+void Calculate_Grenade_Line(bool canPredict)
 {
-	if (tas_predict_grenade.value == 0 && grenade_assigned)
+	if (!canPredict || tas_predict_grenade.value == 0)
 	{
 		if (grenade_assigned)
 		{
 			RemoveCurve(GRENADE_ID);
 			grenade_assigned = false;
 		}
-		return;
-	}
-	else if (tas_predict_grenade.value == 0)
-	{
 		return;
 	}
 

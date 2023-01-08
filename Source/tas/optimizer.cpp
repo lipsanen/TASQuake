@@ -6,6 +6,7 @@
 cvar_t tas_optimizer {"tas_optimizer", "1"};
 cvar_t tas_optimizer_goal {"tas_optimizer_goal", "0"};
 static bool m_bFirstIteration = false;
+static int startFrame = -1;
 static size_t m_uOptIterations = 0;
 static double m_dOriginalEfficacy = 0;
 static double m_dBestEfficacy = 0;
@@ -88,6 +89,7 @@ static double get_vel_theta(const SimulationInfo& info) {
 }
 
 static void InitOptimizer(PlaybackInfo* playback) {
+    startFrame = playback->current_frame;
     m_bFirstIteration = true;
     m_uOptIterations = 0;
     last_updated = playback->last_edited;
@@ -121,16 +123,20 @@ static void InitNewIteration() {
     m_CurrentPoints.clear();
 }
 
-void TASQuake::RunOptimizer()
+void TASQuake::RunOptimizer(bool canPredict)
 {
-	if (tas_optimizer.value == 0)
+	if (!canPredict || tas_optimizer.value == 0)
 	{
+        if(startFrame != -1) {
+            startFrame = -1;
+            RemoveCurve(OPTIMIZER_ID);
+        }
 		return;
 	}
 
 	auto playback = GetPlaybackInfo();
 	double currentTime = Sys_DoubleTime();
-	if (last_updated < playback->last_edited)
+	if (last_updated < playback->last_edited || startFrame != playback->current_frame)
 	{
         InitOptimizer(playback);
 	}
