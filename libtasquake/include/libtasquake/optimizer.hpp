@@ -156,6 +156,7 @@ namespace TASQuake {
 
     struct Vector {
         float x = 0.0f, y = 0.0f, z = 0.0f;
+        float Distance(const Vector& rhs) const;
     };
 
     struct FrameData {
@@ -170,8 +171,8 @@ namespace TASQuake {
     struct OptimizerRun {
         PlaybackInfo playbackInfo;
         std::vector<FrameData> m_vecData;
-        double RunEfficacy(OptimizerGoal goal) const;
-        bool IsBetterThan(const OptimizerRun& run, OptimizerGoal goal) const;
+        double RunEfficacy(OptimizerGoal goal, const std::vector<Vector>& nodes) const;
+        bool IsBetterThan(const OptimizerRun& run, OptimizerGoal goal, const std::vector<Vector>& nodes) const;
         void StrafeBounds(size_t blockIndex, float& min, float& max) const;
     };
 
@@ -192,6 +193,7 @@ namespace TASQuake {
         const FrameBlock* GetCurrentFrameBlock() const;
         // Runner calls this after every frame
         OptimizerState OnRunnerFrame(const FrameData* data);
+        void _FinishIteration(OptimizerState& state);
         // Run the init function with the actual full script, the optimizer figures out the relevant bit from playbackInfo
         bool Init(const PlaybackInfo* playback, const OptimizerSettings* settings);
         void Seed(std::uint32_t value);
@@ -200,6 +202,7 @@ namespace TASQuake {
 
         OptimizerRun m_currentBest; // The current best run
         OptimizerRun m_currentRun; // The current run
+        std::vector<Vector> m_vecNodes; // The nodes that the run needs to hit in order to count
         OptimizerSettings m_settings; // Current settings for the optimizer
         std::mt19937 m_RNG;
         std::vector<double> m_vecCompoundingProbs;

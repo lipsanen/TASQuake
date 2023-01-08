@@ -105,13 +105,13 @@ static void InitOptimizer(PlaybackInfo* playback) {
 
 static void InitNewIteration() {
     if(m_bFirstIteration) {
-        m_dOriginalEfficacy = opt.m_currentBest.RunEfficacy(opt.m_settings.m_Goal);
+        m_dOriginalEfficacy = opt.m_currentBest.RunEfficacy(opt.m_settings.m_Goal, opt.m_vecNodes);
         m_dBestEfficacy = m_dOriginalEfficacy;
         m_bFirstIteration = false;
         m_BestPoints = m_CurrentPoints;
         AddCurve(&m_BestPoints, OPTIMIZER_ID);
     } else {
-        double runEfficacy = opt.m_currentRun.RunEfficacy(opt.m_settings.m_Goal);
+        double runEfficacy = opt.m_currentRun.RunEfficacy(opt.m_settings.m_Goal, opt.m_vecNodes);
         if(runEfficacy > m_dBestEfficacy) {
             m_BestPoints = m_CurrentPoints;
             m_dBestEfficacy = runEfficacy;
