@@ -7,7 +7,7 @@ extern cvar_t tas_optimizer_goal;
 struct TASScript;
 
 namespace TASQuake {
-    void RunOptimizer();
+    void RunOptimizer(bool canPredict);
     const char* OptimizerGoalStr();
     double OriginalEfficacy();
     double OptimizedEfficacy();
