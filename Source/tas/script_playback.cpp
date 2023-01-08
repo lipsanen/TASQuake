@@ -508,6 +508,7 @@ void Cmd_TAS_Optimizer_Accept(void) {
 	auto* script = TASQuake::GetOptimizedVersion();
 	playback.current_script.AddScript(script, playback.current_frame);
 	playback.last_edited = Sys_DoubleTime();
+	Savestate_Script_Updated(playback.current_frame);
 }
 
 void Cmd_TAS_Script_Play(void)
