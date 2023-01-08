@@ -1,3 +1,5 @@
+#include "cpp_quakedef.hpp"
+#include "hooks.h"
 #include "draw.hpp"
 #include "simulate.hpp"
 
@@ -5,9 +7,24 @@ cvar_t tas_predict_per_frame{"tas_predict_per_frame", "0.01"};
 cvar_t tas_predict{"tas_predict", "1"};
 cvar_t tas_predict_grenade { "tas_predict_grenade", "0" };
 cvar_t tas_predict_amount{"tas_predict_amount", "3"};
+const std::array<float, 4> color = { 0, 0, 1, 0.5 };
+static std::vector<PathPoint> points;
+static std::vector<Rect> rects;
 
 bool path_assigned = false;
 bool grenade_assigned = false;
+
+bool Prediction_HasLine() {
+	return path_assigned;
+}
+
+std::vector<PathPoint>* Prediction_GetPoints() {
+	return &points;
+}
+
+std::vector<Rect>* Prediction_GetRects() {
+	return &rects;
+}
 
 bool Calculate_Prediction_Line(bool canPredict)
 {
@@ -27,12 +44,10 @@ bool Calculate_Prediction_Line(bool canPredict)
 	double currentTime = Sys_DoubleTime();
 	static double last_sim_time = 0;
 	static Simulator sim;
-	const std::array<float, 4> color = { 0, 0, 1, 0.5 };
-	static std::vector<PathPoint> points;
 
 	if (last_updated < playback->last_edited || startFrame != playback->current_frame)
 	{
-		RemoveRectangles(PREDICTION_ID);
+		rects.clear();
 		points.clear();
 		last_updated = currentTime;
 		startFrame = playback->current_frame;
@@ -65,7 +80,7 @@ bool Calculate_Prediction_Line(bool canPredict)
 		if (block && block->frame == sim.frame)
 		{
 			Rect rect = Rect::Get_Rect(color, sim.info.ent.v.origin, 3, 3, PREDICTION_ID);
-			AddRectangle(rect);
+			rects.push_back(rect);
 		}
 
 		sim.RunFrame();
@@ -73,7 +88,6 @@ bool Calculate_Prediction_Line(bool canPredict)
 
 	if (!path_assigned)
 	{
-		AddCurve(&points, PREDICTION_ID);
 		path_assigned = true;
 	}
 

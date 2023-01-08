@@ -1,11 +1,12 @@
+#pragma once
 #include <array>
 #include <vector>
 
 #include "cpp_quakedef.hpp"
 
-const int PREDICTION_ID = 1;
-const int REWARD_ID = 2;
-const int GRENADE_ID = 3;
+extern const int PREDICTION_ID;
+extern const int REWARD_ID;
+extern const int GRENADE_ID;
 extern const int OPTIMIZER_ID;
 
 struct PathPoint

@@ -4,10 +4,15 @@
 #include "cpp_quakedef.hpp"
 
 #include "draw.hpp"
+#include "real_prediction.hpp"
+#include "prediction.hpp"
 
 #include "strafing.hpp"
 #include "libtasquake/utils.hpp"
 
+const int PREDICTION_ID = 1;
+const int REWARD_ID = 2;
+const int GRENADE_ID = 3;
 const int OPTIMIZER_ID = 4;
 static std::map<int, std::vector<PathPoint>*> lines;
 static std::vector<Rect> rects;
@@ -76,6 +81,28 @@ static void Draw_Rectangle(const Rect& rect)
 	glEnd();
 }
 
+static void DrawLine(const std::vector<PathPoint>* line) {
+	glBegin(GL_LINES);
+	int elements = line->size();
+	for (int i = 0; i < elements - 1; ++i)
+	{
+		auto& vec1 = line->at(i);
+		auto& vec2 = line->at(i + 1);
+
+		glColor4fv(vec1.color.data());
+		glVertex3fv(vec1.point);
+		glVertex3fv(vec2.point);
+	}
+	glEnd();
+}
+
+static void DrawRects(const std::vector<Rect>* rects) {
+	for (auto it=rects->begin(); it != rects->end(); ++it)
+	{
+		Draw_Rectangle(*it);
+	}
+}
+
 void Draw_Elements()
 {
 	if (cl.intermission)
@@ -83,6 +110,15 @@ void Draw_Elements()
 
 	glDisable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
+
+	if(GamePrediction_HasLine()) {
+		DrawLine(GamePrediction_GetPoints());
+		DrawRects(GamePrediction_GetRects());
+	} else if(Prediction_HasLine()) {
+		DrawLine(Prediction_GetPoints());
+		DrawRects(Prediction_GetRects());
+	}
+
 	for (auto& rect : rects)
 	{
 		Draw_Rectangle(rect);
