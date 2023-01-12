@@ -58,11 +58,19 @@ namespace ipc {
     class client
     {
     public:
-        client(short port);
-        void get_messages(std::vector<Message>& messages);
+        client();
+        void get_messages(std::vector<Message>& messages, size_t timeoutMsec);
         void send_message(void* data, size_t size);
-    private:
+        void do_read();
+        bool connect(const char* port);
+        bool disconnect();
+        
         boost::asio::io_service io_service;
-        boost::asio::ip::tcp::socket socket;
+    private:
+        char sockbuf[1024];
+        boost::asio::ip::tcp::socket socket_;
+        std::vector<Message> messages_;
+        std::mutex message_mutex;
+        std::thread receiveThread;
     };
 }
