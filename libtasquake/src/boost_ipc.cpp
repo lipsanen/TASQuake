@@ -21,13 +21,50 @@ void ipc::session::do_read() {
     {
     if (!ec)
     {
-        // Message received
-        Message msg;
-        msg.address = malloc(length);
-        msg.connection_id = this->connection_id;
-        msg.length = length;
-        memcpy(msg.address, this->sockbuf, length);
-        this->owner_->message_from_connection(msg);
+        uint8_t* buffer = (uint8_t*)sockbuf;
+        while(length > 0) {
+            if(this->m_currentMessage.length == 0) {
+                if(length < 4) {
+                    TASQuake::Log("Message was too short, did not contain length!\n");
+                    goto end;
+                } 
+
+                uint32_t size_bytes;
+                memcpy(&size_bytes, buffer, sizeof(uint32_t));
+                const uint32_t MAX_BYTES = 1 << 25;
+                if(size_bytes > MAX_BYTES) {
+                    TASQuake::Log("Message exceeded the maximum size: %u > %u\n", size_bytes, MAX_BYTES);
+                    this->m_currentMessage.address = nullptr;
+                } else {
+                    this->m_currentMessage.address = malloc(size_bytes);
+                }
+                this->m_currentMessage.connection_id = this->connection_id;
+                this->m_currentMessage.length = size_bytes;
+                buffer += sizeof(uint32_t);
+                length -= 4;
+            } else {
+                size_t bytesToRead = std::max(this->m_currentMessage.length - this->m_uBytesWritten, length);
+                if(this->m_currentMessage.address)
+                    memcpy(this->m_currentMessage.address, buffer, bytesToRead);
+                this->m_uBytesWritten += bytesToRead;
+                length -= bytesToRead;
+                buffer += bytesToRead;
+
+                if(this->m_currentMessage.length == this->m_uBytesWritten) {
+                    if(this->m_currentMessage.address) {
+                        this->owner_->message_from_connection(this->m_currentMessage);
+                    }
+                    this->m_currentMessage.address = nullptr;
+                    this->m_currentMessage.connection_id = 0;
+                    this->m_currentMessage.length = 0;
+                    this->m_uBytesWritten = 0;
+                } else if (this->m_currentMessage.length < this->m_uBytesWritten) {
+                    TASQuake::Log("A bad happened\n");
+                    abort();
+                }
+            }
+        }
+        end:
         this->do_read();
     }
     else {
@@ -79,6 +116,7 @@ void ipc::server::do_accept() {
     acceptor_.async_accept(socket_,
     [this](boost::system::error_code ec)
     {
+        socket_.set_option(boost::asio::ip::tcp::no_delay(true));
         if (!ec)
         {
             size_t connection_id = this->new_session_id;
@@ -93,14 +131,13 @@ void ipc::server::do_accept() {
 }
 
 ipc::client::client() : socket_(io_service) {
-
 }
 
-
 void ipc::client::get_messages(std::vector<Message>& messages, size_t timeoutMsec) {
-    size_t msecPassed = 0;
+    auto start = std::chrono::steady_clock::now();
+    size_t iterations = 0;
 
-    while(msecPassed < timeoutMsec) {
+    while(true) {
         {
             std::lock_guard<std::mutex> guard(this->message_mutex);
             if(!this->messages_.empty()) {
@@ -112,8 +149,13 @@ void ipc::client::get_messages(std::vector<Message>& messages, size_t timeoutMse
             }
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        ++msecPassed;
+        auto now = std::chrono::steady_clock::now();
+        ++iterations;
+
+        if((now - start).count() / 1e6 > timeoutMsec) {
+            break;
+        }
+
     }
 }
 
@@ -141,7 +183,8 @@ void ipc::client::do_read() {
     });
 }
 
-void ipc::client::send_message(void* data, size_t size) {
+void ipc::client::send_message(void* data, uint32_t size) {
+    socket_.write_some(boost::asio::buffer(&size, sizeof(uint32_t)));
     socket_.write_some(boost::asio::buffer(data, size));
 }
 
@@ -149,6 +192,7 @@ bool ipc::client::connect(const char* port) {
     try {
         boost::asio::ip::tcp::resolver resolver(io_service);
         boost::asio::connect(socket_, resolver.resolve({"127.0.0.1", port}));
+        socket_.set_option(boost::asio::ip::tcp::no_delay(true));
         do_read();
         receiveThread = std::thread([&]() {io_service.run();});
         return true;
