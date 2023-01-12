@@ -1,5 +1,6 @@
 #include "libtasquake/boost_ipc.hpp"
 #include "libtasquake/utils.hpp"
+#include <array>
 #include <chrono>
 #include <iostream>
 #include <thread>
@@ -190,8 +191,8 @@ void ipc::client::do_read() {
 }
 
 void ipc::client::send_message(void* data, uint32_t size) {
-    socket_.write_some(boost::asio::buffer(&size, sizeof(uint32_t)));
-    socket_.write_some(boost::asio::buffer(data, size));
+    std::array<boost::asio::BOOST_ASIO_MUTABLE_BUFFER, 2> arr = {{boost::asio::buffer(&size, sizeof(uint32_t)), boost::asio::buffer(data, size)} };
+    socket_.write_some(arr);
 }
 
 bool ipc::client::connect(const char* port) {
