@@ -27,10 +27,9 @@ namespace ipc {
     private:  
         void do_read();
         char sockbuf[4096];
+        Message m_currentMessage;
+        size_t m_uBytesWritten = 0;
         server* owner_ = nullptr;
-        void* msg_buffer = nullptr;
-        uint32_t bytes_in_buffer = 0;
-        uint32_t buffer_size = 0;
     };
 
     class server
@@ -40,7 +39,7 @@ namespace ipc {
         void delete_session(std::shared_ptr<session> ptr);
         std::shared_ptr<session> get_session(size_t connection_id);
         void get_messages(std::vector<Message>& messages);
-        void send_message(size_t connection_id, void* data, size_t size);
+        void send_message(size_t connection_id, void* data, uint32_t size);
         void message_from_connection(Message msg);
 
         boost::asio::io_service service;
@@ -68,6 +67,8 @@ namespace ipc {
         boost::asio::io_service io_service;
     private:
         char sockbuf[1024];
+        Message m_currentMessage;
+        size_t m_uBytesWritten = 0;
         boost::asio::ip::tcp::socket socket_;
         std::vector<Message> messages_;
         std::mutex message_mutex;

@@ -39,7 +39,10 @@ int main(int argc, char* argv[])
         std::cin.getline(request, max_length);
         size_t request_length = std::strlen(request);
         client.send_message(request, request_length);
+        auto start = std::chrono::steady_clock::now();
         client.get_messages(messages, 500);
+        auto end = std::chrono::steady_clock::now();
+        std::cout << "got reply in " << (end - start).count() / 1e3 << " micros" << std::endl;
 
         for(auto& msg : messages) {
           std::cout << "Reply is: ";
