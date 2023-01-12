@@ -11,7 +11,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
-#include <boost/asio.hpp>
+#include "libtasquake/boost_ipc.hpp"
 
 using boost::asio::ip::tcp;
 
@@ -21,31 +21,33 @@ int main(int argc, char* argv[])
 {
   try
   {
-    if (argc != 3)
+    if (argc != 2)
     {
-      std::cerr << "Usage: blocking_tcp_echo_client <host> <port>\n";
+      std::cerr << "Usage: blocking_tcp_echo_client <port>\n";
       return 1;
     }
 
-    boost::asio::io_service io_service;
-
-    tcp::socket s(io_service);
-    tcp::resolver resolver(io_service);
-    boost::asio::connect(s, resolver.resolve({argv[1], argv[2]}));
+    ipc::client client;
+    if(!client.connect(argv[1])) {
+      return 1;
+    }
+    std::vector<ipc::Message> messages;
 
     while(true) {
         std::cout << "Enter message: ";
         char request[max_length];
         std::cin.getline(request, max_length);
         size_t request_length = std::strlen(request);
-        boost::asio::write(s, boost::asio::buffer(request, request_length));
+        client.send_message(request, request_length);
+        client.get_messages(messages, 500);
 
-        char reply[max_length];
-        size_t reply_length = boost::asio::read(s,
-            boost::asio::buffer(reply, request_length));
-        std::cout << "Reply is: ";
-        std::cout.write(reply, reply_length);
-        std::cout << "\n";
+        for(auto& msg : messages) {
+          std::cout << "Reply is: ";
+          std::cout.write((const char*)msg.address, msg.length);
+          std::cout << "\n";
+          free(msg.address);
+        }
+        messages.clear();
     }
   }
   catch (std::exception& e)

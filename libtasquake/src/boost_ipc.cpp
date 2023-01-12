@@ -1,4 +1,8 @@
 #include "libtasquake/boost_ipc.hpp"
+#include "libtasquake/utils.hpp"
+#include <chrono>
+#include <iostream>
+#include <thread>
 
 using namespace ipc;
 
@@ -86,4 +90,86 @@ void ipc::server::do_accept() {
 
         do_accept();
     });
+}
+
+ipc::client::client() : socket_(io_service) {
+
+}
+
+
+void ipc::client::get_messages(std::vector<Message>& messages, size_t timeoutMsec) {
+    size_t msecPassed = 0;
+
+    while(msecPassed < timeoutMsec) {
+        {
+            std::lock_guard<std::mutex> guard(this->message_mutex);
+            if(!this->messages_.empty()) {
+                for(auto& msg :this->messages_) {
+                    messages.push_back(msg);
+                }
+                this->messages_.clear();
+                return;
+            }
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        ++msecPassed;
+    }
+}
+
+void ipc::client::do_read() {
+    socket_.async_read_some(boost::asio::buffer(sockbuf, sizeof(sockbuf)),
+    [this](boost::system::error_code ec, std::size_t length)
+    {
+        if (!ec)
+        {
+            // Message received
+            Message msg;
+            msg.address = malloc(length);
+            msg.connection_id = 0;
+            msg.length = length;
+            memcpy(msg.address, this->sockbuf, length);
+            {
+                std::lock_guard<std::mutex> guard(this->message_mutex);
+                this->messages_.push_back(msg);
+            }
+            this->do_read();
+        }
+        else {
+            // Connection terminated, exit
+        }
+    });
+}
+
+void ipc::client::send_message(void* data, size_t size) {
+    socket_.write_some(boost::asio::buffer(data, size));
+}
+
+bool ipc::client::connect(const char* port) {
+    try {
+        boost::asio::ip::tcp::resolver resolver(io_service);
+        boost::asio::connect(socket_, resolver.resolve({"127.0.0.1", port}));
+        do_read();
+        receiveThread = std::thread([&]() {io_service.run();});
+        return true;
+    }
+    catch (...) {
+        TASQuake::Log("Unable to connect to port %s\n", port);
+        return false;
+    }
+}
+
+
+bool ipc::client::disconnect() {
+    try {
+        if(!io_service.stopped())
+            io_service.stop();
+        if(receiveThread.joinable())
+            receiveThread.join();
+        socket_.close();
+        return true;
+    }
+    catch (...) {
+        return false;
+    }
 }
