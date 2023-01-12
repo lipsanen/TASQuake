@@ -204,13 +204,18 @@ bool ipc::client::connect(const char* port) {
 }
 
 
+ipc::client::~client() {
+    disconnect();
+}
+
 bool ipc::client::disconnect() {
     try {
         if(!io_service.stopped())
             io_service.stop();
         if(receiveThread.joinable())
             receiveThread.join();
-        socket_.close();
+        if(socket_.is_open())
+            socket_.close();
         return true;
     }
     catch (...) {
