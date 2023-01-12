@@ -83,10 +83,12 @@ ipc::server::server(short port) :
 }   
 
 void ipc::server::delete_session(std::shared_ptr<session> ptr) {
+    std::lock_guard<std::mutex> guard(message_mutex);
     sessions_.erase(std::remove(sessions_.begin(), sessions_.end(), ptr));
 }
 
 std::shared_ptr<session> ipc::server::get_session(size_t connection_id) {
+    std::lock_guard<std::mutex> guard(message_mutex);
     for(auto ptr : sessions_) {
       if(ptr->connection_id == connection_id) {
         return ptr;
@@ -121,9 +123,12 @@ void ipc::server::do_accept() {
         {
             size_t connection_id = this->new_session_id;
             ++this->new_session_id;
-            auto ptr = std::make_shared<session>(std::move(socket_), connection_id, this);
-            ptr->start();
-            sessions_.push_back(ptr);
+            {
+                std::lock_guard<std::mutex> guard(message_mutex);
+                auto ptr = std::make_shared<session>(std::move(socket_), connection_id, this);
+                ptr->start();
+                sessions_.push_back(ptr);
+            }
         }
 
         do_accept();
@@ -156,6 +161,7 @@ void ipc::client::get_messages(std::vector<Message>& messages, size_t timeoutMse
             break;
         }
 
+        std::this_thread::sleep_for(std::chrono::microseconds(1));
     }
 }
 
