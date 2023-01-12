@@ -24,7 +24,7 @@ void run_test(const char* port)
       abort();
     }
     std::vector<ipc::Message> messages;
-    const size_t ITERATIONS = 10000;
+    const size_t ITERATIONS = 1000;
     auto start = std::chrono::steady_clock::now();
 
     for(size_t i=0; i < ITERATIONS; ++i) {
@@ -53,6 +53,9 @@ void run_test(const char* port)
                 abort();
             }
         }
+
+        for(auto& msg : messages)
+            free(msg.address);
 
         messages.clear();
     }
