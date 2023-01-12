@@ -15,7 +15,7 @@
 
 using boost::asio::ip::tcp;
 
-enum { max_length = 1024 };
+enum { max_length = 1 << 20 };
 
 void run_test(const char* port)
 {
@@ -24,11 +24,11 @@ void run_test(const char* port)
       abort();
     }
     std::vector<ipc::Message> messages;
-    const size_t ITERATIONS = 1000;
+    const size_t ITERATIONS = 10;
     auto start = std::chrono::steady_clock::now();
+    char* request = (char*)malloc(max_length);
 
     for(size_t i=0; i < ITERATIONS; ++i) {
-        char request[max_length];
 
         for(size_t index=0; index < max_length; ++index) {
             request[index] = i % 16;
@@ -60,6 +60,7 @@ void run_test(const char* port)
         messages.clear();
     }
 
+    free(request);
     client.disconnect();
     auto end = std::chrono::steady_clock::now();
 
