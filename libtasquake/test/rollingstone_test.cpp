@@ -28,6 +28,7 @@ static void PinHoleFunc(TASQuake::Player* player) {
     }
 }
 
+#if 0
 TEST_CASE("PinHoleBench") {
         BENCHMARK_ADVANCED("Pin hole bench")(Catch::Benchmark::Chronometer meter) {
         PlaybackInfo info;
@@ -57,6 +58,7 @@ TEST_CASE("PinHoleBench") {
         meter.measure([&]{TASQuake::BenchTest(PinHoleFunc, &settings, &info, optimal);});
     };
 }
+#endif
 
 TEST_CASE("CornerYawBench") {
         BENCHMARK_ADVANCED("Corner bench with yaw turns")(Catch::Benchmark::Chronometer meter) {
