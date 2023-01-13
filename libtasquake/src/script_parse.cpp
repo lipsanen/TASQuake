@@ -44,12 +44,32 @@ static bool Is_Frame_Number(const std::string& line)
 	return std::regex_match(line, FRAME_NO_REGEX);
 }
 
-static bool Is_Convar(const std::string& line)
+static bool Is_Convar(const std::string& line, size_t& spaceIndex, size_t& startIndex)
 {
-	std::smatch sm;
-	std::regex_match(line, sm, CONVAR_REGEX);
+	spaceIndex = 0;
+	bool hasSpace = false;
 
-	return TASQuake::IsConvar((char*)sm[1].str().c_str());
+	for(startIndex=0; startIndex < line.size(); ++startIndex) {
+		int num = line[startIndex] - '0';
+		if(hasSpace && (num <= 9 && num >= 0)) {
+			break;
+		} else if(hasSpace && (line[startIndex] == '.' || line[startIndex] == '-')) {
+			break;
+		} else if(!hasSpace && iswspace(line[startIndex])) {
+			hasSpace = true;
+			spaceIndex = startIndex;
+		}
+	}
+
+	if(startIndex == line.size()) {
+		return false;
+	} else {
+		std::string name;
+		name.assign(line.c_str(), spaceIndex);
+		trim(name);
+
+		return TASQuake::IsConvar((char*)name.c_str());
+	}
 }
 
 static bool Is_Toggle(const std::string& line)
@@ -116,12 +136,11 @@ void FrameBlock::Parse_Frame_No(const std::string& line, int& running_frame)
 	parsed = true;
 }
 
-void FrameBlock::Parse_Convar(const std::string& line)
+void FrameBlock::Parse_Convar(const std::string& line, size_t& spaceIndex, size_t& startIndex)
 {
-	std::smatch sm;
-	std::regex_match(line, sm, CONVAR_REGEX);
-	std::string cmd = sm[1].str();
-	float val = std::stof(sm[2].str());
+	std::string cmd = line.substr(0, spaceIndex);
+	std::string value_str = line.substr(startIndex);
+	float val = TASQuake::FloatFromString(value_str.c_str());
 
 	convars[cmd] = val;
 }
@@ -149,12 +168,13 @@ void FrameBlock::Parse_Command(const std::string& line)
 
 void FrameBlock::Parse_Line(const std::string& line, int& running_frame)
 {
+	size_t startIndex, spaceIndex;
 	if (Is_Whitespace(line))
 		return;
 	else if (Is_Frame_Number(line))
 		Parse_Frame_No(line, running_frame);
-	else if (Is_Convar(line))
-		Parse_Convar(line);
+	else if (Is_Convar(line, spaceIndex, startIndex))
+		Parse_Convar(line, spaceIndex, startIndex);
 	else if (Is_Toggle(line))
 		Parse_Toggle(line);
 	else
@@ -192,6 +212,17 @@ TASScript::TASScript() {}
 TASScript::TASScript(const char* file_name)
 {
 	this->file_name = file_name;
+}
+
+bool TASScript::Load_From_Memory(std::shared_ptr<TASQuakeIO::Buffer> buf) {
+	auto iface = TASQuakeIO::BufferReadInterface::Init(buf->ptr, buf->size);
+	return _Load_From_File(iface);
+}
+
+std::shared_ptr<TASQuakeIO::Buffer> TASScript::Write_To_Memory() {
+	auto iface = TASQuakeIO::BufferWriteInterface::Init();
+	_Write_To_File(iface);
+	return iface.m_pBuffer;
 }
 
 bool TASScript::Load_From_File()
@@ -242,8 +273,38 @@ bool TASScript::_Load_From_File(TASQuakeIO::ReadInterface& readInterface) {
 	return rval;
 }
 
-void _Write_To_File(TASQuakeIO::WriteInterface& writeInterface) {
-	
+void TASScript::_Write_To_File(TASQuakeIO::WriteInterface& writeInterface) {
+
+	int current_frame = 0;
+
+	for (auto& block : blocks)
+	{
+		int diff = block.frame - current_frame;
+		writeInterface.Write("+%d:\n", diff);
+		current_frame = block.frame;
+
+		for (auto& cvar : block.convars)
+		{
+			TASQuake::FloatString string(cvar.second);
+			writeInterface.Write("\t%s %s\n", cvar.first.c_str(), string.Buffer);
+		}
+
+		for (auto& toggle : block.toggles)
+		{
+			if(toggle.second) {
+				writeInterface.Write("\t+%s\n", toggle.first.c_str());
+			} else {
+				writeInterface.Write("\t-%s\n", toggle.first.c_str());
+			}
+		}
+
+		for (auto& cmd : block.commands)
+		{
+			writeInterface.Write("\t%s\n", cmd.c_str());
+		}
+	}
+
+	writeInterface.Finalize();
 }
 
 static bool Get_Backup_Save(char* buffer, const char* file_name, int backup)
@@ -321,37 +382,14 @@ void TASScript::Write_To_File()
 		return;
 	}
 
-	std::ofstream os;
-
-	if (!Open_Stream(os, file_name.c_str()))
-	{
-		TASQuake::Log("Unable to write to %s\n", file_name.c_str());
+	TASQuakeIO::FileWriteInterface iface = TASQuakeIO::FileWriteInterface::Init(file_name.c_str());
+	if(!iface.CanWrite()) {
+		TASQuake::Log("Cannot open file %s\n", file_name.c_str());
 		return;
 	}
 
-	int current_frame = 0;
+	_Write_To_File(iface);
 
-	for (auto& block : blocks)
-	{
-		int diff = block.frame - current_frame;
-		os << '+' << diff << ':' << '\n';
-		current_frame = block.frame;
-
-		for (auto& cvar : block.convars)
-		{
-			os << '\t' << cvar.first << ' ' << cvar.second << '\n';
-		}
-
-		for (auto& toggle : block.toggles)
-		{
-			os << '\t' << (toggle.second ? '+' : '-') << toggle.first << '\n';
-		}
-
-		for (auto& cmd : block.commands)
-		{
-			os << '\t' << cmd << '\n';
-		}
-	}
 	TASQuake::Log("Wrote script to file %s\n", file_name.c_str());
 }
 

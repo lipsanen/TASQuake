@@ -22,6 +22,13 @@ namespace TASQuake {
     void InitSettings(const LibTASQuakeSettings& settings);
     void Log(const char* fmt, ...);
 	bool GamePaused();
+
+	struct FloatString {
+		char Buffer[64];
+		FloatString(float value);
+	};
+
+	float FloatFromString(const char* buffer);
 }
 
 // desc: Prints the edict index that the player is looking at.

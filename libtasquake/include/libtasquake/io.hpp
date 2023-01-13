@@ -55,17 +55,17 @@ namespace TASQuakeIO
         virtual ~WriteInterface() {}
         virtual bool CanWrite() = 0;
         virtual bool WriteLine(const std::string& str) = 0;
-        virtual std::uint32_t Write(const void* dest, std::uint32_t buf_size) = 0;
+        virtual std::uint32_t Write(const char* format, ...) = 0;
         virtual void Finalize() {}
     };
 
     class FileWriteInterface : public WriteInterface {
     public:
         static FileWriteInterface Init(const char* filepath);
-        virtual bool CanWrite();
-        virtual bool WriteLine(const std::string& str);
-        virtual std::uint32_t Write(const void* src, std::uint32_t buf_size);
-        virtual void Finalize();
+        virtual bool CanWrite() override;
+        virtual bool WriteLine(const std::string& str) override;
+        virtual std::uint32_t Write(const char* format, ...) override;
+        virtual void Finalize() override;
     private:
         std::ofstream m_pStream;
     };
@@ -73,10 +73,10 @@ namespace TASQuakeIO
     class BufferWriteInterface : public WriteInterface {
     public:
         static BufferWriteInterface Init();
-        virtual bool CanWrite();
-        virtual bool WriteLine(const std::string& str);
-        virtual std::uint32_t Write(const void* src, std::uint32_t buf_size);
-        virtual void Finalize();
+        virtual bool CanWrite() override;
+        virtual bool WriteLine(const std::string& str) override;
+        virtual std::uint32_t Write(const char* format, ...) override;
+        virtual void Finalize() override;
 
         std::shared_ptr<Buffer> m_pBuffer;
     private:

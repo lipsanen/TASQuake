@@ -1,6 +1,8 @@
 #include <algorithm>
+#include <charconv>
 #include <cmath>
 #include <cstdint>
+#include <cstring>
 #include <string>
 #include <filesystem>
 #include <random>
@@ -9,6 +11,18 @@
 #include "libtasquake/utils.hpp"
 
 const float TASQuake::INVALID_ANGLE = 999;
+
+TASQuake::FloatString::FloatString(float value) {
+	auto result = std::to_chars(Buffer, Buffer + sizeof(Buffer) - 1, value);
+	*result.ptr = '\0';
+}
+
+float TASQuake::FloatFromString(const char* buffer) {
+	float output;
+	auto len = std::strlen(buffer);
+	auto result = std::from_chars(buffer, buffer + len, output);
+	return output;
+}
 
 bool IsZero(double number)
 {

@@ -37,7 +37,7 @@ struct FrameBlock
 	std::string GetCommand();
 	void Add_Command(const std::string& line);
 	void Parse_Frame_No(const std::string& line, int& running_frame);
-	void Parse_Convar(const std::string& line);
+	void Parse_Convar(const std::string& line, size_t& spaceIndex, size_t& startIndex);
 	void Parse_Toggle(const std::string& line);
 	void Parse_Command(const std::string& line);
 	void Parse_Line(const std::string& line, int& running_frame);
@@ -53,8 +53,8 @@ class TASScript
 public:
 	TASScript();
 	TASScript(const char* file_name);
-	void Load_From_Memory(std::shared_ptr<TASQuakeIO::Buffer> buf);
-	void Write_To_Memory(std::shared_ptr<TASQuakeIO::Buffer> output);
+	bool Load_From_Memory(std::shared_ptr<TASQuakeIO::Buffer> buf);
+	std::shared_ptr<TASQuakeIO::Buffer> Write_To_Memory();
 	bool Load_From_File();
 	void Write_To_File();
 	std::vector<FrameBlock> blocks;

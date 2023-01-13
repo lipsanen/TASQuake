@@ -1,6 +1,7 @@
 #include "libtasquake/io.hpp"
 #include <cstdlib>
 #include <cstring>
+#include <cstdarg>
 
 using namespace TASQuakeIO;
 
@@ -126,9 +127,15 @@ bool FileWriteInterface::WriteLine(const std::string& str) {
     return true;
 }
 
-std::uint32_t FileWriteInterface::Write(const void* src, std::uint32_t buf_size) {
-    m_pStream.write((const char*)src, buf_size);
-    return buf_size;
+std::uint32_t FileWriteInterface::Write(const char* format, ...) {
+    char BUFFER[1024];
+    va_list args;
+    va_start(args, format);
+    auto bytes = vsnprintf(BUFFER, sizeof(BUFFER), format, args);
+    va_end(args);
+
+    m_pStream.write(BUFFER, std::min<std::uint32_t>(sizeof(BUFFER), bytes));
+    return bytes;
 }
 
 void FileWriteInterface::Finalize() {
@@ -146,27 +153,35 @@ bool BufferWriteInterface::CanWrite() {
 }
 
 bool BufferWriteInterface::WriteLine(const std::string& str) {
-    Write(str.c_str(), str.size());
-    char newline = '\n';
-    Write(&newline, 1);
+    Write("%s\n", str.c_str());
     return true;
 }
 
-std::uint32_t BufferWriteInterface::Write(const void* src, std::uint32_t buf_size) {
-    std::uint32_t newSize = std::max<std::uint32_t>(1, m_pBuffer->size);
-    std::uint32_t targetSize = m_uFileOffset + buf_size;
+std::uint32_t BufferWriteInterface::Write(const char* format, ...) {
+    std::uint32_t bytesLeft = m_pBuffer->size - m_uFileOffset;
+    va_list args;
+    va_start(args, format);
+    auto bytes = vsnprintf((char*)m_pBuffer->ptr + m_uFileOffset, bytesLeft, format, args);
+    if(bytes != bytesLeft) {
+        std::uint32_t newSize = std::max<std::uint32_t>(1, m_pBuffer->size);
+        std::uint32_t targetSize = m_uFileOffset + bytes;
 
-    while(newSize < targetSize) {
-        newSize <<= 1;
+        while(newSize < targetSize) {
+            newSize <<= 1;
+        }
+
+        if(newSize != m_pBuffer->size) {
+            m_pBuffer->Realloc(newSize);
+        }
+
+        // Now we have enough space
+        bytes = vsnprintf((char*)m_pBuffer->ptr + m_uFileOffset, bytesLeft, format, args);
     }
 
-    if(newSize != m_pBuffer->size) {
-        m_pBuffer->Realloc(newSize);
-    }
+    va_end(args);
 
-    memcpy((std::uint8_t*)m_pBuffer->ptr + m_uFileOffset, src, buf_size);
-    m_uFileOffset += buf_size;
-    return buf_size;
+    m_uFileOffset += bytes;
+    return bytes;
 }
 
 void BufferWriteInterface::Finalize() {
