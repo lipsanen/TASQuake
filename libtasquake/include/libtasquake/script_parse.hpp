@@ -1,5 +1,6 @@
 #pragma once
 #include "libtasquake/io.hpp"
+#include "libtasquake/insertion_order_map.hpp"
 #include <unordered_map>
 #include <string>
 #include <vector>
@@ -29,8 +30,8 @@ struct FrameBlock
 	FrameBlock();
 	bool parsed = false;
 	int frame = 0;
-	std::unordered_map<std::string, float> convars;
-	std::unordered_map<std::string, bool> toggles;
+	TASQuake::ordered_map<float> convars;
+	TASQuake::ordered_map<bool> toggles;
 	std::vector<std::string> commands;
 
 	void Stack(const FrameBlock& new_block);

@@ -174,6 +174,8 @@ std::uint32_t BufferWriteInterface::Write(const char* format, ...) {
             m_pBuffer->Realloc(newSize);
         }
 
+        bytesLeft = m_pBuffer->size - m_uFileOffset;
+
         // Now we have enough space
         bytes = vsnprintf((char*)m_pBuffer->ptr + m_uFileOffset, bytesLeft, format, args);
     }
