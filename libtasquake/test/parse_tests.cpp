@@ -17,11 +17,13 @@ bool compare_buffers(std::shared_ptr<TASQuakeIO::Buffer> ptr1, std::shared_ptr<T
         }
     }
 
-    return true;
+    return iface1.CanRead() == iface2.CanRead();
 }
 
 TEST_CASE("Parsing id1_er") {
     FILE* fp = fopen("./Runs/id1_er.qtas", "r");
+    REQUIRE(fp != nullptr);
+
     fseek(fp, 0, SEEK_END);
     auto size = ftell(fp);
     fseek(fp, 0, SEEK_SET);
