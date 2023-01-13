@@ -1,6 +1,7 @@
 #include "libtasquake/utils.hpp"
 #include <cstdarg>
 #include <cstdio>
+#include <cstring>
 
 static TASQuake::LibTASQuakeSettings lib_settings;
 static char FORMAT_BUFFER[1024];
@@ -13,7 +14,7 @@ void TASQuake::InitSettings(const LibTASQuakeSettings& settings) {
 
 bool TASQuake::IsConvar(char* text) {
 	if(lib_settings.isConvar == nullptr)
-		return true;
+		return std::strcmp(text, "impulse") != 0;
 	return lib_settings.isConvar(text);
 }
 
