@@ -7,6 +7,7 @@ list(APPEND LIBTASQUAKE_TEST_SOURCES
   "rollingstone_test.cpp"
   "optimizer_test.cpp"
   "script_tests.cpp"
+  "test_io.cpp"
   "test.cpp"
 )
 

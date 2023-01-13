@@ -16,7 +16,19 @@ std::regex CONVAR_REGEX(R"#((\w+) "?(-?\d+(\.\d+)?)"?)#");
 
 static TASScript script;
 
-void Parse_Newline(std::istream& is, std::string& str)
+static void Parse_Newline(TASQuakeIO::ReadInterface& is, std::string& str)
+{
+	is.GetLine(str);
+	auto comment_pos = str.find("//");
+	if (comment_pos != std::string::npos)
+	{
+		str = str.substr(0, comment_pos);
+	}
+	trim(str);
+}
+
+
+static void Parse_Newline(std::istream& is, std::string& str)
 {
 	std::getline(is, str);
 	auto comment_pos = str.find("//");
@@ -27,12 +39,12 @@ void Parse_Newline(std::istream& is, std::string& str)
 	trim(str);
 }
 
-bool Is_Frame_Number(const std::string& line)
+static bool Is_Frame_Number(const std::string& line)
 {
 	return std::regex_match(line, FRAME_NO_REGEX);
 }
 
-bool Is_Convar(const std::string& line)
+static bool Is_Convar(const std::string& line)
 {
 	std::smatch sm;
 	std::regex_match(line, sm, CONVAR_REGEX);
@@ -40,12 +52,12 @@ bool Is_Convar(const std::string& line)
 	return TASQuake::IsConvar((char*)sm[1].str().c_str());
 }
 
-bool Is_Toggle(const std::string& line)
+static bool Is_Toggle(const std::string& line)
 {
 	return std::regex_match(line, TOGGLE_REGEX);
 }
 
-bool Is_Whitespace(const std::string& s)
+static bool Is_Whitespace(const std::string& s)
 {
 	return std::all_of(s.begin(), s.end(), isspace);
 }
@@ -184,24 +196,30 @@ TASScript::TASScript(const char* file_name)
 
 bool TASScript::Load_From_File()
 {
-	std::ifstream stream;
+	TASQuakeIO::FileReadInterface iface = TASQuakeIO::FileReadInterface::Init(file_name.c_str());
 
-	if (!Open_Stream(stream, file_name.c_str()))
+	if (!iface.CanRead())
 	{
 		TASQuake::Log("Unable to open script %s\n", file_name.c_str());
 		return false;
 	}
 
+	return _Load_From_File(iface);
+}
+
+
+bool TASScript::_Load_From_File(TASQuakeIO::ReadInterface& readInterface) {
 	FrameBlock fb;
 	int running_frame = 0;
 	int line_number = 0;
 	std::string current_line;
+	bool rval = true;
 
 	try
 	{
-		while (stream.good() && !stream.eof())
+		while (readInterface.CanRead())
 		{
-			Parse_Newline(stream, current_line);
+			Parse_Newline(readInterface, current_line);
 			++line_number;
 			if (Is_Frame_Number(current_line) && fb.parsed)
 			{
@@ -213,13 +231,19 @@ bool TASScript::Load_From_File()
 		if (fb.parsed)
 			blocks.push_back(fb);
 		TASQuake::Log("Script %s loaded with %u blocks.\n", file_name.c_str(), blocks.size());
-		return true;
 	}
 	catch (const std::exception& e)
 	{
 		TASQuake::Log("Error parsing line %d: %s\n", line_number, e.what());
-		return false;
+		rval = false;
 	}
+
+	readInterface.Finalize();
+	return rval;
+}
+
+void _Write_To_File(TASQuakeIO::WriteInterface& writeInterface) {
+	
 }
 
 static bool Get_Backup_Save(char* buffer, const char* file_name, int backup)

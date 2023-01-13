@@ -1,4 +1,5 @@
 #pragma once
+#include "libtasquake/io.hpp"
 #include <unordered_map>
 #include <string>
 #include <vector>
@@ -52,6 +53,8 @@ class TASScript
 public:
 	TASScript();
 	TASScript(const char* file_name);
+	void Load_From_Memory(std::shared_ptr<TASQuakeIO::Buffer> buf);
+	void Write_To_Memory(std::shared_ptr<TASQuakeIO::Buffer> output);
 	bool Load_From_File();
 	void Write_To_File();
 	std::vector<FrameBlock> blocks;
@@ -63,6 +66,9 @@ public:
 	void AddScript(const TASScript* script, int frame);
 	bool ShiftBlocks(size_t blockIndex, int delta);
 	int GetBlockIndex(int frame) const;
+private:
+	bool _Load_From_File(TASQuakeIO::ReadInterface& readInterface);
+	void _Write_To_File(TASQuakeIO::WriteInterface& writeInterface);
 };
 
 class TestScript
