@@ -74,7 +74,27 @@ FILE(GLOB_RECURSE SOURCES
 	 Source/wad.c
 	 Source/world.c
 	 Source/zone.c
-	 Source/*.cpp)
+	 Source/tas/afterframes.cpp
+	 Source/tas/bookmark.cpp
+	 Source/tas/camera.cpp
+	 Source/tas/data_export.cpp
+	 Source/tas/draw.cpp
+	 Source/tas/hooks.cpp
+	 Source/tas/hud.cpp
+	 Source/tas/ipc_main.cpp
+	 Source/tas/ipc2.cpp
+	 Source/tas/optimizer.cpp
+	 Source/tas/prediction.cpp
+	 Source/tas/real_prediction.cpp
+	 Source/tas/reset.cpp
+	 Source/tas/rewards.cpp
+	 Source/tas/savestate.cpp
+	 Source/tas/script_playback.cpp
+	 Source/tas/simulate.cpp
+	 Source/tas/state_test.cpp
+	 Source/tas/strafing.cpp
+	 Source/tas/test_runner.cpp
+	 Source/tas/utils.cpp)
 
 add_compile_definitions(GLQUAKE __linux__)
 add_compile_options(-m32 -ffp-contract=off -mfpmath=sse -Wno-write-strings)

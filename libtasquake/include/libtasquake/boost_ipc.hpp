@@ -35,23 +35,29 @@ namespace ipc {
     class server
     {
     public:
-        server(short port);
+        server() = default;
+        void start(short port);
+        void stop();
         void delete_session(std::shared_ptr<session> ptr);
         std::shared_ptr<session> get_session(size_t connection_id);
         void get_messages(std::vector<Message>& messages);
         void send_message(size_t connection_id, void* data, uint32_t size);
         void message_from_connection(Message msg);
+        void get_sessions(std::vector<size_t>& session_ids);
 
-        boost::asio::io_service service;
+        boost::asio::io_service* service_ = nullptr;
+        boost::asio::ip::tcp::acceptor* acceptor_ = nullptr;
+        boost::asio::ip::tcp::socket* socket_ = nullptr;
+        bool m_bConnected = false;
     private:
         void do_accept();
+        void run_service();
 
+        std::thread m_tThread;
         size_t new_session_id = 0;
         std::vector<std::shared_ptr<session>> sessions_;
         std::vector<Message> messages;
         std::mutex message_mutex;
-        boost::asio::ip::tcp::acceptor acceptor_;
-        boost::asio::ip::tcp::socket socket_;
     };
 
     class client
@@ -65,12 +71,13 @@ namespace ipc {
         bool connect(const char* port);
         bool disconnect();
         
-        boost::asio::io_service io_service;
+        boost::asio::io_service* io_service = nullptr;
+        boost::asio::ip::tcp::socket* socket_ = nullptr;
+        bool m_bConnected = false;
     private:
         char sockbuf[1024];
         Message m_currentMessage;
         size_t m_uBytesWritten = 0;
-        boost::asio::ip::tcp::socket socket_;
         std::vector<Message> messages_;
         std::mutex message_mutex;
         std::thread receiveThread;
