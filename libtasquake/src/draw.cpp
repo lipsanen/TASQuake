@@ -1,6 +1,7 @@
 #include "libtasquake/draw.hpp"
 #include "libtasquake/utils.hpp"
 #include <cmath>
+#include <cstring>
 
 using namespace TASQuake;
 
