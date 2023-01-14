@@ -12,6 +12,8 @@ void Cmd_TAS_Savestate(void);
 extern cvar_t tas_savestate_auto;
 // desc: Enable/disable savestates in TASes.
 extern cvar_t tas_savestate_enabled;
+// desc: Assign a prefix to savestate names
+extern cvar_t tas_savestate_prefix;
 
 // desc: Load savestate. Probably don't use this.
 void Cmd_TAS_LS(void);

@@ -255,6 +255,7 @@ void TAS_Init()
 	Cvar_Register(&tas_reward_size);
 	Cvar_Register(&tas_savestate_auto);
 	Cvar_Register(&tas_savestate_enabled);
+	Cvar_Register(&tas_savestate_prefix);
 
 	IPC_Init();
 }
