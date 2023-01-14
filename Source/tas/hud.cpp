@@ -5,6 +5,9 @@
 #include "script_playback.hpp"
 #include "optimizer.hpp"
 #include "strafing.hpp"
+#include "ipc_prediction.hpp"
+#include "real_prediction.hpp"
+#include "prediction.hpp"
 #include "libtasquake/utils.hpp"
 
 cvar_t tas_hud_pos = {"tas_hud_pos", "0"};
@@ -27,6 +30,7 @@ cvar_t tas_hud_strafeinfo = {"tas_hud_strafeinfo", "0"};
 cvar_t tas_hud_rng = {"tas_hud_rng", "0"};
 cvar_t tas_hud_particles = { "tas_hud_particles", "0" };
 cvar_t tas_hud_optimizer = { "tas_hud_optimizer", "0" };
+cvar_t tas_hud_prediction_type = { "tas_hud_prediction_type", "0"};
 
 void Draw(int& y, cvar_t* cvar, const char* format, ...)
 {
@@ -308,6 +312,21 @@ static void DrawParticleCount(int& y)
 	Draw(y, &tas_hud_particles, "particles: %d", count);
 }
 
+static void DrawPredictionType(int& y)
+{
+	if(!tas_hud_prediction_type.value)
+		return;
+
+	if(IPC_Prediction_HasLine()) {
+		Draw(y, &tas_hud_prediction_type, "prediction line: multi-game");
+	} else if(GamePrediction_HasLine()) {
+		Draw(y, &tas_hud_prediction_type, "prediction line: game");
+	} else if(Prediction_HasLine()) {
+		Draw(y, &tas_hud_prediction_type, "prediction line: simulated");
+	} else {
+		Draw(y, &tas_hud_prediction_type, "prediction line: none");
+	}
+}
 
 void HUD_Draw_Hook()
 {
@@ -344,6 +363,7 @@ void HUD_Draw_Hook()
 	Draw(y, &tas_hud_waterlevel, "waterlevel: %d", (int)sv_player->v.waterlevel);
 	Draw(y, &tas_hud_movemessages, "cl.movemessages: %d", cl.movemessages);
 	Draw(y, &tas_hud_rng, "rng index: %d", Get_RNG_Index());
+	DrawPredictionType(y);
 	DrawOptimizerState(y, info);
 	DrawParticleCount(y);
 	Draw_PFlags(y);

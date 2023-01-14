@@ -35,7 +35,7 @@ struct FrameBlock
 	std::vector<std::string> commands;
 
 	void Stack(const FrameBlock& new_block);
-	std::string GetCommand();
+	std::string GetCommand() const;
 	void Add_Command(const std::string& line);
 	void Parse_Frame_No(const std::string& line, int& running_frame);
 	void Parse_Convar(const std::string& line, size_t& spaceIndex, size_t& startIndex);
@@ -54,6 +54,7 @@ class TASScript
 public:
 	TASScript();
 	TASScript(const char* file_name);
+	void ApplyChanges(const TASScript* script, int& first_changed_frame);
 	bool Load_From_Memory(TASQuakeIO::BufferReadInterface& iface);
 	void Write_To_Memory(TASQuakeIO::BufferWriteInterface& iface);
 	bool Load_From_File();

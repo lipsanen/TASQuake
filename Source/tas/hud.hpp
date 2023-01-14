@@ -43,5 +43,7 @@ extern cvar_t tas_hud_rng;
 extern cvar_t tas_hud_particles;
 //desc: Displays the optimizer HUD
 extern cvar_t tas_hud_optimizer;
+//desc: Displays the prediction line's type
+extern cvar_t tas_hud_prediction_type;
 
 void HUD_Draw_Hook();

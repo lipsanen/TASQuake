@@ -16,6 +16,12 @@ static std::vector<Rect> rects;
 bool path_assigned = false;
 bool grenade_assigned = false;
 
+void Get_Line_Endpoints(uint32_t& start, uint32_t& end) {
+	auto info = GetPlaybackInfo();
+	start = info->current_frame;
+	end = start + tas_predict_amount.value * 72;
+}
+
 bool Prediction_HasLine() {
 	return path_assigned;
 }

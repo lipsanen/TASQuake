@@ -1,10 +1,12 @@
 #include "cpp_quakedef.hpp"
+#include "libtasquake/script_playback.hpp"
+#include <vector>
 #include "hooks.h"
 #include "draw.hpp"
-#include "libtasquake/script_playback.hpp"
+#include "ipc2.hpp"
+#include "real_prediction.hpp"
 #include "script_playback.hpp"
 #include "simulate.hpp"
-#include <vector>
 
 using namespace TASQuake;
 
@@ -15,6 +17,38 @@ const std::array<float, 4> normal_path = { 0, 1, 0, 1 };
 const std::array<float, 4> box_color = { 0, 0, 1, 0.5 };
 cvar_t tas_predict_real = {"tas_predict_real", "0"};
 static double last_edited_time = 0;
+static bool ipc_request_finished = true;
+static int32_t ipc_target_frame = 0;
+static int32_t ipc_start_frame = 0;
+static int32_t ipc_simulation_id = 0;
+
+void GamePrediction_Receive_IPC(ipc::Message& msg) {
+    auto iface = TASQuakeIO::BufferReadInterface::Init((uint8_t*)msg.address + 1, msg.length - 1);
+    iface.Read(&ipc_start_frame, sizeof(ipc_start_frame));
+    iface.Read(&ipc_target_frame, sizeof(ipc_target_frame));
+    iface.Read(&ipc_simulation_id, sizeof(ipc_simulation_id));
+
+    TASScript script;
+    script.Load_From_Memory(iface);
+
+    auto info = GetPlaybackInfo();
+    int first_changed_frame = 0;
+    info->current_script.ApplyChanges(&script, first_changed_frame);
+    info->last_edited = Sys_DoubleTime();
+    Run_Script(ipc_target_frame, true);
+    ipc_request_finished = false;
+}
+
+static void GamePredition_IPC_Respond() {
+    ipc_request_finished = true;
+    auto writer = TASQuakeIO::BufferWriteInterface::Init();
+    uint8_t type = (uint8_t)TASQuake::IPCMessages::Predict;
+    writer.WriteBytes(&type, sizeof(type));
+    writer.WriteBytes(&ipc_simulation_id, sizeof(ipc_simulation_id));
+    writer.WritePODVec(real_line);
+    writer.WritePODVec(real_rects);
+    TASQuake::CL_SendMessage(writer.m_pBuffer->ptr, writer.m_uFileOffset);
+}
 
 std::vector<PathPoint>* GamePrediction_GetPoints() {
     return &real_line;
@@ -32,11 +66,11 @@ bool GamePrediction_HasLine() {
 }
 
 void GamePrediction_Frame_Hook() {
-	if(tas_playing.value != 0 && tas_gamestate == unpaused && tas_predict_real.value != 0) {
-        auto playback = GetPlaybackInfo();
+    auto playback = GetPlaybackInfo();
+
+	if(tas_playing.value != 0 && tas_gamestate == unpaused && (tas_predict_real.value != 0 || !ipc_request_finished)) {
         if(cls.state == ca_connected) {
             // Resize so that current time matches index
-
             if(real_line.size() > playback->current_frame && last_edited_time > playback->last_edited) {
                 return;
             } else if(real_line.size() != playback->current_frame) {
@@ -58,6 +92,10 @@ void GamePrediction_Frame_Hook() {
                 real_rects.push_back(Rect::Get_Rect(box_color, sv_player->v.origin, 3, 3, PREDICTION_ID));
             }
         }
+    }
+
+    if(!ipc_request_finished && playback->current_frame == ipc_target_frame) {
+        GamePredition_IPC_Respond();
     }
 }
 

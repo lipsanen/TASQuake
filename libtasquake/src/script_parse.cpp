@@ -96,7 +96,7 @@ void FrameBlock::Stack(const FrameBlock& new_block)
 		convars[pair.first] = pair.second;
 }
 
-std::string FrameBlock::GetCommand()
+std::string FrameBlock::GetCommand() const
 {
 	std::ostringstream oss;
 
@@ -212,6 +212,35 @@ TASScript::TASScript() {}
 TASScript::TASScript(const char* file_name)
 {
 	this->file_name = file_name;
+}
+
+
+void TASScript::ApplyChanges(const TASScript* script, int& first_changed_frame) {
+	if(blocks.size() == 0) {
+		first_changed_frame = 0;
+	} else {
+		first_changed_frame = blocks[blocks.size() - 1].frame;
+	}
+
+	size_t blocksToKeep = std::min(blocks.size(), script->blocks.size());
+	for(size_t i=0; i < blocks.size() && i < script->blocks.size(); ++i) {
+		const FrameBlock* blockOrig = &blocks[i];
+		const FrameBlock* blockNew = &script->blocks[i];
+
+		std::string cmd1 = blockOrig->GetCommand();
+		std::string cmd2 = blockNew->GetCommand();
+
+		if(blockOrig->frame != blockNew->frame || cmd1 != cmd2) {
+			first_changed_frame = std::min(blockOrig->frame, blockNew->frame);
+			blocksToKeep = i;
+			break;
+		}
+	}
+
+	blocks.resize(script->blocks.size());
+	for(size_t i=blocksToKeep; i < blocks.size(); ++i) {
+		blocks[i] = script->blocks[i];
+	}
 }
 
 bool TASScript::Load_From_Memory(TASQuakeIO::BufferReadInterface& iface) {
