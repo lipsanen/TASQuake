@@ -65,7 +65,6 @@ namespace TASQuakeIO
         virtual bool CanRead();
         virtual bool GetLine(std::string& str);
         virtual std::uint32_t Read(void* dest, std::uint32_t buf_size);
-    private:
         void* m_pBuffer = nullptr;
         std::uint32_t m_uSize = 0;
         std::uint32_t m_uFileOffset = 0;
@@ -100,7 +99,7 @@ namespace TASQuakeIO
         virtual void Finalize() override;
 
         std::shared_ptr<Buffer> m_pBuffer;
-    private:
         std::uint32_t m_uFileOffset = 0;
+    private:
     };
 }

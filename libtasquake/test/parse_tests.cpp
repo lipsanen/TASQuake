@@ -7,6 +7,8 @@ bool compare_buffers(std::shared_ptr<TASQuakeIO::Buffer> ptr1, std::shared_ptr<T
     auto iface1 = TASQuakeIO::BufferReadInterface::Init(ptr1->ptr, ptr1->size);
     auto iface2 = TASQuakeIO::BufferReadInterface::Init(ptr2->ptr, ptr2->size);
 
+    REQUIRE(ptr1->size == ptr2->size);
+
     while(iface1.CanRead() && iface2.CanRead()) {
         std::string line1;
         std::string line2;
@@ -25,11 +27,12 @@ TEST_CASE("Parsing id1_er") {
     REQUIRE(fp != nullptr);
 
     fseek(fp, 0, SEEK_END);
-    auto size = ftell(fp);
+    uint32_t size = ftell(fp);
     fseek(fp, 0, SEEK_SET);
 
-    auto ptr = TASQuakeIO::Buffer::CreateBuffer(size);
-    size_t bytesRead = 0;
+    auto ptr = TASQuakeIO::Buffer::CreateBuffer(size + 4);
+    memcpy(ptr->ptr, &size, 4);
+    size_t bytesRead = 4;
 
     while(bytesRead < size) {
         uint8_t* buf = (uint8_t*)ptr->ptr + bytesRead;
@@ -37,10 +40,13 @@ TEST_CASE("Parsing id1_er") {
     }
 
     TASScript script;
-    bool result = script.Load_From_Memory(ptr);
+    auto readInterface = TASQuakeIO::BufferReadInterface::Init(ptr->ptr, size);
+    bool result = script.Load_From_Memory(readInterface);
     REQUIRE(result == true);
 
-    auto generated = script.Write_To_Memory();
+    auto writeInterface = TASQuakeIO::BufferWriteInterface::Init();
+    script.Write_To_Memory(writeInterface);
+    auto generated = writeInterface.m_pBuffer;
     REQUIRE(generated != nullptr);
     REQUIRE(compare_buffers(ptr, generated));
 }

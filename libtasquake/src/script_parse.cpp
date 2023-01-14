@@ -214,15 +214,30 @@ TASScript::TASScript(const char* file_name)
 	this->file_name = file_name;
 }
 
-bool TASScript::Load_From_Memory(std::shared_ptr<TASQuakeIO::Buffer> buf) {
-	auto iface = TASQuakeIO::BufferReadInterface::Init(buf->ptr, buf->size);
-	return _Load_From_File(iface);
+bool TASScript::Load_From_Memory(TASQuakeIO::BufferReadInterface& iface) {
+	uint32_t bytes;
+	iface.Read(&bytes, 4);
+	TASQuakeIO::BufferReadInterface temp;
+	temp.m_pBuffer = iface.m_pBuffer;
+	temp.m_uFileOffset = iface.m_uFileOffset;
+	temp.m_uSize = bytes + iface.m_uFileOffset;
+	
+	bool rval = _Load_From_File(temp);
+
+	iface.m_uFileOffset = temp.m_uFileOffset;
+
+	return rval;
 }
 
-std::shared_ptr<TASQuakeIO::Buffer> TASScript::Write_To_Memory() {
-	auto iface = TASQuakeIO::BufferWriteInterface::Init();
-	_Write_To_File(iface);
-	return iface.m_pBuffer;
+void TASScript::Write_To_Memory(TASQuakeIO::BufferWriteInterface& iface) {
+	uint32_t offset = iface.m_uFileOffset;
+	iface.Write("0000"); // Fill the size with blanks
+
+	_Write_To_File(iface); // Write the script
+
+	// Fill in the blank
+	uint32_t length = iface.m_uFileOffset - offset - 4;
+	memcpy((uint8_t*)iface.m_pBuffer->ptr + offset, &length, 4);
 }
 
 bool TASScript::Load_From_File()
