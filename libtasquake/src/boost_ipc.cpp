@@ -86,13 +86,32 @@ void ipc::session::do_read() {
     });
 }
 
+void ipc::server::run_service() {
+    service_->run();
+}
 
+void ipc::server::start(short port) {
+    service_ = new boost::asio::io_service();
+    acceptor_ = new boost::asio::ip::tcp::acceptor(*service_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
+    socket_ = new boost::asio::ip::tcp::socket(*service_);
 
-ipc::server::server(short port) : 
-    acceptor_(service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port)),
-    socket_(service) {
     do_accept();
-}   
+    m_bConnected = true;
+    m_tThread = std::thread(std::bind(&ipc::server::run_service, this));
+}
+
+void ipc::server::stop() {
+    m_bConnected = false;
+    service_->stop();
+    m_tThread.join();
+    delete service_;
+    delete acceptor_;
+    delete socket_;
+    service_ = nullptr;
+    acceptor_ = nullptr;
+    socket_ = nullptr;
+    sessions_.clear();
+}
 
 void ipc::server::delete_session(std::shared_ptr<session> ptr) {
     std::lock_guard<std::mutex> guard(message_mutex);
@@ -127,18 +146,27 @@ void ipc::server::message_from_connection(Message msg) {
     messages.push_back(msg);
 }
 
+
+void ipc::server::get_sessions(std::vector<size_t>& session_ids) {
+    std::lock_guard<std::mutex> guard(message_mutex);
+    session_ids.clear();
+    for(auto& session : sessions_) {
+        session_ids.push_back(session->connection_id);
+    }
+}
+
 void ipc::server::do_accept() {
-    acceptor_.async_accept(socket_,
+    acceptor_->async_accept(*socket_,
     [this](boost::system::error_code ec)
     {
-        socket_.set_option(boost::asio::ip::tcp::no_delay(true));
+        socket_->set_option(boost::asio::ip::tcp::no_delay(true));
         if (!ec)
         {
             size_t connection_id = this->new_session_id;
             ++this->new_session_id;
             {
                 std::lock_guard<std::mutex> guard(message_mutex);
-                auto ptr = std::make_shared<session>(std::move(socket_), connection_id, this);
+                auto ptr = std::make_shared<session>(std::move(*socket_), connection_id, this);
                 ptr->start();
                 sessions_.push_back(ptr);
             }
@@ -148,12 +176,10 @@ void ipc::server::do_accept() {
     });
 }
 
-ipc::client::client() : socket_(io_service) {
-}
+ipc::client::client() = default;
 
 void ipc::client::get_messages(std::vector<Message>& messages, size_t timeoutMsec) {
     auto start = std::chrono::steady_clock::now();
-    size_t iterations = 0;
 
     while(true) {
         {
@@ -168,7 +194,6 @@ void ipc::client::get_messages(std::vector<Message>& messages, size_t timeoutMse
         }
 
         auto now = std::chrono::steady_clock::now();
-        ++iterations;
 
         if((now - start).count() / 1e6 > timeoutMsec) {
             break;
@@ -179,7 +204,7 @@ void ipc::client::get_messages(std::vector<Message>& messages, size_t timeoutMse
 }
 
 void ipc::client::do_read() {
-    socket_.async_read_some(boost::asio::buffer(sockbuf, sizeof(sockbuf)),
+    socket_->async_read_some(boost::asio::buffer(sockbuf, sizeof(sockbuf)),
     [this](boost::system::error_code ec, std::size_t length)
     {
         if (!ec)
@@ -238,17 +263,20 @@ void ipc::client::do_read() {
 }
 
 void ipc::client::send_message(void* data, uint32_t size) {
-    write_to_socket(socket_, &size, sizeof(uint32_t));
-    write_to_socket(socket_, data, size);
+    write_to_socket(*socket_, &size, sizeof(uint32_t));
+    write_to_socket(*socket_, data, size);
 }
 
 bool ipc::client::connect(const char* port) {
     try {
-        boost::asio::ip::tcp::resolver resolver(io_service);
-        boost::asio::connect(socket_, resolver.resolve({"127.0.0.1", port}));
-        socket_.set_option(boost::asio::ip::tcp::no_delay(true));
+        this->io_service = new boost::asio::io_service();
+        this->socket_ = new boost::asio::ip::tcp::socket(*this->io_service);
+        boost::asio::ip::tcp::resolver resolver(*this->io_service);
+        boost::asio::connect(*socket_, resolver.resolve({"127.0.0.1", port}));
+        socket_->set_option(boost::asio::ip::tcp::no_delay(true));
         do_read();
-        receiveThread = std::thread([&]() {io_service.run();});
+        receiveThread = std::thread([&]() { io_service->run();});
+        m_bConnected = true;
         return true;
     }
     catch (...) {
@@ -264,12 +292,14 @@ ipc::client::~client() {
 
 bool ipc::client::disconnect() {
     try {
-        if(!io_service.stopped())
-            io_service.stop();
+        m_bConnected = false;
+        if(io_service && !io_service->stopped()) {
+            io_service->stop();
+        }
         if(receiveThread.joinable())
             receiveThread.join();
-        if(socket_.is_open())
-            socket_.close();
+        if(socket_ && socket_->is_open())
+            socket_->close();
         return true;
     }
     catch (...) {

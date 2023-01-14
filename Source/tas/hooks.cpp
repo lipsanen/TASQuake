@@ -16,6 +16,7 @@
 #include "savestate.hpp"
 #include "data_export.hpp"
 #include "test_runner.hpp"
+#include "ipc2.hpp"
 #include "ipc_main.hpp"
 #include "rewards.hpp"
 #include "bookmark.hpp"
@@ -160,6 +161,11 @@ void TAS_Init()
 	Cmd_AddCommand("tas_ipc_print_posvel", Cmd_TAS_IPC_Print_Posvel);
 	Cmd_AddCommand("tas_ipc_print_seed", Cmd_TAS_IPC_Print_Seed);
 	Cmd_AddCommand("tas_ipc_print_playback", Cmd_TAS_IPC_Print_Playback);
+
+	Cmd_AddCommand("tas_ipc2_sv_init", TASQuake::Cmd_IPC2_Init);
+	Cmd_AddCommand("tas_ipc2_sv_stop", TASQuake::Cmd_IPC2_Stop);
+	Cmd_AddCommand("tas_ipc2_cl_connect", TASQuake::Cmd_IPC2_Cl_Connect);
+	Cmd_AddCommand("tas_ipc2_cl_disconnect", TASQuake::Cmd_IPC2_Cl_Disconnect);
 	
 	Cmd_AddCommand("tas_print_seed", Cmd_Print_Seed);
 	Cmd_AddCommand("tas_print_time", Cmd_Print_Time);
@@ -341,6 +347,7 @@ void _Host_Frame_After_FilterTime_Hook()
 {
 	Test_Host_Frame_Hook();
 	Test_Runner_Frame_Hook();
+	TASQuake::IPC2_Frame_Hook();
 	IPC_Loop();
 	Bookmark_Frame_Hook();
 	GamePrediction_Frame_Hook();

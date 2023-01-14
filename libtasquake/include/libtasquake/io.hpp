@@ -109,6 +109,7 @@ namespace TASQuakeIO
         virtual std::uint32_t Write(const char* format, ...) override;
         virtual void Finalize() override;
         void AllocateSpaceForWrite(uint32_t bytes);
+        void WriteBytes(const void* src, uint32_t bytes);
 
         std::shared_ptr<Buffer> m_pBuffer;
         std::uint32_t m_uFileOffset = 0;

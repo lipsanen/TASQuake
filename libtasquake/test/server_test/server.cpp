@@ -38,11 +38,10 @@ int main(int argc, char* argv[])
 {
   try
   {
-    ipc::server server(13337);
+    ipc::server server;
     server_ptr = &server;
-    std::thread t(busy_loop);
-
-    server.service.run();
+    server.start(13337);
+    busy_loop();
   }
   catch (std::exception& e)
   {

@@ -193,3 +193,9 @@ void BufferWriteInterface::AllocateSpaceForWrite(uint32_t bytes) {
     }
 }
 
+void BufferWriteInterface::WriteBytes(const void* src, uint32_t bytes) {
+    AllocateSpaceForWrite(bytes);
+    memcpy((uint8_t*)m_pBuffer->ptr + m_uFileOffset, src, bytes);
+    m_uFileOffset += bytes;
+}
+
