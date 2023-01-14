@@ -22,6 +22,7 @@ static bool in_playback = false;
 const int MAX_PARTICLES = 2048;
 static std::map<int, Savestate> savestateMap;
 cvar_t tas_savestate_auto = {"tas_savestate_auto", "0"};
+cvar_t tas_savestate_prefix = {"tas_savestate_prefix", "ss_"};
 cvar_t tas_savestate_enabled = {"tas_savestate_enabled", "1"};
 const int frequency = 100;
 
@@ -52,7 +53,7 @@ static void Create_Savestate(int frame, bool force)
 			return;
 	}
 
-	snprintf(BUFFER, ARRAYSIZE(BUFFER), "savestates/ss_%d", save_number);
+	snprintf(BUFFER, ARRAYSIZE(BUFFER), "savestates/%s%d", tas_savestate_prefix.string, save_number);
 	SS(BUFFER);
 	savestateMap[frame] = Savestate(frame, save_number);
 	++save_number;
