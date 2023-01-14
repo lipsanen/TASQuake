@@ -3,6 +3,8 @@
 #include "draw.hpp"
 #include "simulate.hpp"
 
+using namespace TASQuake;
+
 cvar_t tas_predict_per_frame{"tas_predict_per_frame", "0.01"};
 cvar_t tas_predict{"tas_predict", "1"};
 cvar_t tas_predict_grenade { "tas_predict_grenade", "0" };

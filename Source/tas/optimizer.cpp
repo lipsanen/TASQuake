@@ -1,7 +1,10 @@
 #include "draw.hpp"
+#include "libtasquake/draw.hpp"
 #include "libtasquake/optimizer.hpp"
 #include "optimizer.hpp"
 #include "simulate.hpp"
+
+using namespace TASQuake;
 
 cvar_t tas_optimizer {"tas_optimizer", "1"};
 cvar_t tas_optimizer_goal {"tas_optimizer_goal", "0"};
