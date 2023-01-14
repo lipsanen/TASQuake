@@ -5,6 +5,7 @@
 #include "draw.hpp"
 #include "ipc2.hpp"
 #include "real_prediction.hpp"
+#include "savestate.hpp"
 #include "script_playback.hpp"
 #include "simulate.hpp"
 
@@ -34,6 +35,7 @@ void GamePrediction_Receive_IPC(ipc::Message& msg) {
     auto info = GetPlaybackInfo();
     int first_changed_frame = 0;
     info->current_script.ApplyChanges(&script, first_changed_frame);
+	Savestate_Script_Updated(first_changed_frame);
     info->last_edited = Sys_DoubleTime();
     Run_Script(ipc_target_frame, true);
     ipc_request_finished = false;
