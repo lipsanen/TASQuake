@@ -4,6 +4,7 @@
 #include <fstream>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace TASQuakeIO
 {
@@ -18,6 +19,20 @@ namespace TASQuakeIO
         static std::shared_ptr<Buffer> CreateBuffer(std::uint32_t initialSize);
         static std::shared_ptr<Buffer> CreateFromCString(const char* str);
     };
+
+    template<typename T>
+    void GetElemsFromBuffer(std::shared_ptr<TASQuakeIO::Buffer> buffer, std::vector<T>& vec) {
+        size_t elems = buffer->size / sizeof(T);
+        vec.resize(elems);
+        memcpy(&vec[0], (std::uint8_t*)buffer->ptr, elems * sizeof(T));
+    }
+
+    template<typename T>
+    std::shared_ptr<TASQuakeIO::Buffer> GetBufferFromElems(const std::vector<T>& vec) {
+        auto buffer = TASQuakeIO::Buffer::CreateBuffer(vec.size() * sizeof(T));
+        memcpy((std::uint8_t*)buffer->ptr, &vec[0], vec.size() * sizeof(T));
+        return buffer;
+    }
 
     class ReadInterface {
     public:
