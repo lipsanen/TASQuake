@@ -17,6 +17,7 @@
 #include "data_export.hpp"
 #include "test_runner.hpp"
 #include "ipc2.hpp"
+#include "ipc_prediction.hpp"
 #include "ipc_main.hpp"
 #include "rewards.hpp"
 #include "bookmark.hpp"
@@ -238,6 +239,7 @@ void TAS_Init()
 	Cvar_Register(&tas_hud_strafe);
 	Cvar_Register(&tas_hud_strafeinfo);
 	Cvar_Register(&tas_hud_movemessages);
+	Cvar_Register(&tas_hud_prediction_type);
 	Cvar_Register(&tas_ipc);
 	Cvar_Register(&tas_ipc_feedback);
 	Cvar_Register(&tas_ipc_port);
@@ -347,6 +349,7 @@ void _Host_Frame_After_FilterTime_Hook()
 {
 	Test_Host_Frame_Hook();
 	Test_Runner_Frame_Hook();
+	IPC_Prediction_Frame_Hook();
 	TASQuake::IPC2_Frame_Hook();
 	IPC_Loop();
 	Bookmark_Frame_Hook();

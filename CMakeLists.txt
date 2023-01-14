@@ -82,6 +82,7 @@ FILE(GLOB_RECURSE SOURCES
 	 Source/tas/hooks.cpp
 	 Source/tas/hud.cpp
 	 Source/tas/ipc_main.cpp
+	 Source/tas/ipc_prediction.cpp
 	 Source/tas/ipc2.cpp
 	 Source/tas/optimizer.cpp
 	 Source/tas/prediction.cpp

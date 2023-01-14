@@ -13,3 +13,4 @@ void Calculate_Grenade_Line(bool canPredict);
 bool Prediction_HasLine();
 std::vector<TASQuake::PathPoint>* Prediction_GetPoints();
 std::vector<TASQuake::Rect>* Prediction_GetRects();
+void Get_Line_Endpoints(uint32_t& start, uint32_t& end);
