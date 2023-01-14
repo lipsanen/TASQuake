@@ -16,9 +16,11 @@ TEST_CASE("Can save rects") {
         rects.push_back(TASQuake::Rect::Get_Rect(color, center, 10, 10, 1));
     }
 
-    auto buffer = TASQuakeIO::GetBufferFromElems(rects);
+    auto writer = TASQuakeIO::BufferWriteInterface::Init();
+    writer.WritePODVec(rects);
+    auto read = TASQuakeIO::BufferReadInterface::Init(writer.m_pBuffer->ptr, writer.m_pBuffer->size);
     std::vector<TASQuake::Rect> copy;
-    TASQuakeIO::GetElemsFromBuffer(buffer, copy);
+    read.ReadPODVec(copy);
 
     REQUIRE(copy.size() == size);    
     REQUIRE(memcmp(&rects[0], &copy[0], sizeof(TASQuake::Rect) * copy.size()) == 0);
