@@ -54,8 +54,8 @@ class TASScript
 public:
 	TASScript();
 	TASScript(const char* file_name);
-	bool Load_From_Memory(std::shared_ptr<TASQuakeIO::Buffer> buf);
-	std::shared_ptr<TASQuakeIO::Buffer> Write_To_Memory();
+	bool Load_From_Memory(TASQuakeIO::BufferReadInterface& iface);
+	void Write_To_Memory(TASQuakeIO::BufferWriteInterface& iface);
 	bool Load_From_File();
 	void Write_To_File();
 	std::vector<FrameBlock> blocks;
