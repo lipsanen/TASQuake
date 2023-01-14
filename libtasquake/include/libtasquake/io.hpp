@@ -20,11 +20,17 @@ namespace TASQuakeIO
         static std::shared_ptr<Buffer> CreateFromCString(const char* str);
     };
 
+        
+    template<typename T>
+    void GetElemsFromBuffer(void* ptr, size_t size, std::vector<T>& vec) {
+        size_t elems = size / sizeof(T);
+        vec.resize(elems);
+        memcpy(&vec[0], ptr, elems * sizeof(T));
+    }
+
     template<typename T>
     void GetElemsFromBuffer(std::shared_ptr<TASQuakeIO::Buffer> buffer, std::vector<T>& vec) {
-        size_t elems = buffer->size / sizeof(T);
-        vec.resize(elems);
-        memcpy(&vec[0], (std::uint8_t*)buffer->ptr, elems * sizeof(T));
+        GetElemsFromBuffer(buffer->ptr, buffer->size, vec);
     }
 
     template<typename T>

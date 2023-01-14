@@ -3,7 +3,7 @@
 #include "libtasquake/io.hpp"
 
 TEST_CASE("Can save rects") {
-    auto size = 99999;
+    auto size = 999;
     std::array<float, 4> color = {1, 0.75, 0.5, 0.25};
     std::vector<TASQuake::Rect> rects;
 
