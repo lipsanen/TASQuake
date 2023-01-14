@@ -6,6 +6,8 @@
 #include "simulate.hpp"
 #include <vector>
 
+using namespace TASQuake;
+
 static std::vector<PathPoint> real_line;
 static std::vector<Rect> real_rects;
 const std::array<float, 4> collision_path = { 0, 1, 0, 1 };

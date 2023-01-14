@@ -3,6 +3,8 @@
 #include "libtasquake/utils.hpp"
 #include "ipc_main.hpp"
 
+using namespace TASQuake;
+
 static qboolean OnChange_tas_reward_display(cvar_t* var, char* value);
 static qboolean OnChange_tas_reward_size(cvar_t* var, char* value);
 
