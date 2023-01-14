@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <cstring>
 #include <fstream>
 #include <memory>
 #include <string>
@@ -68,6 +69,16 @@ namespace TASQuakeIO
         void* m_pBuffer = nullptr;
         std::uint32_t m_uSize = 0;
         std::uint32_t m_uFileOffset = 0;
+
+        template<typename T>
+        void ReadPODVec(std::vector<T>& out) {
+            uint32_t size;
+            memcpy(&size, (uint8_t*)m_pBuffer + m_uFileOffset, sizeof(uint32_t));
+            m_uFileOffset += sizeof(uint32_t);
+            out.resize(size / sizeof(T));
+            memcpy(&out[0], (uint8_t*)m_pBuffer + m_uFileOffset, size);
+            m_uFileOffset += size;
+        }
     };
 
     class WriteInterface {
@@ -97,9 +108,20 @@ namespace TASQuakeIO
         virtual bool WriteLine(const std::string& str) override;
         virtual std::uint32_t Write(const char* format, ...) override;
         virtual void Finalize() override;
+        void AllocateSpaceForWrite(uint32_t bytes);
 
         std::shared_ptr<Buffer> m_pBuffer;
         std::uint32_t m_uFileOffset = 0;
+
+        template<typename T>
+        void WritePODVec(std::vector<T>& out) {
+            uint32_t size = out.size() * sizeof(T);
+            AllocateSpaceForWrite(size + sizeof(uint32_t));
+            memcpy((uint8_t*)m_pBuffer->ptr + m_uFileOffset, &size, sizeof(uint32_t));
+            m_uFileOffset += sizeof(uint32_t);
+            memcpy((uint8_t*)m_pBuffer->ptr + m_uFileOffset, &out[0], size);
+            m_uFileOffset += size;
+        }
     private:
     };
 }

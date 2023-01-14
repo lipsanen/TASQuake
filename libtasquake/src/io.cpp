@@ -163,19 +163,8 @@ std::uint32_t BufferWriteInterface::Write(const char* format, ...) {
     va_start(args, format);
     auto bytes = vsnprintf((char*)m_pBuffer->ptr + m_uFileOffset, bytesLeft, format, args);
     if(bytes != bytesLeft) {
-        std::uint32_t newSize = std::max<std::uint32_t>(1, m_pBuffer->size);
-        std::uint32_t targetSize = m_uFileOffset + bytes;
-
-        while(newSize < targetSize) {
-            newSize <<= 1;
-        }
-
-        if(newSize != m_pBuffer->size) {
-            m_pBuffer->Realloc(newSize);
-        }
-
+        AllocateSpaceForWrite(bytes);
         bytesLeft = m_pBuffer->size - m_uFileOffset;
-
         // Now we have enough space
         bytes = vsnprintf((char*)m_pBuffer->ptr + m_uFileOffset, bytesLeft, format, args);
     }
@@ -189,3 +178,18 @@ std::uint32_t BufferWriteInterface::Write(const char* format, ...) {
 void BufferWriteInterface::Finalize() {
     m_pBuffer->size = m_uFileOffset;
 }
+
+
+void BufferWriteInterface::AllocateSpaceForWrite(uint32_t bytes) {
+    std::uint32_t newSize = std::max<std::uint32_t>(1, m_pBuffer->size);
+    std::uint32_t targetSize = m_uFileOffset + bytes;
+
+    while(newSize < targetSize) {
+        newSize <<= 1;
+    }
+
+    if(newSize != m_pBuffer->size) {
+        m_pBuffer->Realloc(newSize);
+    }
+}
+
