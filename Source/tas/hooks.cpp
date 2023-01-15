@@ -202,7 +202,10 @@ void TAS_Init()
 	Cmd_AddCommand("tas_ss_clear", Cmd_TAS_SS_Clear);
 	Cmd_AddCommand("tas_savestate", Cmd_TAS_Savestate);
 	Cmd_AddCommand("tas_trace_edict", Cmd_TAS_Trace_Edict);
+	Cvar_Register(&tas_optimizer_endoffset);
 	Cvar_Register(&tas_optimizer_goal);
+	Cvar_Register(&tas_optimizer_maxlength);
+	Cvar_Register(&tas_optimizer_multigame);
 	Cvar_Register(&tas_optimizer);
 	Cvar_Register(&tas_playing);
 	Cvar_Register(&tas_pause_onload);

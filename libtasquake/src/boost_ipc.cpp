@@ -263,6 +263,8 @@ void ipc::client::do_read() {
 }
 
 void ipc::client::send_message(void* data, uint32_t size) {
+    if(!m_bConnected)
+        return;
     write_to_socket(*socket_, &size, sizeof(uint32_t));
     write_to_socket(*socket_, data, size);
 }

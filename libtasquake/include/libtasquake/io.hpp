@@ -115,7 +115,7 @@ namespace TASQuakeIO
         std::uint32_t m_uFileOffset = 0;
 
         template<typename T>
-        void WritePODVec(std::vector<T>& out) {
+        void WritePODVec(const std::vector<T>& out) {
             uint32_t size = out.size() * sizeof(T);
             AllocateSpaceForWrite(size + sizeof(uint32_t));
             memcpy((uint8_t*)m_pBuffer->ptr + m_uFileOffset, &size, sizeof(uint32_t));
