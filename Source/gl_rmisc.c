@@ -193,9 +193,9 @@ void R_TranslatePlayerSkin (int playernum)
 
 		glTexImage2D (GL_TEXTURE_2D, 0, gl_solid_format, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
-		glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-		glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		Q_glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+		Q_glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		Q_glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		fb_skins[playernum] = 0;
 		if (Img_HasFullbrights(original, inwidth * inheight))
@@ -224,9 +224,9 @@ void R_TranslatePlayerSkin (int playernum)
 
 			glTexImage2D (GL_TEXTURE_2D, 0, gl_alpha_format, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
-			glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-			glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			Q_glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+			Q_glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			Q_glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		}
 	}
 }
@@ -301,7 +301,7 @@ void R_TimeRefresh_f (void)
 	if (cls.state != ca_connected)
 		return;
 
-	glDrawBuffer (GL_FRONT);
+	Q_glDrawBuffer (GL_FRONT);
 	glFinish ();
 
 	start = Sys_DoubleTime ();
@@ -316,7 +316,7 @@ void R_TimeRefresh_f (void)
 	time = stop - start;
 	Con_Printf ("%f seconds (%f fps)\n", time, 128.0 / time);
 
-	glDrawBuffer (GL_BACK);
+	Q_glDrawBuffer (GL_BACK);
 	GL_EndRendering ();
 }
 

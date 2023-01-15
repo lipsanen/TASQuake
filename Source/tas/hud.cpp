@@ -47,18 +47,18 @@ void Draw(int& y, cvar_t* cvar, const char* format, ...)
 
 void Draw_Fill_RGB(int x, int y, int w, int h, float r, float g, float b)
 {
-	glDisable(GL_TEXTURE_2D);
+	Q_glDisable(GL_TEXTURE_2D);
 	glColor3f(r, g, b);
 
-	glBegin(GL_QUADS);
-	glVertex2f(x, y);
-	glVertex2f(x + w, y);
-	glVertex2f(x + w, y + h);
-	glVertex2f(x, y + h);
-	glEnd();
+	Q_glBegin(GL_QUADS);
+	Q_glVertex2f(x, y);
+	Q_glVertex2f(x + w, y);
+	Q_glVertex2f(x + w, y + h);
+	Q_glVertex2f(x, y + h);
+	Q_glEnd();
 
-	glEnable(GL_TEXTURE_2D);
-	glColor3ubv(color_white);
+	Q_glEnable(GL_TEXTURE_2D);
+	Q_glColor3ubv(color_white);
 }
 
 bool Should_Print_Cvar(const std::string& name, float value)
