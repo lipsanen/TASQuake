@@ -455,6 +455,14 @@ void TASScript::Prune(int min_frame)
 	blocks.erase(remove_it, blocks.end());
 }
 
+
+void TASScript::RemoveBlocksAfterFrame(int frame) {
+	auto remove_it = std::remove_if(blocks.begin(), blocks.end(), [=](const FrameBlock& element) {
+		return element.frame > frame;
+	});
+	blocks.erase(remove_it, blocks.end());
+}
+
 void TASScript::RemoveTogglesFromRange(const std::string& name, int min_frame, int max_frame)
 {
 	std::for_each(blocks.begin(), blocks.end(), [&](FrameBlock& block)
