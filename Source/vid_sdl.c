@@ -47,6 +47,9 @@ void NQ_CalculateVirtualDisplaySize(void)
 
 void GL_BeginRendering (int *x, int *y, int *width, int *height)
 {
+	if(r_norefresh.value != 0)
+		return;
+
 	*x = *y = 0;
 	*width = scr_width;
 	*height = scr_height;
@@ -56,6 +59,9 @@ void GL_BeginRendering (int *x, int *y, int *width, int *height)
 
 void GL_EndRendering (void)
 {
+	if(r_norefresh.value != 0)
+		return;
+
     SDL_GL_SwapWindow(window);
 
 	if (fullsbardraw)
