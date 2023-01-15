@@ -3,6 +3,7 @@
 #include "libtasquake/io.hpp"
 #include "cpp_quakedef.hpp"
 #include "ipc_prediction.hpp"
+#include "optimizer.hpp"
 #include "real_prediction.hpp"
 
 static ipc::server server;
@@ -25,6 +26,15 @@ void TASQuake::Cmd_IPC2_Cl_Disconnect() {
     client.disconnect();
 }
 
+void TASQuake::SV_BroadCastMessage(void* ptr, uint32_t length) {
+    std::vector<size_t> connections;
+    server.get_sessions(connections);
+
+    for(auto& connection_id : connections) {
+        server.send_message(connection_id, ptr, length);
+    }
+}
+
 void TASQuake::SV_SendMessage(size_t connection_id, void* ptr, uint32_t length) {
     server.send_message(connection_id, ptr, length);
 }
@@ -38,33 +48,7 @@ void TASQuake::SV_SendRun(const OptimizerRun& run) {
     uint8_t type = (uint8_t)IPCMessages::OptimizerRun;
     writer.WriteBytes(&type, 1);
     run.WriteToBuffer(writer);
-
-    std::vector<size_t> connections;
-    server.get_sessions(connections);
-
-    for(auto& connection_id : connections) {
-        server.send_message(connection_id, writer.m_pBuffer->ptr, writer.m_uFileOffset);
-    }
-}
-
-void TASQuake::CL_SendRun(const OptimizerRun& run) {
-    auto writer = TASQuakeIO::BufferWriteInterface::Init();
-    uint8_t type = (uint8_t)IPCMessages::OptimizerRun;
-    writer.WriteBytes(&type, 1);
-    run.WriteToBuffer(writer);
-
-    client.send_message(writer.m_pBuffer->ptr, writer.m_uFileOffset);
-}
-
-void TASQuake::CL_SendOptimizerProgress(int iterations) {
-    if(!client.m_bConnected)
-        return;
-
-    auto writer = TASQuakeIO::BufferWriteInterface::Init();
-    uint8_t type = (uint8_t)IPCMessages::OptimizerProgress;
-    writer.WriteBytes(&type, 1);
-    writer.WriteBytes(&iterations, sizeof(iterations));
-    client.send_message(writer.m_pBuffer->ptr, writer.m_uFileOffset);
+    SV_BroadCastMessage(writer.m_pBuffer->ptr, writer.m_uFileOffset);
 }
 
 std::int64_t TASQuake::Get_First_Session() {
@@ -96,10 +80,10 @@ static void Handle_Server_Message(ipc::Message& msg) {
 
     switch((TASQuake::IPCMessages)type) {
         case TASQuake::IPCMessages::OptimizerProgress:
-            Con_Printf("Client %lu reported optimizer progress: %d\n", msg.connection_id, *(int*)((uint8_t*)msg.address + 1));
+            TASQuake::MultiGame_ReceiveProgress(msg);
             break;
         case TASQuake::IPCMessages::OptimizerRun:
-            Con_Printf("Client %lu reported optimizer run\n");
+            TASQuake::MultiGame_ReceiveRun(msg);
             break;
         case TASQuake::IPCMessages::Predict:
             IPC_Prediction_Read_Response(msg);
@@ -152,6 +136,12 @@ static void Handle_Client_Message(ipc::Message& msg) {
             break;
         case TASQuake::IPCMessages::Predict:
             GamePrediction_Receive_IPC(msg);
+            break;
+        case TASQuake::IPCMessages::OptimizerTask:
+            TASQuake::Receive_Optimizer_Task(msg);
+            break;
+        case TASQuake::IPCMessages::OptimizerStop:
+            TASQuake::Receive_Optimizer_Stop();
             break;
         default:
             Con_Printf("IPC message with unknown type %d", (int)type);

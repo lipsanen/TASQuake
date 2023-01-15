@@ -256,6 +256,7 @@ void OptimizerRun::CalculateEfficacy(OptimizerGoal goal, const std::vector<Vecto
 
   if(nodeIndex != nodes.size()) {
     m_dEfficacy = std::numeric_limits<double>::lowest();
+    return;
   }
 
 	size_t index = m_vecData.size() - 1;
@@ -340,11 +341,13 @@ void OptimizerRun::StrafeBounds(size_t blockIndex, float& min, float& max) const
 
 void OptimizerRun::WriteToBuffer(TASQuakeIO::BufferWriteInterface& writer) const {
   writer.WriteBytes(&m_dEfficacy, sizeof(m_dEfficacy));
+  writer.WritePODVec(m_vecData);
   playbackInfo.current_script.Write_To_Memory(writer);
 }
 
 void OptimizerRun::ReadFromBuffer(TASQuakeIO::BufferReadInterface& reader) {
   reader.Read(&m_dEfficacy, sizeof(m_dEfficacy));
+  reader.ReadPODVec(m_vecData);
   playbackInfo.current_script.blocks.clear();
   playbackInfo.current_script.Load_From_Memory(reader);
 }
