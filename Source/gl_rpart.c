@@ -671,7 +671,7 @@ static void QMB_UpdateParticles (void)
 	if (_p->rotspeed || pt->id == p_q3rocketsmoke || pt->id == p_q3grenadesmoke)\
 		glRotatef (_p->rotangle, vpn[0], vpn[1], vpn[2]);\
 														\
-	glColor4ubv (_p->color);							\
+	Q_glColor4ubv (_p->color);							\
 														\
 	Q_glBegin (GL_QUADS);									\
 	Q_glTexCoord2f (_ptex->coords[_p->texindex][0], _ptex->coords[_p->texindex][3]); Q_glVertex3fv(_coord[0]);\
@@ -731,17 +731,17 @@ void QMB_DrawParticles (void)
 				if (particle_time < p->start || particle_time >= p->die)
 					continue;
 
-				glColor4ubv (p->color);
+				Q_glColor4ubv (p->color);
 				R_CalcBeamVerts (varray_vertex, p->org, p->endorg, p->size / 3.0);
 				Q_glBegin (GL_QUADS);
 				Q_glTexCoord2f (1, 0);
-				glVertex3f (varray_vertex[0], varray_vertex[1], varray_vertex[2]);
+				Q_glVertex3f (varray_vertex[0], varray_vertex[1], varray_vertex[2]);
 				Q_glTexCoord2f (1, 1);
-				glVertex3f (varray_vertex[4], varray_vertex[5], varray_vertex[6]);
+				Q_glVertex3f (varray_vertex[4], varray_vertex[5], varray_vertex[6]);
 				Q_glTexCoord2f (0, 1);
-				glVertex3f (varray_vertex[8], varray_vertex[9], varray_vertex[10]);
+				Q_glVertex3f (varray_vertex[8], varray_vertex[9], varray_vertex[10]);
 				Q_glTexCoord2f (0, 0);
-				glVertex3f (varray_vertex[12], varray_vertex[13], varray_vertex[14]);
+				Q_glVertex3f (varray_vertex[12], varray_vertex[13], varray_vertex[14]);
 				Q_glEnd ();
 			}
 			break;
@@ -754,9 +754,9 @@ void QMB_DrawParticles (void)
 					continue;
 
 				Q_glBegin (GL_TRIANGLE_FAN);
-				glColor4ubv (p->color);
+				Q_glColor4ubv (p->color);
 				Q_glVertex3fv (p->org);
-				glColor4ub (p->color[0] >> 1, p->color[1] >> 1, p->color[2] >> 1, 0);
+				Q_glColor4ub (p->color[0] >> 1, p->color[1] >> 1, p->color[2] >> 1, 0);
 				for (j=7 ; j>=0 ; j--)
 				{
 					for (k=0 ; k<3 ; k++)
@@ -779,9 +779,9 @@ void QMB_DrawParticles (void)
 					VectorCopy (p->org, neworg);
 
 				Q_glBegin (GL_TRIANGLE_FAN);
-				glColor4ubv (p->color);
+				Q_glColor4ubv (p->color);
 				Q_glVertex3fv (p->endorg);
-				glColor4ub (p->color[0] >> 1, p->color[1] >> 1, p->color[2] >> 1, 0);
+				Q_glColor4ub (p->color[0] >> 1, p->color[1] >> 1, p->color[2] >> 1, 0);
 				for (j=7 ; j>=0 ; j--)
 				{
 					for (k=0 ; k<3 ; k++)
@@ -852,7 +852,7 @@ void QMB_DrawParticles (void)
 					glPushMatrix ();
 					glTranslatef (p->org[0], p->org[1], p->org[2]);
 					glRotatef (!j ? 45 : -45, 0, 0, 1);
-					glColor4ubv (p->color);
+					Q_glColor4ubv (p->color);
 
 			// sigh. The best would be if the flames were always orthogonal to their surfaces
 			// but I'm afraid it's impossible to get that work (w/o progs modification of course)
@@ -891,13 +891,13 @@ void QMB_DrawParticles (void)
 
 					Q_glBegin (GL_QUADS);
 					Q_glTexCoord2f (ptex->coords[p->texindex][0], ptex->coords[p->texindex][3]);
-					glVertex3f (varray_vertex[0], varray_vertex[1], varray_vertex[2]);
+					Q_glVertex3f (varray_vertex[0], varray_vertex[1], varray_vertex[2]);
 					Q_glTexCoord2f (ptex->coords[p->texindex][0], ptex->coords[p->texindex][1]);
-					glVertex3f (varray_vertex[4], varray_vertex[5], varray_vertex[6]);
+					Q_glVertex3f (varray_vertex[4], varray_vertex[5], varray_vertex[6]);
 					Q_glTexCoord2f (ptex->coords[p->texindex][2], ptex->coords[p->texindex][1]);
-					glVertex3f (varray_vertex[8], varray_vertex[9], varray_vertex[10]);
+					Q_glVertex3f (varray_vertex[8], varray_vertex[9], varray_vertex[10]);
 					Q_glTexCoord2f (ptex->coords[p->texindex][2], ptex->coords[p->texindex][3]);
-					glVertex3f (varray_vertex[12], varray_vertex[13], varray_vertex[14]);
+					Q_glVertex3f (varray_vertex[12], varray_vertex[13], varray_vertex[14]);
 					Q_glEnd ();
 
 					glPopMatrix ();

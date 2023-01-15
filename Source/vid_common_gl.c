@@ -125,7 +125,7 @@ void GL_Init (void)
 	if (!Q_strncasecmp((char *)gl_renderer, "PowerVR", 7))
 		fullsbardraw = true;
 
-	glClearColor (0, 0, 0, 0);
+	Q_glClearColor (0, 0, 0, 0);
 	Q_glCullFace (GL_FRONT);
 	Q_glEnable (GL_TEXTURE_2D);
 

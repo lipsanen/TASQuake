@@ -4530,9 +4530,9 @@ void M_Draw (void)
 	{
 		menuwidth = 320;
 		menuheight = min(vid.height, 240);
-		glMatrixMode (GL_PROJECTION);
-		glLoadIdentity ();
-		glOrtho (0, menuwidth, menuheight, 0, -99999, 99999);
+		Q_glMatrixMode (GL_PROJECTION);
+		Q_glLoadIdentity ();
+		Q_glOrtho (0, menuwidth, menuheight, 0, -99999, 99999);
 	}
 	else
 	{
@@ -4654,9 +4654,9 @@ void M_Draw (void)
 #ifdef GLQUAKE
 	if (scr_scalemenu.value)
 	{
-		glMatrixMode (GL_PROJECTION);
-		glLoadIdentity ();
-		glOrtho (0, vid.width, vid.height, 0, -99999, 99999);
+		Q_glMatrixMode (GL_PROJECTION);
+		Q_glLoadIdentity ();
+		Q_glOrtho (0, vid.width, vid.height, 0, -99999, 99999);
 	}
 #endif
 
