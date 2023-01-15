@@ -207,6 +207,15 @@ static bool multi_game_opt_running = false;
 static std::map<size_t, int32_t> m_uIterationCounts; // Stores the iteration counts from clients
 static int32_t multi_game_opt_num = 1;
 
+static void SV_SendBest(const TASQuake::OptimizerRun& run) {
+    auto writer = TASQuakeIO::BufferWriteInterface::Init();
+    uint8_t type = (uint8_t)IPCMessages::OptimizerRun;
+    writer.WriteBytes(&type, 1);
+    writer.WriteBytes(&multi_game_opt_num, sizeof(multi_game_opt_num));
+    run.WriteToBuffer(writer);
+    SV_BroadCastMessage(writer.m_pBuffer->ptr, writer.m_uFileOffset);
+}
+
 void TASQuake::MultiGame_ReceiveRun(const ipc::Message& msg) {
     auto reader = TASQuakeIO::BufferReadInterface::Init((std::uint8_t*)msg.address + 1, msg.length - 1);
     int32_t identifier;
@@ -219,6 +228,7 @@ void TASQuake::MultiGame_ReceiveRun(const ipc::Message& msg) {
 
     opt.m_currentRun.ReadFromBuffer(reader);
     if(opt.m_currentRun.RunEfficacy() > m_dBestEfficacy || m_bFirstIteration) {
+        SV_SendBest(opt.m_currentRun);
         m_dBestEfficacy = opt.m_currentRun.RunEfficacy();
         opt.m_currentBest = opt.m_currentRun;
         m_BestPoints.clear();
@@ -359,6 +369,29 @@ void TASQuake::RunOptimizer(bool canPredict)
 static int32_t game_opt_start_frame = 0;
 static int32_t game_opt_end_frame = 0;
 static int32_t game_opt_identifier = 0;
+
+
+void TASQuake::Receive_Optimizer_Run(const ipc::Message& msg) {
+    auto reader = TASQuakeIO::BufferReadInterface::Init((std::uint8_t*)msg.address + 1, msg.length - 1);
+    int32_t identifier;
+    reader.Read(&identifier, sizeof(identifier));
+
+    if(identifier != game_opt_identifier) {
+        Con_Printf("Result discarded\n");
+        return;
+    }
+
+    TASQuake::OptimizerRun newRun;
+    newRun.ReadFromBuffer(reader);
+
+    if(newRun.IsBetterThan(opt.m_currentBest)) {
+        opt.m_currentBest = newRun;
+        m_dBestEfficacy = newRun.RunEfficacy();
+        Con_Printf("Improvement found by another client\n");
+    } else {
+        Con_Printf("Received run was worse or equal to ours, discard...\n");
+    }
+}
 
 static void CL_SendRun(const OptimizerRun& run) {
     auto writer = TASQuakeIO::BufferWriteInterface::Init();
