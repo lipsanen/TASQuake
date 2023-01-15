@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // image.c -- handling images
 
 #include "quakedef.h"
+#include "file.h"
 #ifdef GLQUAKE
 #ifndef _WIN32
 #include "jpeglib.h"	// FIXME!!!
@@ -94,7 +95,7 @@ int fgetLittleShort (FILE *f)
 Image_LoadTGA
 =============
 */
-byte *Image_LoadTGA (FILE *fin, char *filename, int matchwidth, int matchheight)
+byte *Image_LoadTGA (char *filename, int matchwidth, int matchheight)
 {
 	int		w, h, x, y, realrow, truerow, baserow, i, temp1, temp2, pixel_size, map_idx;
 	int		RLE_count, RLE_flag, size, interleave, origin;
@@ -102,38 +103,40 @@ byte *Image_LoadTGA (FILE *fin, char *filename, int matchwidth, int matchheight)
 	byte		*data, *dst, r, g, b, a, j, k, l, *ColorMap;
 	TargaHeader	header;
 
+	Q_File* fin = Q_fopen(filename, "rb");
+
 	/* load file */
-	if (!fin && COM_FOpenFile(filename, &fin) == -1)
+	if (!fin)
 		return NULL;
 
-	header.id_length = fgetc (fin);
-	header.colormap_type = fgetc (fin);
-	header.image_type = fgetc (fin);
-	header.colormap_index = fgetLittleShort (fin);
-	header.colormap_length = fgetLittleShort (fin);
-	header.colormap_size = fgetc (fin);
-	header.x_origin = fgetLittleShort (fin);
-	header.y_origin = fgetLittleShort (fin);
-	header.width = fgetLittleShort (fin);
-	header.height = fgetLittleShort (fin);
-	header.pixel_size = fgetc (fin);
-	header.attributes = fgetc (fin);
+	header.id_length = Q_fgetc (fin);
+	header.colormap_type = Q_fgetc (fin);
+	header.image_type = Q_fgetc (fin);
+	header.colormap_index = Q_fgetLittleShort (fin);
+	header.colormap_length = Q_fgetLittleShort (fin);
+	header.colormap_size = Q_fgetc (fin);
+	header.x_origin = Q_fgetLittleShort (fin);
+	header.y_origin = Q_fgetLittleShort (fin);
+	header.width = Q_fgetLittleShort (fin);
+	header.height = Q_fgetLittleShort (fin);
+	header.pixel_size = Q_fgetc (fin);
+	header.attributes = Q_fgetc (fin);
 
 	if (header.width > IMAGE_MAX_DIMENSIONS || header.height > IMAGE_MAX_DIMENSIONS)
 	{
 		Con_DPrintf ("TGA image %s exceeds maximum supported dimensions\n", COM_SkipPath(filename));
-		fclose (fin);
+		Q_fclose (fin);
 		return NULL;
 	}
 
 	if ((matchwidth && header.width != matchwidth) || (matchheight && header.height != matchheight))
 	{
-		fclose (fin);
+		Q_fclose (fin);
 		return NULL;
 	}
 
 	if (header.id_length != 0)
-		fseek (fin, header.id_length, SEEK_CUR); 
+		Q_fseek (fin, header.id_length, SEEK_CUR); 
 
 	/* validate TGA type */
 	switch (header.image_type)
@@ -148,7 +151,7 @@ byte *Image_LoadTGA (FILE *fin, char *filename, int matchwidth, int matchheight)
 
 	default:
 		Con_DPrintf ("Unsupported TGA image %s: Only type 1 (map), 2 (RGB), 3 (mono), 9 (RLEmap), 10 (RLERGB), 11 (RLEmono) TGA images supported\n", COM_SkipPath(filename));
-		fclose (fin);
+		Q_fclose (fin);
 		return NULL;
 	}
 
@@ -164,7 +167,7 @@ byte *Image_LoadTGA (FILE *fin, char *filename, int matchwidth, int matchheight)
 
 	default:
 		Con_DPrintf ("Unsupported TGA image %s: Only 8, 15, 16, 24 or 32 bit images (with colormaps) supported\n", COM_SkipPath(filename));
-		fclose (fin);
+		Q_fclose (fin);
 		return NULL;
 	}
 
@@ -187,7 +190,7 @@ byte *Image_LoadTGA (FILE *fin, char *filename, int matchwidth, int matchheight)
 
 		default:
 			Con_DPrintf ("Unsupported TGA image %s: Only 8, 15, 16, 24 or 32 bit colormaps supported\n", COM_SkipPath(filename));
-			fclose (fin);
+			Q_fclose (fin);
 			return NULL;
 		}
 
@@ -195,7 +198,7 @@ byte *Image_LoadTGA (FILE *fin, char *filename, int matchwidth, int matchheight)
 		temp2 = header.colormap_length;
 		if ((temp1 + temp2 + 1) >= TGA_MAXCOLORS)
 		{
-			fclose (fin);
+			Q_fclose (fin);
 			return NULL;
 		}
 		ColorMap = Q_malloc (TGA_MAXCOLORS * 4);
@@ -206,14 +209,14 @@ byte *Image_LoadTGA (FILE *fin, char *filename, int matchwidth, int matchheight)
 			switch (header.colormap_size)
 			{
 			case 8:	/* grey scale, read and triplicate. */
-				r = g = b = getc (fin);
+				r = g = b = Q_fgetc (fin);
 				a = 255;
 				break;
 
 			case 15:	/* 5 bits each of red green and blue. */
 						/* watch byte order. */
-				j = getc (fin);
-				k = getc (fin);
+				j = Q_fgetc (fin);
+				k = Q_fgetc (fin);
 				l = ((unsigned int)k << 8) + j;
 				r = (byte)(((k & 0x7C) >> 2) << 3);
 				g = (byte)((((k & 0x03) << 3) + ((j & 0xE0) >> 5)) << 3);
@@ -223,8 +226,8 @@ byte *Image_LoadTGA (FILE *fin, char *filename, int matchwidth, int matchheight)
 
 			case 16:	/* 5 bits each of red green and blue, 1 alpha bit. */
 						/* watch byte order. */
-				j = getc (fin);
-				k = getc (fin);
+				j = Q_fgetc (fin);
+				k = Q_fgetc (fin);
 				l = ((unsigned int)k << 8) + j;
 				r = (byte)(((k & 0x7C) >> 2) << 3);
 				g = (byte)((((k & 0x03) << 3) + ((j & 0xE0) >> 5)) << 3);
@@ -233,18 +236,18 @@ byte *Image_LoadTGA (FILE *fin, char *filename, int matchwidth, int matchheight)
 				break;
 
 			case 24:	/* 8 bits each of blue, green and red. */
-				b = getc (fin);
-				g = getc (fin);
-				r = getc (fin);
+				b = Q_fgetc (fin);
+				g = Q_fgetc (fin);
+				r = Q_fgetc (fin);
 				a = 255;
 				l = 0;
 				break;
 
 			case 32:	/* 8 bits each of blue, green, red and alpha. */
-				b = getc (fin);
-				g = getc (fin);
-				r = getc (fin);
-				a = getc (fin);
+				b = Q_fgetc (fin);
+				g = Q_fgetc (fin);
+				r = Q_fgetc (fin);
+				a = Q_fgetc (fin);
 				l = 0;
 				break;
 			}
@@ -286,7 +289,7 @@ byte *Image_LoadTGA (FILE *fin, char *filename, int matchwidth, int matchheight)
 				if (!RLE_count)
 				{
 					/* have to restart run. */
-					i = getc (fin);
+					i = Q_fgetc (fin);
 					RLE_flag = (i & 0x80);
 					if (!RLE_flag)	// stream of unencoded pixels
 						RLE_count = i + 1;
@@ -309,14 +312,14 @@ byte *Image_LoadTGA (FILE *fin, char *filename, int matchwidth, int matchheight)
 			switch (pixel_size)
 			{
 			case 8:	/* grey scale, read and triplicate. */
-				r = g = b = l = getc (fin);
+				r = g = b = l = Q_fgetc (fin);
 				a = 255;
 				break;
 
 			case 15:	/* 5 bits each of red green and blue. */
 						/* watch byte order. */
-				j = getc (fin);
-				k = getc (fin);
+				j = Q_fgetc (fin);
+				k = Q_fgetc (fin);
 				l = ((unsigned int)k << 8) + j;
 				r = (byte)(((k & 0x7C) >> 2) << 3);
 				g = (byte)((((k & 0x03) << 3) + ((j & 0xE0) >> 5)) << 3);
@@ -326,8 +329,8 @@ byte *Image_LoadTGA (FILE *fin, char *filename, int matchwidth, int matchheight)
 
 			case 16:	/* 5 bits each of red green and blue, 1 alpha bit. */
 						/* watch byte order. */
-				j = getc (fin);
-				k = getc (fin);
+				j = Q_fgetc (fin);
+				k = Q_fgetc (fin);
 				l = ((unsigned int)k << 8) + j;
 				r = (byte)(((k & 0x7C) >> 2) << 3);
 				g = (byte)((((k & 0x03) << 3) + ((j & 0xE0) >> 5)) << 3);
@@ -336,24 +339,24 @@ byte *Image_LoadTGA (FILE *fin, char *filename, int matchwidth, int matchheight)
 				break;
 
 			case 24:	/* 8 bits each of blue, green and red. */
-				b = getc (fin);
-				g = getc (fin);
-				r = getc (fin);
+				b = Q_fgetc (fin);
+				g = Q_fgetc (fin);
+				r = Q_fgetc (fin);
 				a = 255;
 				l = 0;
 				break;
 
 			case 32:	/* 8 bits each of blue, green, red and alpha. */
-				b = getc (fin);
-				g = getc (fin);
-				r = getc (fin);
-				a = getc (fin);
+				b = Q_fgetc (fin);
+				g = Q_fgetc (fin);
+				r = Q_fgetc (fin);
+				a = Q_fgetc (fin);
 				l = 0;
 				break;
 
 			default:
 				Con_DPrintf ("Malformed TGA image %s: Illegal pixel_size '%d'\n", COM_SkipPath(filename), pixel_size);
-				fclose (fin);
+				Q_fclose (fin);
 				free (data);
 				if (mapped)
 					free (ColorMap);
@@ -390,7 +393,7 @@ PixEncode:
 
 	if (mapped)
 		free (ColorMap);
-	fclose (fin);
+	Q_fclose (fin);
 
 	return data;
 }

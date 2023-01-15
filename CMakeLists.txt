@@ -25,6 +25,7 @@ FILE(GLOB_RECURSE SOURCES
 	 Source/console.c
 	 Source/crc.c
 	 Source/cvar.c
+	 Source/file.cpp
 	 Source/gl_decals.c
 	 Source/gl_draw.c
 	 Source/gl_mesh.c

@@ -1782,12 +1782,8 @@ byte *GL_LoadImagePixels (char *filename, int matchwidth, int matchheight, int m
 			*c = '#';
 
 	Q_snprintfz (name, sizeof(name), "%s.tga", basename);
-	if (COM_FOpenFile(name, &f) != -1)
-	{
-		CHECK_TEXTURE_ALREADY_LOADED;
-		if ((data = Image_LoadTGA(f, name, matchwidth, matchheight)))
-			return data;
-	}
+	if (data = Image_LoadTGA(name, matchwidth, matchheight))
+		return data;
 
 	Q_snprintfz (name, sizeof(name), "%s.png", basename);
 	if (COM_FOpenFile(name, &f) != -1)

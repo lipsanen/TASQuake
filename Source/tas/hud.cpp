@@ -330,7 +330,7 @@ static void DrawPredictionType(int& y)
 
 void HUD_Draw_Hook()
 {
-	if (!sv.active)
+	if (!sv.active || r_norefresh.value != 0)
 		return;
 
 	int x = tas_hud_pos_x.value;

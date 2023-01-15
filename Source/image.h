@@ -23,7 +23,7 @@ extern	int	image_width, image_height;
 
 extern	cvar_t	png_compression_level, jpeg_compression_level;
 
-byte *Image_LoadTGA (FILE *fin, char *name, int matchwidth, int matchheight);
+byte *Image_LoadTGA (char *name, int matchwidth, int matchheight);
 int Image_WriteTGA (char *filename, byte *pixels, int width, int height);
 
 byte *Image_LoadPNG (FILE *fin, char *filename, int matchwidth, int matchheight);
