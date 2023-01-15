@@ -131,6 +131,9 @@ static void Handle_Client_Message(ipc::Message& msg) {
     memcpy(&type, msg.address, sizeof(uint8_t));
 
     switch((TASQuake::IPCMessages)type) {
+        case TASQuake::IPCMessages::OptimizerRun:
+            TASQuake::Receive_Optimizer_Run(msg);
+            break;
         case TASQuake::IPCMessages::Print:
             Con_Printf("IPC message: %s\n", (char*)msg.address + 1);
             break;
