@@ -213,9 +213,9 @@ static void Classic_LoadParticleTexures (void)
 		}
 	}
 
-	glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-	glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	Q_glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	Q_glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+	Q_glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	GL_Upload32 ((unsigned *)data, 32, 32, TEX_MIPMAP | TEX_ALPHA);
 }
 #endif
@@ -797,11 +797,11 @@ void Classic_DrawParticles (void)
 
 	GL_Bind (particletexture);
 
-	glEnable (GL_BLEND);
+	Q_glEnable (GL_BLEND);
 	if (!gl_solidparticles.value)
-		glDepthMask (GL_FALSE);
-	glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	glBegin (GL_TRIANGLES);
+		Q_glDepthMask (GL_FALSE);
+	Q_glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	Q_glBegin (GL_TRIANGLES);
 
 	VectorScale (vup, 1.5, up);
 	VectorScale (vright, 1.5, right);
@@ -855,11 +855,11 @@ void Classic_DrawParticles (void)
 		at = (byte *)&d_8to24table[(int)p->color];
 		theAlpha = (p->type == pt_fire) ? 255 * (6 - p->ramp) / 6 : 255;
 		glColor4ub (at[0], at[1], at[2], theAlpha);
-		glTexCoord2f (0, 0);
-		glVertex3fv (p->org);
-		glTexCoord2f (1, 0);
+		Q_glTexCoord2f (0, 0);
+		Q_glVertex3fv (p->org);
+		Q_glTexCoord2f (1, 0);
 		glVertex3f (p->org[0] + up[0]*scale, p->org[1] + up[1]*scale, p->org[2] + up[2]*scale);
-		glTexCoord2f (0, 1);
+		Q_glTexCoord2f (0, 1);
 		glVertex3f (p->org[0] + right[0]*scale, p->org[1] + right[1]*scale, p->org[2] + right[2]*scale);
 #else
 		D_DrawParticle (p);
@@ -924,11 +924,11 @@ void Classic_DrawParticles (void)
 	}
 
 #ifdef GLQUAKE
-	glEnd ();
-	glDisable (GL_BLEND);
-	glDepthMask (GL_TRUE);
-	glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-	glColor3ubv (color_white);
+	Q_glEnd ();
+	Q_glDisable (GL_BLEND);
+	Q_glDepthMask (GL_TRUE);
+	Q_glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	Q_glColor3ubv (color_white);
 #endif
 }
 
