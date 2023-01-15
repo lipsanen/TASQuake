@@ -281,9 +281,9 @@ void Neh_SetupFrame (void)
 	{
 		float	colors[4] = {gl_fogred.value, gl_foggreen.value, gl_fogblue.value, 1};
 
-		glFogi (GL_FOG_MODE, GL_EXP2);
-		glFogf (GL_FOG_DENSITY, gl_fogdensity.value / 100);
-		glFogfv (GL_FOG_COLOR, colors);
+		Q_glFogi (GL_FOG_MODE, GL_EXP2);
+		Q_glFogf (GL_FOG_DENSITY, gl_fogdensity.value / 100);
+		Q_glFogfv (GL_FOG_COLOR, colors);
 		Q_glEnable (GL_FOG);
 	}
 	else

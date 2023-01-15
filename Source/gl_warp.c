@@ -785,7 +785,7 @@ void R_DrawSkyBox (void)
 	}
 
 	Q_glDisable (GL_TEXTURE_2D);
-	glColorMask (GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	Q_glColorMask (GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	Q_glEnable (GL_BLEND);
 	Q_glBlendFunc (GL_ZERO, GL_ONE);
 
@@ -793,7 +793,7 @@ void R_DrawSkyBox (void)
 		EmitFlatPoly (fa);
 
 	Q_glEnable (GL_TEXTURE_2D);
-	glColorMask (GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	Q_glColorMask (GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	Q_glDisable (GL_BLEND);
 	Q_glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

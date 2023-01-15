@@ -50,8 +50,8 @@ void GL_BeginRendering (int *x, int *y, int *width, int *height)
 	*x = *y = 0;
 	*width = scr_width;
 	*height = scr_height;
-    glClearColor(0, 0, 0, 1);
-    glClear(GL_COLOR_BUFFER_BIT);
+    Q_glClearColor(0, 0, 0, 1);
+    Q_glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void GL_EndRendering (void)

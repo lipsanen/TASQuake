@@ -2073,7 +2073,7 @@ void R_DrawViewModel (void)
 	currententity->istransparent = true;
 
 	// hack the depth range to prevent view model from poking into walls
-	glDepthRange (gldepthmin, gldepthmin + 0.3 * (gldepthmax - gldepthmin));
+	Q_glDepthRange (gldepthmin, gldepthmin + 0.3 * (gldepthmax - gldepthmin));
 
 	switch (currententity->model->type)
 	{
@@ -2086,7 +2086,7 @@ void R_DrawViewModel (void)
 		break;
 	}
 
-	glDepthRange (gldepthmin, gldepthmax);
+	Q_glDepthRange (gldepthmin, gldepthmax);
 }
 
 /*
@@ -2103,7 +2103,7 @@ void R_PolyBlend (void)
 	Q_glDisable (GL_TEXTURE_2D);
 	Q_glEnable (GL_BLEND);
 
-	glColor4fv (v_blend);
+	Q_glColor4fv (v_blend);
 
 	Q_glBegin (GL_QUADS);
 	Q_glVertex2f (r_refdef.vrect.x, r_refdef.vrect.y);
@@ -2145,7 +2145,7 @@ void R_BrightenScreen (void)
 		if (f >= 2)
 			Q_glColor3ubv (color_white);
 		else
-			glColor3f (f - 1, f - 1, f - 1);
+			Q_glColor3f (f - 1, f - 1, f - 1);
 		Q_glVertex2f (0, 0);
 		Q_glVertex2f (vid.width, 0);
 		Q_glVertex2f (vid.width, vid.height);
@@ -2325,7 +2325,7 @@ __inline void MYgluPerspective (GLdouble fovy, GLdouble aspect, GLdouble zNear, 
 	xmin = ymin * aspect;
 	xmax = ymax * aspect;
 
-	glFrustum (xmin, xmax, ymin, ymax, zNear, zFar);
+	Q_glFrustum (xmin, xmax, ymin, ymax, zNear, zFar);
 }
 
 /*
@@ -2345,8 +2345,8 @@ void R_SetupGL (void)
 	int	x, x2, y2, y, w, h, farclip;
 
 	// set up viewpoint
-	glMatrixMode (GL_PROJECTION);
-	glLoadIdentity ();
+	Q_glMatrixMode (GL_PROJECTION);
+	Q_glLoadIdentity ();
 	x = r_refdef.vrect.x * glwidth/vid.width;
 	x2 = (r_refdef.vrect.x + r_refdef.vrect.width) * glwidth/vid.width;
 	y = (vid.height - r_refdef.vrect.y) * glheight/vid.height;
@@ -2367,17 +2367,17 @@ void R_SetupGL (void)
 
 	Q_glCullFace (GL_FRONT);
 
-	glMatrixMode (GL_MODELVIEW);
-	glLoadIdentity ();
+	Q_glMatrixMode (GL_MODELVIEW);
+	Q_glLoadIdentity ();
 
-	glRotatef (-90, 1, 0, 0);	    // put Z going up
-	glRotatef (90, 0, 0, 1);	    // put Z going up
-	glRotatef (-r_refdef.viewangles[2], 1, 0, 0);
-	glRotatef (-r_refdef.viewangles[0], 0, 1, 0);
+	Q_glRotatef (-90, 1, 0, 0);	    // put Z going up
+	Q_glRotatef (90, 0, 0, 1);	    // put Z going up
+	Q_glRotatef (-r_refdef.viewangles[2], 1, 0, 0);
+	Q_glRotatef (-r_refdef.viewangles[0], 0, 1, 0);
 	glRotatef (-r_refdef.viewangles[1], 0, 0, 1);
-	glTranslatef (-r_refdef.vieworg[0], -r_refdef.vieworg[1], -r_refdef.vieworg[2]);
+	Q_glTranslatef (-r_refdef.vieworg[0], -r_refdef.vieworg[1], -r_refdef.vieworg[2]);
 
-	glGetFloatv (GL_MODELVIEW_MATRIX, r_world_matrix);
+	Q_glGetFloatv (GL_MODELVIEW_MATRIX, r_world_matrix);
 
 	// set drawing parms
 	if (gl_cull.value)
@@ -2544,46 +2544,46 @@ void R_Clear (void)
 	if (gl_ztrick.value)
 	{
 		if (clearbits && !in_overlay)
-			glClear (clearbits);
+			Q_glClear (clearbits);
 
 		gl_ztrickframe = !gl_ztrickframe;
 		if (gl_ztrickframe)
 		{
 			gldepthmin = 0;
 			gldepthmax = 0.49999;
-			glDepthFunc (GL_LEQUAL);
+			Q_glDepthFunc (GL_LEQUAL);
 		}
 		else
 		{
 			gldepthmin = 1;
 			gldepthmax = 0.5;
-			glDepthFunc (GL_GEQUAL);
+			Q_glDepthFunc (GL_GEQUAL);
 		}
 	}
 	else
 	{
 		clearbits |= GL_DEPTH_BUFFER_BIT;
 		if (!in_overlay)
-			glClear (clearbits);
+			Q_glClear (clearbits);
 		gldepthmin = 0.5;
 		gldepthmax = 1;
-		glDepthFunc (GL_LEQUAL);
+		Q_glDepthFunc (GL_LEQUAL);
 	}
 
 	if (in_overlay)
 	{
 		float range = gldepthmax - gldepthmin;
 		float offs = 0.5;
-		glDepthRange(gldepthmin - offs, gldepthmin - offs + range);
+		Q_glDepthRange(gldepthmin - offs, gldepthmin - offs + range);
 	}	
 	else
-		glDepthRange (gldepthmin, gldepthmax);
+		Q_glDepthRange (gldepthmin, gldepthmax);
 
 	if (r_shadows.value == 2)
 	{
-		glClearStencil (GL_TRUE);
+		Q_glClearStencil (GL_TRUE);
 		if (!in_overlay)
-			glClear (GL_STENCIL_BUFFER_BIT);
+			Q_glClear (GL_STENCIL_BUFFER_BIT);
 	}
 }
 
@@ -2603,13 +2603,13 @@ void R_RenderView (void)
 
 	if (r_speeds.value)
 	{
-		glFinish ();
+		Q_glFinish ();
 		time1 = Sys_DoubleTime ();
 		c_brush_polys = c_alias_polys = c_md3_polys = 0;
 	}
 
 	if (gl_finish.value)
-		glFinish ();
+		Q_glFinish ();
 
 	R_Clear ();
 
@@ -2631,12 +2631,12 @@ void R_RenderView (void)
 
 static void Clear_Screen()
 {
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0, vid.width, vid.height, 0, -99999, 99999);
+	Q_glMatrixMode(GL_PROJECTION);
+	Q_glLoadIdentity();
+	Q_glOrtho(0, vid.width, vid.height, 0, -99999, 99999);
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	Q_glMatrixMode(GL_MODELVIEW);
+	Q_glLoadIdentity();
 
 	Q_glDisable(GL_DEPTH_TEST);
 	Q_glDisable(GL_CULL_FACE);
@@ -2653,12 +2653,12 @@ static void Clear_Screen()
 
 static void Draw_Overlay_Crosshair(void)
 {
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0, vid.width, vid.height, 0, -99999, 99999);
+	Q_glMatrixMode(GL_PROJECTION);
+	Q_glLoadIdentity();
+	Q_glOrtho(0, vid.width, vid.height, 0, -99999, 99999);
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	Q_glMatrixMode(GL_MODELVIEW);
+	Q_glLoadIdentity();
 
 	Q_glDisable(GL_DEPTH_TEST);
 	Q_glDisable(GL_CULL_FACE);

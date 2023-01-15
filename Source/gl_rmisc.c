@@ -302,7 +302,7 @@ void R_TimeRefresh_f (void)
 		return;
 
 	Q_glDrawBuffer (GL_FRONT);
-	glFinish ();
+	Q_glFinish ();
 
 	start = Sys_DoubleTime ();
 	for (i = 0 ; i < 128 ; i++)
@@ -311,7 +311,7 @@ void R_TimeRefresh_f (void)
 		R_RenderView ();
 	}
 
-	glFinish ();
+	Q_glFinish ();
 	stop = Sys_DoubleTime ();
 	time = stop - start;
 	Con_Printf ("%f seconds (%f fps)\n", time, 128.0 / time);

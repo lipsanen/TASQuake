@@ -152,7 +152,7 @@ void GL_Bind (int texnum)
 		return;
 
 	currenttexture = texnum;
-	glBindTexture (GL_TEXTURE_2D, texnum);
+	Q_glBindTexture (GL_TEXTURE_2D, texnum);
 }
 
 /*
@@ -836,7 +836,7 @@ void Draw_Crosshair (void)
 			Q_glDisable (GL_ALPHA_TEST);
 			Q_glEnable (GL_BLEND);
 			col[3] = bound(0, gl_crosshairalpha.value, 1) * 255;
-			glColor4ubv (col);
+			Q_glColor4ubv (col);
 		}
 		else
 		{
@@ -1156,7 +1156,7 @@ Fills a box of pixels with a single color
 void Draw_Fill (int x, int y, int w, int h, int c)
 {
 	Q_glDisable (GL_TEXTURE_2D);
-	glColor3f (host_basepal[c*3] / 255.0, host_basepal[c*3+1] / 255.0, host_basepal[c*3+2] / 255.0);
+	Q_glColor3f (host_basepal[c*3] / 255.0, host_basepal[c*3+1] / 255.0, host_basepal[c*3+2] / 255.0);
 
 	Q_glBegin (GL_QUADS);
 	Q_glVertex2f (x, y);
@@ -1247,12 +1247,12 @@ void GL_Set2D (void)
 
 	glViewport (glx, gly, glwidth, glheight);
 
-	glMatrixMode (GL_PROJECTION);
-	glLoadIdentity ();
-	glOrtho (0, vid.width, vid.height, 0, -99999, 99999);
+	Q_glMatrixMode (GL_PROJECTION);
+	Q_glLoadIdentity ();
+	Q_glOrtho (0, vid.width, vid.height, 0, -99999, 99999);
 
-	glMatrixMode (GL_MODELVIEW);
-	glLoadIdentity ();
+	Q_glMatrixMode (GL_MODELVIEW);
+	Q_glLoadIdentity ();
 
 	Q_glDisable (GL_DEPTH_TEST);
 	Q_glDisable (GL_CULL_FACE);

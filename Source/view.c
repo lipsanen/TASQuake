@@ -524,17 +524,17 @@ void V_AddWaterfog (int contents)
 		break;
 	}
 
-	glFogfv (GL_FOG_COLOR, colors);
+	Q_glFogfv (GL_FOG_COLOR, colors);
 	if (((int)gl_waterfog.value) == 2)
 	{
-		glFogf (GL_FOG_DENSITY, 0.0002 + (0.0009 - 0.0002) * bound(0, gl_waterfog_density.value, 1));
-		glFogi (GL_FOG_MODE, GL_EXP);
+		Q_glFogf (GL_FOG_DENSITY, 0.0002 + (0.0009 - 0.0002) * bound(0, gl_waterfog_density.value, 1));
+		Q_glFogi (GL_FOG_MODE, GL_EXP);
 	}
 	else
 	{
-		glFogi (GL_FOG_MODE, GL_LINEAR);
-		glFogf (GL_FOG_START, 150.0f);	
-		glFogf (GL_FOG_END, 4250.0f - (4250.0f - 1536.0f) * bound(0, gl_waterfog_density.value, 1));
+		Q_glFogi (GL_FOG_MODE, GL_LINEAR);
+		Q_glFogf (GL_FOG_START, 150.0f);	
+		Q_glFogf (GL_FOG_END, 4250.0f - (4250.0f - 1536.0f) * bound(0, gl_waterfog_density.value, 1));
 	}
 	Q_glEnable(GL_FOG);
 }

@@ -854,13 +854,13 @@ void Classic_DrawParticles (void)
 
 		at = (byte *)&d_8to24table[(int)p->color];
 		theAlpha = (p->type == pt_fire) ? 255 * (6 - p->ramp) / 6 : 255;
-		glColor4ub (at[0], at[1], at[2], theAlpha);
+		Q_glColor4ub (at[0], at[1], at[2], theAlpha);
 		Q_glTexCoord2f (0, 0);
 		Q_glVertex3fv (p->org);
 		Q_glTexCoord2f (1, 0);
-		glVertex3f (p->org[0] + up[0]*scale, p->org[1] + up[1]*scale, p->org[2] + up[2]*scale);
+		Q_glVertex3f (p->org[0] + up[0]*scale, p->org[1] + up[1]*scale, p->org[2] + up[2]*scale);
 		Q_glTexCoord2f (0, 1);
-		glVertex3f (p->org[0] + right[0]*scale, p->org[1] + right[1]*scale, p->org[2] + right[2]*scale);
+		Q_glVertex3f (p->org[0] + right[0]*scale, p->org[1] + right[1]*scale, p->org[2] + right[2]*scale);
 #else
 		D_DrawParticle (p);
 #endif

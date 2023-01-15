@@ -131,9 +131,9 @@ void R_RenderDlight (dlight_t *light)
 
 	Q_glBegin (GL_TRIANGLE_FAN);
 	if (light->type == lt_explosion2 || light->type == lt_explosion3)
-		glColor3fv (ExploColor);
+		Q_glColor3fv (ExploColor);
 	else
-		glColor3fv (bubblecolor[light->type]);
+		Q_glColor3fv (bubblecolor[light->type]);
 
 	VectorVectors(v, v_right, v_up);
 
