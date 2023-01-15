@@ -1,6 +1,7 @@
 #include "draw.hpp"
 #include "libtasquake/draw.hpp"
 #include "libtasquake/optimizer.hpp"
+#include "ipc2.hpp"
 #include "optimizer.hpp"
 #include "savestate.hpp"
 #include "simulate.hpp"
@@ -127,13 +128,13 @@ static void InitOptimizer(PlaybackInfo* playback) {
 
 static void InitNewIteration() {
     if(m_bFirstIteration) {
-        m_dOriginalEfficacy = opt.m_currentBest.RunEfficacy(opt.m_settings.m_Goal, opt.m_vecNodes);
+        m_dOriginalEfficacy = opt.m_currentBest.RunEfficacy();
         m_dBestEfficacy = m_dOriginalEfficacy;
         m_bFirstIteration = false;
         m_BestPoints = m_CurrentPoints;
         AddCurve(&m_BestPoints, OPTIMIZER_ID);
     } else {
-        double runEfficacy = opt.m_currentRun.RunEfficacy(opt.m_settings.m_Goal, opt.m_vecNodes);
+        double runEfficacy = opt.m_currentRun.RunEfficacy();
         if(runEfficacy > m_dBestEfficacy) {
             m_BestPoints = m_CurrentPoints;
             m_dBestEfficacy = runEfficacy;
@@ -237,14 +238,15 @@ static void GameOpt_NewIteration() {
     info->current_script.AddScript(&opt.m_currentRun.playbackInfo.current_script, game_opt_start_frame);
 
     if(m_bFirstIteration) {
-        m_dOriginalEfficacy = opt.m_currentBest.RunEfficacy(opt.m_settings.m_Goal, opt.m_vecNodes);
+        m_dOriginalEfficacy = opt.m_currentBest.RunEfficacy();
         m_dBestEfficacy = m_dOriginalEfficacy;
         m_bFirstIteration = false;
         m_BestPoints = m_CurrentPoints;
         AddCurve(&m_BestPoints, OPTIMIZER_ID);
     } else {
-        double runEfficacy = opt.m_currentRun.RunEfficacy(opt.m_settings.m_Goal, opt.m_vecNodes);
+        double runEfficacy = opt.m_currentRun.RunEfficacy();
         if(runEfficacy > m_dBestEfficacy) {
+            TASQuake::CL_SendRun(opt.m_currentRun); // Send run over IPC if connected to server
             m_BestPoints = m_CurrentPoints;
             m_dBestEfficacy = runEfficacy;
         }
@@ -254,6 +256,7 @@ static void GameOpt_NewIteration() {
     m_CurrentPoints.clear();
     Savestate_Script_Updated(game_opt_start_frame);
     Run_Script(game_opt_end_frame+1, true);
+    state = TASQuake::OptimizerState::ContinueIteration;
 }
 
 static void Game_Opt_Add_FrameData(int current_frame) {
@@ -278,6 +281,7 @@ static void Game_Opt_Add_FrameData(int current_frame) {
 
 static void Game_Opt_Ended() {
     if(state == TASQuake::OptimizerState::NewIteration) {
+        TASQuake::CL_SendOptimizerProgress(m_uOptIterations + 1);
         GameOpt_NewIteration();
     } else if(state == TASQuake::OptimizerState::Stop) {
         Con_Printf("Optimizer ran to completion\n");
@@ -298,6 +302,10 @@ void TASQuake::Optimizer_Frame_Hook() {
         int current_frame = info->current_frame;
         if(current_frame >= game_opt_start_frame && current_frame <= game_opt_end_frame) {
             Game_Opt_Add_FrameData(current_frame);
+        } 
+
+        if(state == TASQuake::OptimizerState::NewIteration) {
+            Game_Opt_Ended();   
         }
     } 
     else if(tas_gamestate == paused) {

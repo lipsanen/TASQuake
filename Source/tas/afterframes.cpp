@@ -77,6 +77,10 @@ char* GetQueuedCommands()
 			auto& entry = afterframesQueue[i];
 			if (entry.frames <= 0 && entry.Active())
 			{
+				if(strstr(entry.command.c_str(), "tas_timescale 1") != NULL) {
+					int a = 0;
+				}
+
 				CopyToBuffer(entry.command.c_str());
 				afterframesQueue.erase(afterframesQueue.begin() + i);
 			}

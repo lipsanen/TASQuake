@@ -169,11 +169,15 @@ namespace TASQuake {
     enum class OptimizerGoal { Undetermined, PlusX, NegX, PlusY, NegY };
 
     struct OptimizerRun {
+        double m_dEfficacy = std::numeric_limits<double>::lowest();
         PlaybackInfo playbackInfo;
         std::vector<FrameData> m_vecData;
-        double RunEfficacy(OptimizerGoal goal, const std::vector<Vector>& nodes) const;
-        bool IsBetterThan(const OptimizerRun& run, OptimizerGoal goal, const std::vector<Vector>& nodes) const;
+        void CalculateEfficacy(OptimizerGoal goal, const std::vector<Vector>& nodes);
+        double RunEfficacy() const { return m_dEfficacy; };
+        bool IsBetterThan(const OptimizerRun& run) const;
         void StrafeBounds(size_t blockIndex, float& min, float& max) const;
+        void WriteToBuffer(TASQuakeIO::BufferWriteInterface& writer) const;
+        void ReadFromBuffer(TASQuakeIO::BufferReadInterface& reader);
     };
 
     OptimizerGoal AutoGoal(const std::vector<FrameData>& data);

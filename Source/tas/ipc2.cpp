@@ -33,6 +33,40 @@ void TASQuake::CL_SendMessage(void* ptr, uint32_t length) {
     client.send_message(ptr, length);
 }
 
+void TASQuake::SV_SendRun(const OptimizerRun& run) {
+    auto writer = TASQuakeIO::BufferWriteInterface::Init();
+    uint8_t type = (uint8_t)IPCMessages::OptimizerRun;
+    writer.WriteBytes(&type, 1);
+    run.WriteToBuffer(writer);
+
+    std::vector<size_t> connections;
+    server.get_sessions(connections);
+
+    for(auto& connection_id : connections) {
+        server.send_message(connection_id, writer.m_pBuffer->ptr, writer.m_uFileOffset);
+    }
+}
+
+void TASQuake::CL_SendRun(const OptimizerRun& run) {
+    auto writer = TASQuakeIO::BufferWriteInterface::Init();
+    uint8_t type = (uint8_t)IPCMessages::OptimizerRun;
+    writer.WriteBytes(&type, 1);
+    run.WriteToBuffer(writer);
+
+    client.send_message(writer.m_pBuffer->ptr, writer.m_uFileOffset);
+}
+
+void TASQuake::CL_SendOptimizerProgress(int iterations) {
+    if(!client.m_bConnected)
+        return;
+
+    auto writer = TASQuakeIO::BufferWriteInterface::Init();
+    uint8_t type = (uint8_t)IPCMessages::OptimizerProgress;
+    writer.WriteBytes(&type, 1);
+    writer.WriteBytes(&iterations, sizeof(iterations));
+    client.send_message(writer.m_pBuffer->ptr, writer.m_uFileOffset);
+}
+
 std::int64_t TASQuake::Get_First_Session() {
     std::vector<size_t> connections;
     server.get_sessions(connections);
@@ -52,7 +86,6 @@ static void Send_Ping(size_t connection_id) {
     server.send_message(connection_id, iface.m_pBuffer->ptr, iface.m_uFileOffset);
 }
 
-
 static void Handle_Server_Message(ipc::Message& msg) {
     uint8_t type;
     if(msg.length < 1) {
@@ -62,6 +95,12 @@ static void Handle_Server_Message(ipc::Message& msg) {
     memcpy(&type, msg.address, sizeof(uint8_t));
 
     switch((TASQuake::IPCMessages)type) {
+        case TASQuake::IPCMessages::OptimizerProgress:
+            Con_Printf("Client %lu reported optimizer progress: %d\n", msg.connection_id, *(int*)((uint8_t*)msg.address + 1));
+            break;
+        case TASQuake::IPCMessages::OptimizerRun:
+            Con_Printf("Client %lu reported optimizer run\n");
+            break;
         case TASQuake::IPCMessages::Predict:
             IPC_Prediction_Read_Response(msg);
             break;
