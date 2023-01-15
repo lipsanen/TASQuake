@@ -37,10 +37,12 @@ void Optimizer::_FinishIteration(OptimizerState& state) {
     }
   }
 
-  if (m_currentRun.IsBetterThan(m_currentBest, m_settings.m_Goal, m_vecNodes))
+  m_currentRun.CalculateEfficacy(m_settings.m_Goal, m_vecNodes);
+
+  if (m_currentRun.IsBetterThan(m_currentBest))
   {
     m_currentBest = m_currentRun;
-    double efficacy = m_currentRun.RunEfficacy(m_settings.m_Goal, m_vecNodes);
+    double efficacy = m_currentRun.RunEfficacy();
     m_uIterationsWithoutProgress = 0;
   }
   else
@@ -56,14 +58,14 @@ void Optimizer::_FinishIteration(OptimizerState& state) {
   {
     if(m_iCurrentAlgorithm != -1) { 
       auto ptr = m_settings.m_vecAlgorithms[m_iCurrentAlgorithm];
-      double efficacy = m_currentRun.RunEfficacy(m_settings.m_Goal, m_vecNodes);
+      double efficacy = m_currentRun.RunEfficacy();
       ptr->ReportResult(efficacy);
       if(!ptr->WantsToContinue()) {
         ptr->Reset();
         m_iCurrentAlgorithm = -1;
         if(m_uIterationsWithoutProgress >= m_settings.m_uResetToBestIterations) {
           m_currentRun.playbackInfo.current_script = m_currentBest.playbackInfo.current_script;
-          efficacy = m_currentRun.RunEfficacy(m_settings.m_Goal, m_vecNodes);
+          efficacy = m_currentRun.RunEfficacy();
         }
       }
     }
@@ -235,11 +237,11 @@ OptimizerGoal TASQuake::AutoGoal(const std::vector<FrameData>& vecData)
 	}
 }
 
-double OptimizerRun::RunEfficacy(OptimizerGoal goal, const std::vector<Vector>& nodes) const
+void OptimizerRun::CalculateEfficacy(OptimizerGoal goal, const std::vector<Vector>& nodes)
 {
 	if (m_vecData.empty() || goal == OptimizerGoal::Undetermined)
 	{
-    return std::numeric_limits<double>::lowest();
+    m_dEfficacy = std::numeric_limits<double>::lowest();
 	}
 
   size_t nodeIndex = 0;
@@ -253,7 +255,7 @@ double OptimizerRun::RunEfficacy(OptimizerGoal goal, const std::vector<Vector>& 
   }
 
   if(nodeIndex != nodes.size()) {
-    return std::numeric_limits<double>::lowest();
+    m_dEfficacy = std::numeric_limits<double>::lowest();
   }
 
 	size_t index = m_vecData.size() - 1;
@@ -261,23 +263,23 @@ double OptimizerRun::RunEfficacy(OptimizerGoal goal, const std::vector<Vector>& 
 
 	if (goal == OptimizerGoal::NegX)
 	{
-		return -last.x;
+		m_dEfficacy = -last.x;
 	}
 	else if (goal == OptimizerGoal::NegY)
 	{
-		return -last.y;
+		m_dEfficacy = -last.y;
 	}
 	else if (goal == OptimizerGoal::PlusX)
 	{
-		return last.x;
+		m_dEfficacy = last.x;
 	}
 	else
 	{
-		return last.y;
+		m_dEfficacy = last.y;
 	}
 }
 
-bool OptimizerRun::IsBetterThan(const OptimizerRun& run, OptimizerGoal goal, const std::vector<Vector>& nodes) const 
+bool OptimizerRun::IsBetterThan(const OptimizerRun& run) const 
 {
   if (m_vecData.empty()) {
     return false;
@@ -288,13 +290,9 @@ bool OptimizerRun::IsBetterThan(const OptimizerRun& run, OptimizerGoal goal, con
 		TASQuake::Log("Ran different number of iterations with optimizer\n");
     abort();
 	}
-	else if (goal == OptimizerGoal::Undetermined)
-	{
-		return true;
-	}
 
-	double ours = RunEfficacy(goal, nodes);
-	double theirs = run.RunEfficacy(goal, nodes);
+	double ours = RunEfficacy();
+	double theirs = run.RunEfficacy();
 
 	return ours > theirs;
 }
@@ -337,6 +335,18 @@ void OptimizerRun::StrafeBounds(size_t blockIndex, float& min, float& max) const
   for(size_t i=start_frame; i < last_frame; ++i) {
     m_vecData[i].FindSmallestStrafeYawIncrements(strafe_yaw, min, max);
   }
+}
+
+
+void OptimizerRun::WriteToBuffer(TASQuakeIO::BufferWriteInterface& writer) const {
+  writer.WriteBytes(&m_dEfficacy, sizeof(m_dEfficacy));
+  playbackInfo.current_script.Write_To_Memory(writer);
+}
+
+void OptimizerRun::ReadFromBuffer(TASQuakeIO::BufferReadInterface& reader) {
+  reader.Read(&m_dEfficacy, sizeof(m_dEfficacy));
+  playbackInfo.current_script.blocks.clear();
+  playbackInfo.current_script.Load_From_Memory(reader);
 }
 
 void BinSearcher::Init(double orig, double orig_efficacy, double max, double eps)
@@ -525,7 +535,7 @@ void StrafeAdjuster::Mutate(TASScript* script, Optimizer* opt) {
     FrameBlock* block = &script->blocks[m_iCurrentBlockIndex];
     float strafe_yaw = block->convars["tas_strafe_yaw"];
     opt->m_currentRun.StrafeBounds(m_iCurrentBlockIndex, min, max);
-    double efficacy = opt->m_currentRun.RunEfficacy(opt->m_settings.m_Goal, opt->m_vecNodes);
+    double efficacy = opt->m_currentRun.RunEfficacy();
 
     if(min == -TASQuake::INVALID_ANGLE && max == TASQuake::INVALID_ANGLE) {
       // Strafe angle does nothing
@@ -666,7 +676,7 @@ void FrameBlockMover::Mutate(TASScript* script, Optimizer* opt) {
       max = min;
     }
 
-    double efficacy = opt->m_currentRun.RunEfficacy(opt->m_settings.m_Goal, opt->m_vecNodes);
+    double efficacy = opt->m_currentRun.RunEfficacy();
     m_Stone.Init(efficacy, orig + delta, delta, max);
   }
   

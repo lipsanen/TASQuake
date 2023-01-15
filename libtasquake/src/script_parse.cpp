@@ -258,7 +258,7 @@ bool TASScript::Load_From_Memory(TASQuakeIO::BufferReadInterface& iface) {
 	return rval;
 }
 
-void TASScript::Write_To_Memory(TASQuakeIO::BufferWriteInterface& iface) {
+void TASScript::Write_To_Memory(TASQuakeIO::BufferWriteInterface& iface) const {
 	uint32_t offset = iface.m_uFileOffset;
 	iface.Write("0000"); // Fill the size with blanks
 
@@ -317,7 +317,7 @@ bool TASScript::_Load_From_File(TASQuakeIO::ReadInterface& readInterface) {
 	return rval;
 }
 
-void TASScript::_Write_To_File(TASQuakeIO::WriteInterface& writeInterface) {
+void TASScript::_Write_To_File(TASQuakeIO::WriteInterface& writeInterface) const {
 
 	int current_frame = 0;
 
@@ -411,7 +411,7 @@ static bool Move_Saves(const char* file_name)
 	return true;
 }
 
-void TASScript::Write_To_File()
+void TASScript::Write_To_File() const
 {
 	if (blocks.empty())
 	{

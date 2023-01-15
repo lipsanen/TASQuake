@@ -59,7 +59,7 @@ void TASQuake::BenchTest(SimFunc func,
 		{
 			++iterations;
 			frame = 0;
-			currentBest = opt.m_currentBest.RunEfficacy(opt.m_settings.m_Goal, opt.m_vecNodes);
+			currentBest = opt.m_currentBest.RunEfficacy();
 			if (currentBest >= passThreshold)
 			{
 				break;
@@ -77,7 +77,7 @@ void TASQuake::BenchTest(SimFunc func,
 		}
 	}
 
-	double result = opt.m_currentBest.RunEfficacy(opt.m_settings.m_Goal, opt.m_vecNodes);
+	double result = opt.m_currentBest.RunEfficacy();
 
 	if (result < passThreshold)
 	{

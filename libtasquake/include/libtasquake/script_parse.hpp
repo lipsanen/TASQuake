@@ -56,9 +56,9 @@ public:
 	TASScript(const char* file_name);
 	void ApplyChanges(const TASScript* script, int& first_changed_frame);
 	bool Load_From_Memory(TASQuakeIO::BufferReadInterface& iface);
-	void Write_To_Memory(TASQuakeIO::BufferWriteInterface& iface);
+	void Write_To_Memory(TASQuakeIO::BufferWriteInterface& iface) const;
 	bool Load_From_File();
-	void Write_To_File();
+	void Write_To_File() const;
 	std::vector<FrameBlock> blocks;
 	std::string file_name;
 	mutable int prev_block_number = 0;
@@ -71,7 +71,7 @@ public:
 	int GetBlockIndex(int frame) const;
 private:
 	bool _Load_From_File(TASQuakeIO::ReadInterface& readInterface);
-	void _Write_To_File(TASQuakeIO::WriteInterface& writeInterface);
+	void _Write_To_File(TASQuakeIO::WriteInterface& writeInterface) const;
 };
 
 class TestScript
