@@ -184,6 +184,7 @@ void TAS_Init()
 	Cmd_AddCommand("-tas_lgagst", IN_TAS_Lgagst_Up);
 
 	Cmd_AddCommand("tas_optimizer_accept", Cmd_TAS_Optimizer_Accept);
+	Cmd_AddCommand("tas_optimizer_run", TASQuake::Cmd_TAS_Optimizer_Run);
 
 	Cmd_AddCommand("tas_reward_delete_all", Cmd_TAS_Reward_Delete_All);
 	Cmd_AddCommand("tas_reward_dump", Cmd_TAS_Reward_Dump);
@@ -352,6 +353,7 @@ void _Host_Frame_After_FilterTime_Hook()
 	Test_Runner_Frame_Hook();
 	IPC_Prediction_Frame_Hook();
 	TASQuake::IPC2_Frame_Hook();
+	TASQuake::Optimizer_Frame_Hook();
 	IPC_Loop();
 	Bookmark_Frame_Hook();
 	GamePrediction_Frame_Hook();

@@ -13,4 +13,7 @@ namespace TASQuake {
     double OptimizedEfficacy();
     std::size_t OptimizerIterations();
     const TASScript* GetOptimizedVersion();
+    void Optimizer_Frame_Hook();
+    void GameOpt_InitOptimizer(int start_frame, int end_frame);
+    void Cmd_TAS_Optimizer_Run();
 }
