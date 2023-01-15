@@ -218,7 +218,7 @@ void TASQuake::MultiGame_ReceiveRun(const ipc::Message& msg) {
     }
 
     opt.m_currentRun.ReadFromBuffer(reader);
-    if(opt.m_currentRun.RunEfficacy() > m_dBestEfficacy) {
+    if(opt.m_currentRun.RunEfficacy() > m_dBestEfficacy || m_bFirstIteration) {
         m_dBestEfficacy = opt.m_currentRun.RunEfficacy();
         opt.m_currentBest = opt.m_currentRun;
         m_BestPoints.clear();
@@ -234,6 +234,7 @@ void TASQuake::MultiGame_ReceiveRun(const ipc::Message& msg) {
         }
 
         if(m_bFirstIteration) {
+            m_dOriginalEfficacy = m_dBestEfficacy;
             m_bFirstIteration = false;
             AddCurve(&m_BestPoints, OPTIMIZER_ID);
         }
@@ -276,7 +277,7 @@ static void SV_StartMultiGameOpt() {
     writer.WriteBytes(&end_frame, sizeof(end_frame));
     writer.WriteBytes(&multi_game_opt_num, sizeof(multi_game_opt_num));
     info->current_script.Write_To_Memory(writer);
-    m_dBestEfficacy = std::numeric_limits<double>::lowest();
+    m_dBestEfficacy = 0;
 
     SV_BroadCastMessage(writer.m_pBuffer->ptr, writer.m_uFileOffset);
 }
@@ -426,6 +427,7 @@ static void GameOpt_NewIteration() {
         m_dBestEfficacy = m_dOriginalEfficacy;
         m_bFirstIteration = false;
         m_BestPoints = m_CurrentPoints;
+        CL_SendRun(opt.m_currentRun);
         AddCurve(&m_BestPoints, OPTIMIZER_ID);
     } else {
         double runEfficacy = opt.m_currentRun.RunEfficacy();
