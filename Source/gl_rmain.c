@@ -2474,10 +2474,6 @@ void R_Init (void)
 
 	Cmd_AddLegacyCommand ("loadsky", "r_skybox");
 
-	// this minigl driver seems to slow us down if the particles are drawn WITHOUT Z buffer bits
-	if (!strcmp(gl_vendor, "METABYTE/WICKED3D"))
-		Cvar_SetDefault (&gl_solidparticles, 1);
-
 	if (!gl_allow_ztrick)
 		Cvar_SetDefault (&gl_ztrick, 0);
 
