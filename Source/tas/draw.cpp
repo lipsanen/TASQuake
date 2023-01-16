@@ -51,7 +51,7 @@ void RemoveCurve(int id)
 static void Draw_Rectangle(const Rect& rect)
 {
 
-	glBegin(GL_QUADS);
+	Q_glBegin(GL_QUADS);
 	glColor4fv(rect.color.data());
 	glVertex3f(rect.mins[0], rect.mins[1], rect.mins[2]);
 	glVertex3f(rect.mins[0], rect.maxs[1], rect.mins[2]);
@@ -83,11 +83,11 @@ static void Draw_Rectangle(const Rect& rect)
 	glVertex3f(rect.mins[0], rect.maxs[1], rect.mins[2]);
 	glVertex3f(rect.mins[0], rect.maxs[1], rect.maxs[2]);
 
-	glEnd();
+	Q_glEnd();
 }
 
 static void DrawLine(const std::vector<PathPoint>* line, uint32_t* pstart=nullptr, uint32_t* pend=nullptr) {
-	glBegin(GL_LINES);
+	Q_glBegin(GL_LINES);
 
 	uint32_t start, end;
 	if(pstart) {
@@ -108,11 +108,11 @@ static void DrawLine(const std::vector<PathPoint>* line, uint32_t* pstart=nullpt
 		auto& vec2 = line->at(i + 1);
 
 		glColor4fv(vec1.color.data());
-		glVertex3fv(vec1.point);
-		glVertex3fv(vec2.point);
+		Q_glVertex3fv(vec1.point);
+		Q_glVertex3fv(vec2.point);
 	}
 
-	glEnd();
+	Q_glEnd();
 }
 
 static void DrawRects(const std::vector<Rect>* rects, uint32_t* pstart=nullptr, uint32_t* pend=nullptr) {
@@ -144,7 +144,7 @@ void Draw_Elements()
 		return;
 
 	glDisable(GL_TEXTURE_2D);
-	glEnable(GL_BLEND);
+	Q_glEnable(GL_BLEND);
 
 	if(IPC_Prediction_HasLine()) {
 		uint32_t start, end;
@@ -169,7 +169,7 @@ void Draw_Elements()
 
 	for (auto pair : lines)
 	{
-		glBegin(GL_LINES);
+		Q_glBegin(GL_LINES);
 		int elements = pair.second->size();
 		for (int i = 0; i < elements - 1; ++i)
 		{
@@ -177,11 +177,11 @@ void Draw_Elements()
 			auto& vec2 = pair.second->at(i + 1);
 
 			glColor4fv(vec1.color.data());
-			glVertex3fv(vec1.point);
-			glVertex3fv(vec2.point);
+			Q_glVertex3fv(vec1.point);
+			Q_glVertex3fv(vec2.point);
 		}
-		glEnd();
+		Q_glEnd();
 	}
-	glEnable(GL_TEXTURE_2D);
-	glDisable(GL_BLEND);
+	Q_glEnable(GL_TEXTURE_2D);
+	Q_glDisable(GL_BLEND);
 }

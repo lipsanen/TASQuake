@@ -284,11 +284,11 @@ void Neh_SetupFrame (void)
 		glFogi (GL_FOG_MODE, GL_EXP2);
 		glFogf (GL_FOG_DENSITY, gl_fogdensity.value / 100);
 		glFogfv (GL_FOG_COLOR, colors);
-		glEnable (GL_FOG);
+		Q_glEnable (GL_FOG);
 	}
 	else
 	{
-		glDisable (GL_FOG);
+		Q_glDisable (GL_FOG);
 	}
 }
 

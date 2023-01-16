@@ -505,7 +505,7 @@ void V_AddWaterfog (int contents)
 
 	if (!gl_waterfog.value || contents == CONTENTS_EMPTY || contents == CONTENTS_SOLID)
 	{
-		glDisable (GL_FOG);
+		Q_glDisable (GL_FOG);
 		return;
 	}
 
@@ -536,7 +536,7 @@ void V_AddWaterfog (int contents)
 		glFogf (GL_FOG_START, 150.0f);	
 		glFogf (GL_FOG_END, 4250.0f - (4250.0f - 1536.0f) * bound(0, gl_waterfog_density.value, 1));
 	}
-	glEnable(GL_FOG);
+	Q_glEnable(GL_FOG);
 }
 #endif
 
@@ -1261,6 +1261,7 @@ SCR_DrawStats
 */
 void SCR_DrawStats (void)
 {
+#ifndef SIM
 	int		mins, secs, tens;
 	extern	mpic_t	*sb_colon, *sb_nums[2][11];
 
@@ -1297,6 +1298,7 @@ void SCR_DrawStats (void)
 			Draw_String (vid.width - 24, 16, va("%3i", cl.stats[STAT_MONSTERS]));
 		}
 	}
+#endif
 }
 
 /*
