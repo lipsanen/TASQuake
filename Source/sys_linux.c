@@ -312,6 +312,7 @@ int main (int argc, char **argv)
 		newtime = Sys_DoubleTime();
 		time = newtime - oldtime;
 
+#ifndef SIM
 		if (tas_playing.value != 0)
 		{	
 			float effective_fps = bound(10, cl_maxfps.value, 72);
@@ -326,6 +327,7 @@ int main (int argc, char **argv)
 				time = newtime - oldtime;
 			}
 		}
+#endif
 
 		oldtime = newtime;
 		Host_Frame (time);
