@@ -506,14 +506,14 @@ void R_DrawDecals (void)
 	if (!qmb_initialized)
 		return;
 
-	glEnable (GL_BLEND);
-	glEnable (GL_ALPHA_TEST);
-	glAlphaFunc (GL_GREATER, 0.000);
-	glEnable (GL_POLYGON_OFFSET_FILL);
+	Q_glEnable (GL_BLEND);
+	Q_glEnable (GL_ALPHA_TEST);
+	Q_glAlphaFunc (GL_GREATER, 0.000);
+	Q_glEnable (GL_POLYGON_OFFSET_FILL);
 	glPolygonOffset (-1, -1);
-	glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	glDepthMask (GL_FALSE);
-	glShadeModel (GL_SMOOTH);
+	Q_glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	Q_glDepthMask (GL_FALSE);
+	Q_glShadeModel (GL_SMOOTH);
 
 	for ( ; ; )
 	{
@@ -551,21 +551,21 @@ void R_DrawDecals (void)
 			continue;
 
 		if (p->texture == decal_q3blood)
-			glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			Q_glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		else
-			glBlendFunc (GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
+			Q_glBlendFunc (GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
 		GL_Bind (p->texture);
 		dcolor = 1;
 
 		if ((p->die - cl.time) < 0.5) 
 		{
 			float scale = 2 * (p->die - cl.time);
-			glColor4f (dcolor * scale, dcolor * scale, dcolor * scale, scale);
+			Q_glColor4f (dcolor * scale, dcolor * scale, dcolor * scale, scale);
 		} 
 		else 
 		{
 			dcolor = (1 - (VectorLength(decaldist) / gl_decal_viewdistance.value));
-			glColor4f (dcolor, dcolor, dcolor, dcolor);
+			Q_glColor4f (dcolor, dcolor, dcolor, dcolor);
 		}
 
 		for (i = 0 ; i < p->triangleCount ; i++)
@@ -576,25 +576,25 @@ void R_DrawDecals (void)
 			i2 = p->triangleArray[i][1];
 			i3 = p->triangleArray[i][2];
 
-			glBegin (GL_TRIANGLES);
-			glTexCoord2fv (&p->texcoordArray[i1][0]);
-			glVertex3fv (&p->vertexArray[i1][0]);
+			Q_glBegin (GL_TRIANGLES);
+			Q_glTexCoord2fv (&p->texcoordArray[i1][0]);
+			Q_glVertex3fv (&p->vertexArray[i1][0]);
 
-			glTexCoord2fv (&p->texcoordArray[i2][0]);
-			glVertex3fv (&p->vertexArray[i2][0]);
+			Q_glTexCoord2fv (&p->texcoordArray[i2][0]);
+			Q_glVertex3fv (&p->vertexArray[i2][0]);
 
-			glTexCoord2fv (&p->texcoordArray[i3][0]);
-			glVertex3fv (&p->vertexArray[i3][0]);
-			glEnd ();
+			Q_glTexCoord2fv (&p->texcoordArray[i3][0]);
+			Q_glVertex3fv (&p->vertexArray[i3][0]);
+			Q_glEnd ();
 		}				
 	}
 
-	glDisable (GL_BLEND);
-	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDisable (GL_ALPHA_TEST);
-	glAlphaFunc (GL_GREATER, 0.666);
-	glDisable (GL_POLYGON_OFFSET_FILL);
-	glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-	glDepthMask (GL_TRUE);
-	glShadeModel (GL_FLAT);
+	Q_glDisable (GL_BLEND);
+	Q_glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	Q_glDisable (GL_ALPHA_TEST);
+	Q_glAlphaFunc (GL_GREATER, 0.666);
+	Q_glDisable (GL_POLYGON_OFFSET_FILL);
+	Q_glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	Q_glDepthMask (GL_TRUE);
+	Q_glShadeModel (GL_FLAT);
 }

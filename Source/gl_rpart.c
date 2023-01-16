@@ -673,12 +673,12 @@ static void QMB_UpdateParticles (void)
 														\
 	glColor4ubv (_p->color);							\
 														\
-	glBegin (GL_QUADS);									\
-	glTexCoord2f (_ptex->coords[_p->texindex][0], _ptex->coords[_p->texindex][3]); glVertex3fv(_coord[0]);\
-	glTexCoord2f (_ptex->coords[_p->texindex][0], _ptex->coords[_p->texindex][1]); glVertex3fv(_coord[1]);\
-	glTexCoord2f (_ptex->coords[_p->texindex][2], _ptex->coords[_p->texindex][1]); glVertex3fv(_coord[2]);\
-	glTexCoord2f (_ptex->coords[_p->texindex][2], _ptex->coords[_p->texindex][3]); glVertex3fv(_coord[3]);\
-	glEnd ();											\
+	Q_glBegin (GL_QUADS);									\
+	Q_glTexCoord2f (_ptex->coords[_p->texindex][0], _ptex->coords[_p->texindex][3]); Q_glVertex3fv(_coord[0]);\
+	Q_glTexCoord2f (_ptex->coords[_p->texindex][0], _ptex->coords[_p->texindex][1]); Q_glVertex3fv(_coord[1]);\
+	Q_glTexCoord2f (_ptex->coords[_p->texindex][2], _ptex->coords[_p->texindex][1]); Q_glVertex3fv(_coord[2]);\
+	Q_glTexCoord2f (_ptex->coords[_p->texindex][2], _ptex->coords[_p->texindex][3]); Q_glVertex3fv(_coord[3]);\
+	Q_glEnd ();											\
 														\
 	glPopMatrix ();
 
@@ -703,10 +703,10 @@ void QMB_DrawParticles (void)
 	VectorNegate (billboard[2], billboard[0]);
 	VectorNegate (billboard[3], billboard[1]);
 
-	glDepthMask (GL_FALSE);
-	glEnable (GL_BLEND);
-	glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	glShadeModel (GL_SMOOTH);
+	Q_glDepthMask (GL_FALSE);
+	Q_glEnable (GL_BLEND);
+	Q_glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	Q_glShadeModel (GL_SMOOTH);
 
 	for (i = 0 ; i < num_particletypes ; i++)
 	{
@@ -714,7 +714,7 @@ void QMB_DrawParticles (void)
 		if (!pt->start)
 			continue;
 
-		glBlendFunc (pt->srcblend, pt->dstblend);
+		Q_glBlendFunc (pt->srcblend, pt->dstblend);
 
 		switch (pt->drawtype)
 		{
@@ -733,43 +733,43 @@ void QMB_DrawParticles (void)
 
 				glColor4ubv (p->color);
 				R_CalcBeamVerts (varray_vertex, p->org, p->endorg, p->size / 3.0);
-				glBegin (GL_QUADS);
-				glTexCoord2f (1, 0);
+				Q_glBegin (GL_QUADS);
+				Q_glTexCoord2f (1, 0);
 				glVertex3f (varray_vertex[0], varray_vertex[1], varray_vertex[2]);
-				glTexCoord2f (1, 1);
+				Q_glTexCoord2f (1, 1);
 				glVertex3f (varray_vertex[4], varray_vertex[5], varray_vertex[6]);
-				glTexCoord2f (0, 1);
+				Q_glTexCoord2f (0, 1);
 				glVertex3f (varray_vertex[8], varray_vertex[9], varray_vertex[10]);
-				glTexCoord2f (0, 0);
+				Q_glTexCoord2f (0, 0);
 				glVertex3f (varray_vertex[12], varray_vertex[13], varray_vertex[14]);
-				glEnd ();
+				Q_glEnd ();
 			}
 			break;
 
 		case pd_spark:
-			glDisable (GL_TEXTURE_2D);
+			Q_glDisable (GL_TEXTURE_2D);
 			for (p = pt->start ; p ; p = p->next)
 			{
 				if (particle_time < p->start || particle_time >= p->die)
 					continue;
 
-				glBegin (GL_TRIANGLE_FAN);
+				Q_glBegin (GL_TRIANGLE_FAN);
 				glColor4ubv (p->color);
-				glVertex3fv (p->org);
+				Q_glVertex3fv (p->org);
 				glColor4ub (p->color[0] >> 1, p->color[1] >> 1, p->color[2] >> 1, 0);
 				for (j=7 ; j>=0 ; j--)
 				{
 					for (k=0 ; k<3 ; k++)
 						v[k] = p->org[k] - p->vel[k] / 8 + vright[k] * cost[j%7] * p->size + vup[k] * sint[j%7] * p->size;
-					glVertex3fv (v);
+					Q_glVertex3fv (v);
 				}
-				glEnd ();
+				Q_glEnd ();
 			}
-			glEnable (GL_TEXTURE_2D);
+			Q_glEnable (GL_TEXTURE_2D);
 			break;
 
 		case pd_sparkray:
-			glDisable (GL_TEXTURE_2D);
+			Q_glDisable (GL_TEXTURE_2D);
 			for (p = pt->start ; p ; p = p->next)
 			{
 				if (particle_time < p->start || particle_time >= p->die)
@@ -778,19 +778,19 @@ void QMB_DrawParticles (void)
 				if (!TraceLineN(p->endorg, p->org, neworg, NULL))
 					VectorCopy (p->org, neworg);
 
-				glBegin (GL_TRIANGLE_FAN);
+				Q_glBegin (GL_TRIANGLE_FAN);
 				glColor4ubv (p->color);
-				glVertex3fv (p->endorg);
+				Q_glVertex3fv (p->endorg);
 				glColor4ub (p->color[0] >> 1, p->color[1] >> 1, p->color[2] >> 1, 0);
 				for (j=7 ; j>=0 ; j--)
 				{
 					for (k=0 ; k<3 ; k++)
 						v[k] = neworg[k] + vright[k] * cost[j%7] * p->size + vup[k] * sint[j%7] * p->size;
-					glVertex3fv (v);
+					Q_glVertex3fv (v);
 				}
-				glEnd ();
+				Q_glEnd ();
 			}
-			glEnable (GL_TEXTURE_2D);
+			Q_glEnable (GL_TEXTURE_2D);
 			break;
 
 		case pd_billboard:
@@ -846,7 +846,7 @@ void QMB_DrawParticles (void)
 				if (particle_time < p->start || particle_time >= p->die)
 					continue;
 
-				glDisable (GL_CULL_FACE);
+				Q_glDisable (GL_CULL_FACE);
 				for (j=0 ; j<2 ; j++)
 				{
 					glPushMatrix ();
@@ -889,20 +889,20 @@ void QMB_DrawParticles (void)
 					varray_vertex[13] = -xhalf;
 					varray_vertex[14] = -yhalf;
 
-					glBegin (GL_QUADS);
-					glTexCoord2f (ptex->coords[p->texindex][0], ptex->coords[p->texindex][3]);
+					Q_glBegin (GL_QUADS);
+					Q_glTexCoord2f (ptex->coords[p->texindex][0], ptex->coords[p->texindex][3]);
 					glVertex3f (varray_vertex[0], varray_vertex[1], varray_vertex[2]);
-					glTexCoord2f (ptex->coords[p->texindex][0], ptex->coords[p->texindex][1]);
+					Q_glTexCoord2f (ptex->coords[p->texindex][0], ptex->coords[p->texindex][1]);
 					glVertex3f (varray_vertex[4], varray_vertex[5], varray_vertex[6]);
-					glTexCoord2f (ptex->coords[p->texindex][2], ptex->coords[p->texindex][1]);
+					Q_glTexCoord2f (ptex->coords[p->texindex][2], ptex->coords[p->texindex][1]);
 					glVertex3f (varray_vertex[8], varray_vertex[9], varray_vertex[10]);
-					glTexCoord2f (ptex->coords[p->texindex][2], ptex->coords[p->texindex][3]);
+					Q_glTexCoord2f (ptex->coords[p->texindex][2], ptex->coords[p->texindex][3]);
 					glVertex3f (varray_vertex[12], varray_vertex[13], varray_vertex[14]);
-					glEnd ();
+					Q_glEnd ();
 
 					glPopMatrix ();
 				}
-				glEnable (GL_CULL_FACE);
+				Q_glEnable (GL_CULL_FACE);
 			}
 			break;
 
@@ -923,10 +923,10 @@ void QMB_DrawParticles (void)
 	}
 
 	glDepthMask (GL_TRUE);
-	glDisable (GL_BLEND);
-	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-	glShadeModel (GL_FLAT);
+	Q_glDisable (GL_BLEND);
+	Q_glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	Q_glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	Q_glShadeModel (GL_FLAT);
 }
 
 void d8to24col (col_t colourv, int colour)

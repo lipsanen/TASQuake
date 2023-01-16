@@ -344,3 +344,46 @@ void R_DrawDecals (void);
 void R_SpawnDecal (vec3_t center, vec3_t normal, vec3_t tangent, int tex, int size);
 void R_SpawnDecalStatic (vec3_t org, int tex, int size);
 extern	int		decal_blood1, decal_blood2, decal_blood3, decal_q3blood, decal_burn, decal_mark, decal_glow;
+
+#define NORMAL_CALL(func, ...) do { func (__VA_ARGS__); } while(false)
+#define SKIPPED_CALL(func, ...) do { func (__VA_ARGS__); } while(false)
+
+#ifdef SIM
+#define Q_glAlphaFunc(...) SKIPPED_CALL(glAlphaFunc, __VA_ARGS__)
+#define Q_glBegin(...) SKIPPED_CALL(glBegin, __VA_ARGS__)
+#define Q_glBlendFunc(...) SKIPPED_CALL(glBlendFunc, __VA_ARGS__)
+#define Q_glColor4f(...) SKIPPED_CALL(glColor4f, __VA_ARGS__)
+#define Q_glColor3ubv(...) SKIPPED_CALL(glColor3ubv, __VA_ARGS__)
+#define Q_glCullFace(...) SKIPPED_CALL(glCullFace, __VA_ARGS__)
+#define Q_glEnable(...) SKIPPED_CALL(glEnable, __VA_ARGS__)
+#define Q_glEnd(...) SKIPPED_CALL(glEnd, __VA_ARGS__)
+#define Q_glDrawBuffer(...) SKIPPED_CALL(glDrawBuffer, __VA_ARGS__)
+#define Q_glDepthMask(...) SKIPPED_CALL(glDepthMask, __VA_ARGS__)
+#define Q_glDisable(...) SKIPPED_CALL(glDisable, __VA_ARGS__)
+#define Q_glShadeModel(...) SKIPPED_CALL(glShadeModel, __VA_ARGS__)
+#define Q_glTexCoord2f(...) SKIPPED_CALL(glTexCoord2f, __VA_ARGS__)
+#define Q_glTexCoord2fv(...) SKIPPED_CALL(glTexCoord2fv, __VA_ARGS__)
+#define Q_glTexEnvf(...) SKIPPED_CALL(glTexEnvf, __VA_ARGS__)
+#define Q_glTexParameterf(...) SKIPPED_CALL( glTexParameterf, __VA_ARGS__)
+#define Q_glVertex2f(...) SKIPPED_CALL(glVertex2f, __VA_ARGS__)
+#define Q_glVertex3fv(...) SKIPPED_CALL(glVertex3fv, __VA_ARGS__)
+#else
+#define Q_glAlphaFunc(...) NORMAL_CALL(glAlphaFunc, __VA_ARGS__)
+#define Q_glBegin(...) NORMAL_CALL(glBegin, __VA_ARGS__)
+#define Q_glBlendFunc(...) NORMAL_CALL(glBlendFunc, __VA_ARGS__)
+#define Q_glColor4f(...) NORMAL_CALL(glColor4f, __VA_ARGS__)
+#define Q_glColor3ubv(...) NORMAL_CALL(glColor3ubv, __VA_ARGS__)
+#define Q_glCullFace(...) NORMAL_CALL(glCullFace, __VA_ARGS__)
+#define Q_glEnable(...) NORMAL_CALL(glEnable, __VA_ARGS__)
+#define Q_glEnd(...) NORMAL_CALL(glEnd, __VA_ARGS__)
+#define Q_glDrawBuffer(...) NORMAL_CALL(glDrawBuffer, __VA_ARGS__)
+#define Q_glDepthMask(...) NORMAL_CALL(glDepthMask, __VA_ARGS__)
+#define Q_glDisable(...) NORMAL_CALL(glDisable, __VA_ARGS__)
+#define Q_glShadeModel(...) NORMAL_CALL(glShadeModel, __VA_ARGS__)
+#define Q_glTexCoord2f(...) NORMAL_CALL(glTexCoord2f, __VA_ARGS__)
+#define Q_glTexCoord2fv(...) NORMAL_CALL(glTexCoord2fv, __VA_ARGS__)
+#define Q_glTexEnvf(...) NORMAL_CALL(glTexEnvf, __VA_ARGS__)
+#define Q_glTexParameterf(...) NORMAL_CALL( glTexParameterf, __VA_ARGS__)
+#define Q_glVertex2f(...) NORMAL_CALL(glVertex2f, __VA_ARGS__)
+#define Q_glVertex3fv(...) NORMAL_CALL(glVertex3fv, __VA_ARGS__)
+#endif

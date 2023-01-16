@@ -398,29 +398,29 @@ void R_DrawSpriteModel (entity_t *ent)
 
 	GL_Bind (frame->gl_texturenum);
 
-	glBegin (GL_QUADS);
+	Q_glBegin (GL_QUADS);
 
-	glTexCoord2f (0, 1);
+	Q_glTexCoord2f (0, 1);
 	VectorMA (ent->origin, frame->down, up, point);
 	VectorMA (point, frame->left, right, point);
-	glVertex3fv (point);
+	Q_glVertex3fv (point);
 
-	glTexCoord2f (0, 0);
+	Q_glTexCoord2f (0, 0);
 	VectorMA (ent->origin, frame->up, up, point);
 	VectorMA (point, frame->left, right, point);
-	glVertex3fv (point);
+	Q_glVertex3fv (point);
 
-	glTexCoord2f (1, 0);
+	Q_glTexCoord2f (1, 0);
 	VectorMA (ent->origin, frame->up, up, point);
 	VectorMA (point, frame->right, right, point);
-	glVertex3fv (point);
+	Q_glVertex3fv (point);
 
-	glTexCoord2f (1, 1);
+	Q_glTexCoord2f (1, 1);
 	VectorMA (ent->origin, frame->down, up, point);
 	VectorMA (point, frame->right, right, point);
-	glVertex3fv (point);
+	Q_glVertex3fv (point);
 	
-	glEnd ();
+	Q_glEnd ();
 }
 
 /*
@@ -508,7 +508,7 @@ void R_DrawAliasFrame (int frame, aliashdr_t *paliashdr, entity_t *ent, int dist
 	order = (int *)((byte *)paliashdr + paliashdr->commands);
 
 	if (ISTRANSPARENT(ent))
-		glEnable (GL_BLEND);
+		Q_glEnable (GL_BLEND);
 
 	while ((count = *order++))
 	{
@@ -516,11 +516,11 @@ void R_DrawAliasFrame (int frame, aliashdr_t *paliashdr, entity_t *ent, int dist
 		if (count < 0)
 		{
 			count = -count;
-			glBegin (GL_TRIANGLE_FAN);
+			Q_glBegin (GL_TRIANGLE_FAN);
 		}
 		else
 		{
-			glBegin (GL_TRIANGLE_STRIP);
+			Q_glBegin (GL_TRIANGLE_STRIP);
 		}
 
 		do {
@@ -532,7 +532,7 @@ void R_DrawAliasFrame (int frame, aliashdr_t *paliashdr, entity_t *ent, int dist
 			}
 			else
 			{
-				glTexCoord2f (((float *)order)[0], ((float *)order)[1]);
+				Q_glTexCoord2f (((float *)order)[0], ((float *)order)[1]);
 			}
 
 			order += 2;
@@ -549,7 +549,7 @@ void R_DrawAliasFrame (int frame, aliashdr_t *paliashdr, entity_t *ent, int dist
 
 				for (i = 0 ; i < 3 ; i++)
 					lightvec[i] = lightcolor[i] / 256 + l;
-				glColor4f (lightvec[0], lightvec[1], lightvec[2], ent->transparency);
+				Q_glColor4f (lightvec[0], lightvec[1], lightvec[2], ent->transparency);
 			}
 			else
 			{
@@ -557,21 +557,21 @@ void R_DrawAliasFrame (int frame, aliashdr_t *paliashdr, entity_t *ent, int dist
 				l = (l * shadelight + ambientlight) / 256;
 				l = min(l, 1);
 
-				glColor4f (l, l, l, ent->transparency);
+				Q_glColor4f (l, l, l, ent->transparency);
 			}
 
 			VectorInterpolate (verts1->v, lerpfrac, verts2->v, interpolated_verts);
-			glVertex3fv (interpolated_verts);
+			Q_glVertex3fv (interpolated_verts);
 
 			verts1++;
 			verts2++;
 		} while (--count);
 
-		glEnd ();
+		Q_glEnd ();
 	}
 
 	if (ISTRANSPARENT(ent))
-		glDisable (GL_BLEND);
+		Q_glDisable (GL_BLEND);
 }
 
 /*
@@ -605,11 +605,11 @@ void R_DrawAliasShadow (aliashdr_t *paliashdr, entity_t *ent, int distance, trac
 		if (count < 0)
 		{
 			count = -count;
-			glBegin (GL_TRIANGLE_FAN);
+			Q_glBegin (GL_TRIANGLE_FAN);
 		}
 		else
 		{
-			glBegin (GL_TRIANGLE_STRIP);
+			Q_glBegin (GL_TRIANGLE_STRIP);
 		}
 
 		do {
@@ -641,13 +641,13 @@ void R_DrawAliasShadow (aliashdr_t *paliashdr, entity_t *ent, int distance, trac
 					    (interpolated[1] * (c1 * downtrace.plane.normal[1]))) + 
 					    ((1 - downtrace.plane.normal[2]) * 20) + 0.2;
 
-			glVertex3fv (interpolated);
+			Q_glVertex3fv (interpolated);
 
 			verts1++;
 			verts2++;
 		} while (--count);
 
-		glEnd ();
+		Q_glEnd ();
 	}       
 }
 
@@ -940,7 +940,7 @@ void R_DrawAliasModel (entity_t *ent)
 		fb_texture = 0;
 
 	if (gl_smoothmodels.value)
-		glShadeModel (GL_SMOOTH);
+		Q_glShadeModel (GL_SMOOTH);
 
 	if (gl_affinemodels.value)
 		glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
@@ -948,7 +948,7 @@ void R_DrawAliasModel (entity_t *ent)
 	if (fb_texture && gl_mtexable)
 	{
 		GL_DisableMultitexture ();
-		glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+		Q_glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 		GL_Bind (texture);
 
 		GL_EnableMultitexture ();
@@ -956,13 +956,13 @@ void R_DrawAliasModel (entity_t *ent)
 		{
 			if (gl_add_ext)
 			{
-				glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD);
+				Q_glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD);
 				GL_Bind (fb_texture);
 			}
 		}
 		else
 		{
-			glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+			Q_glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 			GL_Bind (fb_texture);
 		}
 
@@ -970,18 +970,18 @@ void R_DrawAliasModel (entity_t *ent)
 
 		if (isLumaSkin && !gl_add_ext)
 		{
-			glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+			Q_glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 			GL_Bind (fb_texture);
 
-			glDepthMask (GL_FALSE);
-			glEnable (GL_BLEND);
-			glBlendFunc (GL_ONE, GL_ONE);
+			Q_glDepthMask (GL_FALSE);
+			Q_glEnable (GL_BLEND);
+			Q_glBlendFunc (GL_ONE, GL_ONE);
 
 			R_DrawAliasFrame (ent->frame, paliashdr, ent, distance);
 
-			glDisable (GL_BLEND);
-			glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			glDepthMask (GL_TRUE);
+			Q_glDisable (GL_BLEND);
+			Q_glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			Q_glDepthMask (GL_TRUE);
 		}
 
 		GL_DisableMultitexture ();
@@ -989,43 +989,43 @@ void R_DrawAliasModel (entity_t *ent)
 	else
 	{
 		GL_DisableMultitexture ();
-		glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+		Q_glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 		GL_Bind (texture);
 
 		R_DrawAliasFrame (ent->frame, paliashdr, ent, distance);
 
 		if (fb_texture)
 		{
-			glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+			Q_glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 			GL_Bind (fb_texture);
 
-			glDepthMask (GL_FALSE);
+			Q_glDepthMask (GL_FALSE);
 			if (isLumaSkin)
 			{
-				glEnable (GL_BLEND);
-				glBlendFunc (GL_ONE, GL_ONE);
+				Q_glEnable (GL_BLEND);
+				Q_glBlendFunc (GL_ONE, GL_ONE);
 			}
 			else
 			{
-				glEnable (GL_ALPHA_TEST);
+				Q_glEnable (GL_ALPHA_TEST);
 			}
 
 			R_DrawAliasFrame (ent->frame, paliashdr, ent, distance);
 
 			if (isLumaSkin)
 			{
-				glDisable (GL_BLEND);
-				glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				Q_glDisable (GL_BLEND);
+				Q_glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			}
 			else
 			{
-				glDisable (GL_ALPHA_TEST);
+				Q_glDisable (GL_ALPHA_TEST);
 			}
-			glDepthMask (GL_TRUE);
+			Q_glDepthMask (GL_TRUE);
 		}
 	}
 
-	glShadeModel (GL_FLAT);
+	Q_glShadeModel (GL_FLAT);
 	if (gl_affinemodels.value)
 		glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
@@ -1056,29 +1056,29 @@ void R_DrawAliasModel (entity_t *ent)
 		memset (&downtrace, 0, sizeof(downtrace));
 		SV_RecursiveHullCheck (cl.worldmodel->hulls, 0, 0, 1, ent->origin, downmove, &downtrace);
 
-		glDepthMask (GL_FALSE);
-		glDisable (GL_TEXTURE_2D);
-		glEnable (GL_BLEND);
-		glColor4f (0, 0, 0, (ambientlight - (mins[2] - downtrace.endpos[2])) / 150);
+		Q_glDepthMask (GL_FALSE);
+		Q_glDisable (GL_TEXTURE_2D);
+		Q_glEnable (GL_BLEND);
+		Q_glColor4f (0, 0, 0, (ambientlight - (mins[2] - downtrace.endpos[2])) / 150);
 		if (gl_have_stencil && r_shadows.value == 2)
 		{
-			glEnable (GL_STENCIL_TEST);
+			Q_glEnable (GL_STENCIL_TEST);
 			glStencilFunc (GL_EQUAL, 1, 2);
 			glStencilOp (GL_KEEP, GL_KEEP, GL_INCR);
 		}
 
 		R_DrawAliasShadow (paliashdr, ent, distance, downtrace);
 
-		glDepthMask (GL_TRUE);
-		glEnable (GL_TEXTURE_2D);
-		glDisable (GL_BLEND);
+		Q_glDepthMask (GL_TRUE);
+		Q_glEnable (GL_TEXTURE_2D);
+		Q_glDisable (GL_BLEND);
 		if (gl_have_stencil && r_shadows.value == 2)
-			glDisable (GL_STENCIL_TEST);
+			Q_glDisable (GL_STENCIL_TEST);
 
 		glPopMatrix ();
 	}
 
-	glColor3ubv (color_white);
+	Q_glColor3ubv (color_white);
 }
 
 void Set_Interpolated_Weapon_f (void)
@@ -1376,20 +1376,20 @@ void R_DrawQ3Frame (int frame, md3header_t *pmd3hdr, md3surface_t *pmd3surf, ent
 
 	if (surface_transparent)
 	{
-		glEnable (GL_BLEND);
+		Q_glEnable (GL_BLEND);
 		if (clmodel->modhint == MOD_Q3GUNSHOT || clmodel->modhint == MOD_Q3TELEPORT)
-			glBlendFunc (GL_SRC_ALPHA, GL_ONE);
+			Q_glBlendFunc (GL_SRC_ALPHA, GL_ONE);
 		else
-			glBlendFunc (GL_ONE, GL_ONE);
-		glDepthMask (GL_FALSE);
-		glDisable (GL_CULL_FACE);
+			Q_glBlendFunc (GL_ONE, GL_ONE);
+		Q_glDepthMask (GL_FALSE);
+		Q_glDisable (GL_CULL_FACE);
 	}
 	else if (ISTRANSPARENT(ent))
 	{
-		glEnable (GL_BLEND);
+		Q_glEnable (GL_BLEND);
 	}
 
-	glBegin (GL_TRIANGLES);
+	Q_glBegin (GL_TRIANGLES);
 	for (i = 0 ; i < numtris ; i++)
 	{
 		float	s, t;
@@ -1409,7 +1409,7 @@ void R_DrawQ3Frame (int frame, md3header_t *pmd3hdr, md3surface_t *pmd3surf, ent
 		}
 		else
 		{
-			glTexCoord2f (s, t);
+			Q_glTexCoord2f (s, t);
 		}
 
 		lerpfrac = VectorL2Compare(v1->vec, v2->vec, distance) ? ent->framelerp : 1;
@@ -1421,7 +1421,7 @@ void R_DrawQ3Frame (int frame, md3header_t *pmd3hdr, md3surface_t *pmd3surf, ent
 
 			for (j = 0 ; j < 3 ; j++)
 				lightvec[j] = lightcolor[j] / 256 + l;
-			glColor4f (lightvec[0], lightvec[1], lightvec[2], ent->transparency);
+			Q_glColor4f (lightvec[0], lightvec[1], lightvec[2], ent->transparency);
 		}
 		else
 		{
@@ -1429,45 +1429,45 @@ void R_DrawQ3Frame (int frame, md3header_t *pmd3hdr, md3surface_t *pmd3surf, ent
 			l = (l * shadelight + ambientlight) / 256;
 			l = min(l, 1);
 
-			glColor4f (l, l, l, ent->transparency);
+			Q_glColor4f (l, l, l, ent->transparency);
 		}
 
 		VectorInterpolate (v1->vec, lerpfrac, v2->vec, interpolated_verts);
-		glVertex3fv (interpolated_verts);
+		Q_glVertex3fv (interpolated_verts);
 
 		*tris++;
 	}
-	glEnd ();
+	Q_glEnd ();
 
 	if (gl_shownormals.value)
 	{
 		vec3_t	temp;
 
 		tris = (unsigned int *)((byte *)pmd3surf + pmd3surf->ofstris);
-		glDisable (GL_TEXTURE_2D);
-		glColor3ubv (color_white);
-		glBegin (GL_LINES);
+		Q_glDisable (GL_TEXTURE_2D);
+		Q_glColor3ubv (color_white);
+		Q_glBegin (GL_LINES);
 		for (i=0 ; i<numtris ; i++)
 		{
-			glVertex3fv (verts[*tris+pose1].vec);
+			Q_glVertex3fv (verts[*tris+pose1].vec);
 			VectorMA (verts[*tris+pose1].vec, 2, verts[*tris+pose1].normal, temp);
-			glVertex3fv (temp);
+			Q_glVertex3fv (temp);
 			*tris++;
 		}
-		glEnd ();
-		glEnable (GL_TEXTURE_2D);
+		Q_glEnd ();
+		Q_glEnable (GL_TEXTURE_2D);
 	}
 
 	if (surface_transparent)
 	{
-		glDisable (GL_BLEND);
-		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glDepthMask (GL_TRUE);
-		glEnable (GL_CULL_FACE);
+		Q_glDisable (GL_BLEND);
+		Q_glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		Q_glDepthMask (GL_TRUE);
+		Q_glEnable (GL_CULL_FACE);
 	}
 	else if (ISTRANSPARENT(ent))
 	{
-		glDisable (GL_BLEND);
+		Q_glDisable (GL_BLEND);
 	}
 }
 
@@ -1502,7 +1502,7 @@ void R_DrawQ3Shadow (entity_t *ent, float lheight, float s1, float c1, trace_t d
 		pose1 = ent->pose1 * pmd3surf->numverts;
 		pose2 = ent->pose2 * pmd3surf->numverts;
 
-		glBegin (GL_TRIANGLES);
+		Q_glBegin (GL_TRIANGLES);
 		for (j = 0 ; j < numtris ; j++)
 		{
 			// normals and vertexes come from the frame list
@@ -1526,11 +1526,11 @@ void R_DrawQ3Shadow (entity_t *ent, float lheight, float s1, float c1, trace_t d
 								(interpolated[1] * (c1 * downtrace.plane.normal[1]))) + 
 								((1 - downtrace.plane.normal[2]) * 20) + 0.2;
 
-			glVertex3fv (interpolated);
+			Q_glVertex3fv (interpolated);
 
 			*tris++;
 		}
-		glEnd ();
+		Q_glEnd ();
 
 		pmd3surf = (md3surface_t *)((byte *)pmd3surf + pmd3surf->ofsend);
 	}
@@ -1571,18 +1571,18 @@ void R_DrawQ3Shadow (entity_t *ent, float lheight, float s1, float c1, trace_t d
 }
 
 #define	ADD_EXTRA_TEXTURE(_texture, _param)					\
-	glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, _param);\
+	Q_glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, _param);\
 	GL_Bind (_texture);										\
 															\
-	glDepthMask (GL_FALSE);									\
-	glEnable (GL_BLEND);									\
-	glBlendFunc (GL_ONE, GL_ONE);							\
+	Q_glDepthMask (GL_FALSE);									\
+	Q_glEnable (GL_BLEND);									\
+	Q_glBlendFunc (GL_ONE, GL_ONE);							\
 															\
 	R_DrawQ3Frame (frame, pmd3hdr, pmd3surf, ent, INTERP_MAXDIST);\
 															\
-	glDisable (GL_BLEND);									\
-	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);		\
-	glDepthMask (GL_TRUE);
+	Q_glDisable (GL_BLEND);									\
+	Q_glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);		\
+	Q_glDepthMask (GL_TRUE);
 
 /*
 =================
@@ -1649,13 +1649,13 @@ void R_SetupQ3Frame (entity_t *ent)
 			if (fb_texture && gl_mtexable)
 			{
 				GL_DisableMultitexture ();
-				glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+				Q_glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 				GL_Bind (texture);
 
 				GL_EnableMultitexture ();
 				if (gl_add_ext)
 				{
-					glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD);
+					Q_glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD);
 					GL_Bind (fb_texture);
 				}
 
@@ -1671,7 +1671,7 @@ void R_SetupQ3Frame (entity_t *ent)
 			else
 			{
 				GL_DisableMultitexture ();
-				glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+				Q_glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 				GL_Bind (texture);
 
 				R_DrawQ3Frame (frame, pmd3hdr, pmd3surf, ent, INTERP_MAXDIST);
@@ -1773,7 +1773,7 @@ void R_DrawQ3Model (entity_t *ent)
 	}
 
 	if (gl_smoothmodels.value)
-		glShadeModel (GL_SMOOTH);
+		Q_glShadeModel (GL_SMOOTH);
 
 	if (gl_affinemodels.value)
 		glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
@@ -1787,7 +1787,7 @@ void R_DrawQ3Model (entity_t *ent)
 	multimodel_level = 0;
 	R_SetupQ3Frame (ent);
 
-	glShadeModel (GL_FLAT);
+	Q_glShadeModel (GL_FLAT);
 	if (gl_affinemodels.value)
 		glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
@@ -1823,13 +1823,13 @@ void R_DrawQ3Model (entity_t *ent)
 		s1 = sin(ent->angles[1] / 180 * M_PI);
 		c1 = cos(ent->angles[1] / 180 * M_PI);
 
-		glDepthMask (GL_FALSE);
-		glDisable (GL_TEXTURE_2D);
-		glEnable (GL_BLEND);
-		glColor4f (0, 0, 0, (ambientlight - (mins[2] - downtrace.endpos[2])) / 150);
+		Q_glDepthMask (GL_FALSE);
+		Q_glDisable (GL_TEXTURE_2D);
+		Q_glEnable (GL_BLEND);
+		Q_glColor4f (0, 0, 0, (ambientlight - (mins[2] - downtrace.endpos[2])) / 150);
 		if (gl_have_stencil && r_shadows.value == 2) 
 		{
-			glEnable (GL_STENCIL_TEST);
+			Q_glEnable (GL_STENCIL_TEST);
 			glStencilFunc (GL_EQUAL, 1, 2);
 			glStencilOp (GL_KEEP, GL_KEEP, GL_INCR);
 		}
@@ -1837,16 +1837,16 @@ void R_DrawQ3Model (entity_t *ent)
 		multimodel_level = 0;
 		R_DrawQ3Shadow (ent, lheight, s1, c1, downtrace);
 
-		glDepthMask (GL_TRUE);
-		glEnable (GL_TEXTURE_2D);
-		glDisable (GL_BLEND);
+		Q_glDepthMask (GL_TRUE);
+		Q_glEnable (GL_TEXTURE_2D);
+		Q_glDisable (GL_BLEND);
 		if (gl_have_stencil && r_shadows.value == 2)
-			glDisable (GL_STENCIL_TEST);
+			Q_glDisable (GL_STENCIL_TEST);
 
 		glPopMatrix ();
 	}
 
-	glColor3ubv (color_white);
+	Q_glColor3ubv (color_white);
 }
 
 //==================================================================================
@@ -1863,11 +1863,11 @@ void R_SetSpritesState (qboolean state)
 	if (state)
 	{
 		GL_DisableMultitexture ();
-		glEnable (GL_ALPHA_TEST);
+		Q_glEnable (GL_ALPHA_TEST);
 	}
 	else
 	{
-		glDisable (GL_ALPHA_TEST);
+		Q_glDisable (GL_ALPHA_TEST);
 	}
 }
 
@@ -1883,14 +1883,14 @@ void R_SetSpr32State (qboolean state)
 	if (state)
 	{
 		GL_DisableMultitexture ();
-		glEnable (GL_BLEND);
-		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glDepthMask (GL_FALSE);
+		Q_glEnable (GL_BLEND);
+		Q_glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		Q_glDepthMask (GL_FALSE);
 	}
 	else
 	{
-		glDisable (GL_BLEND);
-		glDepthMask (GL_TRUE);
+		Q_glDisable (GL_BLEND);
+		Q_glDepthMask (GL_TRUE);
 	}
 }
 
@@ -2099,24 +2099,24 @@ void R_PolyBlend (void)
 	if ((vid_hwgamma_enabled && gl_hwblend.value) || !v_blend[3])
 		return;
 
-	glDisable (GL_ALPHA_TEST);
-	glDisable (GL_TEXTURE_2D);
-	glEnable (GL_BLEND);
+	Q_glDisable (GL_ALPHA_TEST);
+	Q_glDisable (GL_TEXTURE_2D);
+	Q_glEnable (GL_BLEND);
 
 	glColor4fv (v_blend);
 
-	glBegin (GL_QUADS);
-	glVertex2f (r_refdef.vrect.x, r_refdef.vrect.y);
-	glVertex2f (r_refdef.vrect.x + r_refdef.vrect.width, r_refdef.vrect.y);
-	glVertex2f (r_refdef.vrect.x + r_refdef.vrect.width, r_refdef.vrect.y + r_refdef.vrect.height);
-	glVertex2f (r_refdef.vrect.x, r_refdef.vrect.y + r_refdef.vrect.height);
-	glEnd ();
+	Q_glBegin (GL_QUADS);
+	Q_glVertex2f (r_refdef.vrect.x, r_refdef.vrect.y);
+	Q_glVertex2f (r_refdef.vrect.x + r_refdef.vrect.width, r_refdef.vrect.y);
+	Q_glVertex2f (r_refdef.vrect.x + r_refdef.vrect.width, r_refdef.vrect.y + r_refdef.vrect.height);
+	Q_glVertex2f (r_refdef.vrect.x, r_refdef.vrect.y + r_refdef.vrect.height);
+	Q_glEnd ();
 
-	glDisable (GL_BLEND);
-	glEnable (GL_TEXTURE_2D);
-	glEnable (GL_ALPHA_TEST);
+	Q_glDisable (GL_BLEND);
+	Q_glEnable (GL_TEXTURE_2D);
+	Q_glEnable (GL_ALPHA_TEST);
 
-	glColor3ubv (color_white);
+	Q_glColor3ubv (color_white);
 }
 
 /*
@@ -2135,30 +2135,30 @@ void R_BrightenScreen (void)
 	f = min(v_contrast.value, 3);
 	f = pow(f, vid_gamma);
 
-	glDisable (GL_TEXTURE_2D);
-	glEnable (GL_BLEND);
-	glBlendFunc (GL_DST_COLOR, GL_ONE);
+	Q_glDisable (GL_TEXTURE_2D);
+	Q_glEnable (GL_BLEND);
+	Q_glBlendFunc (GL_DST_COLOR, GL_ONE);
 
-	glBegin (GL_QUADS);
+	Q_glBegin (GL_QUADS);
 	while (f > 1)
 	{
 		if (f >= 2)
-			glColor3ubv (color_white);
+			Q_glColor3ubv (color_white);
 		else
 			glColor3f (f - 1, f - 1, f - 1);
-		glVertex2f (0, 0);
-		glVertex2f (vid.width, 0);
-		glVertex2f (vid.width, vid.height);
-		glVertex2f (0, vid.height);
+		Q_glVertex2f (0, 0);
+		Q_glVertex2f (vid.width, 0);
+		Q_glVertex2f (vid.width, vid.height);
+		Q_glVertex2f (0, vid.height);
 		f *= 0.5;
 	}
-	glEnd ();
+	Q_glEnd ();
 
-	glEnable (GL_TEXTURE_2D);
-	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDisable (GL_BLEND);
+	Q_glEnable (GL_TEXTURE_2D);
+	Q_glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	Q_glDisable (GL_BLEND);
 
-	glColor3ubv (color_white);
+	Q_glColor3ubv (color_white);
 }
 
 /*
@@ -2182,12 +2182,12 @@ void R_Q3DamageDraw (void)
 		return;
 	}
 
-	glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	Q_glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	GL_Bind (damagetexture);
 
-	glDisable (GL_ALPHA_TEST);
-	glEnable (GL_BLEND);
-	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	Q_glDisable (GL_ALPHA_TEST);
+	Q_glEnable (GL_BLEND);
+	Q_glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glPushMatrix ();
 
@@ -2196,25 +2196,25 @@ void R_Q3DamageDraw (void)
 	scale = 1 + damagecount / 100;
 	halfwidth = vid.width * scale / 2;
 	halfheight = vid.height * scale / 2;
-	glColor4f (1, 1, 1, 0.8 * (damagetime + 0.5 - cl.time));
+	Q_glColor4f (1, 1, 1, 0.8 * (damagetime + 0.5 - cl.time));
 
-	glBegin (GL_QUADS);
-	glTexCoord2f (0, 0);
-	glVertex2f (center[0] - halfwidth, center[1] - halfheight);
-	glTexCoord2f (0, 1);
-	glVertex2f (center[0] + halfwidth, center[1] - halfheight);
-	glTexCoord2f (1, 1);
-	glVertex2f (center[0] + halfwidth, center[1] + halfheight);
-	glTexCoord2f (1, 0);
-	glVertex2f (center[0] - halfwidth, center[1] + halfheight);
-	glEnd ();
+	Q_glBegin (GL_QUADS);
+	Q_glTexCoord2f (0, 0);
+	Q_glVertex2f (center[0] - halfwidth, center[1] - halfheight);
+	Q_glTexCoord2f (0, 1);
+	Q_glVertex2f (center[0] + halfwidth, center[1] - halfheight);
+	Q_glTexCoord2f (1, 1);
+	Q_glVertex2f (center[0] + halfwidth, center[1] + halfheight);
+	Q_glTexCoord2f (1, 0);
+	Q_glVertex2f (center[0] - halfwidth, center[1] + halfheight);
+	Q_glEnd ();
 
 	glPopMatrix ();
 
-	glDisable (GL_BLEND);
-	glEnable (GL_ALPHA_TEST);
+	Q_glDisable (GL_BLEND);
+	Q_glEnable (GL_ALPHA_TEST);
 
-	glColor3ubv (color_white);
+	Q_glColor3ubv (color_white);
 }
 
 int SignbitsForPlane (mplane_t *out)
@@ -2365,7 +2365,7 @@ void R_SetupGL (void)
 	farclip = max((int)r_farclip.value, 4096);
 	MYgluPerspective (r_refdef.fov_y, screenaspect, 4, farclip);
 
-	glCullFace (GL_FRONT);
+	Q_glCullFace (GL_FRONT);
 
 	glMatrixMode (GL_MODELVIEW);
 	glLoadIdentity ();
@@ -2381,13 +2381,13 @@ void R_SetupGL (void)
 
 	// set drawing parms
 	if (gl_cull.value)
-		glEnable (GL_CULL_FACE);
+		Q_glEnable (GL_CULL_FACE);
 	else
-		glDisable (GL_CULL_FACE);
+		Q_glDisable (GL_CULL_FACE);
 
-	glDisable (GL_BLEND);
-	glDisable (GL_ALPHA_TEST);
-	glEnable (GL_DEPTH_TEST);
+	Q_glDisable (GL_BLEND);
+	Q_glDisable (GL_ALPHA_TEST);
+	Q_glEnable (GL_DEPTH_TEST);
 }
 
 /*
@@ -2473,10 +2473,6 @@ void R_Init (void)
 	Cvar_Register (&gl_decal_explosions);
 
 	Cmd_AddLegacyCommand ("loadsky", "r_skybox");
-
-	// this minigl driver seems to slow us down if the particles are drawn WITHOUT Z buffer bits
-	if (!strcmp(gl_vendor, "METABYTE/WICKED3D"))
-		Cvar_SetDefault (&gl_solidparticles, 1);
 
 	if (!gl_allow_ztrick)
 		Cvar_SetDefault (&gl_ztrick, 0);
@@ -2638,17 +2634,17 @@ static void Clear_Screen()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_CULL_FACE);
-	glDisable(GL_BLEND);
-	glEnable(GL_ALPHA_TEST);
+	Q_glDisable(GL_DEPTH_TEST);
+	Q_glDisable(GL_CULL_FACE);
+	Q_glDisable(GL_BLEND);
+	Q_glEnable(GL_ALPHA_TEST);
 
-	glColor3ubv(color_white);
+	Q_glColor3ubv(color_white);
 	Draw_Fill(0, 0, vid.width, vid.height, 0);
 
-	glDisable(GL_BLEND);
-	glDisable(GL_ALPHA_TEST);
-	glEnable(GL_DEPTH_TEST);
+	Q_glDisable(GL_BLEND);
+	Q_glDisable(GL_ALPHA_TEST);
+	Q_glEnable(GL_DEPTH_TEST);
 }
 
 static void Draw_Overlay_Crosshair(void)
@@ -2660,20 +2656,20 @@ static void Draw_Overlay_Crosshair(void)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_CULL_FACE);
-	glDisable(GL_BLEND);
-	glEnable(GL_ALPHA_TEST);
+	Q_glDisable(GL_DEPTH_TEST);
+	Q_glDisable(GL_CULL_FACE);
+	Q_glDisable(GL_BLEND);
+	Q_glEnable(GL_ALPHA_TEST);
 
-	glColor3ubv(color_white);
+	Q_glColor3ubv(color_white);
 
 	const float xhair_w = 4;
 	const float xhair_h = 4;
 	Draw_Fill(vid.width / 2 - xhair_w / 2, vid.height / 2 - xhair_h / 2, xhair_w, xhair_h, 10);
 
-	glDisable(GL_BLEND);
-	glDisable(GL_ALPHA_TEST);
-	glEnable(GL_DEPTH_TEST);
+	Q_glDisable(GL_BLEND);
+	Q_glDisable(GL_ALPHA_TEST);
+	Q_glEnable(GL_DEPTH_TEST);
 }
 
 vec3_t r_overlay_offset_vec;

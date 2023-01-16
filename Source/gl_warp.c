@@ -208,10 +208,10 @@ void EmitFlatPoly (msurface_t *fa)
 
 	for (p = fa->polys ; p ; p = p->next)
 	{
-		glBegin (GL_POLYGON);
+		Q_glBegin (GL_POLYGON);
 		for (i = 0, v = p->verts[0] ; i < p->numverts ; i++, v += VERTEXSIZE)
-			glVertex3fv (v);
-		glEnd ();
+			Q_glVertex3fv (v);
+		Q_glEnd ();
 	}
 }
 
@@ -233,7 +233,7 @@ void EmitWaterPolys (msurface_t *fa)
 	GL_Bind (fa->texinfo->texture->gl_texturenum);
 	for (p = fa->polys ; p ; p = p->next)
 	{
-		glBegin (GL_POLYGON);
+		Q_glBegin (GL_POLYGON);
 		for (i = 0, v = p->verts[0] ; i < p->numverts ; i++, v += VERTEXSIZE)
 		{
 			os = v[3];
@@ -245,10 +245,10 @@ void EmitWaterPolys (msurface_t *fa)
 			t = ot + SINTABLE_APPROX(os * 0.125 + cl.time);
 			t *= (1.0 / 64);
 
-			glTexCoord2f (s, t);
-			glVertex3fv (v);
+			Q_glTexCoord2f (s, t);
+			Q_glVertex3fv (v);
 		}
-		glEnd ();
+		Q_glEnd ();
 	}
 }
 
@@ -266,7 +266,7 @@ void EmitSkyPolys (msurface_t *fa, qboolean mtex)
 
 	for (p = fa->polys ; p ; p = p->next)
 	{
-		glBegin (GL_POLYGON);
+		Q_glBegin (GL_POLYGON);
 		for (i = 0, v = p->verts[0] ; i < p->numverts ; i++, v += VERTEXSIZE)
 		{
 			VectorSubtract (v, r_origin, dir);
@@ -299,12 +299,12 @@ void EmitSkyPolys (msurface_t *fa, qboolean mtex)
 			}
 			else
 			{
-				glTexCoord2f (s, t);
+				Q_glTexCoord2f (s, t);
 			}
 
-			glVertex3fv (v);
+			Q_glVertex3fv (v);
 		}
-		glEnd ();
+		Q_glEnd ();
 	}
 }
 
@@ -325,26 +325,26 @@ void R_DrawSkyChain (void)
 
 	if (r_fastsky.value)
 	{
-		glDisable (GL_TEXTURE_2D);
+		Q_glDisable (GL_TEXTURE_2D);
 
 		col = StringToRGB (r_skycolor.string);
-		glColor3ubv (col);
+		Q_glColor3ubv (col);
 
 		for (fa = skychain ; fa ; fa = fa->texturechain)
 			EmitFlatPoly (fa);
 
-		glEnable (GL_TEXTURE_2D);
-		glColor3ubv (color_white);
+		Q_glEnable (GL_TEXTURE_2D);
+		Q_glColor3ubv (color_white);
 	}
 	else
 	{
 		if (gl_mtexable)
 		{
-			glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+			Q_glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 			GL_Bind (solidskytexture);
 
 			GL_EnableMultitexture ();
-			glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+			Q_glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 			GL_Bind (alphaskytexture);
 
 			speedscale = cl.time * 8;
@@ -366,7 +366,7 @@ void R_DrawSkyChain (void)
 			for (fa = skychain ; fa ; fa = fa->texturechain)
 				EmitSkyPolys (fa, false);
 
-			glEnable (GL_BLEND);
+			Q_glEnable (GL_BLEND);
 			GL_Bind (alphaskytexture);
 			speedscale = cl.time * 16;
 			speedscale -= (int)speedscale & ~127;
@@ -374,7 +374,7 @@ void R_DrawSkyChain (void)
 			for (fa = skychain ; fa ; fa = fa->texturechain)
 				EmitSkyPolys (fa, false);
 
-			glDisable (GL_BLEND);
+			Q_glDisable (GL_BLEND);
 		}
 	}
 
@@ -422,8 +422,8 @@ void R_InitSky (miptex_t *mt)
 
 	GL_Bind (solidskytexture);
 	glTexImage2D (GL_TEXTURE_2D, 0, gl_solid_format, 128, 128, 0, GL_RGBA, GL_UNSIGNED_BYTE, trans);
-	glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	Q_glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	Q_glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	for (i=0 ; i<128 ; i++)
 		for (j=0 ; j<128 ; j++)
@@ -437,8 +437,8 @@ void R_InitSky (miptex_t *mt)
 
 	GL_Bind (alphaskytexture);
 	glTexImage2D (GL_TEXTURE_2D, 0, gl_alpha_format, 128, 128, 0, GL_RGBA, GL_UNSIGNED_BYTE, trans);
-	glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	Q_glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	Q_glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
 static	char	*skybox_ext[6] = {"rt", "bk", "lf", "ft", "up", "dn"};
@@ -744,8 +744,8 @@ void MakeSkyVec (float s, float t, int axis)
 		t = 511.0 / 512;
 
 	t = 1.0 - t;
-	glTexCoord2f (s, t);
-	glVertex3fv (v);
+	Q_glTexCoord2f (s, t);
+	Q_glVertex3fv (v);
 }
 
 static	int	skytexorder[6] = {0, 2, 1, 3, 4, 5};
@@ -776,26 +776,26 @@ void R_DrawSkyBox (void)
 
 		GL_Bind (skyboxtextures + skytexorder[i]);
 
-		glBegin (GL_QUADS);
+		Q_glBegin (GL_QUADS);
 		MakeSkyVec (skymins[0][i], skymins[1][i], i);
 		MakeSkyVec (skymins[0][i], skymaxs[1][i], i);
 		MakeSkyVec (skymaxs[0][i], skymaxs[1][i], i);
 		MakeSkyVec (skymaxs[0][i], skymins[1][i], i);
-		glEnd ();
+		Q_glEnd ();
 	}
 
-	glDisable (GL_TEXTURE_2D);
+	Q_glDisable (GL_TEXTURE_2D);
 	glColorMask (GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-	glEnable (GL_BLEND);
-	glBlendFunc (GL_ZERO, GL_ONE);
+	Q_glEnable (GL_BLEND);
+	Q_glBlendFunc (GL_ZERO, GL_ONE);
 
 	for (fa = skychain ; fa ; fa = fa->texturechain)
 		EmitFlatPoly (fa);
 
-	glEnable (GL_TEXTURE_2D);
+	Q_glEnable (GL_TEXTURE_2D);
 	glColorMask (GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	glDisable (GL_BLEND);
-	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	Q_glDisable (GL_BLEND);
+	Q_glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	skychain = NULL;
 	skychain_tail = &skychain;
@@ -809,13 +809,13 @@ void EmitCausticsPolys (void)
 	extern glpoly_t	*caustics_polys;
 
 	GL_Bind (underwatertexture);
-	glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-	glEnable (GL_BLEND);
-	glBlendFunc (GL_DST_COLOR, GL_SRC_COLOR);
+	Q_glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	Q_glEnable (GL_BLEND);
+	Q_glBlendFunc (GL_DST_COLOR, GL_SRC_COLOR);
 
 	for (p = caustics_polys ; p ; p = p->caustics_chain)
 	{
-		glBegin (GL_POLYGON);
+		Q_glBegin (GL_POLYGON);
 		for (i = 0, v = p->verts[0] ; i < p->numverts ; i++, v += VERTEXSIZE)
 		{
 			os = v[3];
@@ -827,15 +827,15 @@ void EmitCausticsPolys (void)
 			t = ot + SINTABLE_APPROX(0.465 * (cl.time + os));
 			t *= -3 * (0.5 / 64);
 
-			glTexCoord2f (s, t);
-			glVertex3fv (v);
+			Q_glTexCoord2f (s, t);
+			Q_glVertex3fv (v);
 		}
-		glEnd ();
+		Q_glEnd ();
 	}
 
-	glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDisable (GL_BLEND);
+	Q_glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	Q_glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	Q_glDisable (GL_BLEND);
 
 	caustics_polys = NULL;
 }
