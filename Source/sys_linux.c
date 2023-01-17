@@ -312,6 +312,10 @@ int main (int argc, char **argv)
 		newtime = Sys_DoubleTime();
 		time = newtime - oldtime;
 
+		if(isSimulator && tas_playing.value == 0) {
+			usleep(1); // Simulator sleeps between
+		}
+
 		if (!isSimulator && tas_playing.value != 0)
 		{	
 			float effective_fps = bound(10, cl_maxfps.value, 72);
