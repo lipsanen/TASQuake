@@ -1423,6 +1423,9 @@ void GL_CreateSurfaceLightmap (msurface_t *surf)
 	int		smax, tmax;
 	byte	*base;
 
+	if(isSimulator)
+		return;
+
 	if (surf->flags & (SURF_DRAWSKY | SURF_DRAWTURB))
 		return;
 
