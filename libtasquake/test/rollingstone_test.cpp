@@ -45,6 +45,7 @@ TEST_CASE("PinHoleBench") {
         info.current_script.blocks.push_back(block2);
 
         TASQuake::OptimizerSettings settings;
+        settings.m_iEndOffset = 37;
         settings.m_uResetToBestIterations = 1;
         settings.m_uGiveUpAfterNoProgress = 9999;
         settings.m_vecAlgorithms.push_back(
@@ -76,6 +77,7 @@ TEST_CASE("CornerYawBench") {
         info.current_script.blocks.push_back(block2);
 
         TASQuake::OptimizerSettings settings;
+        settings.m_iEndOffset = 37;
         settings.m_uResetToBestIterations = 1;
         settings.m_uGiveUpAfterNoProgress = 9999;
         settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::StrafeAdjuster);
@@ -102,6 +104,7 @@ TEST_CASE("Optimizer bench") {
         info.current_script.blocks.push_back(block2);
 
         TASQuake::OptimizerSettings settings;
+        settings.m_iEndOffset = 37;
         settings.m_uResetToBestIterations = 1;
         settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::FrameBlockMover);
         double optimal = 126; // This should be the y coordinate
@@ -126,6 +129,7 @@ TEST_CASE("Turn bench") {
         info.current_script.blocks.push_back(block2);
 
         TASQuake::OptimizerSettings settings;
+        settings.m_iEndOffset = 37;
         settings.m_uResetToBestIterations = 1;
         settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::StrafeAdjuster);
         settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::FrameBlockMover);
