@@ -15,6 +15,7 @@
 #include "state_test.hpp"
 #include "savestate.hpp"
 #include "data_export.hpp"
+#include "prediction.hpp"
 #include "test_runner.hpp"
 #include "ipc2.hpp"
 #include "ipc_prediction.hpp"
@@ -202,9 +203,8 @@ void TAS_Init()
 	Cmd_AddCommand("tas_ss_clear", Cmd_TAS_SS_Clear);
 	Cmd_AddCommand("tas_savestate", Cmd_TAS_Savestate);
 	Cmd_AddCommand("tas_trace_edict", Cmd_TAS_Trace_Edict);
-	Cvar_Register(&tas_optimizer_endoffset);
+	Cvar_Register(&tas_optimizer_algs);
 	Cvar_Register(&tas_optimizer_goal);
-	Cvar_Register(&tas_optimizer_maxlength);
 	Cvar_Register(&tas_optimizer_multigame);
 	Cvar_Register(&tas_optimizer);
 	Cvar_Register(&tas_playing);
@@ -251,9 +251,10 @@ void TAS_Init()
 	Cvar_Register(&tas_ipc_verbose);
 	Cvar_Register(&tas_timescale);
 	Cvar_Register(&tas_predict);
+	Cvar_Register(&tas_predict_endoffset);
 	Cvar_Register(&tas_predict_grenade);
 	Cvar_Register(&tas_predict_per_frame);
-	Cvar_Register(&tas_predict_amount);
+	Cvar_Register(&tas_predict_maxlength);
 	Cvar_Register(&tas_predict_real);
 	Cvar_Register(&tas_reward_display);
 	Cvar_Register(&tas_reward_size);

@@ -2,6 +2,7 @@
 #include "script_playback.hpp"
 #include "ipc2.hpp"
 #include "ipc_prediction.hpp"
+#include "optimizer.hpp"
 #include "prediction.hpp"
 #include "simulate.hpp"
 #include "hooks.h"
@@ -27,13 +28,15 @@ static void Request() {
     writer.WriteBytes(&type, 1);
     auto info = GetPlaybackInfo();
 
-    int32_t target_frame = info->current_frame + tas_predict_amount.value * 72;
-    int32_t current_frame = std::max(0, info->current_frame);
+    int32_t target_frame;
+    int32_t current_frame;
+    TASQuake::Get_Prediction_Frames(current_frame, target_frame);
     writer.WriteBytes(&current_frame, sizeof(int32_t));
     writer.WriteBytes(&target_frame, sizeof(int32_t));
     writer.WriteBytes(&last_request_id, sizeof(int32_t));
     info->current_script.Write_To_Memory(writer);
 
+    TASQuake::SV_StopMultiGameOpt();
     TASQuake::SV_SendMessage(connection, writer.m_pBuffer->ptr, writer.m_uFileOffset);
 }
 
@@ -68,8 +71,8 @@ void IPC_Prediction_Frame_Hook() {
 }
 
 bool IPC_Prediction_HasLine() {
-    uint32_t start, end;
-    Get_Line_Endpoints(start, end);
+    int32_t start, end;
+    TASQuake::Get_Prediction_Frames(start, end);
     auto info = GetPlaybackInfo();
     return current_line_time >= info->last_edited && end <= ipc_line.size();
 }

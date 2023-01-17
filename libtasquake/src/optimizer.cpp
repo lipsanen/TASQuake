@@ -57,7 +57,7 @@ void Optimizer::_FinishIteration(OptimizerState& state) {
   else
   {
     if(m_iCurrentAlgorithm != -1) { 
-      auto ptr = m_settings.m_vecAlgorithms[m_iCurrentAlgorithm];
+      auto ptr = m_vecAlgorithms[m_iCurrentAlgorithm];
       double efficacy = m_currentRun.RunEfficacy();
       ptr->ReportResult(efficacy);
       if(!ptr->WantsToContinue()) {
@@ -71,12 +71,12 @@ void Optimizer::_FinishIteration(OptimizerState& state) {
     }
 
     // Might be empty in some test cases
-    if (!m_settings.m_vecAlgorithms.empty())
+    if (!m_vecAlgorithms.empty())
     {
       if(m_iCurrentAlgorithm == -1) {
         m_iCurrentAlgorithm = RandomizeIndex();
       }
-      auto ptr = m_settings.m_vecAlgorithms[m_iCurrentAlgorithm];
+      auto ptr = m_vecAlgorithms[m_iCurrentAlgorithm];
       ptr->Mutate(&m_currentRun.playbackInfo.current_script, this);
     }
 
@@ -89,6 +89,7 @@ OptimizerState Optimizer::OnRunnerFrame(const FrameData* data)
 	m_currentRun.m_vecData.push_back(*data);
 	OptimizerState state = OptimizerState::ContinueIteration;
 	auto block = m_currentRun.playbackInfo.Get_Current_Block();
+	m_currentRun.playbackInfo.current_frame += 1;
 
 	if (m_currentRun.playbackInfo.current_frame == m_uLastFrame)
 	{
@@ -99,8 +100,6 @@ OptimizerState Optimizer::OnRunnerFrame(const FrameData* data)
 		TASQuake::Log("Optimizer in buggy state, skipped past last frame\n");
 		state = OptimizerState::NewIteration;
 	}
-
-	m_currentRun.playbackInfo.current_frame += 1;
 
 	return state;
 }
@@ -122,6 +121,60 @@ size_t Optimizer::RandomizeIndex()
 	return SelectIndex(val, m_vecCompoundingProbs);
 }
 
+void OptimizerSettings::WriteToBuffer(TASQuakeIO::BufferWriteInterface& writer) const {
+  writer.WriteBytes(&m_Goal, sizeof(m_Goal));
+  writer.WriteBytes(&m_iEndOffset, sizeof(m_iEndOffset));
+  writer.WriteBytes(&m_iFrames, sizeof(m_iFrames));
+  writer.WriteBytes(&m_uGiveUpAfterNoProgress, sizeof(m_uGiveUpAfterNoProgress));
+  writer.WriteBytes(&m_uResetToBestIterations, sizeof(m_uResetToBestIterations));
+  writer.WritePODVec(m_vecAlgorithmData);
+  if(!m_vecAlgorithms.empty()) {
+    std::fprintf(stderr, "Cannot use pointers to optimizer algorithms while serializing\n");
+    abort();
+  }
+}
+
+void OptimizerSettings::ReadFromBuffer(TASQuakeIO::BufferReadInterface& reader) {
+  m_vecAlgorithmData.clear();
+  reader.Read(&m_Goal, sizeof(m_Goal));
+  reader.Read(&m_iEndOffset, sizeof(m_iEndOffset));
+  reader.Read(&m_iFrames, sizeof(m_iFrames));
+  reader.Read(&m_uGiveUpAfterNoProgress, sizeof(m_uGiveUpAfterNoProgress));
+  reader.Read(&m_uResetToBestIterations, sizeof(m_uResetToBestIterations));
+  reader.ReadPODVec(m_vecAlgorithmData);
+}
+
+void TASQuake::InitAlgorithms(const OptimizerSettings* settings, std::vector<std::shared_ptr<OptimizerAlgorithm>>& vecAlgorithms) {
+  vecAlgorithms.clear();
+  
+  for(auto alg : settings->m_vecAlgorithms) {
+    vecAlgorithms.push_back(alg);
+  }
+
+  for(auto alg : settings->m_vecAlgorithmData) {
+    switch(alg) {
+      case TASQuake::AlgorithmEnum::FrameBlockMover:
+        vecAlgorithms.push_back(std::make_shared<FrameBlockMover>());
+        break;
+      case TASQuake::AlgorithmEnum::RNGBlockMover:
+        vecAlgorithms.push_back(std::make_shared<RNGBlockMover>());
+        break;
+      case TASQuake::AlgorithmEnum::RNGStrafer:
+        vecAlgorithms.push_back(std::make_shared<RNGStrafer>());
+        break;
+      case TASQuake::AlgorithmEnum::StrafeAdjuster:
+        vecAlgorithms.push_back(std::make_shared<StrafeAdjuster>());
+        break;
+      case TASQuake::AlgorithmEnum::TurnOptimizer:
+        vecAlgorithms.push_back(std::make_shared<TurnOptimizer>());
+        break;
+      default:
+        abort(); // case missing for algorithm
+        break;
+    }
+  }
+}
+
 bool Optimizer::Init(const PlaybackInfo* playback, const TASQuake::OptimizerSettings* settings)
 {
 	if (playback->current_frame == 0)
@@ -135,7 +188,9 @@ bool Optimizer::Init(const PlaybackInfo* playback, const TASQuake::OptimizerSett
 
 	std::int32_t last_frame;
 
-  if(playback->Get_Last_Frame() > playback->current_frame) {
+  if(settings->m_iFrames > 0 ){
+    last_frame = settings->m_iFrames;
+  } else if(playback->Get_Last_Frame() > playback->current_frame) {
     last_frame = playback->Get_Last_Frame() - playback->current_frame + settings->m_iEndOffset;
   } else {
     last_frame = settings->m_iEndOffset;
@@ -146,18 +201,20 @@ bool Optimizer::Init(const PlaybackInfo* playback, const TASQuake::OptimizerSett
 		return false; // Init failed
 	}
 
-  for(auto& alg : m_settings.m_vecAlgorithms) {
+	m_settings = *settings;
+  InitAlgorithms(settings, m_vecAlgorithms);
+
+  for(auto& alg : m_vecAlgorithms) {
     alg->Reset();
   }
 
-	m_settings = *settings;
 	m_currentBest.m_vecData.clear();
   m_vecNodes.clear();
 	m_currentRun = m_currentBest;
 	m_uIterationsWithoutProgress = 0;
 	m_iCurrentAlgorithm = -1;
 	m_uLastFrame = last_frame;
-	m_vecCompoundingProbs = GetCompoundingProbs(settings->m_vecAlgorithms);
+	m_vecCompoundingProbs = GetCompoundingProbs(m_vecAlgorithms);
 
 	return true;
 }

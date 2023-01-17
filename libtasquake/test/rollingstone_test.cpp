@@ -78,12 +78,9 @@ TEST_CASE("CornerYawBench") {
         TASQuake::OptimizerSettings settings;
         settings.m_uResetToBestIterations = 1;
         settings.m_uGiveUpAfterNoProgress = 9999;
-        settings.m_vecAlgorithms.push_back(
-            std::shared_ptr<TASQuake::OptimizerAlgorithm>(new TASQuake::StrafeAdjuster()));
-        settings.m_vecAlgorithms.push_back(
-            std::shared_ptr<TASQuake::OptimizerAlgorithm>(new TASQuake::RNGStrafer()));
-        settings.m_vecAlgorithms.push_back(
-            std::shared_ptr<TASQuake::OptimizerAlgorithm>(new TASQuake::RNGBlockMover()));
+        settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::StrafeAdjuster);
+        settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::RNGStrafer);
+        settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::RNGBlockMover);
         double optimal = 130;
 
         meter.measure([&]{TASQuake::BenchTest(CornerFunc, &settings, &info, optimal);});
@@ -106,7 +103,7 @@ TEST_CASE("Optimizer bench") {
 
         TASQuake::OptimizerSettings settings;
         settings.m_uResetToBestIterations = 1;
-        settings.m_vecAlgorithms.push_back(std::shared_ptr<TASQuake::OptimizerAlgorithm>(new TASQuake::FrameBlockMover()));
+        settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::FrameBlockMover);
         double optimal = 126; // This should be the y coordinate
 
         meter.measure([&]{TASQuake::BenchTest(CornerFunc, &settings, &info, optimal);});
@@ -130,9 +127,9 @@ TEST_CASE("Turn bench") {
 
         TASQuake::OptimizerSettings settings;
         settings.m_uResetToBestIterations = 1;
-        settings.m_vecAlgorithms.push_back(std::shared_ptr<TASQuake::OptimizerAlgorithm>(new TASQuake::StrafeAdjuster()));
-        settings.m_vecAlgorithms.push_back(std::shared_ptr<TASQuake::OptimizerAlgorithm>(new TASQuake::FrameBlockMover()));
-        settings.m_vecAlgorithms.push_back(std::shared_ptr<TASQuake::OptimizerAlgorithm>(new TASQuake::TurnOptimizer()));
+        settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::StrafeAdjuster);
+        settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::FrameBlockMover);
+        settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::TurnOptimizer);
         double optimal = 132.5;
 
         meter.measure([&]{TASQuake::BenchTest(CornerFunc, &settings, &info, optimal);});
