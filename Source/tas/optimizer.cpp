@@ -310,7 +310,11 @@ void TASQuake::Receive_Optimizer_Stop() {
     game_opt_running = false;
 }
 
-static void SV_StopMultiGameOpt() {
+void TASQuake::SV_StopMultiGameOpt() {
+    if(!multi_game_opt_running) {
+        return;
+    }
+
     auto writer = TASQuakeIO::BufferWriteInterface::Init();
     uint8_t type = (uint8_t)IPCMessages::OptimizerStop;
     writer.WriteBytes(&type, sizeof(type));
@@ -319,13 +323,12 @@ static void SV_StopMultiGameOpt() {
 }
 
 static void MultiGameOpt_Frame(bool canPredict) {
-
     if(!canPredict || tas_optimizer.value == 0 || game_opt_running) {
 
         if(startFrame != -1) {
             startFrame = -1;
             RemoveCurve(OPTIMIZER_ID);
-            SV_StopMultiGameOpt();
+            TASQuake::SV_StopMultiGameOpt();
         }
 
         return;

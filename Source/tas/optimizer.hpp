@@ -25,4 +25,5 @@ namespace TASQuake {
     void Receive_Optimizer_Stop();
     void MultiGame_ReceiveRun(const ipc::Message& msg);
     void MultiGame_ReceiveProgress(const ipc::Message& msg);
+    void SV_StopMultiGameOpt();
 }

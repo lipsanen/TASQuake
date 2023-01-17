@@ -505,6 +505,7 @@ void Cmd_TAS_Optimizer_Accept(void) {
 		return;
 	}
 
+	TASQuake::SV_StopMultiGameOpt(); // Stop multi game optimization if it's running
 	auto* script = TASQuake::GetOptimizedVersion();
 	playback.current_script.AddScript(script, playback.current_frame);
 	playback.last_edited = Sys_DoubleTime();
