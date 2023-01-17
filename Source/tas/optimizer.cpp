@@ -14,8 +14,7 @@ static qboolean Optimizer_Var_Updated(struct cvar_s *var, char *value);
 cvar_t tas_optimizer = {"tas_optimizer", "1"};
 cvar_t tas_optimizer_goal = {"tas_optimizer_goal", "0", 0, Optimizer_Var_Updated};
 cvar_t tas_optimizer_multigame  = {"tas_optimizer_multigame", "0", 0, Optimizer_Var_Updated};
-cvar_t tas_optimizer_maxlength  = {"tas_optimizer_maxlength", "720", 0, Optimizer_Var_Updated};
-cvar_t tas_optimizer_endoffset  = {"tas_optimizer_endoffset", "36", 0, Optimizer_Var_Updated};
+cvar_t tas_optimizer_algs = {"tas_optimizer_algs", "all", 0, Optimizer_Var_Updated};
 
 static bool m_bFirstIteration = false;
 static int startFrame = -1;
@@ -25,26 +24,20 @@ static double m_dBestEfficacy = 0;
 static TASQuake::Optimizer opt;
 static double last_updated = 0;
 static TASQuake::OptimizerState state = TASQuake::OptimizerState::Stop;
-static TASQuake::OptimizerSettings settings;
 static Simulator sim;
 static std::vector<PathPoint> m_BestPoints;
 static std::vector<PathPoint> m_CurrentPoints;
 static std::vector<Rect> m_BestRects;
-
+static bool multi_game_opt_running = false;
+static std::map<size_t, int32_t> m_uIterationCounts; // Stores the iteration counts from clients
+static int32_t multi_game_opt_num = 1;
 
 static qboolean Optimizer_Var_Updated(struct cvar_s *var, char *value) {
     last_updated = 0;
+    if(multi_game_opt_running) {
+        TASQuake::SV_StopMultiGameOpt();
+    }
     return qfalse;
-}
-
-void Get_StartEnd_Frames(int32_t& start_frame, int32_t& end_frame) {
-    auto info = GetPlaybackInfo();
-    start_frame = info->current_frame;
-    end_frame = info->Get_Last_Frame() + tas_optimizer_endoffset.value;
-    int diffy = end_frame - start_frame;
-    diffy = std::max(1, diffy);
-    diffy = std::min<int32_t>(tas_optimizer_maxlength.value, diffy);
-    end_frame = start_frame + diffy;
 }
 
 const char* TASQuake::OptimizerGoalStr() {
@@ -81,11 +74,24 @@ const TASScript* TASQuake::GetOptimizedVersion() {
 static TASQuake::OptimizerSettings GetSettings() {
     TASQuake::OptimizerSettings settings;
     settings.m_Goal = (TASQuake::OptimizerGoal)tas_optimizer_goal.value;
-    settings.m_vecAlgorithms.push_back(std::shared_ptr<TASQuake::OptimizerAlgorithm>(new TASQuake::RNGBlockMover()));
-    settings.m_vecAlgorithms.push_back(std::shared_ptr<TASQuake::OptimizerAlgorithm>(new TASQuake::RNGStrafer()));
-    settings.m_vecAlgorithms.push_back(std::shared_ptr<TASQuake::OptimizerAlgorithm>(new TASQuake::StrafeAdjuster()));
-    settings.m_vecAlgorithms.push_back(std::shared_ptr<TASQuake::OptimizerAlgorithm>(new TASQuake::FrameBlockMover()));
-    settings.m_vecAlgorithms.push_back(std::shared_ptr<TASQuake::OptimizerAlgorithm>(new TASQuake::TurnOptimizer()));
+    int32_t start, end;
+    TASQuake::Get_Prediction_Frames(start, end);
+    settings.m_iFrames = end - start;
+
+    std::pair<const char*, TASQuake::AlgorithmEnum> algs[] = { 
+        {"rngmove", TASQuake::AlgorithmEnum::RNGBlockMover},
+        {"rngstrafe", TASQuake::AlgorithmEnum::RNGStrafer},
+        {"adjstrafe", TASQuake::AlgorithmEnum::StrafeAdjuster},
+        {"adjblock", TASQuake::AlgorithmEnum::FrameBlockMover},
+        {"turn", TASQuake::AlgorithmEnum::TurnOptimizer},
+        };
+
+    for(auto algpair : algs) {
+        if(strcmp(tas_optimizer_algs.string, "all") == 0 || strstr(tas_optimizer_algs.string, algpair.first) != NULL) {
+            settings.m_vecAlgorithmData.push_back(algpair.second);
+        }
+    }
+
     return settings;
 }
 
@@ -137,7 +143,7 @@ static void InitOptimizer(PlaybackInfo* playback) {
     m_bFirstIteration = true;
     m_uOptIterations = 0;
     last_updated = playback->last_edited;
-    settings = GetSettings();
+    auto settings = GetSettings();
     if(!opt.Init(playback, &settings)) {
         return;
     }
@@ -195,7 +201,6 @@ static void SimOptimizer_Frame(bool canPredict)
             InitNewIteration();
         }
 
-        sim.RunFrame();
 		TASQuake::FrameData data;
         data.m_dVelTheta = get_vel_theta(sim.info);
         data.pos.x = sim.info.ent.v.origin[0];
@@ -203,16 +208,13 @@ static void SimOptimizer_Frame(bool canPredict)
         data.pos.z = sim.info.ent.v.origin[2];
 
         state = opt.OnRunnerFrame(&data);
+        sim.RunFrame();
         PathPoint p;
         p.color = color;
         VectorCopy(sim.info.ent.v.origin, p.point);
         m_CurrentPoints.push_back(p);
 	}
 }
-
-static bool multi_game_opt_running = false;
-static std::map<size_t, int32_t> m_uIterationCounts; // Stores the iteration counts from clients
-static int32_t multi_game_opt_num = 1;
 
 static void SV_SendBest(const TASQuake::OptimizerRun& run) {
     auto writer = TASQuakeIO::BufferWriteInterface::Init();
@@ -285,11 +287,13 @@ static void SV_StartMultiGameOpt() {
     last_updated = Sys_DoubleTime();
     auto info = GetPlaybackInfo();
     int32_t start_frame, end_frame;
-    Get_StartEnd_Frames(start_frame, end_frame);
+    Get_Prediction_Frames(start_frame, end_frame);
+    opt.m_settings = GetSettings();
 
     auto writer = TASQuakeIO::BufferWriteInterface::Init();
     uint8_t type = (uint8_t)IPCMessages::OptimizerTask;
     writer.WriteBytes(&type, sizeof(type));
+    opt.m_settings.WriteToBuffer(writer);
     writer.WriteBytes(&start_frame, sizeof(start_frame));
     writer.WriteBytes(&end_frame, sizeof(end_frame));
     writer.WriteBytes(&multi_game_opt_num, sizeof(multi_game_opt_num));
@@ -301,7 +305,9 @@ static void SV_StartMultiGameOpt() {
 
 void TASQuake::Receive_Optimizer_Task(const ipc::Message& msg) {
     auto reader = TASQuakeIO::BufferReadInterface::Init((std::uint8_t*)msg.address + 1, msg.length - 1);
+    TASQuake::OptimizerSettings settings;
     int32_t start, end, identifier;
+    settings.ReadFromBuffer(reader);
     reader.Read(&start, sizeof(start));
     reader.Read(&end, sizeof(end));
     reader.Read(&identifier, sizeof(identifier));
@@ -310,7 +316,7 @@ void TASQuake::Receive_Optimizer_Task(const ipc::Message& msg) {
     info->current_script.blocks.clear();
     info->current_script.Load_From_Memory(reader);
 
-    TASQuake::GameOpt_InitOptimizer(start, end, identifier);
+    TASQuake::GameOpt_InitOptimizer(start, end, identifier, settings);
 }
 
 void TASQuake::Receive_Optimizer_Stop() {
@@ -344,7 +350,6 @@ static void MultiGameOpt_Frame(bool canPredict) {
     auto info = GetPlaybackInfo();
 
     if(!multi_game_opt_running || info->last_edited > last_updated) {
-
         if(!IPC_Prediction_HasLine()) {
             return; // Wait until IPC prediction has finished prior to sending new opt request
         }
@@ -421,7 +426,8 @@ static void CL_SendOptimizerProgress(int iterations) {
     TASQuake::CL_SendMessage(writer.m_pBuffer->ptr, writer.m_uFileOffset);
 }
 
-void TASQuake::GameOpt_InitOptimizer(int32_t start_frame, int32_t end_frame, int32_t identifier) {
+// TODO: Clean up this mess and move it inside the optimizer settings
+void TASQuake::GameOpt_InitOptimizer(int32_t start_frame, int32_t end_frame, int32_t identifier, const OptimizerSettings& _settings) {
     start_frame = std::max(1, start_frame);
     end_frame = std::max(start_frame+1, end_frame);
     game_opt_identifier = identifier;
@@ -435,10 +441,8 @@ void TASQuake::GameOpt_InitOptimizer(int32_t start_frame, int32_t end_frame, int
     game_opt_end_frame = end_frame;
     m_bFirstIteration = true;
     m_uOptIterations = 0;
-    settings = GetSettings();
-    settings.m_iEndOffset = end_frame - info->Get_Last_Frame();
 
-    if(!opt.Init(info, &settings)) {
+    if(!opt.Init(info, &_settings)) {
         return;
     }
 
@@ -458,7 +462,30 @@ void TASQuake::Cmd_TAS_Optimizer_Run() {
 
     int start = atoi(Cmd_Argv(1));
     int end = atoi(Cmd_Argv(2));
-    TASQuake::GameOpt_InitOptimizer(start, end, 0);
+    auto settings = GetSettings();
+    TASQuake::GameOpt_InitOptimizer(start, end, 0, settings);
+}
+
+void TASQuake::MultiGame_ReceiveGoal(const ipc::Message& msg) {
+    auto reader = TASQuakeIO::BufferReadInterface::Init((std::uint8_t*)msg.address + 1, msg.length - 1);
+    OptimizerGoal goal;
+    reader.Read(&goal, sizeof(goal));
+
+    if(goal == OptimizerGoal::Undetermined) {
+        Con_Print("Invalid optimizer goal from client\n");
+    } else if(opt.m_settings.m_Goal != OptimizerGoal::Undetermined &&
+     opt.m_settings.m_Goal != goal) {
+        Con_Print("Conflicting optimizer goals received from client.\n");
+    }
+    opt.m_settings.m_Goal = goal;
+}
+
+static void CL_SendGoal() {
+    auto writer = TASQuakeIO::BufferWriteInterface::Init();
+    uint8_t type = (uint8_t)IPCMessages::OptimizerGoal;
+    writer.WriteBytes(&type, 1);
+    writer.WriteBytes(&opt.m_settings.m_Goal, sizeof(opt.m_settings.m_Goal));
+    TASQuake::CL_SendMessage(writer.m_pBuffer->ptr, writer.m_uFileOffset);
 }
 
 static void GameOpt_NewIteration() {
@@ -470,6 +497,7 @@ static void GameOpt_NewIteration() {
         m_dBestEfficacy = m_dOriginalEfficacy;
         m_bFirstIteration = false;
         m_BestPoints = m_CurrentPoints;
+        CL_SendGoal();
         CL_SendRun(opt.m_currentRun);
         AddCurve(&m_BestPoints, OPTIMIZER_ID);
     } else {

@@ -1,6 +1,7 @@
 #include "cpp_quakedef.hpp"
 #include "hooks.h"
 #include "draw.hpp"
+#include "prediction.hpp"
 #include "simulate.hpp"
 
 using namespace TASQuake;
@@ -8,19 +9,14 @@ using namespace TASQuake;
 cvar_t tas_predict_per_frame{"tas_predict_per_frame", "0.01"};
 cvar_t tas_predict{"tas_predict", "1"};
 cvar_t tas_predict_grenade { "tas_predict_grenade", "0" };
-cvar_t tas_predict_amount{"tas_predict_amount", "3"};
+cvar_t tas_predict_endoffset{"tas_predict_endoffset", "0.5"};
+cvar_t tas_predict_maxlength{"tas_predict_maxlength", "10"};
 const std::array<float, 4> color = { 0, 0, 1, 0.5 };
 static std::vector<PathPoint> points;
 static std::vector<Rect> rects;
 
 bool path_assigned = false;
 bool grenade_assigned = false;
-
-void Get_Line_Endpoints(uint32_t& start, uint32_t& end) {
-	auto info = GetPlaybackInfo();
-	start = info->current_frame;
-	end = start + tas_predict_amount.value * 72;
-}
 
 bool Prediction_HasLine() {
 	return path_assigned;
@@ -32,6 +28,16 @@ std::vector<PathPoint>* Prediction_GetPoints() {
 
 std::vector<Rect>* Prediction_GetRects() {
 	return &rects;
+}
+
+void TASQuake::Get_Prediction_Frames(int32_t& start_frame, int32_t& end_frame) {
+    auto info = GetPlaybackInfo();
+    start_frame = info->current_frame;
+    end_frame = info->Get_Last_Frame() + tas_predict_endoffset.value * 72;
+    int diffy = end_frame - start_frame;
+    diffy = std::max(1, diffy);
+    diffy = std::min<int32_t>(tas_predict_maxlength.value * 72, diffy);
+    end_frame = start_frame + diffy;
 }
 
 bool Calculate_Prediction_Line(bool canPredict)
@@ -50,7 +56,7 @@ bool Calculate_Prediction_Line(bool canPredict)
 	auto playback = GetPlaybackInfo();
 	static double last_updated = 0; 
 	double currentTime = Sys_DoubleTime();
-	static double last_sim_time = 0;
+	static int32_t last_sim_frame = 0;
 	static Simulator sim;
 
 	if (last_updated < playback->last_edited || startFrame != playback->current_frame)
@@ -60,16 +66,15 @@ bool Calculate_Prediction_Line(bool canPredict)
 		last_updated = currentTime;
 		startFrame = playback->current_frame;
 		sim = Simulator::GetSimulator();
-		last_sim_time = tas_predict_amount.value + sv.time;
+		int32_t start_frame;
+		TASQuake::Get_Prediction_Frames(start_frame, last_sim_frame);
 
-		int frames = static_cast<int>(std::ceil((last_sim_time - sim.info.time) * 72));
-		if (frames > 0)
-			points.reserve(frames);
+		points.reserve(last_sim_frame - start_frame);
 	}
 
 	double realTimeStart = Sys_DoubleTime();
 
-	while (Sys_DoubleTime() - realTimeStart < tas_predict_per_frame.value && sim.info.time < last_sim_time)
+	while (Sys_DoubleTime() - realTimeStart < tas_predict_per_frame.value && sim.frame < last_sim_frame)
 	{
 		PathPoint vec;
 		vec.color[3] = 1;
@@ -99,7 +104,7 @@ bool Calculate_Prediction_Line(bool canPredict)
 		path_assigned = true;
 	}
 
-	return sim.info.time >= last_sim_time;
+	return sim.frame >= last_sim_frame;
 }
 
 void Predict_Grenade(std::function<void(vec3_t)> frameCallback, std::function<void(vec3_t)> finalCallback, vec3_t origin, vec3_t v_angle)

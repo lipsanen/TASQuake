@@ -86,23 +86,23 @@ static void Draw_Rectangle(const Rect& rect)
 	Q_glEnd();
 }
 
-static void DrawLine(const std::vector<PathPoint>* line, uint32_t* pstart=nullptr, uint32_t* pend=nullptr) {
+static void DrawLine(const std::vector<PathPoint>* line, int32_t* pstart=nullptr, int32_t* pend=nullptr) {
 	Q_glBegin(GL_LINES);
 
-	uint32_t start, end;
+	int32_t start, end;
 	if(pstart) {
-		start = std::min(*pstart, line->size() - 2);
+		start = std::min<int32_t>(*pstart, line->size() - 2);
 	} else {
 		start = 0;
 	}
 
 	if(pend) {
-		end = std::min(*pend, line->size()-1);
+		end = std::min<int32_t>(*pend, line->size()-1);
 	} else {
 		end = line->size()-1;
 	}
 
-	for (uint32_t i=start; i < end; ++i)
+	for (int32_t i=start; i < end; ++i)
 	{
 		auto& vec1 = line->at(i);
 		auto& vec2 = line->at(i + 1);
@@ -115,16 +115,16 @@ static void DrawLine(const std::vector<PathPoint>* line, uint32_t* pstart=nullpt
 	Q_glEnd();
 }
 
-static void DrawRects(const std::vector<Rect>* rects, uint32_t* pstart=nullptr, uint32_t* pend=nullptr) {
-	uint32_t start, end;
+static void DrawRects(const std::vector<Rect>* rects, int32_t* pstart=nullptr, int32_t* pend=nullptr) {
+	int32_t start, end;
 	if(pstart) {
-		start = std::min(*pstart, rects->size() - 1);
+		start = std::min<int32_t>(*pstart, rects->size() - 1);
 	} else {
 		start = 0;
 	}
 
 	if(pend) {
-		end = std::min(*pend, rects->size());
+		end = std::min<int32_t>(*pend, rects->size());
 	} else {
 		end = rects->size();
 	}
@@ -147,14 +147,14 @@ void Draw_Elements()
 	Q_glEnable(GL_BLEND);
 
 	if(IPC_Prediction_HasLine()) {
-		uint32_t start, end;
-		Get_Line_Endpoints(start, end);
+		int32_t start, end;
+    TASQuake::Get_Prediction_Frames(start, end);
 		DrawLine(IPC_Prediction_GetPoints(), &start, &end);
 		DrawRects(IPC_Prediction_GetRects(), &start, &end);
 	}
 	else if(GamePrediction_HasLine()) {
-		uint32_t start, end;
-		Get_Line_Endpoints(start, end);
+		int32_t start, end;
+    	TASQuake::Get_Prediction_Frames(start, end);
 		DrawLine(GamePrediction_GetPoints(), &start, &end);
 		DrawRects(GamePrediction_GetRects(), &start, &end);
 	} else if(Prediction_HasLine()) {

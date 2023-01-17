@@ -305,7 +305,6 @@ bool TASScript::_Load_From_File(TASQuakeIO::ReadInterface& readInterface) {
 		}
 		if (fb.parsed)
 			blocks.push_back(fb);
-		TASQuake::Log("Script %s loaded with %u blocks.\n", file_name.c_str(), blocks.size());
 	}
 	catch (const std::exception& e)
 	{

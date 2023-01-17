@@ -432,6 +432,9 @@ bool TAS_Script_Load(const char* name)
 	playback.current_script = TASScript(name);
 	playback.last_edited = Sys_DoubleTime();
 	bool result = playback.current_script.Load_From_File();
+	if(result) {
+		Con_Printf("Script %s loaded with %u blocks.\n", playback.current_script.file_name.c_str(), playback.current_script.blocks.size());
+	}
 
 	return result;
 }

@@ -4,6 +4,7 @@
 #include "hooks.h"
 #include "draw.hpp"
 #include "ipc2.hpp"
+#include "prediction.hpp"
 #include "real_prediction.hpp"
 #include "savestate.hpp"
 #include "script_playback.hpp"
@@ -61,7 +62,9 @@ std::vector<Rect>* GamePrediction_GetRects() {
 }
 
 bool GamePrediction_HasLine() {
-    int frames = 72 * tas_predict_amount.value;
+    int32_t start, end;
+    TASQuake::Get_Prediction_Frames(start, end);
+    int frames = end - start;
     auto playback = GetPlaybackInfo();
     int totalFrames = playback->current_frame + frames;
     return playback->last_edited < last_edited_time && totalFrames < real_line.size() && tas_predict_real.value != 0;

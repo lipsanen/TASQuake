@@ -5,7 +5,7 @@
 #include "libtasquake/optimizer.hpp"
 
 namespace TASQuake {
-    enum class IPCMessages { Print, Predict, OptimizerRun, OptimizerProgress, OptimizerTask, OptimizerStop };
+    enum class IPCMessages { Print, Predict, OptimizerRun, OptimizerProgress, OptimizerTask, OptimizerStop, OptimizerGoal };
 
     void IPC2_Frame_Hook();
     void Cmd_IPC2_Init();

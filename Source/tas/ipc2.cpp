@@ -88,6 +88,9 @@ static void Handle_Server_Message(ipc::Message& msg) {
         case TASQuake::IPCMessages::Predict:
             IPC_Prediction_Read_Response(msg);
             break;
+        case TASQuake::IPCMessages::OptimizerGoal:
+            TASQuake::MultiGame_ReceiveGoal(msg);
+            break;
         default:
             Con_Printf("IPC message with unknown type %d", (int)type);
             break;

@@ -13,6 +13,28 @@ public:
     virtual int IterationsExpected() { return count; }
 };
 
+TEST_CASE("OptimizerSettings", "Serialization")
+{
+    auto writer = TASQuakeIO::BufferWriteInterface::Init();
+    TASQuake::OptimizerSettings settings;
+    settings.m_Goal = TASQuake::OptimizerGoal::NegY;
+    settings.m_iEndOffset = 1;
+    settings.m_uGiveUpAfterNoProgress = 2;
+    settings.m_uResetToBestIterations = 3;
+    settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::FrameBlockMover);
+    settings.WriteToBuffer(writer);
+    auto reader = TASQuakeIO::BufferReadInterface::Init(writer.m_pBuffer->ptr, writer.m_uFileOffset);
+    TASQuake::OptimizerSettings settingsOut;
+    settingsOut.ReadFromBuffer(reader);
+
+    REQUIRE(settingsOut.m_Goal == settings.m_Goal);
+    REQUIRE(settings.m_iEndOffset == settings.m_iEndOffset);
+    REQUIRE(settings.m_uGiveUpAfterNoProgress == settings.m_uGiveUpAfterNoProgress);
+    REQUIRE(settings.m_uResetToBestIterations == settings.m_uResetToBestIterations);
+    REQUIRE(settings.m_vecAlgorithmData.size() == settingsOut.m_vecAlgorithmData.size());
+    REQUIRE(settings.m_vecAlgorithmData[0] == settingsOut.m_vecAlgorithmData[0]);
+}
+
 TEST_CASE("Optimizer", "Works")
 {
     TASScript script;

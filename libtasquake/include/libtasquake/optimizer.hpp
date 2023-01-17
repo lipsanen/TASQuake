@@ -84,6 +84,8 @@ namespace TASQuake {
         double m_dMax = 0;
     };
 
+    enum class AlgorithmEnum { TurnOptimizer, RNGStrafer, RNGBlockMover, StrafeAdjuster, FrameBlockMover };
+
     class TurnOptimizer : public OptimizerAlgorithm {
     public:
         virtual void Mutate(TASScript* script, Optimizer* opt) override;
@@ -188,8 +190,15 @@ namespace TASQuake {
         std::uint32_t m_uResetToBestIterations = 3;
         std::uint32_t m_uGiveUpAfterNoProgress = 999;
         std::int32_t m_iEndOffset = 36; // Where to end the optimizer path as frames from the last frame
+        std::int32_t m_iFrames = -1; // If positive, determines the number of frames
+        std::vector<AlgorithmEnum> m_vecAlgorithmData;
         std::vector<std::shared_ptr<OptimizerAlgorithm>> m_vecAlgorithms;
+
+        void WriteToBuffer(TASQuakeIO::BufferWriteInterface& writer) const;
+        void ReadFromBuffer(TASQuakeIO::BufferReadInterface& reader);
     };
+
+    void InitAlgorithms(const OptimizerSettings* settings, std::vector<std::shared_ptr<OptimizerAlgorithm>>& m_vecAlgorithms);
 
     struct Optimizer {
         void ResetIteration();
@@ -204,6 +213,7 @@ namespace TASQuake {
         double Random(double min, double max);
         size_t RandomizeIndex();
 
+        std::vector<std::shared_ptr<OptimizerAlgorithm>> m_vecAlgorithms;
         OptimizerRun m_currentBest; // The current best run
         OptimizerRun m_currentRun; // The current run
         std::vector<Vector> m_vecNodes; // The nodes that the run needs to hit in order to count

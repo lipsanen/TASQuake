@@ -73,8 +73,6 @@ void Predict_Grenade(std::function<void(vec3_t)> frameCallback, std::function<vo
 extern cvar_t tas_predict_per_frame;
 // desc: Display position prediction while paused in a TAS.
 extern cvar_t tas_predict;
-// desc: Amount of time to predict
-extern cvar_t tas_predict_amount;
 // desc: Display grenade prediction while paused in a TAS.
 extern cvar_t tas_predict_grenade;
 
