@@ -9,11 +9,13 @@
 
 using namespace TASQuake;
 
+static qboolean Optimizer_Var_Updated(struct cvar_s *var, char *value);
+
 cvar_t tas_optimizer = {"tas_optimizer", "1"};
-cvar_t tas_optimizer_goal = {"tas_optimizer_goal", "0"};
-cvar_t tas_optimizer_multigame  = {"tas_optimizer_multigame", "0"};
-cvar_t tas_optimizer_maxlength  = {"tas_optimizer_maxlength", "720"};
-cvar_t tas_optimizer_endoffset  = {"tas_optimizer_endoffset", "36"};
+cvar_t tas_optimizer_goal = {"tas_optimizer_goal", "0", 0, Optimizer_Var_Updated};
+cvar_t tas_optimizer_multigame  = {"tas_optimizer_multigame", "0", 0, Optimizer_Var_Updated};
+cvar_t tas_optimizer_maxlength  = {"tas_optimizer_maxlength", "720", 0, Optimizer_Var_Updated};
+cvar_t tas_optimizer_endoffset  = {"tas_optimizer_endoffset", "36", 0, Optimizer_Var_Updated};
 
 static bool m_bFirstIteration = false;
 static int startFrame = -1;
@@ -25,10 +27,15 @@ static double last_updated = 0;
 static TASQuake::OptimizerState state = TASQuake::OptimizerState::Stop;
 static TASQuake::OptimizerSettings settings;
 static Simulator sim;
-static double last_sim_time = 0;
 static std::vector<PathPoint> m_BestPoints;
 static std::vector<PathPoint> m_CurrentPoints;
 static std::vector<Rect> m_BestRects;
+
+
+static qboolean Optimizer_Var_Updated(struct cvar_s *var, char *value) {
+    last_updated = 0;
+    return qfalse;
+}
 
 void Get_StartEnd_Frames(int32_t& start_frame, int32_t& end_frame) {
     auto info = GetPlaybackInfo();
