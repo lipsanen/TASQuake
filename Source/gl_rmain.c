@@ -2504,6 +2504,9 @@ r_refdef must be set before the first call
 */
 void R_RenderScene (void)
 {
+	if(isSimulator)
+		return;
+
 	R_SetupFrame ();
 
 	R_SetFrustum ();

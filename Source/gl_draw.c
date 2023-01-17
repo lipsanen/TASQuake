@@ -254,6 +254,9 @@ int		pic_count;
 
 mpic_t *Draw_PicFromWad (char *name)
 {
+	if(isSimulator)
+		return NULL;
+
 	qpic_t	*p;
 	mpic_t	*pic, *pic_24bit;
 
@@ -1002,6 +1005,9 @@ Draw_Pic
 */
 void Draw_Pic (int x, int y, mpic_t *pic)
 {
+	if(isSimulator)
+		return;
+
 	if (scrap_dirty)
 		Scrap_Upload ();
 	GL_Bind (pic->texnum);
@@ -1019,6 +1025,9 @@ void Draw_Pic (int x, int y, mpic_t *pic)
 
 void Draw_SubPic (int x, int y, mpic_t *pic, int srcx, int srcy, int width, int height)
 {
+	if(isSimulator)
+		return;
+
 	float	newsl, newtl, newsh, newth, oldglwidth, oldglheight;
 
 	if (scrap_dirty)
@@ -1053,6 +1062,9 @@ Draw_TransPic
 */
 void Draw_TransPic (int x, int y, mpic_t *pic)
 {
+	if(isSimulator)
+		return;
+
 	if (x < 0 || (unsigned)(x + pic->width) > vid.width || y < 0 || (unsigned)(y + pic->height) > vid.height)
 		Sys_Error ("Draw_TransPic: bad coordinates");
 		
@@ -1068,6 +1080,9 @@ Only used for the player color selection menu
 */
 void Draw_TransPicTranslate (int x, int y, mpic_t *pic, byte *translation)
 {
+	if(isSimulator)
+		return;
+		
 	int		v, u, c, p;
 	unsigned	trans[64*64], *dest;
 	byte		*src;
@@ -1496,6 +1511,9 @@ GL_Upload32
 */
 void GL_Upload32 (unsigned *data, int width, int height, int mode)
 {
+	if(isSimulator)
+		return;
+
 	int		internal_format, scaled_width, scaled_height, miplevel;
 	unsigned int *scaled;
 
@@ -1606,6 +1624,9 @@ GL_LoadTexture
 */
 int GL_LoadTexture (char *identifier, int width, int height, byte *data, int mode, int bpp)
 {
+	if(isSimulator)
+		return 1;
+
 	int		i, scaled_width, scaled_height, crc = 0;
 	gltexture_t	*glt;
 
