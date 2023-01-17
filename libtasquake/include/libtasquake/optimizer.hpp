@@ -164,6 +164,7 @@ namespace TASQuake {
     struct FrameData {
         Vector pos;
         double m_dVelTheta = 999.0;
+        double m_dTime = 0.0;
         void FindSmallestStrafeYawIncrements(float strafe_yaw, float& min, float& max) const; 
     };
 
@@ -222,6 +223,8 @@ namespace TASQuake {
         std::vector<double> m_vecCompoundingProbs;
         std::int32_t m_iCurrentAlgorithm = -1;
         std::uint32_t m_uLastFrame = 1;
+        std::uint32_t m_uIteration = 0;
+        double m_dMaxTime = 0;
         std::uint32_t m_uIterationsWithoutProgress = 0; // How many iterations have been ran without progress, determines when we should reset back to best
     };
 }

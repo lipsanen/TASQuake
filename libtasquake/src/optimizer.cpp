@@ -28,6 +28,7 @@ const FrameBlock* Optimizer::GetCurrentFrameBlock() const
 }
 
 void Optimizer::_FinishIteration(OptimizerState& state) {
+  ++m_uIteration;
   if (m_settings.m_Goal == OptimizerGoal::Undetermined)
   {
     m_settings.m_Goal = AutoGoal(m_currentRun.m_vecData);
@@ -86,12 +87,16 @@ void Optimizer::_FinishIteration(OptimizerState& state) {
 
 OptimizerState Optimizer::OnRunnerFrame(const FrameData* data)
 {
+  if(m_uIteration == 0) {
+    m_dMaxTime = std::max(m_dMaxTime, data->m_dTime);
+  }
+
 	m_currentRun.m_vecData.push_back(*data);
 	OptimizerState state = OptimizerState::ContinueIteration;
 	auto block = m_currentRun.playbackInfo.Get_Current_Block();
 	m_currentRun.playbackInfo.current_frame += 1;
 
-	if (m_currentRun.playbackInfo.current_frame == m_uLastFrame)
+	if (m_currentRun.playbackInfo.current_frame == m_uLastFrame || data->m_dTime > m_dMaxTime)
 	{
     _FinishIteration(state);
 	}
@@ -208,6 +213,8 @@ bool Optimizer::Init(const PlaybackInfo* playback, const TASQuake::OptimizerSett
     alg->Reset();
   }
 
+  m_dMaxTime = 0;
+  m_uIteration = 0;
 	m_currentBest.m_vecData.clear();
   m_vecNodes.clear();
 	m_currentRun = m_currentBest;
