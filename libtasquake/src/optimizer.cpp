@@ -350,11 +350,7 @@ bool OptimizerRun::IsBetterThan(const OptimizerRun& run) const
     return false;
   } else if (run.m_vecData.empty()) {
     return true;
-  } else if (run.m_vecData.size() != m_vecData.size())
-	{
-		TASQuake::Log("Ran different number of iterations with optimizer\n");
-    abort();
-	}
+  }
 
 	double ours = RunEfficacy();
 	double theirs = run.RunEfficacy();

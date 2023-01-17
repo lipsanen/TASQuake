@@ -35,7 +35,7 @@ void TASQuake::Get_Prediction_Frames(int32_t& start_frame, int32_t& end_frame) {
     start_frame = info->current_frame;
     end_frame = info->Get_Last_Frame() + tas_predict_endoffset.value * 72;
     int diffy = end_frame - start_frame;
-    diffy = std::max(1, diffy);
+    diffy = std::max(144, diffy);
     diffy = std::min<int32_t>(tas_predict_maxlength.value * 72, diffy);
     end_frame = start_frame + diffy;
 }
