@@ -364,10 +364,9 @@ void CL_Record_f (void)
 // open the demo file
 	COM_ForceExtension (name, ".dem");
 
-#ifdef SIM
-	// Don't record demos with sim clients
-	return;
-#else
+
+	if(isSimulator)
+		return; // Don't record demos with sim clients	
 
 	Con_Printf ("recording to %s\n", name);
 	if (!(cls.demofile = fopen(name, "wb")))
@@ -375,7 +374,7 @@ void CL_Record_f (void)
 		Con_Printf ("ERROR: couldn't open %s\n", name);
 		return;
 	}
-#endif
+
 	cls.forcetrack = track;
 	fprintf (cls.demofile, "%i\n", cls.forcetrack);
 

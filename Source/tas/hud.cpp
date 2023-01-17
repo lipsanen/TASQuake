@@ -330,12 +330,8 @@ static void DrawPredictionType(int& y)
 
 void HUD_Draw_Hook()
 {
-#ifdef SIM
-	return;
-#else
-	if (!sv.active)
+	if (isSimulator || !sv.active)
 		return;
-#endif
 
 	int x = tas_hud_pos_x.value;
 	int y = tas_hud_pos_y.value;
