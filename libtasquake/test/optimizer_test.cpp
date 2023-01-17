@@ -56,13 +56,13 @@ TEST_CASE("Optimizer", "Works")
     opt.ResetIteration();
     size_t expected_frames = 100 + settings.m_iEndOffset;
 
-    for(size_t i=0; i <= expected_frames; ++i) {
+    for(size_t i=0; i < expected_frames; ++i) {
         auto block_ptr = opt.GetCurrentFrameBlock();
         TASQuake::FrameData framedata;
         framedata.pos.x = i;
         auto result = opt.OnRunnerFrame(&framedata);
 
-        if(i != 100 && i < expected_frames) {
+        if(i != 100 && i < expected_frames - 1) {
             REQUIRE(result == TASQuake::OptimizerState::ContinueIteration);
             REQUIRE(block_ptr == NULL);
         } else if (i == 100) {
@@ -81,13 +81,13 @@ TEST_CASE("Optimizer gives up")
 {
     TASScript script;
     FrameBlock block;
-    block.frame = 2;
+    block.frame = 1;
     block.parsed = true;
     block.Parse_Line("tas_strafe_yaw 0", block.frame);
     script.blocks.push_back(block);
 
     TASQuake::OptimizerSettings settings;
-    settings.m_iEndOffset = 0;
+    settings.m_iEndOffset = 2;
     settings.m_uGiveUpAfterNoProgress = 1;
     PlaybackInfo info;
     info.current_script = script;
