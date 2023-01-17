@@ -148,13 +148,14 @@ int		currenttexture = -1;		// to avoid unnecessary texture sets
 
 void GL_Bind (int texnum)
 {
-#ifndef SIM
+	if(isSimulator)
+		return;
+
 	if (currenttexture == texnum)
 		return;
 
 	currenttexture = texnum;
 	Q_glBindTexture (GL_TEXTURE_2D, texnum);
-#endif
 }
 
 /*
@@ -636,10 +637,8 @@ void Draw_Init (void)
 	no24bit = COM_CheckParm("-no24bit") ? true : false;
 
 	// 3dfx can only handle 256 wide textures
-#ifndef SIM
-	if (!Q_strncasecmp((char *)gl_renderer, "3dfx", 4) || strstr((char *)gl_renderer, "Glide"))
+	if (!isSimulator && !Q_strncasecmp((char *)gl_renderer, "3dfx", 4) || strstr((char *)gl_renderer, "Glide"))
 		Cvar_SetValue (&gl_max_size, 256);
-#endif
 
 	Draw_InitCharset ();
 	Draw_InitConback ();

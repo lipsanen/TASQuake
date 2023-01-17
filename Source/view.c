@@ -1261,7 +1261,9 @@ SCR_DrawStats
 */
 void SCR_DrawStats (void)
 {
-#ifndef SIM
+	if(isSimulator)
+		return;
+
 	int		mins, secs, tens;
 	extern	mpic_t	*sb_colon, *sb_nums[2][11];
 
@@ -1298,7 +1300,6 @@ void SCR_DrawStats (void)
 			Draw_String (vid.width - 24, 16, va("%3i", cl.stats[STAT_MONSTERS]));
 		}
 	}
-#endif
 }
 
 /*

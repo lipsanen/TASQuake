@@ -287,6 +287,7 @@ extern int	current_skill;		// skill level for currently loaded level (in case
 extern qboolean isDedicated;
 extern	int	minimum_memory;
 extern	char	*argv0;
+extern qboolean isSimulator;
 
 // chase
 extern	cvar_t	chase_active;
