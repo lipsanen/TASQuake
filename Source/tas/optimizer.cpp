@@ -206,6 +206,7 @@ static void SimOptimizer_Frame(bool canPredict)
         data.pos.x = sim.info.ent.v.origin[0];
         data.pos.y = sim.info.ent.v.origin[1];
         data.pos.z = sim.info.ent.v.origin[2];
+        data.m_dTime = sim.info.time;
 
         state = opt.OnRunnerFrame(&data);
         sim.RunFrame();
@@ -518,6 +519,7 @@ static void GameOpt_NewIteration() {
 
 static void Game_Opt_Add_FrameData(int current_frame) {
     TASQuake::FrameData data;
+    data.m_dTime = sv.time;
     data.m_dVelTheta = get_vel_theta_player();
 
     if(sv_player) {
