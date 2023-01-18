@@ -3,7 +3,7 @@
 #include "libtasquake/optimizer.hpp"
 #include "ipc_prediction.hpp"
 #include "ipc2.hpp"
-#include "optimizer.hpp"
+#include "optimizer_quake.hpp"
 #include "savestate.hpp"
 #include "simulate.hpp"
 
@@ -74,6 +74,7 @@ static TASQuake::OptimizerSettings GetSettings() {
     int32_t start, end;
     TASQuake::Get_Prediction_Frames(start, end);
     settings.m_iFrames = end - start;
+    settings.m_uGiveUpAfterNoProgress = 50;
 
     std::pair<const char*, TASQuake::AlgorithmEnum> algs[] = { 
         {"rngmove", TASQuake::AlgorithmEnum::RNGBlockMover},
@@ -433,6 +434,8 @@ void TASQuake::GameOpt_InitOptimizer(int32_t start_frame, int32_t end_frame, int
     tas_optimizer.value = 0; // Disable normal optimizer
     auto info = GetPlaybackInfo();
     info->current_script.RemoveBlocksAfterFrame(end_frame);
+    auto current = info->current_script.ToString();
+    printf("current %s\n", current.c_str());
     info->current_frame = start_frame;
 
     game_opt_start_frame = start_frame;
@@ -461,6 +464,7 @@ void TASQuake::Cmd_TAS_Optimizer_Run() {
     int start = atoi(Cmd_Argv(1));
     int end = atoi(Cmd_Argv(2));
     auto settings = GetSettings();
+    settings.m_iFrames = end - start;
     TASQuake::GameOpt_InitOptimizer(start, end, 0, settings);
 }
 
@@ -510,7 +514,7 @@ static void GameOpt_NewIteration() {
     ++m_uOptIterations;
     m_CurrentPoints.clear();
     Savestate_Script_Updated(game_opt_start_frame);
-    Run_Script(game_opt_end_frame+1, true);
+    Run_Script(game_opt_end_frame, true);
     state = TASQuake::OptimizerState::ContinueIteration;
 }
 

@@ -3,7 +3,7 @@
 #include "hooks.h"
 
 #include "script_playback.hpp"
-#include "optimizer.hpp"
+#include "optimizer_quake.hpp"
 #include "strafing.hpp"
 #include "ipc_prediction.hpp"
 #include "real_prediction.hpp"

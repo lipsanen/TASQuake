@@ -436,6 +436,16 @@ void TASScript::Write_To_File() const
 	TASQuake::Log("Wrote script to file %s\n", file_name.c_str());
 }
 
+
+std::string TASScript::ToString() const {
+	auto writer = TASQuakeIO::BufferWriteInterface::Init();
+	Write_To_Memory(writer);
+	std::string out;
+	out.resize(writer.m_uFileOffset);
+	memcpy(&out[0], (uint8_t*)writer.m_pBuffer->ptr + 4, writer.m_uFileOffset);
+	return out;
+}
+
 void TASScript::Prune(int min_frame, int max_frame)
 {
 	auto remove_it = std::remove_if(blocks.begin(), blocks.end(), [=](const FrameBlock& element) {

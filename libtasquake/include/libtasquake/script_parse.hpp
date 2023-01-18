@@ -61,6 +61,7 @@ public:
 	void Write_To_File() const;
 	std::vector<FrameBlock> blocks;
 	std::string file_name;
+	std::string ToString() const;
 	mutable int prev_block_number = 0;
 	void Prune(int min_frame, int max_frame);
 	void Prune(int min_frame);

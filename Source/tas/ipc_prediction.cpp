@@ -2,7 +2,7 @@
 #include "script_playback.hpp"
 #include "ipc2.hpp"
 #include "ipc_prediction.hpp"
-#include "optimizer.hpp"
+#include "optimizer_quake.hpp"
 #include "prediction.hpp"
 #include "simulate.hpp"
 #include "hooks.h"

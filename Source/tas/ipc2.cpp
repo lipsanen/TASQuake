@@ -3,7 +3,7 @@
 #include "libtasquake/io.hpp"
 #include "cpp_quakedef.hpp"
 #include "ipc_prediction.hpp"
-#include "optimizer.hpp"
+#include "optimizer_quake.hpp"
 #include "real_prediction.hpp"
 
 static ipc::server server;

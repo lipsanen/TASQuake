@@ -11,7 +11,7 @@
 #include "camera.hpp"
 #include "libtasquake/script_parse.hpp"
 #include "libtasquake/utils.hpp"
-#include "optimizer.hpp"
+#include "optimizer_quake.hpp"
 #include "reset.hpp"
 #include "savestate.hpp"
 #include "strafing.hpp"
