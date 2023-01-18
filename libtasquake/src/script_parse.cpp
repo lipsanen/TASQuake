@@ -488,6 +488,7 @@ void TASScript::AddScript(const TASScript* script, int frame) {
 	
 	for(size_t i=0; i < script->blocks.size(); ++i) {
 		FrameBlock block = script->blocks[i];
+		std::string cmd = block.GetCommand();
 		block.frame += frame;
 		blocks.push_back(std::move(block));
 	}

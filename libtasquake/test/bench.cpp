@@ -27,7 +27,7 @@ void TASQuake::BenchTest(SimFunc func,
 	double currentBest = passThreshold - 1;
 	int frame = 0;
 	Player player;
-	TASQuake::FrameData data;
+	TASQuake::ExtendedFrameData data;
 	size_t iterations = 0;
 
 	while (currentBest < passThreshold)
@@ -47,7 +47,7 @@ void TASQuake::BenchTest(SimFunc func,
 		}
 
 		func(&player);
-		data.pos = player.m_vecPos;
+		data.m_frameData.pos = player.m_vecPos;
 
 		auto state = opt.OnRunnerFrame(&data);
 
