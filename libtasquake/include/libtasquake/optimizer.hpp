@@ -164,17 +164,28 @@ namespace TASQuake {
     struct FrameData {
         Vector pos;
         double m_dVelTheta = 999.0;
-        double m_dTime = 0.0;
         void FindSmallestStrafeYawIncrements(float strafe_yaw, float& min, float& max) const; 
     };
 
+    struct ExtendedFrameData {
+        FrameData m_frameData;
+        double m_dTime = 0.0;
+        bool m_bIntermission = false;
+    };
+
     enum class OptimizerState { ContinueIteration, NewIteration, Stop };
-    enum class OptimizerGoal { Undetermined, PlusX, NegX, PlusY, NegY };
+    enum class OptimizerGoal { Undetermined, PlusX, NegX, PlusY, NegY, Time };
+
+    const char* OptimizerGoalStr(OptimizerGoal goal);
 
     struct OptimizerRun {
         double m_dEfficacy = std::numeric_limits<double>::lowest();
         PlaybackInfo playbackInfo;
         std::vector<FrameData> m_vecData;
+        bool m_bFinishedLevel = false;
+        double m_dLevelTime = 0.0;
+
+        void ResetIteration();
         void CalculateEfficacy(OptimizerGoal goal, const std::vector<Vector>& nodes);
         double RunEfficacy() const { return m_dEfficacy; };
         bool IsBetterThan(const OptimizerRun& run) const;
@@ -183,7 +194,9 @@ namespace TASQuake {
         void ReadFromBuffer(TASQuakeIO::BufferReadInterface& reader);
     };
 
-    OptimizerGoal AutoGoal(const std::vector<FrameData>& data);
+    OptimizerGoal AutoGoal(const OptimizerRun& run);
+    double ConvertTimeToEfficacy(double time);
+    double ConvertEfficacyToTime(double efficacy);
 
     struct OptimizerSettings {
         // Determine which algorithms should be used
@@ -206,7 +219,7 @@ namespace TASQuake {
         // Gets the current frame block or null if no block for current frame
         const FrameBlock* GetCurrentFrameBlock() const;
         // Runner calls this after every frame
-        OptimizerState OnRunnerFrame(const FrameData* data);
+        OptimizerState OnRunnerFrame(const ExtendedFrameData* data);
         void _FinishIteration(OptimizerState& state);
         // Run the init function with the actual full script, the optimizer figures out the relevant bit from playbackInfo
         bool Init(const PlaybackInfo* playback, const OptimizerSettings* settings);

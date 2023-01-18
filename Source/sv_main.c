@@ -443,7 +443,7 @@ void SV_WriteEntitiesToClient (edict_t *clent, sizebuf_t *msg, qboolean nomap)
 
 		if (msg->maxsize - msg->cursize < 16)
 		{
-			Con_Printf ("packet overflow\n");
+			//Con_Printf ("packet overflow\n");
 			return;
 		}
 

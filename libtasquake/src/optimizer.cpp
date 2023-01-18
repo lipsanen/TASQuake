@@ -8,9 +8,7 @@ using namespace TASQuake;
 
 void Optimizer::ResetIteration()
 {
-	m_currentRun.playbackInfo.current_frame = 0;
-	m_currentRun.playbackInfo.pause_frame = 0;
-	m_currentRun.m_vecData.clear();
+  m_currentRun.ResetIteration();
 }
 
 const FrameBlock* Optimizer::GetCurrentFrameBlock() const
@@ -28,10 +26,9 @@ const FrameBlock* Optimizer::GetCurrentFrameBlock() const
 }
 
 void Optimizer::_FinishIteration(OptimizerState& state) {
-  ++m_uIteration;
   if (m_settings.m_Goal == OptimizerGoal::Undetermined)
   {
-    m_settings.m_Goal = AutoGoal(m_currentRun.m_vecData);
+    m_settings.m_Goal = AutoGoal(m_currentRun);
     
     for(size_t i=0; i < m_currentRun.m_vecData.size(); i += 36) {
       m_vecNodes.push_back(m_currentRun.m_vecData[i].pos);
@@ -83,15 +80,24 @@ void Optimizer::_FinishIteration(OptimizerState& state) {
 
     state = OptimizerState::NewIteration;
   }
+
+  ++m_uIteration;
 }
 
-OptimizerState Optimizer::OnRunnerFrame(const FrameData* data)
+OptimizerState Optimizer::OnRunnerFrame(const ExtendedFrameData* data)
 {
   if(m_uIteration == 0) {
     m_dMaxTime = std::max(m_dMaxTime, data->m_dTime);
   }
 
-	m_currentRun.m_vecData.push_back(*data);
+  // This kinda works badly with multiple levels being in one optimizer task
+  // That is mostly a corner case so I think it's safe to ignore
+  if(!m_currentRun.m_bFinishedLevel && data->m_bIntermission) {
+    m_currentRun.m_dLevelTime = data->m_dTime;
+    m_currentRun.m_bFinishedLevel = true;
+  }
+
+	m_currentRun.m_vecData.push_back(data->m_frameData);
 	OptimizerState state = OptimizerState::ContinueIteration;
 	auto block = m_currentRun.playbackInfo.Get_Current_Block();
 	m_currentRun.playbackInfo.current_frame += 1;
@@ -267,12 +273,16 @@ size_t TASQuake::SelectIndex(double value, const std::vector<double>& compoundin
 	return compoundingProbs.size() - 1;
 }
 
-OptimizerGoal TASQuake::AutoGoal(const std::vector<FrameData>& vecData)
+OptimizerGoal TASQuake::AutoGoal(const OptimizerRun& run)
 {
+  const std::vector<FrameData>& vecData = run.m_vecData;
 	if (vecData.size() <= 1)
 	{
 		return OptimizerGoal::Undetermined;
 	}
+  else if(run.m_bFinishedLevel) {
+    return OptimizerGoal::Time;
+  }
 
 	Vector last = vecData[vecData.size() - 1].pos;
 	Vector secondlast = vecData[vecData.size() - 2].pos;
@@ -301,9 +311,33 @@ OptimizerGoal TASQuake::AutoGoal(const std::vector<FrameData>& vecData)
 	}
 }
 
+double TASQuake::ConvertTimeToEfficacy(double time) {
+  return 1000 - time;
+}
+
+double TASQuake::ConvertEfficacyToTime(double efficacy) {
+  return -(efficacy - 1000);
+}
+
+void OptimizerRun::ResetIteration() {
+	playbackInfo.current_frame = 0;
+	playbackInfo.pause_frame = 0;
+  m_vecData.clear();
+  m_bFinishedLevel = false;
+  m_dLevelTime = 0.0;
+}
+
 void OptimizerRun::CalculateEfficacy(OptimizerGoal goal, const std::vector<Vector>& nodes)
 {
-	if (m_vecData.empty() || goal == OptimizerGoal::Undetermined)
+  if(goal == OptimizerGoal::Time) {
+    if(!m_bFinishedLevel) {
+      m_dEfficacy = 0.0;
+    } else {
+      m_dEfficacy = 1000 - m_dLevelTime;
+    }
+    return;
+  }
+	else if (m_vecData.empty() || goal == OptimizerGoal::Undetermined)
 	{
     m_dEfficacy = std::numeric_limits<double>::lowest();
     return;
@@ -402,12 +436,16 @@ void OptimizerRun::StrafeBounds(size_t blockIndex, float& min, float& max) const
 
 void OptimizerRun::WriteToBuffer(TASQuakeIO::BufferWriteInterface& writer) const {
   writer.WriteBytes(&m_dEfficacy, sizeof(m_dEfficacy));
+  writer.WriteBytes(&m_bFinishedLevel, sizeof(m_bFinishedLevel));
+  writer.WriteBytes(&m_dLevelTime, sizeof(m_dLevelTime));
   writer.WritePODVec(m_vecData);
   playbackInfo.current_script.Write_To_Memory(writer);
 }
 
 void OptimizerRun::ReadFromBuffer(TASQuakeIO::BufferReadInterface& reader) {
   reader.Read(&m_dEfficacy, sizeof(m_dEfficacy));
+  reader.Read(&m_bFinishedLevel, sizeof(m_bFinishedLevel));
+  reader.Read(&m_dLevelTime, sizeof(m_dLevelTime));
   reader.ReadPODVec(m_vecData);
   playbackInfo.current_script.blocks.clear();
   playbackInfo.current_script.Load_From_Memory(reader);
@@ -964,4 +1002,21 @@ void TurnOptimizer::Init(TASScript* script, Optimizer* opt) {
 
 float Vector::Distance(const Vector& rhs) const {
   return std::sqrt((x - rhs.x) * (x - rhs.x) + (y - rhs.y) * (y - rhs.y) + (z - rhs.z) * (z - rhs.z));
+}
+
+const char* TASQuake::OptimizerGoalStr(OptimizerGoal goal) {
+    switch(goal) {
+        case OptimizerGoal::NegX:
+            return "-X";
+        case OptimizerGoal::NegY:
+            return "-Y";
+        case OptimizerGoal::PlusX:
+            return "+X";
+        case OptimizerGoal::PlusY:
+            return "+Y";
+        case OptimizerGoal::Time:
+            return "Time";
+        default:
+            return "Undetermined";
+    }
 }

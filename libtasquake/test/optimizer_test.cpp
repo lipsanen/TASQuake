@@ -1,5 +1,6 @@
 #include "catch_amalgamated.hpp"
 #include "libtasquake/optimizer.hpp"
+#include "libtasquake/utils.hpp"
 
 class ProbTester : public TASQuake::OptimizerAlgorithm {
 public:
@@ -35,6 +36,22 @@ TEST_CASE("OptimizerSettings", "Serialization")
     REQUIRE(settings.m_vecAlgorithmData[0] == settingsOut.m_vecAlgorithmData[0]);
 }
 
+TEST_CASE("OptimizerRun serialization") {
+    auto writer = TASQuakeIO::BufferWriteInterface::Init();
+    TASQuake::OptimizerRun run;
+    run.m_bFinishedLevel = true;
+    run.m_dEfficacy = 0.1;
+    run.m_dLevelTime = 1.2;
+    run.WriteToBuffer(writer);
+
+    auto reader = TASQuakeIO::BufferReadInterface::Init(writer.m_pBuffer->ptr, writer.m_uFileOffset);
+    TASQuake::OptimizerRun loaded;
+    loaded.ReadFromBuffer(reader);
+    REQUIRE(run.m_bFinishedLevel == loaded.m_bFinishedLevel);
+    REQUIRE(run.m_dEfficacy == loaded.m_dEfficacy);
+    REQUIRE(run.m_dLevelTime == loaded.m_dLevelTime);
+}
+
 TEST_CASE("Optimizer EmptyWorks")
 {
     TASScript script;
@@ -47,8 +64,8 @@ TEST_CASE("Optimizer EmptyWorks")
     bool rval = opt.Init(&info, &settings);
     REQUIRE(rval == true);
     opt.ResetIteration();
-    TASQuake::FrameData framedata;
-    framedata.pos.x = 0;
+    TASQuake::ExtendedFrameData framedata;
+    framedata.m_frameData.pos.x = 0;
     auto result = opt.OnRunnerFrame(&framedata);
     REQUIRE(result == TASQuake::OptimizerState::NewIteration);
     opt.ResetIteration();
@@ -58,6 +75,51 @@ TEST_CASE("Optimizer EmptyWorks")
     result = opt.OnRunnerFrame(&framedata);
     REQUIRE(result == TASQuake::OptimizerState::NewIteration);
     opt.ResetIteration();
+}
+
+TEST_CASE("Time efficacy conversion") {
+    double t = 1.0;
+    double efficacy = TASQuake::ConvertTimeToEfficacy(t);
+    double t2 = TASQuake::ConvertEfficacyToTime(efficacy);
+    REQUIRE(TASQuake::DoubleEqual(t, t2));
+}
+
+TEST_CASE("Better time is better")
+{
+    std::vector<TASQuake::Vector> nodes;
+    TASQuake::OptimizerRun run1;
+    run1.m_bFinishedLevel = true;
+    run1.m_dLevelTime = 10.0;
+    run1.CalculateEfficacy(TASQuake::OptimizerGoal::Time, nodes);
+    TASQuake::OptimizerRun run2;
+    run2.m_bFinishedLevel = true;
+    run2.m_dLevelTime = 9.0;
+    run2.CalculateEfficacy(TASQuake::OptimizerGoal::Time, nodes);
+    TASQuake::OptimizerRun run3;
+    run3.m_bFinishedLevel = false;
+    run3.m_dLevelTime = 8.0;
+    run3.CalculateEfficacy(TASQuake::OptimizerGoal::Time, nodes);
+
+    REQUIRE(run1.m_dEfficacy < run2.m_dEfficacy);
+    REQUIRE(run3.m_dEfficacy < run1.m_dEfficacy);
+}
+
+TEST_CASE("Optimizer time goal works")
+{
+    PlaybackInfo info;
+    TASQuake::OptimizerSettings settings;
+    settings.m_iFrames = 3;
+    TASQuake::Optimizer opt;
+    opt.Init(&info, &settings);
+    TASQuake::ExtendedFrameData data;
+
+    for(size_t i=0; i < settings.m_iFrames; ++i) {
+        data.m_bIntermission = i == settings.m_iFrames - 1;
+        data.m_dTime = i / 72.0;
+        opt.OnRunnerFrame(&data);
+    }
+
+    REQUIRE(opt.m_settings.m_Goal == TASQuake::OptimizerGoal::Time);
 }
 
 TEST_CASE("Optimizer", "Works")
@@ -83,8 +145,8 @@ TEST_CASE("Optimizer", "Works")
 
     for(size_t i=0; i < expected_frames; ++i) {
         auto block_ptr = opt.GetCurrentFrameBlock();
-        TASQuake::FrameData framedata;
-        framedata.pos.x = i;
+        TASQuake::ExtendedFrameData framedata;
+        framedata.m_frameData.pos.x = i;
         auto result = opt.OnRunnerFrame(&framedata);
 
         if(i != 100 && i < expected_frames - 1) {
@@ -118,7 +180,7 @@ TEST_CASE("Optimizer gives up")
     info.current_script = script;
 
     TASQuake::Optimizer opt;
-    TASQuake::FrameData framedata;
+    TASQuake::ExtendedFrameData framedata;
     opt.Init(&info, &settings);
     opt.ResetIteration();
 
@@ -226,18 +288,18 @@ TEST_CASE("Compounding probability works")
 
 TEST_CASE("AutoGoal", "Works")
 {
-    std::vector<TASQuake::FrameData> vec1;
-    REQUIRE(TASQuake::AutoGoal(vec1) == TASQuake::OptimizerGoal::Undetermined);
-    vec1.resize(1);
-    REQUIRE(TASQuake::AutoGoal(vec1) == TASQuake::OptimizerGoal::Undetermined);
-    vec1.resize(2);
-    vec1[1].pos.x = 1.0f;
-    REQUIRE(TASQuake::AutoGoal(vec1) == TASQuake::OptimizerGoal::PlusX);
-    vec1[1].pos.x = -1.0f;
-    REQUIRE(TASQuake::AutoGoal(vec1) == TASQuake::OptimizerGoal::NegX);
-    vec1[1].pos.x = 0.5f;
-    vec1[1].pos.y = 1.0f;
-    REQUIRE(TASQuake::AutoGoal(vec1) == TASQuake::OptimizerGoal::PlusY);
-    vec1[1].pos.y = -1.0f;
-    REQUIRE(TASQuake::AutoGoal(vec1) == TASQuake::OptimizerGoal::NegY);
+    TASQuake::OptimizerRun run;
+    REQUIRE(TASQuake::AutoGoal(run) == TASQuake::OptimizerGoal::Undetermined);
+    run.m_vecData.resize(1);
+    REQUIRE(TASQuake::AutoGoal(run) == TASQuake::OptimizerGoal::Undetermined);
+    run.m_vecData.resize(2);
+    run.m_vecData[1].pos.x = 1.0f;
+    REQUIRE(TASQuake::AutoGoal(run) == TASQuake::OptimizerGoal::PlusX);
+    run.m_vecData[1].pos.x = -1.0f;
+    REQUIRE(TASQuake::AutoGoal(run) == TASQuake::OptimizerGoal::NegX);
+    run.m_vecData[1].pos.x = 0.5f;
+    run.m_vecData[1].pos.y = 1.0f;
+    REQUIRE(TASQuake::AutoGoal(run) == TASQuake::OptimizerGoal::PlusY);
+    run.m_vecData[1].pos.y = -1.0f;
+    REQUIRE(TASQuake::AutoGoal(run) == TASQuake::OptimizerGoal::NegY);
 }

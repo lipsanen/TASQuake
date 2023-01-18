@@ -41,26 +41,23 @@ static qboolean Optimizer_Var_Updated(struct cvar_s *var, char *value) {
 }
 
 const char* TASQuake::OptimizerGoalStr() {
-    switch(opt.m_settings.m_Goal) {
-        case OptimizerGoal::NegX:
-            return "-X";
-        case OptimizerGoal::NegY:
-            return "-Y";
-        case OptimizerGoal::PlusX:
-            return "+X";
-        case OptimizerGoal::PlusY:
-            return "+Y";
-        default:
-            return "Undetermined";
-    }
+    return TASQuake::OptimizerGoalStr(opt.m_settings.m_Goal);
 }
 
 double TASQuake::OriginalEfficacy() {
-    return m_dOriginalEfficacy;
+    if(opt.m_settings.m_Goal == OptimizerGoal::Time) {
+        return TASQuake::ConvertEfficacyToTime(m_dOriginalEfficacy);
+    } else {
+        return m_dOriginalEfficacy;
+    }
 }
 
 double TASQuake::OptimizedEfficacy() {
-    return m_dBestEfficacy;
+    if(opt.m_settings.m_Goal == OptimizerGoal::Time) {
+        return TASQuake::ConvertEfficacyToTime(m_dBestEfficacy);
+    } else {
+        return m_dBestEfficacy;
+    }
 }
 
 size_t TASQuake::OptimizerIterations() {
@@ -201,11 +198,11 @@ static void SimOptimizer_Frame(bool canPredict)
             InitNewIteration();
         }
 
-		TASQuake::FrameData data;
-        data.m_dVelTheta = get_vel_theta(sim.info);
-        data.pos.x = sim.info.ent.v.origin[0];
-        data.pos.y = sim.info.ent.v.origin[1];
-        data.pos.z = sim.info.ent.v.origin[2];
+		TASQuake::ExtendedFrameData data;
+        data.m_frameData.m_dVelTheta = get_vel_theta(sim.info);
+        data.m_frameData.pos.x = sim.info.ent.v.origin[0];
+        data.m_frameData.pos.y = sim.info.ent.v.origin[1];
+        data.m_frameData.pos.z = sim.info.ent.v.origin[2];
         data.m_dTime = sim.info.time;
 
         state = opt.OnRunnerFrame(&data);
@@ -451,7 +448,7 @@ void TASQuake::GameOpt_InitOptimizer(int32_t start_frame, int32_t end_frame, int
     m_CurrentPoints.clear();
     m_BestPoints.clear();
     Savestate_Script_Updated(game_opt_end_frame);
-    Run_Script(game_opt_end_frame+1, true);
+    Run_Script(game_opt_end_frame, true);
     game_opt_running = true;
 }
 
@@ -518,14 +515,15 @@ static void GameOpt_NewIteration() {
 }
 
 static void Game_Opt_Add_FrameData(int current_frame) {
-    TASQuake::FrameData data;
+    TASQuake::ExtendedFrameData data;
     data.m_dTime = sv.time;
-    data.m_dVelTheta = get_vel_theta_player();
+    data.m_bIntermission = cl.intermission != 0;
+    data.m_frameData.m_dVelTheta = get_vel_theta_player();
 
     if(sv_player) {
-        data.pos.x = sv_player->v.origin[0];
-        data.pos.y = sv_player->v.origin[1];
-        data.pos.z = sv_player->v.origin[2];
+        data.m_frameData.pos.x = sv_player->v.origin[0];
+        data.m_frameData.pos.y = sv_player->v.origin[1];
+        data.m_frameData.pos.z = sv_player->v.origin[2];
     }
 
     state = opt.OnRunnerFrame(&data);
@@ -559,13 +557,10 @@ void TASQuake::Optimizer_Frame_Hook() {
     auto info = GetPlaybackInfo();
     if(tas_gamestate == unpaused) {
         int current_frame = info->current_frame;
-        if(current_frame >= game_opt_start_frame && current_frame <= game_opt_end_frame) {
+        if(state == TASQuake::OptimizerState::ContinueIteration && 
+        current_frame >= game_opt_start_frame && current_frame <= game_opt_end_frame) {
             Game_Opt_Add_FrameData(current_frame);
         } 
-
-        if(state == TASQuake::OptimizerState::NewIteration) {
-            Game_Opt_Ended();   
-        }
     } 
     else if(tas_gamestate == paused) {
         Game_Opt_Ended();
