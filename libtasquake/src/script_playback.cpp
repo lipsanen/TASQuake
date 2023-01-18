@@ -70,6 +70,9 @@ PlaybackInfo PlaybackInfo::GetTimeShiftedVersion(const PlaybackInfo* info, int s
 		FrameBlock block = info->current_script.blocks[i];
 		if (block.frame <= start_frame) {
 			stacked.Stack(block);
+			if(block.frame == start_frame) {
+				stacked.commands = block.commands;
+			}
 		} else {
 			if(!added_stack) {
 				output.current_script.blocks.push_back(stacked);

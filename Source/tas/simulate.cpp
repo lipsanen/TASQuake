@@ -4,7 +4,7 @@
 #include "strafing.hpp"
 #include "libtasquake/utils.hpp"
 #include "afterframes.hpp"
-#include "optimizer.hpp"
+#include "optimizer_quake.hpp"
 #include "prediction.hpp"
 
 /*

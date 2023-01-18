@@ -6,7 +6,7 @@
 #include "camera.hpp"
 #include "draw.hpp"
 #include "hud.hpp"
-#include "optimizer.hpp"
+#include "optimizer_quake.hpp"
 #include "real_prediction.hpp"
 #include "reset.hpp"
 #include "script_playback.hpp"
