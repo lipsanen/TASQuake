@@ -35,6 +35,31 @@ TEST_CASE("OptimizerSettings", "Serialization")
     REQUIRE(settings.m_vecAlgorithmData[0] == settingsOut.m_vecAlgorithmData[0]);
 }
 
+TEST_CASE("Optimizer EmptyWorks")
+{
+    TASScript script;
+    TASQuake::OptimizerSettings settings;
+    settings.m_iEndOffset = 0;
+    PlaybackInfo info;
+    info.current_script = script;
+
+    TASQuake::Optimizer opt;
+    bool rval = opt.Init(&info, &settings);
+    REQUIRE(rval == true);
+    opt.ResetIteration();
+    TASQuake::FrameData framedata;
+    framedata.pos.x = 0;
+    auto result = opt.OnRunnerFrame(&framedata);
+    REQUIRE(result == TASQuake::OptimizerState::NewIteration);
+    opt.ResetIteration();
+    result = opt.OnRunnerFrame(&framedata);
+    REQUIRE(result == TASQuake::OptimizerState::NewIteration);
+    opt.ResetIteration();
+    result = opt.OnRunnerFrame(&framedata);
+    REQUIRE(result == TASQuake::OptimizerState::NewIteration);
+    opt.ResetIteration();
+}
+
 TEST_CASE("Optimizer", "Works")
 {
     TASScript script;
@@ -144,7 +169,7 @@ TEST_CASE("Optimizer playback stacking works")
     script.blocks.push_back(block);
 
     TASQuake::OptimizerSettings settings;
-    settings.m_iEndOffset = 0;
+    settings.m_iEndOffset = 1;
     settings.m_uGiveUpAfterNoProgress = 1;
     PlaybackInfo info;
     info.current_script = script;

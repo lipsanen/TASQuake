@@ -201,9 +201,9 @@ bool Optimizer::Init(const PlaybackInfo* playback, const TASQuake::OptimizerSett
     last_frame = settings->m_iEndOffset;
   }
 
-	if (last_frame < 0)
+	if (last_frame <= 0)
 	{
-		return false; // Init failed
+		last_frame = 1;
 	}
 
 	m_settings = *settings;
@@ -306,6 +306,7 @@ void OptimizerRun::CalculateEfficacy(OptimizerGoal goal, const std::vector<Vecto
 	if (m_vecData.empty() || goal == OptimizerGoal::Undetermined)
 	{
     m_dEfficacy = std::numeric_limits<double>::lowest();
+    return;
 	}
 
   size_t nodeIndex = 0;
