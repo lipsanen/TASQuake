@@ -74,7 +74,6 @@ static TASQuake::OptimizerSettings GetSettings() {
     int32_t start, end;
     TASQuake::Get_Prediction_Frames(start, end);
     settings.m_iFrames = end - start;
-    settings.m_uGiveUpAfterNoProgress = 50;
 
     std::pair<const char*, TASQuake::AlgorithmEnum> algs[] = { 
         {"rngmove", TASQuake::AlgorithmEnum::RNGBlockMover},
@@ -235,6 +234,22 @@ void TASQuake::MultiGame_ReceiveRun(const ipc::Message& msg) {
     }
 
     opt.m_currentRun.ReadFromBuffer(reader);
+#if 0
+    TASScript script;
+    script.Load_From_Memory(reader);
+
+    auto info = GetPlaybackInfo();
+    TASScript copied = info->current_script;
+    copied.AddScript(&opt.m_currentBest.playbackInfo.current_script, info->current_frame);
+    auto str1 = script.ToString();
+    auto str2 = copied.ToString();
+    if(str1 != str2) {
+        printf("Didnt match:\n%s\nvs.\n%s\n", str1.c_str(), str2.c_str());
+
+        TASScript copied = info->current_script;
+        copied.AddScript(&script, info->current_frame);
+    }
+#endif
     if(opt.m_currentRun.RunEfficacy() > m_dBestEfficacy || m_bFirstIteration) {
         SV_SendBest(opt.m_currentRun);
         m_dBestEfficacy = opt.m_currentRun.RunEfficacy();
@@ -413,6 +428,8 @@ static void CL_SendRun(const OptimizerRun& run) {
     writer.WriteBytes(&type, 1);
     writer.WriteBytes(&game_opt_identifier, sizeof(game_opt_identifier));
     run.WriteToBuffer(writer);
+    auto info = GetPlaybackInfo();
+    info->current_script.Write_To_Memory(writer);
     TASQuake::CL_SendMessage(writer.m_pBuffer->ptr, writer.m_uFileOffset);
 }
 
@@ -434,8 +451,10 @@ void TASQuake::GameOpt_InitOptimizer(int32_t start_frame, int32_t end_frame, int
     tas_optimizer.value = 0; // Disable normal optimizer
     auto info = GetPlaybackInfo();
     info->current_script.RemoveBlocksAfterFrame(end_frame);
+#if 0
     auto current = info->current_script.ToString();
     printf("current %s\n", current.c_str());
+#endif
     info->current_frame = start_frame;
 
     game_opt_start_frame = start_frame;
@@ -500,12 +519,12 @@ static void GameOpt_NewIteration() {
         m_bFirstIteration = false;
         m_BestPoints = m_CurrentPoints;
         CL_SendGoal();
-        CL_SendRun(opt.m_currentRun);
+        CL_SendRun(opt.m_currentBest);
         AddCurve(&m_BestPoints, OPTIMIZER_ID);
     } else {
-        double runEfficacy = opt.m_currentRun.RunEfficacy();
+        double runEfficacy = opt.m_currentBest.RunEfficacy();
         if(runEfficacy > m_dBestEfficacy) {
-            CL_SendRun(opt.m_currentRun); // Send run over IPC if connected to server
+            CL_SendRun(opt.m_currentBest); // Send run over IPC if connected to server
             m_BestPoints = m_CurrentPoints;
             m_dBestEfficacy = runEfficacy;
         }
