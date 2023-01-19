@@ -38,10 +38,4 @@ TEST_CASE("Frameblock bench") {
     BENCHMARK_ADVANCED("FrameBlock 1000")(Catch::Benchmark::Chronometer meter) {
         BenchFrameBlocks(1000, &meter);
     };
-    BENCHMARK_ADVANCED("FrameBlock 10000")(Catch::Benchmark::Chronometer meter) {
-        BenchFrameBlocks(10000, &meter);
-    };
-    BENCHMARK_ADVANCED("FrameBlock 100000")(Catch::Benchmark::Chronometer meter) {
-        BenchFrameBlocks(100000, &meter);
-    };
 }

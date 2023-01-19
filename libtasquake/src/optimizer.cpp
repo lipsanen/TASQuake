@@ -723,8 +723,21 @@ void RNGBlockMover::Mutate(TASScript* script, Optimizer* opt) {
   size_t min, max;
   find_block_minmax(script, index, min, max);
   int result = opt->Random(min, max + 1);
+
+  if(result == 0)
+  {
+    if(min < block->frame)
+      result = min;
+    else
+      result = max;
+  }
+
   int delta = result - block->frame;
-  script->ShiftBlocks(index, delta);
+
+  if(opt->Random(0, 1) > 0.5)
+    script->ShiftBlocks(index, delta);
+  else
+    block->frame = result;
 }
 
 void FrameBlockMover::Mutate(TASScript* script, Optimizer* opt) {
