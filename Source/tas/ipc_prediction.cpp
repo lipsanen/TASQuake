@@ -67,6 +67,8 @@ static bool Should_Predict() {
 void IPC_Prediction_Frame_Hook() {
     if(Should_Predict()) {
         Request();
+    } else if(IPC_Prediction_HasLine() && (tas_playing.value == 0 || tas_gamestate != paused)) {
+        ipc_line.clear();
     }
 }
 
