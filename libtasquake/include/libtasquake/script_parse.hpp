@@ -71,6 +71,9 @@ public:
 	void AddScript(const TASScript* script, int frame);
 	bool ShiftBlocks(size_t blockIndex, int delta);
 	int GetBlockIndex(int frame) const;
+	void AddCvar(const std::string& cmd, float value, int frame);
+	void AddToggle(const std::string& cmd, bool state, int frame);
+	void AddCommand(const std::string& cmd, int frame);
 private:
 	bool _Load_From_File(TASQuakeIO::ReadInterface& readInterface);
 	void _Write_To_File(TASQuakeIO::WriteInterface& writeInterface) const;

@@ -584,6 +584,39 @@ int TASScript::GetBlockIndex(int frame) const {
 	return blocks.size();
 }
 
+static int GetBlockForInsertion(TASScript* script, int frame)
+{
+	int blockIndex = script->GetBlockIndex(frame);
+	if(blockIndex == script->blocks.size()) {
+		FrameBlock block;
+		block.frame = frame;
+		script->blocks.push_back(block);
+	} else if(script->blocks[blockIndex].frame > frame) {
+		FrameBlock block;
+		block.frame = frame;
+		script->blocks.insert(script->blocks.begin() + blockIndex, block);
+	}
+	return blockIndex;
+}
+
+void TASScript::AddCvar(const std::string& cmd, float value, int frame)
+{
+	int blockIndex = GetBlockForInsertion(this, frame);
+	blocks[blockIndex].convars[cmd] = value;
+}
+
+void TASScript::AddToggle(const std::string& cmd, bool state, int frame)
+{
+	int blockIndex = GetBlockForInsertion(this, frame);
+	blocks[blockIndex].toggles[cmd] = state;
+}
+
+void TASScript::AddCommand(const std::string& cmd, int frame)
+{
+	int blockIndex = GetBlockForInsertion(this, frame);
+	blocks[blockIndex].Add_Command(cmd);
+}
+
 bool TASScript::ShiftBlocks(size_t blockIndex, int delta) {
 	int current_frame = blocks[blockIndex].frame;
 
