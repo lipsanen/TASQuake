@@ -22,6 +22,40 @@ bool compare_buffers(std::shared_ptr<TASQuakeIO::Buffer> ptr1, std::shared_ptr<T
     return iface1.CanRead() == iface2.CanRead();
 }
 
+TEST_CASE("Parsing from string") {
+    const char* str = "+1:\n"
+    "\ttas_strafe 1\n"
+    "+42:\n"
+    "\ttas_strafe 0\n";
+
+    TASScript script;
+    REQUIRE(script.Load_From_String(str) == true);
+    REQUIRE(script.blocks.size() == 2);
+    REQUIRE(script.blocks[0].convars["tas_strafe"] == 1);
+    REQUIRE(script.blocks[0].frame == 1);
+    REQUIRE(script.blocks[1].convars["tas_strafe"] == 0);
+    REQUIRE(script.blocks[1].frame == 43);
+}
+
+
+TEST_CASE("Apply gets rid of redundancies") {
+    const char* str1 = "+1:\n"
+    "\ttas_strafe 1\n"
+    "+1:\n"
+    "tas_strafe_yaw 12.345\n";
+
+    TASScript script;
+    TASScript script2;
+    REQUIRE(script.Load_From_String(str1) == true);
+    REQUIRE(script2.Load_From_String(str1) == true);
+
+    script.AddScript(&script2, 2);
+    REQUIRE(script.blocks.size() == 2);
+    REQUIRE(script.blocks[0].convars["tas_strafe"] == 1);
+    REQUIRE(TASQuake::DoubleEqual(script.blocks[1].convars["tas_strafe_yaw"], 12.345));
+    REQUIRE(script.blocks[1].convars.size() == 1);
+}
+
 TEST_CASE("Parsing id1_er") {
     FILE* fp = fopen("./Runs/id1_er.qtas", "r");
     REQUIRE(fp != nullptr);

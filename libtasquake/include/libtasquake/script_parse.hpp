@@ -59,6 +59,7 @@ public:
 	void Write_To_Memory(TASQuakeIO::BufferWriteInterface& iface) const;
 	bool Load_From_File();
 	void Write_To_File() const;
+	bool Load_From_String(const char* input);
 	std::vector<FrameBlock> blocks;
 	std::string file_name;
 	std::string ToString() const;

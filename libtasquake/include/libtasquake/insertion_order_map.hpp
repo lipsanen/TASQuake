@@ -74,6 +74,14 @@ namespace TASQuake {
             
             return it;
         }
+    
+        std::size_t size() const {
+            return values.size();
+        }
+
+        void erase(typename std::vector<std::pair<std::string, T>>::iterator iterator) {
+            values.erase(iterator, values.end());
+        }
 
         void erase(const std::string& str) {
             auto it = std::remove_if(values.begin(), values.end(), [&] (std::pair<std::string, T>& value) {
