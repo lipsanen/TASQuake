@@ -37,6 +37,20 @@ TEST_CASE("Parsing from string") {
     REQUIRE(script.blocks[1].frame == 43);
 }
 
+TEST_CASE("Add functions work") {
+    TASScript script;
+    script.AddCommand("echo test", 0);
+    script.AddCvar("tas_strafe", 1, 30);
+    script.AddToggle("tas_lgagst", true, 15);
+
+    REQUIRE(script.blocks.size() == 3);
+    REQUIRE(script.blocks[0].frame == 0);
+    REQUIRE(script.blocks[0].commands[0] == "echo test");
+    REQUIRE(script.blocks[1].frame == 15);
+    REQUIRE(TASQuake::DoubleEqual(script.blocks[1].toggles["tas_lgagst"], true));
+    REQUIRE(script.blocks[2].frame == 30);
+    REQUIRE(TASQuake::DoubleEqual(script.blocks[2].convars["tas_strafe"], 1));
+}
 
 TEST_CASE("Apply gets rid of redundancies") {
     const char* str1 = "+1:\n"
