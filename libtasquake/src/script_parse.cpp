@@ -478,12 +478,21 @@ void TASScript::RemoveBlocksAfterFrame(int frame) {
 	blocks.erase(remove_it, blocks.end());
 }
 
+void TASScript::RemoveCvarsFromRange(const std::string& name, int min_frame, int max_frame)
+{
+	std::for_each(blocks.begin(), blocks.end(), [&](FrameBlock& block)
+	{
+		if(block.frame >= min_frame && block.frame <= max_frame)
+			block.convars.erase(name);
+	}
+	);
+}
+
 void TASScript::RemoveTogglesFromRange(const std::string& name, int min_frame, int max_frame)
 {
 	std::for_each(blocks.begin(), blocks.end(), [&](FrameBlock& block)
 	{
-		if(block.frame >= min_frame && block.frame <= max_frame
-			&& block.toggles.find(name) != block.toggles.end())
+		if(block.frame >= min_frame && block.frame <= max_frame)
 			block.toggles.erase(name);
 	}
 	);

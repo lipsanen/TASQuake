@@ -87,7 +87,8 @@ namespace TASQuake {
             auto it = std::remove_if(values.begin(), values.end(), [&] (std::pair<std::string, T>& value) {
                 return value.first == str;
             });
-            values.erase(it, values.end());
+            if(it != values.end())
+                values.erase(it, values.end());
         }
 	};
 }

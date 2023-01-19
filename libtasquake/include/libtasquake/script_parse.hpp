@@ -67,6 +67,7 @@ public:
 	void Prune(int min_frame, int max_frame);
 	void Prune(int min_frame);
 	void RemoveBlocksAfterFrame(int frame);
+	void RemoveCvarsFromRange(const std::string& name, int min_frame, int max_frame);
 	void RemoveTogglesFromRange(const std::string& name, int min_frame, int max_frame);
 	void AddScript(const TASScript* script, int frame);
 	bool ShiftBlocks(size_t blockIndex, int delta);
