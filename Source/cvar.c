@@ -35,13 +35,36 @@ Cvar_FindVar
 */
 cvar_t *Cvar_FindVar (char *var_name)
 {
-	cvar_t	*var;
+	enum {CACHE_SIZE = 16};
+	static cvar_t* cached_vars[CACHE_SIZE] = {0};
+	static size_t next_cache_index = 0;
+	size_t i;
+	cvar_t	*var = NULL;
 
-	for (var = cvar_vars ; var ; var = var->next)
-		if (!Q_strcasecmp(var_name, var->name))
-			return var;
+	for(i=0; i < CACHE_SIZE; ++i) {
+		if(cached_vars[i] && !Q_strcasecmp(var_name, cached_vars[i]->name)) {
+			var = cached_vars[i];
+			break;
+		}
+	}
 
-	return NULL;
+	if(var == NULL) {
+		var = cvar_vars;
+		for (; var ; var = var->next)
+			if (!Q_strcasecmp(var_name, var->name))
+				goto end;
+		var = NULL;
+	}
+
+end:
+	if(var != NULL) {
+		cached_vars[next_cache_index] = var;
+		++next_cache_index;
+		if(next_cache_index == CACHE_SIZE)
+			next_cache_index = 0;
+	}
+
+	return var;
 }
 
 /*
