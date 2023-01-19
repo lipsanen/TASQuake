@@ -283,6 +283,12 @@ bool TASScript::Load_From_File()
 }
 
 
+bool TASScript::Load_From_String(const char* input) {
+	auto reader = TASQuakeIO::BufferReadInterface::Init((void*)input, strlen(input));
+	return _Load_From_File(reader);
+}
+
+
 bool TASScript::_Load_From_File(TASQuakeIO::ReadInterface& readInterface) {
 	FrameBlock fb;
 	int running_frame = 0;
@@ -486,8 +492,11 @@ void TASScript::RemoveTogglesFromRange(const std::string& name, int min_frame, i
 void TASScript::AddScript(const TASScript* script, int frame) {
 	size_t keep = 0;
 
+	FrameBlock stacked;
+
 	for(size_t i=0; i < blocks.size(); ++i) {
 		if(blocks[i].frame < frame) {
+			stacked.Stack(blocks[i]);
 			++keep;
 		} else {
 			break;
@@ -498,9 +507,26 @@ void TASScript::AddScript(const TASScript* script, int frame) {
 	
 	for(size_t i=0; i < script->blocks.size(); ++i) {
 		FrameBlock block = script->blocks[i];
-		std::string cmd = block.GetCommand();
+
+		auto remove_convar_it = std::remove_if(block.convars.begin(), block.convars.end(), [=](const std::pair<std::string, float>& pair) {
+			auto it = stacked.convars.find(pair.first);
+			return it != stacked.convars.end() && it->second == pair.second;
+		});
+
+		auto remove_toggle_it = std::remove_if(block.toggles.begin(), block.toggles.end(), [=](const std::pair<std::string, bool>& pair) {
+			auto it = stacked.toggles.find(pair.first);
+			return it != stacked.toggles.end() && it->second == pair.second;
+		});
+
+		block.convars.erase(remove_convar_it);
+		block.toggles.erase(remove_toggle_it);
+
 		block.frame += frame;
-		blocks.push_back(std::move(block));
+
+		if(!block.convars.empty() || !block.commands.empty() || !block.commands.empty())
+		{
+			blocks.push_back(std::move(block));
+		}
 	}
 }
 
