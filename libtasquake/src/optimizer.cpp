@@ -221,7 +221,7 @@ bool Optimizer::Init(const PlaybackInfo* playback, const TASQuake::OptimizerSett
 
   m_dMaxTime = 0;
   m_uIteration = 0;
-	m_currentBest.m_vecData.clear();
+  m_currentBest.ResetIteration();
   m_vecNodes.clear();
 	m_currentRun = m_currentBest;
 	m_uIterationsWithoutProgress = 0;

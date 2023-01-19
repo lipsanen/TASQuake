@@ -15,6 +15,7 @@ cvar_t tas_optimizer = {"tas_optimizer", "1"};
 cvar_t tas_optimizer_goal = {"tas_optimizer_goal", "0", 0, Optimizer_Var_Updated};
 cvar_t tas_optimizer_multigame  = {"tas_optimizer_multigame", "0", 0, Optimizer_Var_Updated};
 cvar_t tas_optimizer_algs = {"tas_optimizer_algs", "all", 0, Optimizer_Var_Updated};
+cvar_t tas_predict_endoffset{"tas_predict_endoffset", "0.5", 0, Optimizer_Var_Updated};
 
 static bool m_bFirstIteration = false;
 static int startFrame = -1;

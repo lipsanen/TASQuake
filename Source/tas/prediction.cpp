@@ -9,7 +9,6 @@ using namespace TASQuake;
 cvar_t tas_predict_per_frame{"tas_predict_per_frame", "0.01"};
 cvar_t tas_predict{"tas_predict", "1"};
 cvar_t tas_predict_grenade { "tas_predict_grenade", "0" };
-cvar_t tas_predict_endoffset{"tas_predict_endoffset", "0.5"};
 cvar_t tas_predict_maxlength{"tas_predict_maxlength", "10"};
 const std::array<float, 4> color = { 0, 0, 1, 0.5 };
 static std::vector<PathPoint> points;

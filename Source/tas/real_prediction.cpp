@@ -99,7 +99,7 @@ void GamePrediction_Frame_Hook() {
         }
     }
 
-    if(!ipc_request_finished && playback->current_frame == ipc_target_frame) {
+    if(!ipc_request_finished && playback->current_frame >= ipc_target_frame - 1) {
         GamePredition_IPC_Respond();
     }
 }
