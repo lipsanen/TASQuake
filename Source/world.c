@@ -706,6 +706,11 @@ void SV_ClipToLinks (areanode_t *node, moveclip_t *clip)
 				continue;	// don't clip against owner
 		}
 
+		if(touch == sv_player && sv_casper.value != 0)
+		{
+			continue; // Dont clip against Casper the Friendly Ghost
+		}
+
 		if ((int)touch->v.flags & FL_MONSTER)
 			trace = SV_ClipMoveToEntity (touch, clip->start, clip->mins2, clip->maxs2, clip->end);
 		else
@@ -776,6 +781,18 @@ trace_t SV_Move (vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int type, e
 	int		i;
 
 	memset (&clip, 0, sizeof(moveclip_t));
+
+	if(sv_casper.value != 0 && passedict == sv_player)
+	{
+		if(type >= 4)
+		{
+			type &= ~4; // hackhackhack, make the players PF_traces work as normal
+		}
+		else 
+		{
+			type = MOVE_NOMONSTERS;
+		}
+	}
 
 // clip to world
 	clip.trace = SV_ClipMoveToEntity (sv.edicts, start, mins, maxs, end);

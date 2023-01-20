@@ -185,6 +185,7 @@ extern	cvar_t	coop;
 extern	cvar_t	fraglimit;
 extern	cvar_t	timelimit;
 
+extern	cvar_t	sv_casper;
 extern	cvar_t	sv_maxvelocity;
 extern	cvar_t	sv_gravity;
 extern	cvar_t	sv_nostep;
