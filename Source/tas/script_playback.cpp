@@ -29,7 +29,8 @@ enum class MouseState
 	Yaw,
 	Pitch,
 	Mixed,
-	Swim
+	Swim,
+	Shot
 };
 
 static float current_strafeyaw = 0;
@@ -37,6 +38,7 @@ static float current_strafepitch = 0;
 static float current_yaw = 0;
 static float current_pitch = 0;
 static int current_strafe = 0;
+static int current_turnframes = 0;
 
 static vec3_t old_angles;
 static MouseState m_state = MouseState::Locked;
@@ -79,14 +81,7 @@ static void Savestate_Skip(int start_frame)
 		AddAfterframes(playback.pause_frame - 1 - playback.current_frame, "tas_timescale 1; r_norefresh 0");
 	}
 
-	for (auto& block : playback.current_script.blocks)
-	{
-		if (block.frame >= playback.current_frame)
-			break;
-
-		playback.stacked.Stack(block);
-	}
-
+	playback.CalculateStack();
 	playback.stacked.commands.clear();
 	auto cmd = playback.stacked.GetCommand();
 	AddAfterframes(1, const_cast<char*>(cmd.c_str()), NoFilter);
@@ -340,6 +335,17 @@ static void ApplyMouseStuff()
 	{
 		SetConvar("tas_strafe_yaw", cl.viewangles[YAW], true);
 		SetConvar("tas_strafe_pitch", cl.viewangles[PITCH], true);
+	}
+	else if (m_state == MouseState::Shot)
+	{
+		auto info = GetPlaybackInfo();
+		bool rval = info->current_script.AddShot(cl.viewangles[PITCH], cl.viewangles[YAW],
+		                                         info->current_frame, current_turnframes);
+		if(rval)
+		{
+			info->last_edited = Sys_DoubleTime();
+			info->CalculateStack();
+		}
 	}
 }
 
@@ -688,6 +694,48 @@ void Cmd_TAS_Edit_Strafe(void)
 	m_state = MouseState::Strafe;
 }
 
+
+void Cmd_TAS_Edit_Add_Shot(void)
+{
+	if(Cmd_Argc() <= 1) {
+		Con_Print("Usage: tas_edit_add_shot <turn frames>\n");
+		return;
+	}
+
+	int frames = atoi(Cmd_Argv(1));
+
+	if(frames <= 0) {
+		Con_Print("Number of turn frames has to be positive\n");
+		return;
+	}
+	
+	m_state = MouseState::Shot;
+	current_turnframes = frames;
+	current_pitch = Get_Existing_Value("tas_view_pitch");
+	cl.viewangles[PITCH] = Get_Pitch_Convar("tas_view_pitch");
+	current_yaw = Get_Existing_Value("tas_view_yaw");
+	cl.viewangles[YAW] = Get_Yaw_Convar("tas_view_yaw");
+}
+
+void Cmd_TAS_Edit_Remove_Shot(void)
+{
+	if(Cmd_Argc() <= 1) {
+		Con_Print("Usage: tas_edit_remove_shot <turn frames>\n");
+		return;
+	}
+
+	int frames = atoi(Cmd_Argv(1));
+
+	if(frames <= 0) {
+		Con_Print("Number of turn frames has to be positive\n");
+		return;
+	}
+
+	auto info = GetPlaybackInfo();
+	info->current_script.RemoveShot(info->current_frame, frames);
+	info->last_edited = Sys_DoubleTime();
+}
+
 void Cmd_TAS_Edit_Swim(void)
 {
 	current_strafe = Get_Existing_Value("tas_strafe");
@@ -1005,6 +1053,12 @@ void Cmd_TAS_Confirm(void)
 		CenterPrint("Set yaw");
 	else if (m_state == MouseState::Pitch)
 		CenterPrint("Set pitch");
+	else if (m_state == MouseState::Shot)
+	{
+		auto info = GetPlaybackInfo();
+		// Re-run script to account for previous changes
+		Run_Script(info->current_frame, true);
+	}
 	else
 		CenterPrint("Set swimming");
 	m_state = MouseState::Locked;
@@ -1025,6 +1079,11 @@ void Cmd_TAS_Cancel(void)
 		SetConvar("tas_strafe_yaw", current_strafeyaw, true);
 		SetConvar("tas_strafe_pitch", current_strafepitch, true);
 		SetConvar("tas_strafe", current_strafe, true);
+	}
+	else if (m_state == MouseState::Shot)
+	{
+		auto info = GetPlaybackInfo();
+		info->current_script.RemoveShot(info->current_frame, current_turnframes);
 	}
 	else
 	{

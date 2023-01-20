@@ -66,6 +66,11 @@ void Cmd_TAS_Edit_Shift(void);
 void Cmd_TAS_Edit_Shift_Stack(void);
 // desc: Adds empty frameblock
 void Cmd_TAS_Edit_Add_Empty(void);
+// desc: Usage: tas_edit_add_shot <turn frames>. Add +attack/-attack to current/previous frame and and add tas_view_yaw/pitch \
+<turn frames> before
+void Cmd_TAS_Edit_Add_Shot(void);
+// desc: Usage: tas_edit_remove_shot <turn frames>. Remove the shot on current frame and corresponding view changes.
+void Cmd_TAS_Edit_Remove_Shot(void);
 //void Cmd_TAS_Edit_Delete_Cmd(void);
 // desc: Add a number of shots to an interval
 void Cmd_TAS_Edit_Shots(void);

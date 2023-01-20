@@ -52,6 +52,19 @@ bool PlaybackInfo::In_Edit_Mode() const
 	return !script_running && TASQuake::GamePaused() && !current_script.blocks.empty();
 }
 
+void PlaybackInfo::CalculateStack()
+{
+	stacked.Reset();
+
+	for (auto& block : current_script.blocks)
+	{
+		if (block.frame >= current_frame)
+			break;
+
+		stacked.Stack(block);
+	}
+}
+
 PlaybackInfo PlaybackInfo::GetTimeShiftedVersion(const PlaybackInfo* info, int start_frame) {
 	PlaybackInfo output;
 	output.current_script.file_name = info->current_script.file_name;

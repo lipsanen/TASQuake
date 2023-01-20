@@ -189,6 +189,14 @@ void FrameBlock::Reset()
 	commands.clear();
 }
 
+bool FrameBlock::HasToggleValue(const std::string& cmd, bool value) const {
+	if(HasToggle(cmd)) {
+		return toggles[cmd] == value;
+	} else {
+		return false;
+	}
+}
+
 bool FrameBlock::HasCvarValue(const std::string& cmd, float value) const {
 	if(HasConvar(cmd)) {
 		return convars.at(cmd) == value;
@@ -624,6 +632,84 @@ void TASScript::AddCommand(const std::string& cmd, int frame)
 {
 	int blockIndex = GetBlockForInsertion(this, frame);
 	blocks[blockIndex].Add_Command(cmd);
+}
+
+bool TASScript::AddShot(float pitch, float yaw, int frame, int turn_frames)
+{
+	const int CLEAR_RANGE = 2;
+	int shootOffFrame = std::max(8, frame);
+	int shootFrame = std::max(8, frame - 1);
+	int turnFrame = std::max(8, frame - turn_frames);
+
+	const FrameBlock* turnFrameBlock = Get_Frameblock(turnFrame);
+	const FrameBlock* shootFrameBlock = Get_Frameblock(shootFrame);
+	const FrameBlock* shootOffFrameBlock = Get_Frameblock(shootOffFrame);
+
+	bool changeDetected = false;
+
+	if(!turnFrameBlock || !turnFrameBlock->HasCvarValue("tas_view_pitch", pitch) 
+	   || !turnFrameBlock->HasCvarValue("tas_view_yaw", yaw))
+	{
+		changeDetected = true;
+	}
+
+	if(!shootFrameBlock || !shootFrameBlock->HasToggleValue("attack", true))
+	{
+		changeDetected = true;
+	}
+
+	if(!shootOffFrameBlock || !shootOffFrameBlock->HasToggleValue("attack", false))
+	{
+		changeDetected = true;
+	}
+
+	if(!changeDetected)
+	{
+		return false;
+	}
+
+	RemoveCvarsFromRange("tas_view_yaw", turnFrame-CLEAR_RANGE, turnFrame+CLEAR_RANGE);
+	RemoveCvarsFromRange("tas_view_pitch", turnFrame-CLEAR_RANGE, turnFrame+CLEAR_RANGE);
+	RemoveTogglesFromRange("attack", shootFrame - CLEAR_RANGE, shootOffFrame + CLEAR_RANGE);
+
+	int turnIndex = GetBlockForInsertion(this, turnFrame);
+	int shootIndex = GetBlockForInsertion(this, shootFrame);
+	int shootOffIndex = GetBlockForInsertion(this, shootOffFrame);
+
+	blocks[turnIndex].convars["tas_view_yaw"] = yaw;
+	blocks[turnIndex].convars["tas_view_pitch"] = pitch;
+	blocks[shootIndex].toggles["attack"] = true;
+	blocks[shootOffIndex].toggles["attack"] = false;
+	Prune(turnFrame-CLEAR_RANGE, shootOffFrame+CLEAR_RANGE);
+
+	return true;
+}
+
+void TASScript::RemoveShot(int frame, int turn_frames)
+{
+	int shootOffFrame = std::max(8, frame);
+	int shootFrame = std::max(8, frame - 1);
+	int turnFrame = std::max(8, frame - turn_frames);
+
+	RemoveCvarsFromRange("tas_view_yaw", turnFrame, turnFrame);
+	RemoveCvarsFromRange("tas_view_pitch", turnFrame, turnFrame);
+	RemoveTogglesFromRange("attack", shootFrame, shootOffFrame);
+	Prune(turnFrame, shootOffFrame);
+}
+
+
+const FrameBlock* TASScript::Get_Frameblock(int frame) const
+{
+	int index = GetBlockIndex(frame);
+
+	if(index >= blocks.size()) 
+	{
+		return nullptr;
+	}
+	else
+	{
+		return &blocks[index];
+	}
 }
 
 bool TASScript::ShiftBlocks(size_t blockIndex, int delta) {

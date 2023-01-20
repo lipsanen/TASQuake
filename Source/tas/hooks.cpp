@@ -132,6 +132,7 @@ void TAS_Init()
 	Cmd_AddCommand("tas_script_advance", Cmd_TAS_Script_Advance);
 	Cmd_AddCommand("tas_script_advance_block", Cmd_TAS_Script_Advance_Block);
 
+	Cmd_AddCommand("tas_edit_add_shot", Cmd_TAS_Edit_Add_Shot);
 	Cmd_AddCommand("tas_edit_prune", Cmd_TAS_Edit_Prune);
 	Cmd_AddCommand("tas_edit_save", Cmd_TAS_Edit_Save);
 	Cmd_AddCommand("tas_edit_set_pitch", Cmd_TAS_Edit_Set_Pitch);
@@ -141,6 +142,7 @@ void TAS_Init()
 	Cmd_AddCommand("tas_edit_swim", Cmd_TAS_Edit_Swim);
 	Cmd_AddCommand("tas_edit_shrink", Cmd_TAS_Edit_Shrink);
 	Cmd_AddCommand("tas_edit_delete", Cmd_TAS_Edit_Delete);
+	Cmd_AddCommand("tas_edit_remove_shot", Cmd_TAS_Edit_Remove_Shot);
 	Cmd_AddCommand("tas_edit_shift", Cmd_TAS_Edit_Shift);
 	Cmd_AddCommand("tas_edit_shift_stack", Cmd_TAS_Edit_Shift_Stack);
 	Cmd_AddCommand("tas_edit_add_empty", Cmd_TAS_Edit_Add_Empty);

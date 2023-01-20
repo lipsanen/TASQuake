@@ -22,6 +22,7 @@ struct PlaybackInfo
 	int Get_Number_Of_Blocks() const;
 	int Get_Last_Frame() const;
 	bool In_Edit_Mode() const;
+	void CalculateStack();
 
 	static PlaybackInfo GetTimeShiftedVersion(const PlaybackInfo* info, int start_frame = -1);
 };
