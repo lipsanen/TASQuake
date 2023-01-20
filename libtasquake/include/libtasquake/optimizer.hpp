@@ -207,6 +207,7 @@ namespace TASQuake {
         std::int32_t m_iFrames = -1; // If positive, determines the number of frames
         std::vector<AlgorithmEnum> m_vecAlgorithmData;
         std::vector<std::shared_ptr<OptimizerAlgorithm>> m_vecAlgorithms;
+        std::vector<Vector> m_vecInputNodes; // We have some baseline version to compare against
 
         void WriteToBuffer(TASQuakeIO::BufferWriteInterface& writer) const;
         void ReadFromBuffer(TASQuakeIO::BufferReadInterface& reader);

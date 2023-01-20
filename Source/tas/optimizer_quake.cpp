@@ -12,9 +12,10 @@ using namespace TASQuake;
 static qboolean Optimizer_Var_Updated(struct cvar_s *var, char *value);
 
 cvar_t tas_optimizer = {"tas_optimizer", "1"};
+cvar_t tas_optimizer_algs = {"tas_optimizer_algs", "all", 0, Optimizer_Var_Updated};
+cvar_t tas_optimizer_casper = {"tas_optimizer_casper", "0", 0, Optimizer_Var_Updated};
 cvar_t tas_optimizer_goal = {"tas_optimizer_goal", "0", 0, Optimizer_Var_Updated};
 cvar_t tas_optimizer_multigame  = {"tas_optimizer_multigame", "0", 0, Optimizer_Var_Updated};
-cvar_t tas_optimizer_algs = {"tas_optimizer_algs", "all", 0, Optimizer_Var_Updated};
 cvar_t tas_predict_endoffset{"tas_predict_endoffset", "0.5", 0, Optimizer_Var_Updated};
 
 static bool m_bFirstIteration = false;
@@ -75,6 +76,20 @@ static TASQuake::OptimizerSettings GetSettings() {
     int32_t start, end;
     TASQuake::Get_Prediction_Frames(start, end);
     settings.m_iFrames = end - start;
+
+    if(tas_optimizer_multigame.value != 0 && tas_optimizer_casper.value != 0 && IPC_Prediction_HasLine()) {
+        // Generate the input nodes from the IPC prediction line
+        // We want to have the optimizer to have some sort of baseline to make progress with
+        auto line = IPC_Prediction_GetPoints();
+        for(size_t i=0; i < line->size(); i += 36)
+        {
+            Vector v;
+            v.x = line->at(i).point[0];
+            v.y = line->at(i).point[1];
+            v.z = line->at(i).point[2];
+            settings.m_vecInputNodes.push_back(v);
+        }
+    }
 
     std::pair<const char*, TASQuake::AlgorithmEnum> algs[] = { 
         {"rngmove", TASQuake::AlgorithmEnum::RNGBlockMover},
@@ -312,7 +327,20 @@ static void SV_StartMultiGameOpt() {
     writer.WriteBytes(&start_frame, sizeof(start_frame));
     writer.WriteBytes(&end_frame, sizeof(end_frame));
     writer.WriteBytes(&multi_game_opt_num, sizeof(multi_game_opt_num));
-    info->current_script.Write_To_Memory(writer);
+
+    if(tas_optimizer_casper.value != 0)
+    {
+        // If we are in casper mode, the current script was developed with sv_casper 1
+        // but now we want to have the optimizer figure out how to make it work with sv_casper 0
+        TASScript script = info->current_script;
+        script.RemoveCvarsFromRange("sv_casper", 0, info->Get_Last_Frame());
+        script.Write_To_Memory(writer);
+    }
+    else
+    {
+        info->current_script.Write_To_Memory(writer);
+    }
+    
     m_dBestEfficacy = 0;
 
     SV_BroadCastMessage(writer.m_pBuffer->ptr, writer.m_uFileOffset);

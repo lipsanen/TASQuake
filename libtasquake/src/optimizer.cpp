@@ -29,9 +29,11 @@ void Optimizer::_FinishIteration(OptimizerState& state) {
   if (m_settings.m_Goal == OptimizerGoal::Undetermined)
   {
     m_settings.m_Goal = AutoGoal(m_currentRun);
-    
-    for(size_t i=0; i < m_currentRun.m_vecData.size(); i += 36) {
-      m_vecNodes.push_back(m_currentRun.m_vecData[i].pos);
+    if(m_vecNodes.empty())
+    {
+      for(size_t i=0; i < m_currentRun.m_vecData.size(); i += 36) {
+        m_vecNodes.push_back(m_currentRun.m_vecData[i].pos);
+      }
     }
   }
 
@@ -138,6 +140,7 @@ void OptimizerSettings::WriteToBuffer(TASQuakeIO::BufferWriteInterface& writer) 
   writer.WriteBytes(&m_iFrames, sizeof(m_iFrames));
   writer.WriteBytes(&m_uGiveUpAfterNoProgress, sizeof(m_uGiveUpAfterNoProgress));
   writer.WriteBytes(&m_uResetToBestIterations, sizeof(m_uResetToBestIterations));
+  writer.WritePODVec(m_vecInputNodes);
   writer.WritePODVec(m_vecAlgorithmData);
   if(!m_vecAlgorithms.empty()) {
     std::fprintf(stderr, "Cannot use pointers to optimizer algorithms while serializing\n");
@@ -152,6 +155,7 @@ void OptimizerSettings::ReadFromBuffer(TASQuakeIO::BufferReadInterface& reader) 
   reader.Read(&m_iFrames, sizeof(m_iFrames));
   reader.Read(&m_uGiveUpAfterNoProgress, sizeof(m_uGiveUpAfterNoProgress));
   reader.Read(&m_uResetToBestIterations, sizeof(m_uResetToBestIterations));
+  reader.ReadPODVec(m_vecInputNodes);
   reader.ReadPODVec(m_vecAlgorithmData);
 }
 
@@ -222,7 +226,7 @@ bool Optimizer::Init(const PlaybackInfo* playback, const TASQuake::OptimizerSett
   m_dMaxTime = 0;
   m_uIteration = 0;
   m_currentBest.ResetIteration();
-  m_vecNodes.clear();
+  m_vecNodes = m_settings.m_vecInputNodes;
 	m_currentRun = m_currentBest;
 	m_uIterationsWithoutProgress = 0;
 	m_iCurrentAlgorithm = -1;
@@ -354,7 +358,7 @@ void OptimizerRun::CalculateEfficacy(OptimizerGoal goal, const std::vector<Vecto
   }
 
   if(nodeIndex != nodes.size()) {
-    m_dEfficacy = std::numeric_limits<double>::lowest();
+    m_dEfficacy = nodeIndex;
     return;
   }
 
@@ -363,19 +367,19 @@ void OptimizerRun::CalculateEfficacy(OptimizerGoal goal, const std::vector<Vecto
 
 	if (goal == OptimizerGoal::NegX)
 	{
-		m_dEfficacy = -last.x;
+		m_dEfficacy = -last.x + nodes.size();
 	}
 	else if (goal == OptimizerGoal::NegY)
 	{
-		m_dEfficacy = -last.y;
+		m_dEfficacy = -last.y + nodes.size();
 	}
 	else if (goal == OptimizerGoal::PlusX)
 	{
-		m_dEfficacy = last.x;
+		m_dEfficacy = last.x + nodes.size();
 	}
 	else
 	{
-		m_dEfficacy = last.y;
+		m_dEfficacy = last.y + nodes.size();
 	}
 }
 
