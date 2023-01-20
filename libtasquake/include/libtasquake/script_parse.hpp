@@ -44,6 +44,7 @@ struct FrameBlock
 	void Parse_Line(const std::string& line, int& running_frame);
 	void Reset();
 
+	bool HasToggleValue(const std::string& cmd, bool value) const;
 	bool HasCvarValue(const std::string& cmd, float value) const;
 	bool HasToggle(const std::string& cmd) const;
 	bool HasConvar(const std::string& cvar) const;
@@ -75,6 +76,9 @@ public:
 	void AddCvar(const std::string& cmd, float value, int frame);
 	void AddToggle(const std::string& cmd, bool state, int frame);
 	void AddCommand(const std::string& cmd, int frame);
+	bool AddShot(float pitch, float yaw, int frame, int turn_frames); // Returns true if script changed
+	void RemoveShot(int frame, int turn_frames);
+	const FrameBlock* Get_Frameblock(int frame) const;
 private:
 	bool _Load_From_File(TASQuakeIO::ReadInterface& readInterface);
 	void _Write_To_File(TASQuakeIO::WriteInterface& writeInterface) const;
