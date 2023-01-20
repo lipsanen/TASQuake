@@ -46,6 +46,7 @@ void SV_Init (void)
 	Cvar_Register (&sv_accelerate);
 	Cvar_Register (&sv_idealpitchscale);
 	Cvar_Register (&sv_aim);
+	Cvar_Register (&sv_casper);
 	Cvar_Register (&sv_nostep);
 	Cvar_Register (&r_nopvs);
 
