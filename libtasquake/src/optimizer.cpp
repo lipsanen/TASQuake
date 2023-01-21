@@ -157,6 +157,8 @@ void OptimizerSettings::WriteToBuffer(TASQuakeIO::BufferWriteInterface& writer) 
 	writer.WriteBytes(&m_iFrames, sizeof(m_iFrames));
 	writer.WriteBytes(&m_uGiveUpAfterNoProgress, sizeof(m_uGiveUpAfterNoProgress));
 	writer.WriteBytes(&m_uResetToBestIterations, sizeof(m_uResetToBestIterations));
+	writer.WriteBytes(&m_bUseNodes, sizeof(m_bUseNodes));
+	writer.WriteBytes(&m_bSecondaryGoals, sizeof(m_bSecondaryGoals));
 	writer.WritePODVec(m_vecInputNodes);
 	writer.WritePODVec(m_vecAlgorithmData);
 	if (!m_vecAlgorithms.empty())
@@ -174,6 +176,8 @@ void OptimizerSettings::ReadFromBuffer(TASQuakeIO::BufferReadInterface& reader)
 	reader.Read(&m_iFrames, sizeof(m_iFrames));
 	reader.Read(&m_uGiveUpAfterNoProgress, sizeof(m_uGiveUpAfterNoProgress));
 	reader.Read(&m_uResetToBestIterations, sizeof(m_uResetToBestIterations));
+	reader.Read(&m_bUseNodes, sizeof(m_bUseNodes));
+	reader.Read(&m_bSecondaryGoals, sizeof(m_bSecondaryGoals));
 	reader.ReadPODVec(m_vecInputNodes);
 	reader.ReadPODVec(m_vecAlgorithmData);
 }
@@ -371,6 +375,10 @@ void OptimizerRun::ResetIteration()
 	m_vecData.clear();
 	m_bFinishedLevel = false;
 	m_dLevelTime = 0.0;
+	m_uCenterPrints = 0;
+	m_uKills = 0;
+	m_uSecrets = 0;
+	m_dEfficacy = std::numeric_limits<double>::lowest();
 }
 
 void RunConditions::Init(const OptimizerRun* run, const OptimizerSettings* settings)
@@ -415,7 +423,7 @@ bool RunConditions::FulfillsConditions(const OptimizerRun* run) const
 		return false;
 	}
 	
-	if(run->m_uCenterPrints > m_uCenterPrints || run->m_uKills < m_uKills || run->m_uSecrets < m_uSecrets) {
+	if(run->m_uCenterPrints < m_uCenterPrints || run->m_uKills < m_uKills || run->m_uSecrets < m_uSecrets) {
 		return false;
 	}
 
@@ -550,6 +558,9 @@ void OptimizerRun::WriteToBuffer(TASQuakeIO::BufferWriteInterface& writer) const
 	writer.WriteBytes(&m_dEfficacy, sizeof(m_dEfficacy));
 	writer.WriteBytes(&m_bFinishedLevel, sizeof(m_bFinishedLevel));
 	writer.WriteBytes(&m_dLevelTime, sizeof(m_dLevelTime));
+	writer.WriteBytes(&m_uCenterPrints, sizeof(m_uCenterPrints));
+	writer.WriteBytes(&m_uKills, sizeof(m_uKills));
+	writer.WriteBytes(&m_uSecrets, sizeof(m_uSecrets));
 	writer.WritePODVec(m_vecData);
 	playbackInfo.current_script.Write_To_Memory(writer);
 }
@@ -559,6 +570,9 @@ void OptimizerRun::ReadFromBuffer(TASQuakeIO::BufferReadInterface& reader)
 	reader.Read(&m_dEfficacy, sizeof(m_dEfficacy));
 	reader.Read(&m_bFinishedLevel, sizeof(m_bFinishedLevel));
 	reader.Read(&m_dLevelTime, sizeof(m_dLevelTime));
+	reader.Read(&m_uCenterPrints, sizeof(m_uCenterPrints));
+	reader.Read(&m_uKills, sizeof(m_uKills));
+	reader.Read(&m_uSecrets, sizeof(m_uSecrets));
 	reader.ReadPODVec(m_vecData);
 	playbackInfo.current_script.blocks.clear();
 	playbackInfo.current_script.Load_From_Memory(reader);
