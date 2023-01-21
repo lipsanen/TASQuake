@@ -381,8 +381,11 @@ void TASQuake::Receive_Optimizer_Task(const ipc::Message& msg) {
     reader.Read(&identifier, sizeof(identifier));
 
     auto info = GetPlaybackInfo();
-    info->current_script.blocks.clear();
-    info->current_script.Load_From_Memory(reader);
+    TASScript script;
+    script.Load_From_Memory(reader);
+    int32_t first_changed_frame;
+    info->current_script.ApplyChanges(&script, first_changed_frame);
+    Savestate_Script_Updated(first_changed_frame);
 
     TASQuake::GameOpt_InitOptimizer(start, end, identifier, settings);
 }
@@ -523,7 +526,6 @@ void TASQuake::GameOpt_InitOptimizer(int32_t start_frame, int32_t end_frame, int
     state = TASQuake::OptimizerState::ContinueIteration;
     m_CurrentPoints.clear();
     m_BestPoints.clear();
-    Savestate_Script_Updated(0);
     Run_Script(game_opt_end_frame, true);
     game_opt_running = true;
 }
