@@ -84,7 +84,7 @@ namespace TASQuake {
         double m_dMax = 0;
     };
 
-    enum class AlgorithmEnum { TurnOptimizer, RNGStrafer, RNGBlockMover, StrafeAdjuster, FrameBlockMover };
+    enum class AlgorithmEnum { TurnOptimizer, RNGStrafer, RNGBlockMover, RNGShooter, StrafeAdjuster, FrameBlockMover };
 
     class TurnOptimizer : public OptimizerAlgorithm {
     public:
@@ -101,6 +101,16 @@ namespace TASQuake {
         float m_fOrigStrafeYaw = 0.0f;
         double m_dSearchMax = 0.0;
         BinSearcher m_Searcher;
+    };
+
+    class RNGShooter : public OptimizerAlgorithm {
+    public:
+        virtual void Mutate(TASScript* script, Optimizer* opt) override;
+        virtual void Reset() override;
+        virtual bool WantsToRun(TASScript* script) override;
+        virtual bool WantsToContinue() override;
+        virtual int IterationsExpected() override { return 1; }
+        virtual void ReportResult(double efficacy) override;
     };
 
     class RNGStrafer : public OptimizerAlgorithm {
@@ -194,6 +204,7 @@ namespace TASQuake {
         void ReadFromBuffer(TASQuakeIO::BufferReadInterface& reader);
     };
 
+    OptimizerGoal AutoGoal(const Vector& secondLast, const Vector& last);
     OptimizerGoal AutoGoal(const OptimizerRun& run);
     double ConvertTimeToEfficacy(double time);
     double ConvertEfficacyToTime(double efficacy);
@@ -226,6 +237,7 @@ namespace TASQuake {
         bool Init(const PlaybackInfo* playback, const OptimizerSettings* settings);
         void Seed(std::uint32_t value);
         double Random(double min, double max);
+        int32_t RandomInt(int32_t min, int32_t max);
         size_t RandomizeIndex();
 
         std::vector<std::shared_ptr<OptimizerAlgorithm>> m_vecAlgorithms;

@@ -12,7 +12,7 @@ using namespace TASQuake;
 static qboolean Optimizer_Var_Updated(struct cvar_s *var, char *value);
 
 cvar_t tas_optimizer = {"tas_optimizer", "1"};
-cvar_t tas_optimizer_algs = {"tas_optimizer_algs", "all", 0, Optimizer_Var_Updated};
+cvar_t tas_optimizer_algs = {"tas_optimizer_algs", "basic", 0, Optimizer_Var_Updated};
 cvar_t tas_optimizer_casper = {"tas_optimizer_casper", "0", 0, Optimizer_Var_Updated};
 cvar_t tas_optimizer_goal = {"tas_optimizer_goal", "0", 0, Optimizer_Var_Updated};
 cvar_t tas_optimizer_multigame  = {"tas_optimizer_multigame", "0", 0, Optimizer_Var_Updated};
@@ -81,17 +81,29 @@ static TASQuake::OptimizerSettings GetSettings() {
         // Generate the input nodes from the IPC prediction line
         // We want to have the optimizer to have some sort of baseline to make progress with
         auto line = IPC_Prediction_GetPoints();
-        for(size_t i=0; i < line->size(); i += 36)
+        for(int32_t i=start; i < line->size() && i < end; i += 36)
         {
             Vector v;
             v.x = line->at(i).point[0];
             v.y = line->at(i).point[1];
             v.z = line->at(i).point[2];
-            settings.m_vecInputNodes.push_back(v);
+            Vector origin; // Avoid invalid points between missions (terrible hack)
+            if(v.Distance(origin) != 0)
+                settings.m_vecInputNodes.push_back(v);
         }
+
+        Vector secondLast, last;
+        secondLast.x = line->at(end - 2).point[0];
+        secondLast.y = line->at(end - 2).point[1];
+        secondLast.z = line->at(end - 2).point[2];
+        last.x = line->at(end - 1).point[0];
+        last.y = line->at(end - 1).point[1];
+        last.z = line->at(end - 1).point[2];
+
+        settings.m_Goal = TASQuake::AutoGoal(secondLast, last);
     }
 
-    std::pair<const char*, TASQuake::AlgorithmEnum> algs[] = { 
+    std::pair<const char*, TASQuake::AlgorithmEnum> mov_algs[] = { 
         {"rngmove", TASQuake::AlgorithmEnum::RNGBlockMover},
         {"rngstrafe", TASQuake::AlgorithmEnum::RNGStrafer},
         {"adjstrafe", TASQuake::AlgorithmEnum::StrafeAdjuster},
@@ -99,10 +111,15 @@ static TASQuake::OptimizerSettings GetSettings() {
         {"turn", TASQuake::AlgorithmEnum::TurnOptimizer},
         };
 
-    for(auto algpair : algs) {
-        if(strcmp(tas_optimizer_algs.string, "all") == 0 || strstr(tas_optimizer_algs.string, algpair.first) != NULL) {
+    for(auto algpair : mov_algs) {
+        if(strcmp(tas_optimizer_algs.string, "basic") == 0 || strstr(tas_optimizer_algs.string, algpair.first) != NULL) {
             settings.m_vecAlgorithmData.push_back(algpair.second);
         }
+    }
+
+    if(strcmp(tas_optimizer_algs.string, "shot") == 0)
+    {
+        settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::RNGShooter);
     }
 
     return settings;

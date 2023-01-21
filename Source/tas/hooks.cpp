@@ -206,6 +206,7 @@ void TAS_Init()
 	Cmd_AddCommand("tas_savestate", Cmd_TAS_Savestate);
 	Cmd_AddCommand("tas_trace_edict", Cmd_TAS_Trace_Edict);
 	Cvar_Register(&tas_optimizer_algs);
+	Cvar_Register(&tas_optimizer_casper);
 	Cvar_Register(&tas_optimizer_goal);
 	Cvar_Register(&tas_optimizer_multigame);
 	Cvar_Register(&tas_optimizer);
