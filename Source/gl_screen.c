@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // gl_screen.c -- master for refresh, status bar, console, chat, notify, etc
 
 #include "quakedef.h"
+#include "tas/hooks.h"
 #ifdef _WIN32
 #include "movie.h"
 #endif
@@ -148,6 +149,7 @@ for a few moments
 */
 void SCR_CenterPrint (char *str)
 {
+	SCR_CenterPrint_Hook();
 	Q_strncpyz (scr_centerstring, str, sizeof(scr_centerstring));
 	scr_centertime_off = scr_centertime.value;
 	scr_centertime_start = cl.time;

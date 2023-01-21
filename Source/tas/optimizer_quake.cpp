@@ -1,4 +1,5 @@
 #include "draw.hpp"
+#include "hooks.h" // Ensure C linkage for SCR_CenterPrint_Hook
 #include "libtasquake/draw.hpp"
 #include "libtasquake/optimizer.hpp"
 #include "ipc_prediction.hpp"
@@ -16,6 +17,7 @@ cvar_t tas_optimizer_algs = {"tas_optimizer_algs", "basic", 0, Optimizer_Var_Upd
 cvar_t tas_optimizer_casper = {"tas_optimizer_casper", "0", 0, Optimizer_Var_Updated};
 cvar_t tas_optimizer_goal = {"tas_optimizer_goal", "0", 0, Optimizer_Var_Updated};
 cvar_t tas_optimizer_multigame  = {"tas_optimizer_multigame", "0", 0, Optimizer_Var_Updated};
+cvar_t tas_optimizer_secondarygoals  = {"tas_optimizer_secondarygoals", "0", 0, Optimizer_Var_Updated};
 cvar_t tas_predict_endoffset{"tas_predict_endoffset", "0.5", 0, Optimizer_Var_Updated};
 
 static bool m_bFirstIteration = false;
@@ -70,37 +72,43 @@ const TASScript* TASQuake::GetOptimizedVersion() {
     return &opt.m_currentBest.playbackInfo.current_script;
 }
 
+static void Casper_Init(TASQuake::OptimizerSettings* settings, int32_t start, int32_t end)
+{
+    // Generate the input nodes from the IPC prediction line
+    // We want to have the optimizer to have some sort of baseline to make progress with
+    auto line = IPC_Prediction_GetPoints();
+    for(int32_t i=start; i < line->size() && i < end; i += 36)
+    {
+        Vector v;
+        v.x = line->at(i).point[0];
+        v.y = line->at(i).point[1];
+        v.z = line->at(i).point[2];
+        Vector origin; // Avoid invalid points between missions (terrible hack)
+        if(v.Distance(origin) != 0)
+            settings->m_vecInputNodes.push_back(v);
+    }
+
+    Vector secondLast, last;
+    secondLast.x = line->at(end - 2).point[0];
+    secondLast.y = line->at(end - 2).point[1];
+    secondLast.z = line->at(end - 2).point[2];
+    last.x = line->at(end - 1).point[0];
+    last.y = line->at(end - 1).point[1];
+    last.z = line->at(end - 1).point[2];
+
+    settings->m_Goal = TASQuake::AutoGoal(secondLast, last);
+}
+
 static TASQuake::OptimizerSettings GetSettings() {
     TASQuake::OptimizerSettings settings;
     settings.m_Goal = (TASQuake::OptimizerGoal)tas_optimizer_goal.value;
     int32_t start, end;
     TASQuake::Get_Prediction_Frames(start, end);
     settings.m_iFrames = end - start;
+    settings.m_bSecondaryGoals = tas_optimizer_secondarygoals.value != 0;
 
     if(tas_optimizer_multigame.value != 0 && tas_optimizer_casper.value != 0 && IPC_Prediction_HasLine()) {
-        // Generate the input nodes from the IPC prediction line
-        // We want to have the optimizer to have some sort of baseline to make progress with
-        auto line = IPC_Prediction_GetPoints();
-        for(int32_t i=start; i < line->size() && i < end; i += 36)
-        {
-            Vector v;
-            v.x = line->at(i).point[0];
-            v.y = line->at(i).point[1];
-            v.z = line->at(i).point[2];
-            Vector origin; // Avoid invalid points between missions (terrible hack)
-            if(v.Distance(origin) != 0)
-                settings.m_vecInputNodes.push_back(v);
-        }
-
-        Vector secondLast, last;
-        secondLast.x = line->at(end - 2).point[0];
-        secondLast.y = line->at(end - 2).point[1];
-        secondLast.z = line->at(end - 2).point[2];
-        last.x = line->at(end - 1).point[0];
-        last.y = line->at(end - 1).point[1];
-        last.z = line->at(end - 1).point[2];
-
-        settings.m_Goal = TASQuake::AutoGoal(secondLast, last);
+        Casper_Init(&settings, start, end);
     }
 
     std::pair<const char*, TASQuake::AlgorithmEnum> mov_algs[] = { 
@@ -595,6 +603,8 @@ static void Game_Opt_Add_FrameData(int current_frame) {
         data.m_frameData.pos.z = sv_player->v.origin[2];
     }
 
+    opt.m_currentRun.m_uKills = cl.stats[STAT_MONSTERS];
+    opt.m_currentRun.m_uSecrets = cl.stats[STAT_SECRETS];
     state = opt.OnRunnerFrame(&data);
     PathPoint p;
     p.color = color;
@@ -616,6 +626,15 @@ static void Game_Opt_Ended() {
     } else {
         Con_Printf("Optimizer ended with invalid state\n");
         game_opt_running = false;
+    }
+}
+
+void SCR_CenterPrint_Hook(void)
+{
+    // Log center prints for button stuff
+    if(game_opt_running)
+    {
+        opt.m_currentRun.m_uCenterPrints += 1;
     }
 }
 

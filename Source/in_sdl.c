@@ -131,6 +131,8 @@ int IN_SDL_Event(SDL_Event* event)
     if (event->type == SDL_QUIT) {
         raise(SIGTERM);
     }
+
+	return 0;
 }
 
 static int ToQuakeKey(SDL_Scancode scancode)
