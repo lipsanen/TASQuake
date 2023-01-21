@@ -212,7 +212,6 @@ namespace TASQuake {
 
     struct RunConditions {
         bool m_bInitialized = false;
-        bool m_bSecondaryConditionsEnabled = true;
         std::vector<Vector> m_vecNodes;
         std::uint32_t m_uKills = 0;
         std::uint32_t m_uSecrets = 0;

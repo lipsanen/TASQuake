@@ -523,7 +523,7 @@ void TASQuake::GameOpt_InitOptimizer(int32_t start_frame, int32_t end_frame, int
     state = TASQuake::OptimizerState::ContinueIteration;
     m_CurrentPoints.clear();
     m_BestPoints.clear();
-    Savestate_Script_Updated(game_opt_end_frame);
+    Savestate_Script_Updated(0);
     Run_Script(game_opt_end_frame, true);
     game_opt_running = true;
 }
@@ -544,13 +544,19 @@ void TASQuake::Cmd_TAS_Optimizer_Run() {
 void TASQuake::MultiGame_ReceiveGoal(const ipc::Message& msg) {
     auto reader = TASQuakeIO::BufferReadInterface::Init((std::uint8_t*)msg.address + 1, msg.length - 1);
     OptimizerGoal goal;
+    uint32_t identifier;
+    reader.Read(&identifier, sizeof(identifier));
+
+    if(multi_game_opt_num != identifier)
+        return;
+
     reader.Read(&goal, sizeof(goal));
 
     if(goal == OptimizerGoal::Undetermined) {
         Con_Print("Invalid optimizer goal from client\n");
     } else if(opt.m_settings.m_Goal != OptimizerGoal::Undetermined &&
      opt.m_settings.m_Goal != goal) {
-        Con_Print("Conflicting optimizer goals received from client.\n");
+        Con_Printf("Conflicting optimizer goals received from client. Previous was %u, now reported %u\n", opt.m_settings.m_Goal, goal);
     }
     opt.m_settings.m_Goal = goal;
 }
@@ -559,6 +565,7 @@ static void CL_SendGoal() {
     auto writer = TASQuakeIO::BufferWriteInterface::Init();
     uint8_t type = (uint8_t)IPCMessages::OptimizerGoal;
     writer.WriteBytes(&type, 1);
+    writer.WriteBytes(&game_opt_identifier, sizeof(game_opt_identifier));
     writer.WriteBytes(&opt.m_settings.m_Goal, sizeof(opt.m_settings.m_Goal));
     TASQuake::CL_SendMessage(writer.m_pBuffer->ptr, writer.m_uFileOffset);
 }
@@ -634,7 +641,9 @@ void SCR_CenterPrint_Hook(void)
     // Log center prints for button stuff
     if(game_opt_running)
     {
-        opt.m_currentRun.m_uCenterPrints += 1;
+        auto info = GetPlaybackInfo();
+        if(info->current_frame >= game_opt_start_frame && info->current_frame < game_opt_end_frame)
+            opt.m_currentRun.m_uCenterPrints += 1;
     }
 }
 

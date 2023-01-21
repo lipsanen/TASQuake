@@ -44,6 +44,10 @@ void IPC_Prediction_Read_Response(ipc::Message& msg) {
     uint32_t request_id;
     auto reader = TASQuakeIO::BufferReadInterface::Init((std::uint8_t*)msg.address + 1, msg.length - 1);
     reader.Read(&request_id, sizeof(request_id));
+
+    if(request_id != last_request_id)
+        return;
+
     reader.ReadPODVec(ipc_line);
     reader.ReadPODVec(ipc_rects);
     current_line_time = last_request;
