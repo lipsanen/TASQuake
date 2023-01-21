@@ -187,21 +187,40 @@ namespace TASQuake {
     enum class OptimizerGoal { Undetermined, PlusX, NegX, PlusY, NegY, Time };
 
     const char* OptimizerGoalStr(OptimizerGoal goal);
+    struct RunConditions;
 
     struct OptimizerRun {
         double m_dEfficacy = std::numeric_limits<double>::lowest();
         PlaybackInfo playbackInfo;
-        std::vector<FrameData> m_vecData;
         bool m_bFinishedLevel = false;
         double m_dLevelTime = 0.0;
+        std::vector<FrameData> m_vecData;
+        std::uint32_t m_uKills = 0;
+        std::uint32_t m_uSecrets = 0;
+        std::uint32_t m_uCenterPrints = 0;
 
         void ResetIteration();
-        void CalculateEfficacy(OptimizerGoal goal, const std::vector<Vector>& nodes);
+        void CalculateEfficacy(OptimizerGoal goal, const RunConditions* conditions);
         double RunEfficacy() const { return m_dEfficacy; };
         bool IsBetterThan(const OptimizerRun& run) const;
         void StrafeBounds(size_t blockIndex, float& min, float& max) const;
         void WriteToBuffer(TASQuakeIO::BufferWriteInterface& writer) const;
         void ReadFromBuffer(TASQuakeIO::BufferReadInterface& reader);
+    };
+
+    struct OptimizerSettings;
+
+    struct RunConditions {
+        bool m_bInitialized = false;
+        bool m_bSecondaryConditionsEnabled = true;
+        std::vector<Vector> m_vecNodes;
+        std::uint32_t m_uKills = 0;
+        std::uint32_t m_uSecrets = 0;
+        std::uint32_t m_uCenterPrints = 0;
+
+        void Init(const OptimizerRun* run, const OptimizerSettings* settings);
+        bool FulfillsConditions(const OptimizerRun* run) const;
+        void Reset();
     };
 
     OptimizerGoal AutoGoal(const Vector& secondLast, const Vector& last);
@@ -219,6 +238,8 @@ namespace TASQuake {
         std::vector<AlgorithmEnum> m_vecAlgorithmData;
         std::vector<std::shared_ptr<OptimizerAlgorithm>> m_vecAlgorithms;
         std::vector<Vector> m_vecInputNodes; // We have some baseline version to compare against
+        bool m_bSecondaryGoals = false; // Require secondary goals to match the initial run
+        bool m_bUseNodes = true; // Require subsequent runs to match the initial run in terms of path taken
 
         void WriteToBuffer(TASQuakeIO::BufferWriteInterface& writer) const;
         void ReadFromBuffer(TASQuakeIO::BufferReadInterface& reader);
@@ -243,7 +264,6 @@ namespace TASQuake {
         std::vector<std::shared_ptr<OptimizerAlgorithm>> m_vecAlgorithms;
         OptimizerRun m_currentBest; // The current best run
         OptimizerRun m_currentRun; // The current run
-        std::vector<Vector> m_vecNodes; // The nodes that the run needs to hit in order to count
         OptimizerSettings m_settings; // Current settings for the optimizer
         std::mt19937 m_RNG;
         std::vector<double> m_vecCompoundingProbs;
@@ -252,5 +272,6 @@ namespace TASQuake {
         std::uint32_t m_uIteration = 0;
         double m_dMaxTime = 0;
         std::uint32_t m_uIterationsWithoutProgress = 0; // How many iterations have been ran without progress, determines when we should reset back to best
+        RunConditions m_runConditions;
     };
 }

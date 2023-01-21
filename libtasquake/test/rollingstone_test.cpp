@@ -77,6 +77,7 @@ TEST_CASE("CornerYawBench") {
         info.current_script.blocks.push_back(block2);
 
         TASQuake::OptimizerSettings settings;
+        settings.m_bUseNodes = false;
         settings.m_iEndOffset = 37;
         settings.m_uResetToBestIterations = 1;
         settings.m_uGiveUpAfterNoProgress = 9999;
@@ -104,6 +105,7 @@ TEST_CASE("Optimizer bench") {
         info.current_script.blocks.push_back(block2);
 
         TASQuake::OptimizerSettings settings;
+        settings.m_bUseNodes = false;
         settings.m_iEndOffset = 37;
         settings.m_uResetToBestIterations = 1;
         settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::FrameBlockMover);
@@ -129,6 +131,7 @@ TEST_CASE("Turn bench") {
         info.current_script.blocks.push_back(block2);
 
         TASQuake::OptimizerSettings settings;
+        settings.m_bUseNodes = false;
         settings.m_iEndOffset = 37;
         settings.m_uResetToBestIterations = 1;
         settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::StrafeAdjuster);

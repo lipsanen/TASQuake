@@ -32,16 +32,14 @@ void Optimizer::_FinishIteration(OptimizerState& state)
 	if (m_settings.m_Goal == OptimizerGoal::Undetermined)
 	{
 		m_settings.m_Goal = AutoGoal(m_currentRun);
-		if (m_vecNodes.empty())
-		{
-			for (size_t i = 0; i < m_currentRun.m_vecData.size(); i += 36)
-			{
-				m_vecNodes.push_back(m_currentRun.m_vecData[i].pos);
-			}
-		}
 	}
 
-	m_currentRun.CalculateEfficacy(m_settings.m_Goal, m_vecNodes);
+	if (!m_runConditions.m_bInitialized)
+	{
+		m_runConditions.Init(&m_currentRun, &m_settings);
+	}
+
+	m_currentRun.CalculateEfficacy(m_settings.m_Goal, &m_runConditions);
 
 	if (m_currentRun.IsBetterThan(m_currentBest))
 	{
@@ -260,8 +258,8 @@ bool Optimizer::Init(const PlaybackInfo* playback, const TASQuake::OptimizerSett
 
 	m_dMaxTime = 0;
 	m_uIteration = 0;
+	m_runConditions.Reset();
 	m_currentBest.ResetIteration();
-	m_vecNodes = m_settings.m_vecInputNodes;
 	m_currentRun = m_currentBest;
 	m_uIterationsWithoutProgress = 0;
 	m_iCurrentAlgorithm = -1;
@@ -375,7 +373,65 @@ void OptimizerRun::ResetIteration()
 	m_dLevelTime = 0.0;
 }
 
-void OptimizerRun::CalculateEfficacy(OptimizerGoal goal, const std::vector<Vector>& nodes)
+void RunConditions::Init(const OptimizerRun* run, const OptimizerSettings* settings)
+{
+	if(settings->m_bUseNodes)
+	{
+		for (size_t i = 0; i < run->m_vecData.size(); i += 36)
+		{
+			m_vecNodes.push_back(run->m_vecData[i].pos);
+		}
+	}
+
+	if(settings->m_bSecondaryGoals)
+	{
+		m_uCenterPrints = run->m_uCenterPrints;
+		m_uKills = run->m_uKills;
+		m_uSecrets = run->m_uSecrets;
+	}
+	else
+	{
+		m_uCenterPrints = 0;
+		m_uKills = 0;
+		m_uSecrets = 0;
+	}
+
+	m_bInitialized = true;
+}
+
+bool RunConditions::FulfillsConditions(const OptimizerRun* run) const
+{
+	size_t nodeIndex = 0;
+	const float MAX_DIST = 100.0f;
+
+	for (size_t i = 0; i < run->m_vecData.size() && nodeIndex < m_vecNodes.size(); ++i) {
+		float dist = m_vecNodes[nodeIndex].Distance(run->m_vecData[i].pos);
+		if (dist < MAX_DIST) {
+			++nodeIndex;
+		}
+	}
+
+	if (nodeIndex != m_vecNodes.size()) {
+		return false;
+	}
+	
+	if(run->m_uCenterPrints > m_uCenterPrints || run->m_uKills < m_uKills || run->m_uSecrets < m_uSecrets) {
+		return false;
+	}
+
+	return true;
+}
+
+void RunConditions::Reset()
+{
+	m_vecNodes.clear();
+	m_uCenterPrints = 0;
+	m_uKills = 0;
+	m_uSecrets = 0;
+	m_bInitialized = false;
+}
+
+void OptimizerRun::CalculateEfficacy(OptimizerGoal goal, const RunConditions* conditions)
 {
 	if (goal == OptimizerGoal::Time)
 	{
@@ -395,21 +451,10 @@ void OptimizerRun::CalculateEfficacy(OptimizerGoal goal, const std::vector<Vecto
 		return;
 	}
 
-	size_t nodeIndex = 0;
-	const float MAX_DIST = 100.0f;
 
-	for (size_t i = 0; i < m_vecData.size() && nodeIndex < nodes.size(); ++i)
+	if (!conditions->FulfillsConditions(this))
 	{
-		float dist = nodes[nodeIndex].Distance(m_vecData[i].pos);
-		if (dist < MAX_DIST)
-		{
-			++nodeIndex;
-		}
-	}
-
-	if (nodeIndex != nodes.size())
-	{
-		m_dEfficacy = nodeIndex;
+		m_dEfficacy = std::numeric_limits<double>::lowest();
 		return;
 	}
 
@@ -418,19 +463,19 @@ void OptimizerRun::CalculateEfficacy(OptimizerGoal goal, const std::vector<Vecto
 
 	if (goal == OptimizerGoal::NegX)
 	{
-		m_dEfficacy = -last.x + nodes.size() + 9999.0;
+		m_dEfficacy = -last.x;
 	}
 	else if (goal == OptimizerGoal::NegY)
 	{
-		m_dEfficacy = -last.y + nodes.size() + 9999.0;
+		m_dEfficacy = -last.y;
 	}
 	else if (goal == OptimizerGoal::PlusX)
 	{
-		m_dEfficacy = last.x + nodes.size() + 9999.0;
+		m_dEfficacy = last.x;
 	}
 	else
 	{
-		m_dEfficacy = last.y + nodes.size() + 9999.0;
+		m_dEfficacy = last.y;
 	}
 }
 

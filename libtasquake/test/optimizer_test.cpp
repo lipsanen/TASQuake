@@ -86,19 +86,19 @@ TEST_CASE("Time efficacy conversion") {
 
 TEST_CASE("Better time is better")
 {
-    std::vector<TASQuake::Vector> nodes;
     TASQuake::OptimizerRun run1;
+    TASQuake::RunConditions conditions;
     run1.m_bFinishedLevel = true;
     run1.m_dLevelTime = 10.0;
-    run1.CalculateEfficacy(TASQuake::OptimizerGoal::Time, nodes);
+    run1.CalculateEfficacy(TASQuake::OptimizerGoal::Time, &conditions);
     TASQuake::OptimizerRun run2;
     run2.m_bFinishedLevel = true;
     run2.m_dLevelTime = 9.0;
-    run2.CalculateEfficacy(TASQuake::OptimizerGoal::Time, nodes);
+    run2.CalculateEfficacy(TASQuake::OptimizerGoal::Time, &conditions);
     TASQuake::OptimizerRun run3;
     run3.m_bFinishedLevel = false;
     run3.m_dLevelTime = 8.0;
-    run3.CalculateEfficacy(TASQuake::OptimizerGoal::Time, nodes);
+    run3.CalculateEfficacy(TASQuake::OptimizerGoal::Time, &conditions);
 
     REQUIRE(run1.m_dEfficacy < run2.m_dEfficacy);
     REQUIRE(run3.m_dEfficacy < run1.m_dEfficacy);
