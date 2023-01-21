@@ -9,6 +9,7 @@ extern cvar_t tas_optimizer_algs;
 extern cvar_t tas_optimizer_casper;
 extern cvar_t tas_optimizer_goal;
 extern cvar_t tas_optimizer_multigame;
+extern cvar_t tas_optimizer_secondarygoals;
 struct TASScript;
 
 namespace TASQuake {
