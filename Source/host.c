@@ -482,6 +482,9 @@ void Host_ShutdownServer (qboolean crash)
 				}
 			}
 		}
+		// TODO: wtf? low fps can cause this to be an infinite loop
+		if(isSimulator)
+			break; // Simulator breaks out because I dont care
 		if ((Sys_DoubleTime() - start) > 3.0)
 			break;
 	} while (count);
