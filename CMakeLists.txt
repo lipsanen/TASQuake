@@ -77,6 +77,7 @@ FILE(GLOB_RECURSE SOURCES
 	 Source/tas/bookmark.cpp
 	 Source/tas/camera.cpp
 	 Source/tas/data_export.cpp
+	 Source/tas/drag_editing.cpp
 	 Source/tas/draw.cpp
 	 Source/tas/hooks.cpp
 	 Source/tas/hud.cpp

@@ -4,8 +4,9 @@
 #include <memory>
 #include <random>
 #include <vector>
-#include "script_parse.hpp"
-#include "script_playback.hpp"
+#include "libtasquake/vector.hpp"
+#include "libtasquake/script_parse.hpp"
+#include "libtasquake/script_playback.hpp"
 
 namespace TASQuake {
     class Optimizer;
@@ -165,11 +166,6 @@ namespace TASQuake {
 
     std::vector<double> GetCompoundingProbs(const std::vector<std::shared_ptr<OptimizerAlgorithm>> algorithms);
     size_t SelectIndex(double value, const std::vector<double>& compoundingProbs);
-
-    struct Vector {
-        float x = 0.0f, y = 0.0f, z = 0.0f;
-        float Distance(const Vector& rhs) const;
-    };
 
     struct FrameData {
         Vector pos;

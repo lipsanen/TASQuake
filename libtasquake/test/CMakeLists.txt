@@ -11,6 +11,7 @@ list(APPEND LIBTASQUAKE_TEST_SOURCES
   "script_tests.cpp"
   "test_io.cpp"
   "test.cpp"
+  "vector.cpp"
 )
 
 add_executable(libtasquake_test ${LIBTASQUAKE_TEST_SOURCES})
