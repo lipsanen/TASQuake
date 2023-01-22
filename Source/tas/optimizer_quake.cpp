@@ -518,6 +518,7 @@ void TASQuake::GameOpt_InitOptimizer(int32_t start_frame, int32_t end_frame, int
     state = TASQuake::OptimizerState::ContinueIteration;
     m_CurrentPoints.clear();
     m_BestPoints.clear();
+    Savestate_Script_Updated(game_opt_start_frame);
     Run_Script(game_opt_end_frame, true);
     game_opt_running = true;
 }

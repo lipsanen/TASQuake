@@ -59,7 +59,7 @@ static bool Should_Predict() {
     auto info = GetPlaybackInfo();
     bool has_line = IPC_Prediction_HasLine();
     bool has_been_edited = last_request < info->last_edited;
-    if(Sys_DoubleTime() - info->last_edited <= 0.1 || tas_playing.value == 0 || tas_gamestate != paused) {
+    if(tas_playing.value == 0 || tas_gamestate != paused) {
         return false; // game needs to be paused while playing a TAS
     } else if(has_been_edited) {
         return true; // Has been edited, need to generate new line
