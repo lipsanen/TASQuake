@@ -15,8 +15,8 @@ namespace TASQuake
     struct PredictionData {
         std::vector<Vector> m_vecPoints;
         std::vector<FrameBlockIndex> m_vecFBdata;
-        std::uint32_t m_uStartFrame = 0;
-        std::uint32_t m_uEndFrame = 0;
+        std::int32_t m_iStartFrame = 0;
+        std::int32_t m_iEndFrame = 0;
 
         void Load_From_Memory(TASQuakeIO::BufferReadInterface& iface);
         void Write_To_Memory(TASQuakeIO::BufferWriteInterface& iface) const;

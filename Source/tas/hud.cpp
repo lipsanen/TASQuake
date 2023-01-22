@@ -319,8 +319,6 @@ static void DrawPredictionType(int& y)
 
 	if(IPC_Prediction_HasLine()) {
 		Draw(y, &tas_hud_prediction_type, "prediction line: multi-game");
-	} else if(GamePrediction_HasLine()) {
-		Draw(y, &tas_hud_prediction_type, "prediction line: game");
 	} else if(Prediction_HasLine()) {
 		Draw(y, &tas_hud_prediction_type, "prediction line: simulated");
 	} else {

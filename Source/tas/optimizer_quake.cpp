@@ -76,26 +76,18 @@ static void Casper_Init(TASQuake::OptimizerSettings* settings, int32_t start, in
 {
     // Generate the input nodes from the IPC prediction line
     // We want to have the optimizer to have some sort of baseline to make progress with
-    auto line = IPC_Prediction_GetPoints();
+    auto data = IPC_Get_PredictionData();
+    auto line = &data->m_vecPoints;
     for(int32_t i=start; i < line->size() && i < end; i += 36)
     {
-        Vector v;
-        v.x = line->at(i).point[0];
-        v.y = line->at(i).point[1];
-        v.z = line->at(i).point[2];
+        Vector v = line->at(i);
         Vector origin; // Avoid invalid points between missions (terrible hack)
         if(v.Distance(origin) != 0)
             settings->m_vecInputNodes.push_back(v);
     }
 
-    Vector secondLast, last;
-    secondLast.x = line->at(end - 2).point[0];
-    secondLast.y = line->at(end - 2).point[1];
-    secondLast.z = line->at(end - 2).point[2];
-    last.x = line->at(end - 1).point[0];
-    last.y = line->at(end - 1).point[1];
-    last.z = line->at(end - 1).point[2];
-
+    Vector secondLast = line->at(end - 2);
+    Vector last = line->at(end - 1);
     settings->m_Goal = TASQuake::AutoGoal(secondLast, last);
 }
 
