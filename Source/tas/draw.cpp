@@ -115,6 +115,42 @@ static void DrawLine(const std::vector<PathPoint>* line, int32_t* pstart=nullptr
 	Q_glEnd();
 }
 
+static void DrawPredictionData(const TASQuake::PredictionData* data, int32_t start, int32_t end) {
+	int32_t offset = start - data->m_iStartFrame;
+
+	if(offset < 0) {
+		Con_Printf("Prediction data was not valid, offset to first frame was %d\n", offset);
+		return;
+	}
+
+	const std::array<float, 4> color = { 0, 1, 0, 0.5 };
+
+	int32_t points = end - start;
+	Q_glBegin(GL_LINES);
+
+	for (int32_t i=offset+1; i < points + offset; ++i)
+	{
+		auto& vec1 = data->m_vecPoints[i-1];
+		auto& vec2 = data->m_vecPoints[i];
+
+		glColor4fv(color.data());
+		Q_glVertex3fv(&vec1[0]);
+		Q_glVertex3fv(&vec2[0]);
+	}
+
+	Q_glEnd();
+
+	const std::array<float, 4> rect_color = { 0, 0, 1, 0.5 };
+	
+	for(auto& fbindex : data->m_vecFBdata) {
+		if(fbindex.m_uFrame >= start && fbindex.m_uFrame <= end) {
+			Vector pos = data->m_vecPoints[fbindex.m_uFrame - data->m_iStartFrame];
+			auto rect = Rect::Get_Rect(rect_color, &pos[0], 3, 3, 0);
+			Draw_Rectangle(rect);
+		}
+	}
+}
+
 static void DrawRects(const std::vector<Rect>* rects, int32_t* pstart=nullptr, int32_t* pend=nullptr) {
 	int32_t start, end;
 	if(pstart) {
@@ -148,16 +184,10 @@ void Draw_Elements()
 
 	if(IPC_Prediction_HasLine()) {
 		int32_t start, end;
-    TASQuake::Get_Prediction_Frames(start, end);
-		DrawLine(IPC_Prediction_GetPoints(), &start, &end);
-		DrawRects(IPC_Prediction_GetRects(), &start, &end);
-	}
-	else if(GamePrediction_HasLine()) {
-		int32_t start, end;
     	TASQuake::Get_Prediction_Frames(start, end);
-		DrawLine(GamePrediction_GetPoints(), &start, &end);
-		DrawRects(GamePrediction_GetRects(), &start, &end);
-	} else if(Prediction_HasLine()) {
+		DrawPredictionData(IPC_Get_PredictionData(), start, end);
+	}
+	else if(Prediction_HasLine()) {
 		DrawLine(Prediction_GetPoints());
 		DrawRects(Prediction_GetRects());
 	}

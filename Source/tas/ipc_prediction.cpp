@@ -1,4 +1,5 @@
 #include "libtasquake/draw.hpp"
+#include "libtasquake/prediction.hpp"
 #include "script_playback.hpp"
 #include "ipc2.hpp"
 #include "ipc_prediction.hpp"
@@ -11,17 +12,18 @@ using namespace TASQuake;
 
 static double last_request = 0;
 static uint32_t last_request_id = 0;
-static std::vector<PathPoint> ipc_line;
-static std::vector<Rect> ipc_rects;
 static double current_line_time = 0;
+static PredictionData data;
+static bool has_data = false;
 
 static void Request() {
     auto connection = TASQuake::Get_First_Session();
+    data.m_vecFBdata.clear();
+    data.m_vecPoints.clear();
+    has_data = false;
     if(connection == -1)
         return; // No clients, give up
     
-    ipc_line.clear();
-    ipc_rects.clear();
     last_request = Sys_DoubleTime();
     auto writer = TASQuakeIO::BufferWriteInterface::Init();
     uint8_t type = (uint8_t)TASQuake::IPCMessages::Predict;
@@ -48,8 +50,8 @@ void IPC_Prediction_Read_Response(ipc::Message& msg) {
     if(request_id != last_request_id)
         return;
 
-    reader.ReadPODVec(ipc_line);
-    reader.ReadPODVec(ipc_rects);
+    data.Load_From_Memory(reader);
+    has_data = true;
     current_line_time = last_request;
 }
 
@@ -72,7 +74,7 @@ void IPC_Prediction_Frame_Hook() {
     if(Should_Predict()) {
         Request();
     } else if(IPC_Prediction_HasLine() && (tas_playing.value == 0 || tas_gamestate != paused)) {
-        ipc_line.clear();
+        has_data = false;
     }
 }
 
@@ -80,13 +82,9 @@ bool IPC_Prediction_HasLine() {
     int32_t start, end;
     TASQuake::Get_Prediction_Frames(start, end);
     auto info = GetPlaybackInfo();
-    return current_line_time >= info->last_edited && end <= ipc_line.size();
+    return current_line_time >= info->last_edited && end <= data.m_iEndFrame && start >= data.m_iStartFrame;
 }
 
-std::vector<TASQuake::PathPoint>* IPC_Prediction_GetPoints() {
-    return &ipc_line;
-}
-
-std::vector<TASQuake::Rect>* IPC_Prediction_GetRects() {
-    return &ipc_rects;
+TASQuake::PredictionData* IPC_Get_PredictionData() {
+    return &data;
 }

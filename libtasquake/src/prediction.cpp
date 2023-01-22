@@ -5,16 +5,16 @@ using namespace TASQuake;
 
 void PredictionData::Load_From_Memory(TASQuakeIO::BufferReadInterface& iface)
 {
-    iface.Read(&m_uStartFrame);
-    iface.Read(&m_uEndFrame);
+    iface.Read(&m_iStartFrame);
+    iface.Read(&m_iEndFrame);
     iface.ReadPODVec(m_vecFBdata);
     iface.ReadPODVec(m_vecPoints);
 }
 
 void PredictionData::Write_To_Memory(TASQuakeIO::BufferWriteInterface& iface) const
 {
-    iface.Write(&m_uStartFrame);
-    iface.Write(&m_uEndFrame);
+    iface.Write(&m_iStartFrame);
+    iface.Write(&m_iEndFrame);
     iface.WritePODVec(m_vecFBdata);
     iface.WritePODVec(m_vecPoints);
 }
@@ -25,7 +25,7 @@ int PredictionData::FindFrameBlock(const Trace& trace)
     float lowestDistance = std::numeric_limits<float>::max();
     FrameBlockIndex bestBlock;
     for(auto& blockIndex : m_vecFBdata) {
-        auto vecIndex = blockIndex.m_uFrame - m_uStartFrame;
+        auto vecIndex = blockIndex.m_uFrame - m_iStartFrame;
         if(vecIndex < m_vecPoints.size()) {
             float dist = TASQuake::DistanceFromPoint(trace, m_vecPoints[vecIndex]);
             if(dist < lowestDistance)
