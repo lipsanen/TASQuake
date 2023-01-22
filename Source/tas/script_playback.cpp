@@ -9,6 +9,7 @@
 #include "afterframes.hpp"
 #include "bookmark.hpp"
 #include "camera.hpp"
+#include "drag_editing.hpp"
 #include "libtasquake/script_parse.hpp"
 #include "libtasquake/utils.hpp"
 #include "optimizer_quake.hpp"
@@ -512,6 +513,11 @@ void Cmd_TAS_Optimizer_Accept(void) {
 	if(!playback.In_Edit_Mode()) {
 		Con_Print("Need to be in edit mode to apply optimizer changes\n");
 		return;
+	}
+
+	if(TASQuake::IsDragging())
+	{
+		TASQuake::StopDrag();
 	}
 
 	TASQuake::SV_StopMultiGameOpt(); // Stop multi game optimization if it's running
@@ -1042,8 +1048,15 @@ void Cmd_TAS_Edit_Random_Toggle(void)
 
 void Cmd_TAS_Confirm(void)
 {
+	if (TASQuake::IsDragging())
+	{
+		TASQuake::Drag_Confirm();
+		return;
+	}
+
 	if (m_state == MouseState::Locked)
 		return;
+
 
 	if (m_state == MouseState::Strafe)
 		CenterPrint("Set strafe");
@@ -1066,6 +1079,12 @@ void Cmd_TAS_Confirm(void)
 
 void Cmd_TAS_Cancel(void)
 {
+	if (TASQuake::IsDragging())
+	{
+		TASQuake::Drag_Cancel();
+		return;
+	}
+
 	if (m_state == MouseState::Locked)
 		return;
 

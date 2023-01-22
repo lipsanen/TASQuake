@@ -4,9 +4,10 @@ namespace TASQuake
 {
     void Drag_Confirm();
     void Drag_Cancel();
-    void Drag_Editing_Hook();
+    void Drag_MouseMove_Hook(int mousex, int mousey);
     bool IsDragging();
     int Selected_Block();
+    void StopDrag();
 }
 
 void CMD_TAS_Drag_Single();
