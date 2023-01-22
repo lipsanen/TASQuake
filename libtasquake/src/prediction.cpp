@@ -36,7 +36,7 @@ int PredictionData::FindFrameBlock(const Trace& trace)
         }
     }
 
-    if(lowestDistance < MIN_DIST)
+    if(lowestDistance > MIN_DIST)
     {
         return -1;
     }

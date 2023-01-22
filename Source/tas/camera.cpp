@@ -1,4 +1,5 @@
 #include "camera.hpp"
+#include "drag_editing.hpp"
 #include "libtasquake/utils.hpp"
 
 cvar_t tas_freecam = {"tas_freecam", "0"};
@@ -7,14 +8,20 @@ static vec3_t camera_origin;
 static vec3_t camera_angles;
 static vec3_t buttons;
 
-static bool In_Freecam()
+bool In_Freecam()
 {
 	return tas_freecam.value != 0 && tas_gamestate == paused;
 }
 
+void Get_Camera_PosAngles(TASQuake::Vector& pos, TASQuake::Vector& angles)
+{
+	VectorCopy(camera_origin, pos);
+	VectorCopy(camera_angles, angles);
+}
+
 void Camera_MouseMove_Hook(int mousex, int mousey)
 {
-	if (!In_Freecam())
+	if (!In_Freecam() || TASQuake::IsDragging())
 	{
 		return;
 	}

@@ -4,6 +4,7 @@
 
 #include "afterframes.hpp"
 #include "camera.hpp"
+#include "drag_editing.hpp"
 #include "draw.hpp"
 #include "hud.hpp"
 #include "optimizer_quake.hpp"
@@ -131,6 +132,9 @@ void TAS_Init()
 	Cmd_AddCommand("tas_script_skip_block", Cmd_TAS_Script_Skip_Block);
 	Cmd_AddCommand("tas_script_advance", Cmd_TAS_Script_Advance);
 	Cmd_AddCommand("tas_script_advance_block", Cmd_TAS_Script_Advance_Block);
+
+	Cmd_AddCommand("tas_drag_single", CMD_TAS_Drag_Single);
+	Cmd_AddCommand("tas_drag_stack", CMD_TAS_Drag_Stack);
 
 	Cmd_AddCommand("tas_edit_add_shot", Cmd_TAS_Edit_Add_Shot);
 	Cmd_AddCommand("tas_edit_prune", Cmd_TAS_Edit_Prune);
@@ -329,6 +333,7 @@ void CL_SignonReply_Hook()
 void IN_MouseMove_Hook(int mousex, int mousey)
 {
 	Camera_MouseMove_Hook(mousex, mousey);
+	TASQuake::Drag_MouseMove_Hook(mousex, mousey);
 }
 
 void _Host_Frame_Hook()
