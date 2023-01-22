@@ -455,8 +455,8 @@ std::string TASScript::ToString() const {
 	auto writer = TASQuakeIO::BufferWriteInterface::Init();
 	Write_To_Memory(writer);
 	std::string out;
-	out.resize(writer.m_uFileOffset);
-	memcpy(&out[0], (uint8_t*)writer.m_pBuffer->ptr + 4, writer.m_uFileOffset);
+	out.resize(writer.m_uFileOffset-4);
+	memcpy(&out[0], (uint8_t*)writer.m_pBuffer->ptr + 4, writer.m_uFileOffset-4);
 	return out;
 }
 

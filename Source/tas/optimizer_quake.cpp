@@ -375,9 +375,32 @@ void TASQuake::Receive_Optimizer_Task(const ipc::Message& msg) {
     auto info = GetPlaybackInfo();
     TASScript script;
     script.Load_From_Memory(reader);
+    //std::string incoming = script.ToString();
+    //std::string original = info->current_script.ToString();
     int32_t first_changed_frame;
     info->current_script.ApplyChanges(&script, first_changed_frame);
     Savestate_Script_Updated(first_changed_frame);
+#if 0
+    std::string updated = info->current_script.ToString();
+
+    if(updated != incoming)
+    {
+        Con_Printf("Update didnt match, incoming:\n%s\n", incoming.c_str());
+        Con_Printf("original:\n%s\n", original.c_str());
+        Con_Printf("updated:\n%s\n", updated.c_str());
+
+        for(size_t i=0; i < updated.size(); ++i)
+        {
+            if(updated[i] != incoming[i])
+            {
+                Con_Printf("at index %d \"%s\" != \"%s\"\n", i, updated.c_str() + i, incoming.c_str() + i);
+                break;
+            }
+        }
+
+        int i = 0;
+    }
+#endif
 
     TASQuake::GameOpt_InitOptimizer(start, end, identifier, settings);
 }
