@@ -71,6 +71,7 @@ public:
 	void RemoveCvarsFromRange(const std::string& name, int min_frame, int max_frame);
 	void RemoveTogglesFromRange(const std::string& name, int min_frame, int max_frame);
 	void AddScript(const TASScript* script, int frame);
+	bool ShiftSingleBlock(size_t blockIndex, int delta);
 	bool ShiftBlocks(size_t blockIndex, int delta);
 	int GetBlockIndex(int frame) const;
 	void AddCvar(const std::string& cmd, float value, int frame);

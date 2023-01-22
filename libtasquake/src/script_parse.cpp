@@ -712,6 +712,35 @@ const FrameBlock* TASScript::Get_Frameblock(int frame) const
 	}
 }
 
+
+bool TASScript::ShiftSingleBlock(size_t blockIndex, int delta) {
+	int current_frame = blocks[blockIndex].frame;
+
+	if(delta < 0) {
+		int minValue;
+		if(blockIndex == 0) {
+			minValue = 0;
+		} else {
+			minValue = blocks[blockIndex - 1].frame;
+		}
+		int minDelta = minValue - current_frame;
+		delta = std::max(delta, minDelta);
+	} else {
+		int maxValue;
+		if(blockIndex == blocks.size() - 1) {
+			maxValue = INT32_MAX;
+		}
+		else {
+			maxValue = blocks[blockIndex + 1].frame - blocks[blockIndex].frame;
+		}
+		delta = std::min(maxValue, delta);
+	}
+
+	blocks[blockIndex].frame += delta;
+
+	return true;
+}
+
 bool TASScript::ShiftBlocks(size_t blockIndex, int delta) {
 	int current_frame = blocks[blockIndex].frame;
 

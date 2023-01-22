@@ -79,6 +79,11 @@ namespace TASQuakeIO
             memcpy(&out[0], (uint8_t*)m_pBuffer + m_uFileOffset, size);
             m_uFileOffset += size;
         }
+
+        template<typename T>
+        std::uint32_t Read(T* out) {
+            return Read(out, sizeof(T));
+        }
     };
 
     class WriteInterface {
@@ -122,6 +127,11 @@ namespace TASQuakeIO
             m_uFileOffset += sizeof(uint32_t);
             memcpy((uint8_t*)m_pBuffer->ptr + m_uFileOffset, &out[0], size);
             m_uFileOffset += size;
+        }
+
+        template<typename T>
+        void Write(const T* out) {
+            WriteBytes(out, sizeof(T));
         }
     private:
     };

@@ -4,10 +4,12 @@ list(APPEND LIBTASQUAKE_SOURCES
   "src/draw.cpp"
   "src/io.cpp"
   "src/optimizer.cpp"
+  "src/prediction.cpp"
   "src/script_parse.cpp"
   "src/script_playback.cpp"
   "src/ipc.cpp"
   "src/utils.cpp"
+  "src/vector.cpp"
 )
 
 add_library(libtasquake ${LIBTASQUAKE_SOURCES})

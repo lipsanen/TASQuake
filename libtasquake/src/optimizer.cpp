@@ -1342,11 +1342,6 @@ void TurnOptimizer::Init(TASScript* script, Optimizer* opt)
 	m_dSearchMax = std::copysign(absMax, m_dSearchMax);
 }
 
-float Vector::Distance(const Vector& rhs) const
-{
-	return std::sqrt((x - rhs.x) * (x - rhs.x) + (y - rhs.y) * (y - rhs.y) + (z - rhs.z) * (z - rhs.z));
-}
-
 const char* TASQuake::OptimizerGoalStr(OptimizerGoal goal)
 {
 	switch (goal)
