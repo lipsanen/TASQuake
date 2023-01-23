@@ -88,7 +88,7 @@ int Savestate_Load_State(int frame)
 	}
 
 	static char BUFFER[80];
-	snprintf(BUFFER, ARRAYSIZE(BUFFER), "tas_ls savestates/ss_%d", number);
+	snprintf(BUFFER, ARRAYSIZE(BUFFER), "tas_ls savestates/%s%d", tas_savestate_prefix.string, number);
 	tas_gamestate = loading;
 	AddAfterframes(1, "disconnect", NoFilter);
 	AddAfterframes(2, BUFFER, NoFilter);
@@ -130,10 +130,8 @@ void Savestate_Script_Updated(int frame)
 		}
 	}
 
-	if (savestateMap.empty())
-	{
-		save_number = 0;
-	}
+
+	save_number = savestateMap.size();
 }
 
 void Savestate_Playback_Started(int target_frame)

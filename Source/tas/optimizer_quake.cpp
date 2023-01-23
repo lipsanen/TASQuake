@@ -398,7 +398,6 @@ void TASQuake::Receive_Optimizer_Task(const ipc::Message& msg) {
             }
         }
 
-        int i = 0;
     }
 #endif
 
@@ -574,7 +573,7 @@ void TASQuake::MultiGame_ReceiveGoal(const ipc::Message& msg) {
         Con_Print("Invalid optimizer goal from client\n");
     } else if(opt.m_settings.m_Goal != OptimizerGoal::Undetermined &&
      opt.m_settings.m_Goal != goal) {
-        Con_Printf("Conflicting optimizer goals received from client. Previous was %u, now reported %u\n", opt.m_settings.m_Goal, goal);
+        Con_Printf("Conflicting optimizer goals received from client %lu. Previous was %u, now reported %u\n", msg.connection_id, opt.m_settings.m_Goal, goal);
     }
     opt.m_settings.m_Goal = goal;
 }
@@ -666,7 +665,7 @@ void SCR_CenterPrint_Hook(void)
 }
 
 void TASQuake::Optimizer_Frame_Hook() {
-    if(!game_opt_running)
+    if(!game_opt_running || tas_playing.value == 0)
         return;
     
     auto info = GetPlaybackInfo();

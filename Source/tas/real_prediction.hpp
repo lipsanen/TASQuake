@@ -9,3 +9,4 @@ extern cvar_t tas_predict_real;
 
 void GamePrediction_Frame_Hook();
 void GamePrediction_Receive_IPC(ipc::Message& msg);
+void GamePrediction_Run_Script_Hook();

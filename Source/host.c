@@ -475,16 +475,19 @@ void Host_ShutdownServer (qboolean crash)
 					NET_SendMessage (host_client->netconnection, &host_client->message);
 					SZ_Clear (&host_client->message);
 				}
-				else
+				else if(!isSimulator)
 				{
+					// TODO: wtf is this doing, this results in a 3 second loop in single player
 					NET_GetMessage (host_client->netconnection);
 					count++;
+				}
+				else 
+				{
+					SZ_Clear (&host_client->message);
 				}
 			}
 		}
 		// TODO: wtf? low fps can cause this to be an infinite loop
-		if(isSimulator)
-			break; // Simulator breaks out because I dont care
 		if ((Sys_DoubleTime() - start) > 3.0)
 			break;
 	} while (count);

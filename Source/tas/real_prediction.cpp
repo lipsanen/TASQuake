@@ -55,7 +55,6 @@ void GamePrediction_Frame_Hook() {
 
 	if(tas_playing.value != 0 && tas_gamestate == unpaused && (tas_predict_real.value != 0 || !ipc_request_finished)) {
         if(cls.state == ca_connected) {
-            
             if(playback->current_frame >= data.m_iStartFrame)
             {
                 TASQuake::Vector v;

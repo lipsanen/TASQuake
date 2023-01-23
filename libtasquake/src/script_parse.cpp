@@ -567,7 +567,7 @@ int TASScript::GetBlockIndex(int frame) const {
 		size_t low = 0;
 		size_t high = blockCount;
 
-		if(blocks[prev_block_number].frame >= frame) {
+		if(prev_block_number < blocks.size() && blocks[prev_block_number].frame >= frame) {
 			if(prev_block_number == 0) {
 				return prev_block_number;
 			} else if(blocks[prev_block_number-1].frame < frame) {
