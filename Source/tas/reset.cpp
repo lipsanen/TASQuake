@@ -118,6 +118,7 @@ void Cmd_TAS_Cmd_Reset(void)
 {
 	tas_gamestate = unpaused;
 	sv.paused = qfalse;
+	VectorCopy(vec3_origin, cl.viewangles);
 	ClearAfterframes();
 	UnpauseAfterframes();
 

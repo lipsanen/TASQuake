@@ -365,13 +365,13 @@ void _Host_Frame_After_FilterTime_Hook()
 	Test_Host_Frame_Hook();
 	Test_Runner_Frame_Hook();
 	IPC_Prediction_Frame_Hook();
-	TASQuake::IPC2_Frame_Hook();
 	TASQuake::Optimizer_Frame_Hook();
 	IPC_Loop();
 	Bookmark_Frame_Hook();
 	GamePrediction_Frame_Hook();
 	Simulate_Frame_Hook();
 	Script_Playback_Host_Frame_Hook();
+	TASQuake::IPC2_Frame_Hook();
 
 	char* queued = GetQueuedCommands();
 	if (queued)

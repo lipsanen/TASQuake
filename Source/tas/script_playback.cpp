@@ -13,6 +13,7 @@
 #include "libtasquake/script_parse.hpp"
 #include "libtasquake/utils.hpp"
 #include "optimizer_quake.hpp"
+#include "real_prediction.hpp"
 #include "reset.hpp"
 #include "savestate.hpp"
 #include "strafing.hpp"
@@ -40,6 +41,12 @@ static float current_yaw = 0;
 static float current_pitch = 0;
 static int current_strafe = 0;
 static int current_turnframes = 0;
+
+static bool run_queued = false;
+static bool run_skip = false;
+static bool run_ss = false;
+static bool run_disconnected = false;
+static int run_frame = 0;
 
 static vec3_t old_angles;
 static MouseState m_state = MouseState::Locked;
@@ -72,6 +79,11 @@ static bool Set_Pause_Frame(int pause_frame)
 	return true;
 }
 
+static bool Can_Skip()
+{
+	return cls.state == ca_disconnected;
+}
+
 static void Savestate_Skip(int start_frame)
 {
 	playback.current_frame = start_frame;
@@ -100,6 +112,23 @@ void Run_Script(int frame, bool skip, bool ss)
 	if (!Set_Pause_Frame(frame))
 		return;
 
+	if(!Can_Skip())
+	{
+		if(!run_disconnected)
+		{
+			AddAfterframes(1, "disconnect", NoFilter);
+			run_disconnected = true;
+		}
+		tas_playing.value = 0;
+		playback.current_frame = 0;
+		run_queued = true;
+		run_frame = frame;
+		run_skip = skip;
+		run_ss = ss;
+		return;
+	}
+
+	run_disconnected = false;
 	playback.current_frame = 0;
 	playback.stacked.Reset();
 	Cmd_TAS_Cmd_Reset();
@@ -356,6 +385,13 @@ void Script_Playback_Host_Frame_Hook()
 
 	if (tas_gamestate == loading)
 		return;
+
+	if (run_queued)
+	{
+		run_queued = false;
+		Run_Script(run_frame, run_skip, run_ss);
+		return;
+	}
 
 	Savestate_Frame_Hook(playback.current_frame, playback.pause_frame);
 
