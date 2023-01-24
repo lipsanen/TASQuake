@@ -250,6 +250,7 @@ void TAS_Init()
 	Cvar_Register(&tas_hud_state);
 	Cvar_Register(&tas_hud_strafe);
 	Cvar_Register(&tas_hud_strafeinfo);
+	Cvar_Register(&tas_hud_time);
 	Cvar_Register(&tas_hud_movemessages);
 	Cvar_Register(&tas_hud_prediction_type);
 	Cvar_Register(&tas_ipc);
