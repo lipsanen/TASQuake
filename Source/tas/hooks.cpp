@@ -224,6 +224,7 @@ void TAS_Init()
 	Cvar_Register(&tas_strafe_lgagst_speed);
 	Cvar_Register(&tas_strafe_version);
 	Cvar_Register(&tas_strafe_maxlength);
+	Cvar_Register(&tas_strafe_snapfactor);
 	Cvar_Register(&tas_view_pitch);
 	Cvar_Register(&tas_view_yaw);
 	Cvar_Register(&tas_anglespeed);

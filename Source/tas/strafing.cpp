@@ -13,11 +13,12 @@ cvar_t tas_strafe = {"tas_strafe", "0"};
 cvar_t tas_strafe_type = {"tas_strafe_type", "1"};
 cvar_t tas_strafe_yaw = {"tas_strafe_yaw", "0"};
 cvar_t tas_strafe_pitch = {"tas_strafe_pitch", "0"};
+cvar_t tas_strafe_snapfactor = {"tas_strafe_snapfactor", "0.5"};
 cvar_t tas_strafe_lgagst_speed = {"tas_strafe_lgagst_speed", "460"};
 cvar_t tas_view_yaw = {"tas_view_yaw", "999"};
 cvar_t tas_view_pitch = {"tas_view_pitch", "999"};
 cvar_t tas_anglespeed = {"tas_anglespeed", "5"};
-cvar_t tas_strafe_version = {"tas_strafe_version", "2"};
+cvar_t tas_strafe_version = {"tas_strafe_version", "3"};
 cvar_t tas_strafe_maxlength = {"tas_strafe_maxlength", "32767"};
 
 static bool autojump = false;
@@ -107,6 +108,7 @@ StrafeVars Get_Current_Vars()
 	vars.tas_view_yaw = (float)tas_view_yaw.value;
 	vars.tas_strafe_version = (int)tas_strafe_version.value;
 	vars.simulated = false;
+	vars.tas_strafe_snapfactor = tas_strafe_snapfactor.value;
 	return vars;
 }
 
@@ -361,12 +363,37 @@ float MoveViewTowards(float target, float current, bool yaw, const StrafeVars& v
 	}
 	float abs_diff = std::abs(diff);
 
-	if (abs_diff < vars.tas_anglespeed)
-		current = target;
-	else
+	if(vars.tas_strafe_version >= 3)
 	{
-		abs_diff = fmin(abs_diff, vars.tas_anglespeed);
-		current += std::copysign(abs_diff, diff);
+		// Schedule
+		// 2.0 -> 1.0
+		// 1.0 -> 0.5
+		// ...
+		// tas_strafe_snapfactor -> 0.0f
+		if (abs_diff < vars.tas_anglespeed * vars.tas_strafe_snapfactor)
+		{
+			current = target;
+		}
+		else if(abs_diff < vars.tas_anglespeed * 2.0f)
+		{
+			current += std::copysign(abs_diff * 0.5f, diff);
+		}
+		else
+		{
+			abs_diff = fmin(abs_diff, vars.tas_anglespeed);
+			current += std::copysign(abs_diff, diff);
+		}
+	}
+	else 
+	{
+		if (abs_diff < vars.tas_anglespeed)
+			current = target;
+		else
+		{
+			abs_diff = fmin(abs_diff, vars.tas_anglespeed);
+			current += std::copysign(abs_diff, diff);
+		}
+
 	}
 
 	if (yaw)

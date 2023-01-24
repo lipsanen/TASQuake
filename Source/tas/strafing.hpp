@@ -25,6 +25,8 @@ extern cvar_t tas_strafe_yaw;
 extern cvar_t tas_strafe_pitch;
 // deprecated
 extern cvar_t tas_strafe_lgagst_speed;
+// desc: The fraction of tas_anglespeed at which the view angle snaps to the target
+extern cvar_t tas_strafe_snapfactor;
 // desc: When not set to 999, sets the yaw the player should look at. When set to 999 the player will look towards the strafe yaw.
 extern cvar_t tas_view_yaw;
 // desc: Player pitch.
@@ -54,6 +56,7 @@ struct StrafeVars
 	int tas_strafe;
 	float tas_strafe_yaw;
 	float tas_strafe_pitch;
+	float tas_strafe_snapfactor;
 	StrafeType tas_strafe_type;
 	float tas_anglespeed;
 	double host_frametime;
