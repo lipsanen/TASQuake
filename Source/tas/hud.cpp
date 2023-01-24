@@ -31,6 +31,7 @@ cvar_t tas_hud_rng = {"tas_hud_rng", "0"};
 cvar_t tas_hud_particles = { "tas_hud_particles", "0" };
 cvar_t tas_hud_optimizer = { "tas_hud_optimizer", "0" };
 cvar_t tas_hud_prediction_type = { "tas_hud_prediction_type", "0"};
+cvar_t tas_hud_time = {"tas_hud_time", "0"};
 
 void Draw(int& y, cvar_t* cvar, const char* format, ...)
 {
@@ -361,6 +362,7 @@ void HUD_Draw_Hook()
 	Draw(y, &tas_hud_waterlevel, "waterlevel: %d", (int)sv_player->v.waterlevel);
 	Draw(y, &tas_hud_movemessages, "cl.movemessages: %d", cl.movemessages);
 	Draw(y, &tas_hud_rng, "rng index: %d", Get_RNG_Index());
+	Draw(y, &tas_hud_time, "time: %f", cl.time);
 	DrawPredictionType(y);
 	DrawOptimizerState(y, info);
 	DrawParticleCount(y);

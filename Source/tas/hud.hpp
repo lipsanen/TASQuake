@@ -45,5 +45,7 @@ extern cvar_t tas_hud_particles;
 extern cvar_t tas_hud_optimizer;
 //desc: Displays the prediction line's type
 extern cvar_t tas_hud_prediction_type;
+//desc: Displays current level time
+extern cvar_t tas_hud_time;
 
 void HUD_Draw_Hook();
