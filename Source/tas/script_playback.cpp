@@ -119,6 +119,7 @@ void Run_Script(int frame, bool skip, bool ss)
 			AddAfterframes(1, "disconnect", NoFilter);
 			run_disconnected = true;
 		}
+		tas_gamestate = unpaused;
 		tas_playing.value = 0;
 		playback.current_frame = 0;
 		run_queued = true;

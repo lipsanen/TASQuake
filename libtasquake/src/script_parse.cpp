@@ -87,13 +87,20 @@ FrameBlock::FrameBlock()
 	parsed = false;
 }
 
+static bool StackableCvar(const char* str)
+{
+	return strcmp(str, "skill") != 0;
+}
+
 void FrameBlock::Stack(const FrameBlock& new_block)
 {
 	for (auto& pair : new_block.toggles)
 		toggles[pair.first] = pair.second;
 
-	for (auto& pair : new_block.convars)
-		convars[pair.first] = pair.second;
+	for (auto& pair : new_block.convars) {
+		if(StackableCvar(pair.first.c_str()))
+			convars[pair.first] = pair.second;
+	}
 }
 
 std::string FrameBlock::GetCommand() const
