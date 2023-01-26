@@ -8,6 +8,7 @@
 #include "real_prediction.hpp"
 #include "prediction.hpp"
 
+#include "simulate.hpp"
 #include "strafing.hpp"
 #include "libtasquake/draw.hpp"
 #include "libtasquake/utils.hpp"
@@ -174,6 +175,11 @@ static void DrawRects(const std::vector<Rect>* rects, int32_t* pstart=nullptr, i
 	}
 }
 
+static bool Should_Draw_Prediction()
+{
+	return tas_gamestate == paused && tas_predict.value != 0;
+}
+
 void Draw_Elements()
 {
 	if (cl.intermission)
@@ -182,14 +188,17 @@ void Draw_Elements()
 	glDisable(GL_TEXTURE_2D);
 	Q_glEnable(GL_BLEND);
 
-	if(IPC_Prediction_HasLine()) {
-		int32_t start, end;
-    	TASQuake::Get_Prediction_Frames(start, end);
-		DrawPredictionData(IPC_Get_PredictionData(), start, end);
-	}
-	else if(Prediction_HasLine()) {
-		DrawLine(Prediction_GetPoints());
-		DrawRects(Prediction_GetRects());
+	if(Should_Draw_Prediction())
+	{
+		if(IPC_Prediction_HasLine()) {
+			int32_t start, end;
+			TASQuake::Get_Prediction_Frames(start, end);
+			DrawPredictionData(IPC_Get_PredictionData(), start, end);
+		}
+		else if(Prediction_HasLine()) {
+			DrawLine(Prediction_GetPoints());
+			DrawRects(Prediction_GetRects());
+		}
 	}
 
 	for (auto& rect : rects)
