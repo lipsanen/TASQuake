@@ -176,6 +176,7 @@ namespace TASQuake {
     struct ExtendedFrameData {
         FrameData m_frameData;
         double m_dTime = 0.0;
+        bool m_bDied = false;
         bool m_bIntermission = false;
     };
 
@@ -189,6 +190,7 @@ namespace TASQuake {
         double m_dEfficacy = std::numeric_limits<double>::lowest();
         PlaybackInfo playbackInfo;
         bool m_bFinishedLevel = false;
+        bool m_bDied = false;
         double m_dLevelTime = 0.0;
         std::vector<FrameData> m_vecData;
         std::uint32_t m_uKills = 0;

@@ -108,6 +108,7 @@ OptimizerState Optimizer::OnRunnerFrame(const ExtendedFrameData* data)
 		m_currentRun.m_bFinishedLevel = true;
 	}
 
+	m_currentRun.m_bDied = m_currentRun.m_bDied || data->m_bDied;
 	m_currentRun.m_vecData.push_back(data->m_frameData);
 	OptimizerState state = OptimizerState::ContinueIteration;
 	auto block = m_currentRun.playbackInfo.Get_Current_Block();
@@ -374,6 +375,7 @@ void OptimizerRun::ResetIteration()
 	playbackInfo.pause_frame = 0;
 	m_vecData.clear();
 	m_bFinishedLevel = false;
+	m_bDied = false;
 	m_dLevelTime = 0.0;
 	m_uCenterPrints = 0;
 	m_uKills = 0;
@@ -441,7 +443,12 @@ void RunConditions::Reset()
 
 void OptimizerRun::CalculateEfficacy(OptimizerGoal goal, const RunConditions* conditions)
 {
-	if (goal == OptimizerGoal::Time)
+	if(m_bDied)
+	{
+		m_dEfficacy = std::numeric_limits<double>::lowest();
+		return;
+	}
+	else if (goal == OptimizerGoal::Time)
 	{
 		if (!m_bFinishedLevel)
 		{
@@ -561,6 +568,7 @@ void OptimizerRun::WriteToBuffer(TASQuakeIO::BufferWriteInterface& writer) const
 	writer.WriteBytes(&m_uCenterPrints, sizeof(m_uCenterPrints));
 	writer.WriteBytes(&m_uKills, sizeof(m_uKills));
 	writer.WriteBytes(&m_uSecrets, sizeof(m_uSecrets));
+	writer.Write(&m_bDied);
 	writer.WritePODVec(m_vecData);
 	playbackInfo.current_script.Write_To_Memory(writer);
 }
@@ -573,6 +581,7 @@ void OptimizerRun::ReadFromBuffer(TASQuakeIO::BufferReadInterface& reader)
 	reader.Read(&m_uCenterPrints, sizeof(m_uCenterPrints));
 	reader.Read(&m_uKills, sizeof(m_uKills));
 	reader.Read(&m_uSecrets, sizeof(m_uSecrets));
+	reader.Read(&m_bDied);
 	reader.ReadPODVec(m_vecData);
 	playbackInfo.current_script.blocks.clear();
 	playbackInfo.current_script.Load_From_Memory(reader);
