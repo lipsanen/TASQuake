@@ -488,6 +488,14 @@ void OptimizerRun::CalculateEfficacy(OptimizerGoal goal, const RunConditions* co
 	{
 		m_dEfficacy = last.x;
 	}
+	else if (goal == OptimizerGoal::PlusZ)
+	{
+		m_dEfficacy = last.z;
+	}
+	else if (goal == OptimizerGoal::NegZ)
+	{
+		m_dEfficacy = -last.z;
+	}
 	else
 	{
 		m_dEfficacy = last.y;
@@ -1365,6 +1373,10 @@ const char* TASQuake::OptimizerGoalStr(OptimizerGoal goal)
 		return "+Y";
 	case OptimizerGoal::Time:
 		return "Time";
+	case OptimizerGoal::PlusZ:
+		return "+Z";
+	case OptimizerGoal::NegZ:
+		return "-Z";
 	default:
 		return "Undetermined";
 	}

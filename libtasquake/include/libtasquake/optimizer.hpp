@@ -181,7 +181,7 @@ namespace TASQuake {
     };
 
     enum class OptimizerState { ContinueIteration, NewIteration, Stop };
-    enum class OptimizerGoal { Undetermined, PlusX, NegX, PlusY, NegY, Time };
+    enum class OptimizerGoal { Undetermined, PlusX, NegX, PlusY, NegY, Time, PlusZ, NegZ };
 
     const char* OptimizerGoalStr(OptimizerGoal goal);
     struct RunConditions;
