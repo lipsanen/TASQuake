@@ -175,13 +175,15 @@ namespace TASQuake {
 
     struct ExtendedFrameData {
         FrameData m_frameData;
+        float m_fHP = 100;
+        float m_fAP = 0;
         double m_dTime = 0.0;
         bool m_bDied = false;
         bool m_bIntermission = false;
     };
 
     enum class OptimizerState { ContinueIteration, NewIteration, Stop };
-    enum class OptimizerGoal { Undetermined, PlusX, NegX, PlusY, NegY, Time, PlusZ, NegZ };
+    enum class OptimizerGoal { Undetermined, PlusX, NegX, PlusY, NegY, Time, PlusZ, NegZ, Kills };
 
     const char* OptimizerGoalStr(OptimizerGoal goal);
     struct RunConditions;
@@ -196,6 +198,8 @@ namespace TASQuake {
         std::uint32_t m_uKills = 0;
         std::uint32_t m_uSecrets = 0;
         std::uint32_t m_uCenterPrints = 0;
+        float m_fHP = 100.0f;
+        float m_fAP = 0;
 
         void ResetIteration();
         void CalculateEfficacy(OptimizerGoal goal, const RunConditions* conditions);
@@ -214,6 +218,7 @@ namespace TASQuake {
         std::uint32_t m_uKills = 0;
         std::uint32_t m_uSecrets = 0;
         std::uint32_t m_uCenterPrints = 0;
+        float m_fTotalHP = 0;
 
         void Init(const OptimizerRun* run, const OptimizerSettings* settings);
         bool FulfillsConditions(const OptimizerRun* run) const;

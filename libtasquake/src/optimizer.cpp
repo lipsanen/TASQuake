@@ -109,6 +109,8 @@ OptimizerState Optimizer::OnRunnerFrame(const ExtendedFrameData* data)
 	}
 
 	m_currentRun.m_bDied = m_currentRun.m_bDied || data->m_bDied;
+	m_currentRun.m_fAP = data->m_fAP;
+	m_currentRun.m_fHP = data->m_fHP;
 	m_currentRun.m_vecData.push_back(data->m_frameData);
 	OptimizerState state = OptimizerState::ContinueIteration;
 	auto block = m_currentRun.playbackInfo.Get_Current_Block();
@@ -395,6 +397,7 @@ void RunConditions::Init(const OptimizerRun* run, const OptimizerSettings* setti
 
 	if(settings->m_bSecondaryGoals)
 	{
+		m_fTotalHP = run->m_fAP + run->m_fHP;
 		m_uCenterPrints = run->m_uCenterPrints;
 		m_uKills = run->m_uKills;
 		m_uSecrets = run->m_uSecrets;
@@ -424,8 +427,10 @@ bool RunConditions::FulfillsConditions(const OptimizerRun* run) const
 	if (nodeIndex != m_vecNodes.size()) {
 		return false;
 	}
+
+	float totalHP = run->m_fAP + run->m_fHP;
 	
-	if(run->m_uCenterPrints < m_uCenterPrints || run->m_uKills < m_uKills || run->m_uSecrets < m_uSecrets) {
+	if(run->m_uCenterPrints < m_uCenterPrints || run->m_uKills < m_uKills || run->m_uSecrets < m_uSecrets || totalHP < m_fTotalHP) {
 		return false;
 	}
 
@@ -495,6 +500,10 @@ void OptimizerRun::CalculateEfficacy(OptimizerGoal goal, const RunConditions* co
 	else if (goal == OptimizerGoal::NegZ)
 	{
 		m_dEfficacy = -last.z;
+	}
+	else if (goal == OptimizerGoal::Kills)
+	{
+		m_dEfficacy = m_uKills;
 	}
 	else
 	{
@@ -1377,6 +1386,8 @@ const char* TASQuake::OptimizerGoalStr(OptimizerGoal goal)
 		return "+Z";
 	case OptimizerGoal::NegZ:
 		return "-Z";
+	case OptimizerGoal::Kills:
+		return "Kills";
 	default:
 		return "Undetermined";
 	}
