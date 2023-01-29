@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "quakedef.h"
+#include "tas/hooks.h"
 
 #define	RETURN_EDICT(e) (((int *)pr_globals)[OFS_RETURN] = EDICT_TO_PROG(e))
 
@@ -124,6 +125,12 @@ void PF_setorigin (void)
 	edict_t	*e;
 
 	e = G_EDICT(OFS_PARM0);
+
+	if(e == sv_player)
+	{
+		PF_player_setorigin_hook();
+	}
+
 	org = G_VECTOR(OFS_PARM1);
 	VectorCopy (org, e->v.origin);
 	SV_LinkEdict (e, false);

@@ -362,6 +362,18 @@ void _Host_Frame_Hook()
 	}
 }
 
+static bool player_setorigin_prev_frame = false;
+
+void PF_player_setorigin_hook(void)
+{
+	player_setorigin_prev_frame = true;
+}
+
+bool PF_player_setorigin_called()
+{
+	return player_setorigin_prev_frame;
+}
+
 void _Host_Frame_After_FilterTime_Hook()
 {
 	Test_Host_Frame_Hook();
@@ -380,4 +392,6 @@ void _Host_Frame_After_FilterTime_Hook()
 	{
 		Cbuf_AddText(queued);
 	}
+
+	player_setorigin_prev_frame = false;
 }
