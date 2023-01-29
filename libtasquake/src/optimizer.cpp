@@ -108,6 +108,11 @@ OptimizerState Optimizer::OnRunnerFrame(const ExtendedFrameData* data)
 		m_currentRun.m_bFinishedLevel = true;
 	}
 
+	if(data->m_bTeleported)
+	{
+		m_currentRun.m_dTeleportTime = std::min(m_currentRun.m_dTeleportTime, data->m_dTime);
+	}
+
 	m_currentRun.m_bDied = m_currentRun.m_bDied || data->m_bDied;
 	m_currentRun.m_fAP = data->m_fAP;
 	m_currentRun.m_fHP = data->m_fHP;
@@ -382,6 +387,7 @@ void OptimizerRun::ResetIteration()
 	m_uCenterPrints = 0;
 	m_uKills = 0;
 	m_uSecrets = 0;
+	m_dTeleportTime = 1000.0;
 	m_dEfficacy = std::numeric_limits<double>::lowest();
 }
 
@@ -463,6 +469,11 @@ void OptimizerRun::CalculateEfficacy(OptimizerGoal goal, const RunConditions* co
 		{
 			m_dEfficacy = 1000 - m_dLevelTime;
 		}
+		return;
+	}
+	else if (goal == OptimizerGoal::Teleporter)
+	{
+		m_dEfficacy = 1000 - m_dTeleportTime;
 		return;
 	}
 	else if (m_vecData.empty() || goal == OptimizerGoal::Undetermined)
@@ -586,6 +597,7 @@ void OptimizerRun::WriteToBuffer(TASQuakeIO::BufferWriteInterface& writer) const
 	writer.WriteBytes(&m_uKills, sizeof(m_uKills));
 	writer.WriteBytes(&m_uSecrets, sizeof(m_uSecrets));
 	writer.Write(&m_bDied);
+	writer.Write(&m_dTeleportTime);
 	writer.WritePODVec(m_vecData);
 	playbackInfo.current_script.Write_To_Memory(writer);
 }
@@ -599,6 +611,7 @@ void OptimizerRun::ReadFromBuffer(TASQuakeIO::BufferReadInterface& reader)
 	reader.Read(&m_uKills, sizeof(m_uKills));
 	reader.Read(&m_uSecrets, sizeof(m_uSecrets));
 	reader.Read(&m_bDied);
+	reader.Read(&m_dTeleportTime);
 	reader.ReadPODVec(m_vecData);
 	playbackInfo.current_script.blocks.clear();
 	playbackInfo.current_script.Load_From_Memory(reader);
@@ -1388,6 +1401,8 @@ const char* TASQuake::OptimizerGoalStr(OptimizerGoal goal)
 		return "-Z";
 	case OptimizerGoal::Kills:
 		return "Kills";
+	case OptimizerGoal::Teleporter:
+		return "Teleporter";
 	default:
 		return "Undetermined";
 	}

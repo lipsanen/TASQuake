@@ -180,10 +180,11 @@ namespace TASQuake {
         double m_dTime = 0.0;
         bool m_bDied = false;
         bool m_bIntermission = false;
+        bool m_bTeleported = false;
     };
 
     enum class OptimizerState { ContinueIteration, NewIteration, Stop };
-    enum class OptimizerGoal { Undetermined, PlusX, NegX, PlusY, NegY, Time, PlusZ, NegZ, Kills };
+    enum class OptimizerGoal { Undetermined, PlusX, NegX, PlusY, NegY, Time, PlusZ, NegZ, Kills, Teleporter };
 
     const char* OptimizerGoalStr(OptimizerGoal goal);
     struct RunConditions;
@@ -194,6 +195,7 @@ namespace TASQuake {
         bool m_bFinishedLevel = false;
         bool m_bDied = false;
         double m_dLevelTime = 0.0;
+        double m_dTeleportTime = 1000.0;
         std::vector<FrameData> m_vecData;
         std::uint32_t m_uKills = 0;
         std::uint32_t m_uSecrets = 0;

@@ -24,7 +24,9 @@ extern "C"
 	void IN_Move_Hook(usercmd_t* cmd);
 	void SCR_Draw_TAS_HUD_Hook(void);
 	void SCR_CenterPrint_Hook(void);
+	void PF_player_setorigin_hook(void);
 	void Draw_Lines_Hook(void);
 #ifdef __cplusplus
+	bool PF_player_setorigin_called();
 }
 #endif

@@ -49,7 +49,7 @@ const char* TASQuake::OptimizerGoalStr() {
 }
 
 double TASQuake::OriginalEfficacy() {
-    if(opt.m_settings.m_Goal == OptimizerGoal::Time) {
+    if(opt.m_settings.m_Goal == OptimizerGoal::Time || opt.m_settings.m_Goal == OptimizerGoal::Teleporter) {
         return TASQuake::ConvertEfficacyToTime(m_dOriginalEfficacy);
     } else {
         return m_dOriginalEfficacy;
@@ -57,7 +57,7 @@ double TASQuake::OriginalEfficacy() {
 }
 
 double TASQuake::OptimizedEfficacy() {
-    if(opt.m_settings.m_Goal == OptimizerGoal::Time) {
+    if(opt.m_settings.m_Goal == OptimizerGoal::Time || opt.m_settings.m_Goal == OptimizerGoal::Teleporter) {
         return TASQuake::ConvertEfficacyToTime(m_dBestEfficacy);
     } else {
         return m_dBestEfficacy;
@@ -625,9 +625,10 @@ static void Game_Opt_Add_FrameData(int current_frame) {
         data.m_frameData.pos.x = sv_player->v.origin[0];
         data.m_frameData.pos.y = sv_player->v.origin[1];
         data.m_frameData.pos.z = sv_player->v.origin[2];
-        data.m_bDied = sv_player->v.health <= 0;
+        data.m_bDied = (sv_player->v.health <= 0 && cls.signon == SIGNONS);
         data.m_fHP = sv_player->v.health;
         data.m_fAP = sv_player->v.armorvalue;
+        data.m_bTeleported = PF_player_setorigin_called();
     }
 
     opt.m_currentRun.m_uKills = cl.stats[STAT_MONSTERS];
