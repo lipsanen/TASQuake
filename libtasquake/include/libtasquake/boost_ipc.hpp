@@ -66,7 +66,7 @@ namespace ipc {
         client();
         ~client();
         void get_messages(std::vector<Message>& messages, size_t timeoutMsec);
-        void send_message(void* data, size_t size);
+        void send_message(void* data, std::uint32_t size);
         void do_read();
         bool connect(const char* port);
         bool disconnect();
