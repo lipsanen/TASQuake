@@ -570,6 +570,8 @@ int TASScript::GetBlockIndex(int frame) const {
 			return i;
 		}
 	}
+
+	return blocks.size();
 #else
 	if(blockCount < MAX_LINEAR_SEARCH_SIZE) {
 		for (int i = 0; i < blockCount; ++i)

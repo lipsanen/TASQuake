@@ -10,7 +10,7 @@ Buffer::~Buffer() {
         free(ptr);
 }
 
-bool Buffer::Realloc(size_t newsize) {
+bool Buffer::Realloc(std::uint32_t newsize) {
     void* p = std::realloc(ptr, newsize);
 
     if(p) {
@@ -22,7 +22,7 @@ bool Buffer::Realloc(size_t newsize) {
     }
 }
 
-std::shared_ptr<Buffer> Buffer::CreateBuffer(size_t initialSize) {
+std::shared_ptr<Buffer> Buffer::CreateBuffer(std::uint32_t initialSize) {
     auto ptr = std::make_shared<Buffer>();
     if(ptr) {
         ptr->Realloc(initialSize);

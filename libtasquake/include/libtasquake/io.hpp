@@ -62,7 +62,7 @@ namespace TASQuakeIO
 
     class BufferReadInterface : public ReadInterface {
     public:
-        static BufferReadInterface Init(void* buf, size_t size);
+        static BufferReadInterface Init(void* buf, std::uint32_t size);
         virtual bool CanRead();
         virtual bool GetLine(std::string& str);
         virtual std::uint32_t Read(void* dest, std::uint32_t buf_size);
