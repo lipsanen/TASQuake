@@ -555,13 +555,22 @@ void TASScript::AddScript(const TASScript* script, int frame) {
 }
 
 int TASScript::GetBlockIndex(int frame) const {
-	const size_t MAX_LINEAR_SEARCH_SIZE = 16;
+	const size_t MAX_LINEAR_SEARCH_SIZE = UINT64_MAX;
 	size_t blockCount = blocks.size();
 
 	if(blockCount == 0) {
 		return blockCount;
 	}
-
+#if 1
+	// There's still some bugs with the fast implementation
+	for (int i = 0; i < blockCount; ++i)
+	{
+		if (blocks[i].frame >= frame)
+		{
+			return i;
+		}
+	}
+#else
 	if(blockCount < MAX_LINEAR_SEARCH_SIZE) {
 		for (int i = 0; i < blockCount; ++i)
 		{
@@ -606,6 +615,7 @@ int TASScript::GetBlockIndex(int frame) const {
 	}
 
 	return blocks.size();
+#endif
 }
 
 static int GetBlockForInsertion(TASScript* script, int frame)
