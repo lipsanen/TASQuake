@@ -977,11 +977,11 @@ static bool MovableBlock(TASScript* script, size_t index)
 	}
 }
 
-static void find_block_minmax(TASScript* script, size_t index, size_t& min, size_t& max)
+static void find_block_minmax(TASScript* script, int32_t frames, size_t index, size_t& min, size_t& max)
 {
 	if (index == script->blocks.size() - 1)
 	{
-		max = script->blocks[index].frame + 36;
+		max = std::min(frames, script->blocks[index].frame + 36);
 	}
 	else
 	{
@@ -1003,7 +1003,7 @@ void RNGBlockMover::Mutate(TASScript* script, Optimizer* opt)
 	auto index = FindSuitableBlock(MovableBlock, script, opt);
 	FrameBlock* block = &script->blocks[index];
 	size_t min, max;
-	find_block_minmax(script, index, min, max);
+	find_block_minmax(script, opt->m_uLastFrame-1, index, min, max);
 	int result = opt->Random(min, max + 1);
 
 	if (result == 0)
@@ -1042,7 +1042,7 @@ void FrameBlockMover::Mutate(TASScript* script, Optimizer* opt)
 
 		if (m_iCurrentBlockIndex == script->blocks.size() - 1)
 		{
-			max = block->frame + 36;
+			max = std::min<int>(opt->m_uLastFrame-1, block->frame + 36);
 		}
 		else
 		{
