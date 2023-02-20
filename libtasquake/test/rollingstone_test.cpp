@@ -28,117 +28,107 @@ static void PinHoleFunc(TASQuake::Player* player) {
     }
 }
 
-#if 0
 TEST_CASE("PinHoleBench") {
-        BENCHMARK_ADVANCED("Pin hole bench")(Catch::Benchmark::Chronometer meter) {
-        PlaybackInfo info;
-        FrameBlock block1;
-        block1.convars["tas_strafe_yaw"] = 0.0;
-        block1.convars["tas_strafe_type"] = 3.0f;
-        block1.convars["tas_strafe"] = 1.0;
+    PlaybackInfo info;
+    FrameBlock block1;
+    block1.convars["tas_strafe_yaw"] = 0.0;
+    block1.convars["tas_strafe_type"] = 3.0f;
+    block1.convars["tas_strafe"] = 1.0;
 
-        FrameBlock block2;
-        block2.convars["tas_strafe_yaw"] = 90.0;
-        block2.frame = 100;
+    FrameBlock block2;
+    block2.convars["tas_strafe_yaw"] = 90.0;
+    block2.frame = 100;
 
-        info.current_script.blocks.push_back(block1);
-        info.current_script.blocks.push_back(block2);
+    info.current_script.blocks.push_back(block1);
+    info.current_script.blocks.push_back(block2);
 
-        TASQuake::OptimizerSettings settings;
-        settings.m_iEndOffset = 37;
-        settings.m_uResetToBestIterations = 1;
-        settings.m_uGiveUpAfterNoProgress = 9999;
-        settings.m_vecAlgorithms.push_back(
-            std::shared_ptr<TASQuake::OptimizerAlgorithm>(new TASQuake::StrafeAdjuster()));
-        settings.m_vecAlgorithms.push_back(
-            std::shared_ptr<TASQuake::OptimizerAlgorithm>(new TASQuake::RNGStrafer()));
-        settings.m_vecAlgorithms.push_back(
-            std::shared_ptr<TASQuake::OptimizerAlgorithm>(new TASQuake::RNGBlockMover()));
-        double optimal = 52;
+    TASQuake::OptimizerSettings settings;
+    settings.m_iEndOffset = 37;
+    settings.m_uResetToBestIterations = 1;
+    settings.m_uGiveUpAfterNoProgress = 999;
+    settings.m_vecAlgorithms.push_back(
+        std::shared_ptr<TASQuake::OptimizerAlgorithm>(new TASQuake::StrafeAdjuster()));
+    settings.m_vecAlgorithms.push_back(
+        std::shared_ptr<TASQuake::OptimizerAlgorithm>(new TASQuake::RNGStrafer()));
+    settings.m_vecAlgorithms.push_back(
+        std::shared_ptr<TASQuake::OptimizerAlgorithm>(new TASQuake::RNGBlockMover()));
 
-        meter.measure([&]{TASQuake::BenchTest(PinHoleFunc, &settings, &info, optimal);});
-    };
+    std::printf("Pin hole bench: ");
+    TASQuake::BenchTest(PinHoleFunc, &settings, &info);
 }
-#endif
 
 TEST_CASE("CornerYawBench") {
-        BENCHMARK_ADVANCED("Corner bench with yaw turns")(Catch::Benchmark::Chronometer meter) {
-        PlaybackInfo info;
-        FrameBlock block1;
-        block1.convars["tas_strafe_yaw"] = 0.0;
-        block1.convars["tas_strafe_type"] = 3.0f;
-        block1.convars["tas_strafe"] = 1.0;
+    PlaybackInfo info;
+    FrameBlock block1;
+    block1.convars["tas_strafe_yaw"] = 0.0;
+    block1.convars["tas_strafe_type"] = 3.0f;
+    block1.convars["tas_strafe"] = 1.0;
 
-        FrameBlock block2;
-        block2.convars["tas_strafe_yaw"] = 90.0;
-        block2.frame = 100;
+    FrameBlock block2;
+    block2.convars["tas_strafe_yaw"] = 90.0;
+    block2.frame = 100;
 
-        info.current_script.blocks.push_back(block1);
-        info.current_script.blocks.push_back(block2);
+    info.current_script.blocks.push_back(block1);
+    info.current_script.blocks.push_back(block2);
 
-        TASQuake::OptimizerSettings settings;
-        settings.m_bUseNodes = false;
-        settings.m_iEndOffset = 37;
-        settings.m_uResetToBestIterations = 1;
-        settings.m_uGiveUpAfterNoProgress = 9999;
-        settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::StrafeAdjuster);
-        settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::RNGStrafer);
-        settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::RNGBlockMover);
-        double optimal = 130;
+    TASQuake::OptimizerSettings settings;
+    settings.m_bUseNodes = false;
+    settings.m_iEndOffset = 37;
+    settings.m_uResetToBestIterations = 1;
+    settings.m_uGiveUpAfterNoProgress = 999;
+    settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::StrafeAdjuster);
+    settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::RNGStrafer);
+    settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::RNGBlockMover);
 
-        meter.measure([&]{TASQuake::BenchTest(CornerFunc, &settings, &info, optimal);});
-    };
+    std::printf("Corner yaw bench: ");
+    TASQuake::BenchTest(CornerFunc, &settings, &info);
 }
 
 TEST_CASE("Optimizer bench") {
-    BENCHMARK_ADVANCED("Corner bench")(Catch::Benchmark::Chronometer meter) {
-        PlaybackInfo info;
-        FrameBlock block1;
-        block1.convars["tas_strafe_yaw"] = 0.0;
-        block1.convars["tas_strafe"] = 1.0;
+    PlaybackInfo info;
+    FrameBlock block1;
+    block1.convars["tas_strafe_yaw"] = 0.0;
+    block1.convars["tas_strafe"] = 1.0;
 
-        FrameBlock block2;
-        block2.convars["tas_strafe_yaw"] = 90.0;
-        block2.frame = 100;
+    FrameBlock block2;
+    block2.convars["tas_strafe_yaw"] = 90.0;
+    block2.frame = 100;
 
-        info.current_script.blocks.push_back(block1);
-        info.current_script.blocks.push_back(block2);
+    info.current_script.blocks.push_back(block1);
+    info.current_script.blocks.push_back(block2);
 
-        TASQuake::OptimizerSettings settings;
-        settings.m_bUseNodes = false;
-        settings.m_iEndOffset = 37;
-        settings.m_uResetToBestIterations = 1;
-        settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::FrameBlockMover);
-        double optimal = 126; // This should be the y coordinate
+    TASQuake::OptimizerSettings settings;
+    settings.m_bUseNodes = false;
+    settings.m_iEndOffset = 37;
+    settings.m_uResetToBestIterations = 1;
+    settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::FrameBlockMover);
 
-        meter.measure([&]{TASQuake::BenchTest(CornerFunc, &settings, &info, optimal);});
-    };
+    std::printf("Frame block mover bench: ");
+    TASQuake::BenchTest(CornerFunc, &settings, &info);
 }
 
 
 TEST_CASE("Turn bench") {
-    BENCHMARK_ADVANCED("Turn bench")(Catch::Benchmark::Chronometer meter) {
-        PlaybackInfo info;
-        FrameBlock block1;
-        block1.convars["tas_strafe_yaw"] = 0.0;
-        block1.convars["tas_strafe"] = 1.0;
+    PlaybackInfo info;
+    FrameBlock block1;
+    block1.convars["tas_strafe_yaw"] = 0.0;
+    block1.convars["tas_strafe"] = 1.0;
 
-        FrameBlock block2;
-        block2.convars["tas_strafe_yaw"] = 90.0;
-        block2.frame = 100;
+    FrameBlock block2;
+    block2.convars["tas_strafe_yaw"] = 90.0;
+    block2.frame = 100;
 
-        info.current_script.blocks.push_back(block1);
-        info.current_script.blocks.push_back(block2);
+    info.current_script.blocks.push_back(block1);
+    info.current_script.blocks.push_back(block2);
 
-        TASQuake::OptimizerSettings settings;
-        settings.m_bUseNodes = false;
-        settings.m_iEndOffset = 37;
-        settings.m_uResetToBestIterations = 1;
-        settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::StrafeAdjuster);
-        settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::FrameBlockMover);
-        settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::TurnOptimizer);
-        double optimal = 132.5;
+    TASQuake::OptimizerSettings settings;
+    settings.m_bUseNodes = false;
+    settings.m_iEndOffset = 37;
+    settings.m_uResetToBestIterations = 1;
+    settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::StrafeAdjuster);
+    settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::FrameBlockMover);
+    settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::TurnOptimizer);
 
-        meter.measure([&]{TASQuake::BenchTest(CornerFunc, &settings, &info, optimal);});
-    };
+    std::printf("Turn bench: ");
+    TASQuake::BenchTest(CornerFunc, &settings, &info);
 }
