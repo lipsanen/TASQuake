@@ -15,22 +15,27 @@ void Player::Reset()
 	m_vecPos.x = m_vecPos.y = m_vecPos.z = 0.0f;
 }
 
-void TASQuake::BenchTest(SimFunc func,
-                         const OptimizerSettings* settings,
-                         const PlaybackInfo* playback,
-                         double passThreshold)
+struct BenchResult
 {
+	int bestIterations = 0;
+	double best = std::numeric_limits<double>::lowest();
+};
+
+static BenchResult Bench(SimFunc func,
+                         const OptimizerSettings* settings,
+                         const PlaybackInfo* playback)
+{
+	BenchResult result;
 	Optimizer opt;
 	opt.Seed(rand());
 	opt.Init(playback, settings);
 
-	double currentBest = passThreshold - 1;
 	int frame = 0;
 	Player player;
 	TASQuake::ExtendedFrameData data;
 	size_t iterations = 0;
 
-	while (currentBest < passThreshold)
+	while(true)
 	{
 		auto block = opt.GetCurrentFrameBlock();
 
@@ -57,19 +62,17 @@ void TASQuake::BenchTest(SimFunc func,
 		}
 		else if (state == TASQuake::OptimizerState::NewIteration)
 		{
+			double efficacy = opt.m_currentRun.RunEfficacy();
+			if (efficacy > result.best)
+			{
+				result.best = efficacy;
+				result.bestIterations = iterations;
+			}
+
 			++iterations;
 			frame = 0;
-			currentBest = opt.m_currentBest.RunEfficacy();
-			if (currentBest >= passThreshold)
-			{
-				break;
-			}
 			player.Reset();
 			opt.ResetIteration();
-
-			// The simulation is expected to take longer than the lib code in a real world case
-			// Sleep a bit to simulate this
-			std::this_thread::sleep_for(std::chrono::microseconds(5));
 		}
 		else
 		{
@@ -77,12 +80,31 @@ void TASQuake::BenchTest(SimFunc func,
 		}
 	}
 
-	double result = opt.m_currentBest.RunEfficacy();
+	return result;
+}
 
-	if (result < passThreshold)
+void TASQuake::BenchTest(SimFunc func,
+                         const OptimizerSettings* settings,
+                         const PlaybackInfo* playback,
+						 const int iterations)
+{
+	double min = std::numeric_limits<double>::max();
+	double max = std::numeric_limits<double>::lowest();
+	double avg = 0;
+	double avgIterations = 0;
+
+	for(size_t i=0; i < iterations; ++i)
 	{
-		std::fprintf(stderr, "Did not match pass threshold %f < %f\n", result, passThreshold);
+		auto result = Bench(func, settings, playback);
+		min = std::min(result.best, min);
+		max = std::max(result.best, max);
+		avg += result.best;
+		avgIterations += result.bestIterations;
 	}
+
+	avg /= iterations;
+	avgIterations /= iterations;
+	std::printf("Min: %f, Max %f, Avg %f, AvgIt %f\n", min, max, avg, avgIterations);
 }
 
 void TASQuake::MemorylessSim(Player* player)

@@ -14,7 +14,7 @@ namespace TASQuake
 	};
 
 	typedef std::function<void(Player* player)> SimFunc;
-	void BenchTest(SimFunc func, const OptimizerSettings* settings, const PlaybackInfo* playback, double passThreshold);
+	void BenchTest(SimFunc func, const OptimizerSettings* settings, const PlaybackInfo* playback, const int iterations=16);
   	void MemorylessSim(Player* player);
 
 } // namespace TASQuake
