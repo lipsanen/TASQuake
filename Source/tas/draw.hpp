@@ -2,8 +2,9 @@
 #include <array>
 #include <vector>
 
-#include "libtasquake/draw.hpp"
 #include "cpp_quakedef.hpp"
+
+#include "libtasquake/draw.hpp"
 
 extern const int PREDICTION_ID;
 extern const int REWARD_ID;
@@ -15,3 +16,6 @@ void AddRectangle(TASQuake::Rect rect);
 void RemoveRectangles(int id);
 void RemoveCurve(int id);
 void Draw_Elements();
+
+// desc: Draw hitbox of enemies
+extern cvar_t tas_draw_entbbox;

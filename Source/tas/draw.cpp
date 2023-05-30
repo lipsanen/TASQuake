@@ -4,19 +4,22 @@
 #include "cpp_quakedef.hpp"
 
 #include "draw.hpp"
-#include "ipc_prediction.hpp"
-#include "real_prediction.hpp"
-#include "prediction.hpp"
 
-#include "simulate.hpp"
-#include "strafing.hpp"
+#include "camera.hpp"
+#include "ipc_prediction.hpp"
 #include "libtasquake/draw.hpp"
 #include "libtasquake/utils.hpp"
+#include "prediction.hpp"
+#include "real_prediction.hpp"
+#include "simulate.hpp"
+#include "strafing.hpp"
 
 const int PREDICTION_ID = 1;
 const int REWARD_ID = 2;
 const int GRENADE_ID = 3;
 const int OPTIMIZER_ID = 4;
+
+cvar_t tas_draw_entbbox = {"tas_draw_entbbox", "0"};
 
 using namespace TASQuake;
 
@@ -51,7 +54,6 @@ void RemoveCurve(int id)
 
 static void Draw_Rectangle(const Rect& rect)
 {
-
 	Q_glBegin(GL_QUADS);
 	glColor4fv(rect.color.data());
 	glVertex3f(rect.mins[0], rect.mins[1], rect.mins[2]);
@@ -87,23 +89,30 @@ static void Draw_Rectangle(const Rect& rect)
 	Q_glEnd();
 }
 
-static void DrawLine(const std::vector<PathPoint>* line, int32_t* pstart=nullptr, int32_t* pend=nullptr) {
+static void DrawLine(const std::vector<PathPoint>* line, int32_t* pstart = nullptr, int32_t* pend = nullptr)
+{
 	Q_glBegin(GL_LINES);
 
 	int32_t start, end;
-	if(pstart) {
+	if (pstart)
+	{
 		start = std::min<int32_t>(*pstart, line->size() - 2);
-	} else {
+	}
+	else
+	{
 		start = 0;
 	}
 
-	if(pend) {
-		end = std::min<int32_t>(*pend, line->size()-1);
-	} else {
-		end = line->size()-1;
+	if (pend)
+	{
+		end = std::min<int32_t>(*pend, line->size() - 1);
+	}
+	else
+	{
+		end = line->size() - 1;
 	}
 
-	for (int32_t i=start; i < end; ++i)
+	for (int32_t i = start; i < end; ++i)
 	{
 		auto& vec1 = line->at(i);
 		auto& vec2 = line->at(i + 1);
@@ -116,22 +125,24 @@ static void DrawLine(const std::vector<PathPoint>* line, int32_t* pstart=nullptr
 	Q_glEnd();
 }
 
-static void DrawPredictionData(const TASQuake::PredictionData* data, int32_t start, int32_t end) {
+static void DrawPredictionData(const TASQuake::PredictionData* data, int32_t start, int32_t end)
+{
 	int32_t offset = start - data->m_iStartFrame;
 
-	if(offset < 0) {
+	if (offset < 0)
+	{
 		Con_Printf("Prediction data was not valid, offset to first frame was %d\n", offset);
 		return;
 	}
 
-	const std::array<float, 4> color = { 0, 1, 0, 0.5 };
+	const std::array<float, 4> color = {0, 1, 0, 0.5};
 
 	int32_t points = end - start;
 	Q_glBegin(GL_LINES);
 
-	for (int32_t i=offset+1; i < points + offset; ++i)
+	for (int32_t i = offset + 1; i < points + offset; ++i)
 	{
-		auto& vec1 = data->m_vecPoints[i-1];
+		auto& vec1 = data->m_vecPoints[i - 1];
 		auto& vec2 = data->m_vecPoints[i];
 
 		glColor4fv(color.data());
@@ -141,10 +152,12 @@ static void DrawPredictionData(const TASQuake::PredictionData* data, int32_t sta
 
 	Q_glEnd();
 
-	const std::array<float, 4> rect_color = { 0, 0, 1, 0.5 };
-	
-	for(auto& fbindex : data->m_vecFBdata) {
-		if(fbindex.m_uFrame >= start && fbindex.m_uFrame <= end) {
+	const std::array<float, 4> rect_color = {0, 0, 1, 0.5};
+
+	for (auto& fbindex : data->m_vecFBdata)
+	{
+		if (fbindex.m_uFrame >= start && fbindex.m_uFrame <= end)
+		{
 			Vector pos = data->m_vecPoints[fbindex.m_uFrame - data->m_iStartFrame];
 			auto rect = Rect::Get_Rect(rect_color, &pos[0], 3, 3, 0);
 			Draw_Rectangle(rect);
@@ -152,24 +165,57 @@ static void DrawPredictionData(const TASQuake::PredictionData* data, int32_t sta
 	}
 }
 
-static void DrawRects(const std::vector<Rect>* rects, int32_t* pstart=nullptr, int32_t* pend=nullptr) {
+static void DrawEntBBox()
+{
+	if (!tas_draw_entbbox.value)
+		return;
+
+	const std::array<float, 4> bbox_color = {1, 0, 0, 0.25};
+
+	edict_t* ent = NEXT_EDICT(sv.edicts);
+	for (int i = 1; i < sv.num_edicts; i++, ent = NEXT_EDICT(ent))
+	{
+		if (ent->free)
+			continue;
+		if (ent->v.solid != SOLID_SLIDEBOX)
+			continue;
+		if (ent == sv_player && !In_Freecam())
+			continue;
+
+		vec3_t mins, maxs;
+		VectorAdd(ent->v.mins, ent->v.origin, mins);
+		VectorAdd(ent->v.maxs, ent->v.origin, maxs);
+
+		Rect rect(bbox_color, mins, maxs, 0);
+		Draw_Rectangle(rect);
+	}
+}
+
+static void DrawRects(const std::vector<Rect>* rects, int32_t* pstart = nullptr, int32_t* pend = nullptr)
+{
 	int32_t start, end;
-	if(pstart) {
+	if (pstart)
+	{
 		start = std::min<int32_t>(*pstart, rects->size() - 1);
-	} else {
+	}
+	else
+	{
 		start = 0;
 	}
 
-	if(pend) {
+	if (pend)
+	{
 		end = std::min<int32_t>(*pend, rects->size());
-	} else {
+	}
+	else
+	{
 		end = rects->size();
 	}
 
 	auto startIt = rects->begin() + start;
 	auto endIt = rects->begin() + end;
 
-	for (auto it=startIt; it != endIt; ++it)
+	for (auto it = startIt; it != endIt; ++it)
 	{
 		Draw_Rectangle(*it);
 	}
@@ -188,14 +234,16 @@ void Draw_Elements()
 	glDisable(GL_TEXTURE_2D);
 	Q_glEnable(GL_BLEND);
 
-	if(Should_Draw_Prediction())
+	if (Should_Draw_Prediction())
 	{
-		if(IPC_Prediction_HasLine()) {
+		if (IPC_Prediction_HasLine())
+		{
 			int32_t start, end;
 			TASQuake::Get_Prediction_Frames(start, end);
 			DrawPredictionData(IPC_Get_PredictionData(), start, end);
 		}
-		else if(Prediction_HasLine()) {
+		else if (Prediction_HasLine())
+		{
 			DrawLine(Prediction_GetPoints());
 			DrawRects(Prediction_GetRects());
 		}
@@ -221,6 +269,9 @@ void Draw_Elements()
 		}
 		Q_glEnd();
 	}
+
+	DrawEntBBox();
+
 	Q_glEnable(GL_TEXTURE_2D);
 	Q_glDisable(GL_BLEND);
 }

@@ -3,27 +3,27 @@
 #include "hooks.h"
 
 #include "afterframes.hpp"
+#include "bookmark.hpp"
 #include "camera.hpp"
+#include "data_export.hpp"
 #include "drag_editing.hpp"
 #include "draw.hpp"
 #include "hud.hpp"
+#include "ipc2.hpp"
+#include "ipc_main.hpp"
+#include "ipc_prediction.hpp"
+#include "libtasquake/utils.hpp"
 #include "optimizer_quake.hpp"
+#include "prediction.hpp"
 #include "real_prediction.hpp"
 #include "reset.hpp"
+#include "rewards.hpp"
+#include "savestate.hpp"
 #include "script_playback.hpp"
 #include "simulate.hpp"
-#include "strafing.hpp"
 #include "state_test.hpp"
-#include "savestate.hpp"
-#include "data_export.hpp"
-#include "prediction.hpp"
+#include "strafing.hpp"
 #include "test_runner.hpp"
-#include "ipc2.hpp"
-#include "ipc_prediction.hpp"
-#include "ipc_main.hpp"
-#include "rewards.hpp"
-#include "bookmark.hpp"
-#include "libtasquake/utils.hpp"
 
 // desc: When set to 1, pauses the game on load
 cvar_t tas_pause_onload = {"tas_pause_onload", "0"};
@@ -174,7 +174,7 @@ void TAS_Init()
 	Cmd_AddCommand("tas_ipc2_sv_stop", TASQuake::Cmd_IPC2_Stop);
 	Cmd_AddCommand("tas_ipc2_cl_connect", TASQuake::Cmd_IPC2_Cl_Connect);
 	Cmd_AddCommand("tas_ipc2_cl_disconnect", TASQuake::Cmd_IPC2_Cl_Disconnect);
-	
+
 	Cmd_AddCommand("tas_print_seed", Cmd_Print_Seed);
 	Cmd_AddCommand("tas_print_time", Cmd_Print_Time);
 	Cmd_AddCommand("tas_pause", Cmd_TAS_Pause);
@@ -209,6 +209,7 @@ void TAS_Init()
 	Cmd_AddCommand("tas_ss_clear", Cmd_TAS_SS_Clear);
 	Cmd_AddCommand("tas_savestate", Cmd_TAS_Savestate);
 	Cmd_AddCommand("tas_trace_edict", Cmd_TAS_Trace_Edict);
+	Cvar_Register(&tas_draw_entbbox);
 	Cvar_Register(&tas_optimizer_algs);
 	Cvar_Register(&tas_optimizer_casper);
 	Cvar_Register(&tas_optimizer_goal);
