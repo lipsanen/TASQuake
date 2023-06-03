@@ -5,6 +5,7 @@
 #include "libtasquake/optimizer.hpp"
 
 extern cvar_t tas_optimizer;
+extern cvar_t tas_optimizer_minthp;
 extern cvar_t tas_optimizer_algs;
 extern cvar_t tas_optimizer_casper;
 extern cvar_t tas_optimizer_goal;

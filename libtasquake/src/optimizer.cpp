@@ -167,6 +167,7 @@ void OptimizerSettings::WriteToBuffer(TASQuakeIO::BufferWriteInterface& writer) 
 	writer.WriteBytes(&m_uResetToBestIterations, sizeof(m_uResetToBestIterations));
 	writer.WriteBytes(&m_bUseNodes, sizeof(m_bUseNodes));
 	writer.WriteBytes(&m_bSecondaryGoals, sizeof(m_bSecondaryGoals));
+	writer.WriteBytes(&m_iMinTotalHP, sizeof(m_iMinTotalHP));
 	writer.WritePODVec(m_vecInputNodes);
 	writer.WritePODVec(m_vecAlgorithmData);
 	if (!m_vecAlgorithms.empty())
@@ -186,6 +187,7 @@ void OptimizerSettings::ReadFromBuffer(TASQuakeIO::BufferReadInterface& reader)
 	reader.Read(&m_uResetToBestIterations, sizeof(m_uResetToBestIterations));
 	reader.Read(&m_bUseNodes, sizeof(m_bUseNodes));
 	reader.Read(&m_bSecondaryGoals, sizeof(m_bSecondaryGoals));
+	reader.Read(&m_iMinTotalHP, sizeof(m_iMinTotalHP));
 	reader.ReadPODVec(m_vecInputNodes);
 	reader.ReadPODVec(m_vecAlgorithmData);
 }
@@ -415,6 +417,7 @@ void RunConditions::Init(const OptimizerRun* run, const OptimizerSettings* setti
 		m_uSecrets = 0;
 	}
 
+	m_fTotalHP = std::max<float>(m_fTotalHP, settings->m_iMinTotalHP);
 	m_bInitialized = true;
 }
 
@@ -436,7 +439,7 @@ bool RunConditions::FulfillsConditions(const OptimizerRun* run) const
 
 	float totalHP = run->m_fAP + run->m_fHP;
 	
-	if(run->m_uCenterPrints < m_uCenterPrints || run->m_uKills < m_uKills || run->m_uSecrets < m_uSecrets || totalHP < m_fTotalHP) {
+	if(run->m_uCenterPrints < m_uCenterPrints || run->m_uKills < m_uKills || run->m_uSecrets < m_uSecrets || totalHP < m_fTotalHP || run->m_bDied) {
 		return false;
 	}
 
@@ -450,6 +453,7 @@ void RunConditions::Reset()
 	m_uKills = 0;
 	m_uSecrets = 0;
 	m_bInitialized = false;
+	m_fTotalHP = 1.0f;
 }
 
 void OptimizerRun::CalculateEfficacy(OptimizerGoal goal, const RunConditions* conditions)

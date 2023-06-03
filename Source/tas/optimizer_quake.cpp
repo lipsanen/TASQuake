@@ -19,6 +19,7 @@ cvar_t tas_optimizer_goal = {"tas_optimizer_goal", "0", 0, Optimizer_Var_Updated
 cvar_t tas_optimizer_multigame  = {"tas_optimizer_multigame", "0", 0, Optimizer_Var_Updated};
 cvar_t tas_optimizer_secondarygoals  = {"tas_optimizer_secondarygoals", "0", 0, Optimizer_Var_Updated};
 cvar_t tas_predict_endoffset{"tas_predict_endoffset", "0.5", 0, Optimizer_Var_Updated};
+cvar_t tas_optimizer_minthp{"tas_optimizer_minthp", "1", 0, Optimizer_Var_Updated};
 
 static bool m_bFirstIteration = false;
 static int startFrame = -1;
@@ -98,6 +99,7 @@ static TASQuake::OptimizerSettings GetSettings() {
     TASQuake::Get_Prediction_Frames(start, end);
     settings.m_iFrames = end - start;
     settings.m_bSecondaryGoals = tas_optimizer_secondarygoals.value != 0;
+    settings.m_iMinTotalHP = tas_optimizer_minthp.value;
 
     if(tas_optimizer_multigame.value != 0 && tas_optimizer_casper.value != 0 && IPC_Prediction_HasLine()) {
         Casper_Init(&settings, start, end);

@@ -239,6 +239,7 @@ namespace TASQuake {
         std::uint32_t m_uGiveUpAfterNoProgress = 999;
         std::int32_t m_iEndOffset = 36; // Where to end the optimizer path as frames from the last frame
         std::int32_t m_iFrames = -1; // If positive, determines the number of frames
+        std::int32_t m_iMinTotalHP = 1; // Minimum HP for run
         std::vector<AlgorithmEnum> m_vecAlgorithmData;
         std::vector<std::shared_ptr<OptimizerAlgorithm>> m_vecAlgorithms;
         std::vector<Vector> m_vecInputNodes; // We have some baseline version to compare against

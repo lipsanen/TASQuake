@@ -212,6 +212,7 @@ void TAS_Init()
 	Cvar_Register(&tas_optimizer_algs);
 	Cvar_Register(&tas_optimizer_casper);
 	Cvar_Register(&tas_optimizer_goal);
+	Cvar_Register(&tas_optimizer_minthp);
 	Cvar_Register(&tas_optimizer_multigame);
 	Cvar_Register(&tas_optimizer_secondarygoals);
 	Cvar_Register(&tas_optimizer);
