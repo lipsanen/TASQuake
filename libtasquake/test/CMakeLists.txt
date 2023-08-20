@@ -19,3 +19,4 @@ target_link_libraries(libtasquake_test PRIVATE libtasquake)
 add_test(NAME LIBTASQUAKE_TEST COMMAND libtasquake_test --skip-benchmarks WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 
 add_subdirectory(server_test)
+add_subdirectory(stdin_test)

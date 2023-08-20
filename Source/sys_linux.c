@@ -38,6 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <sys/mman.h>
 #include <errno.h>
 
+#include "libtasquake/console_input.h"
 #include "quakedef.h"
 
 qboolean isDedicated = false;
@@ -266,13 +267,40 @@ void Sys_LowFPPrecision (void)
 
 char	*argv0;
 
+void simulator_stdin_input(const char* cmd) 
+{
+	Cbuf_AddText((char*)cmd);
+}
+
+void test(int sig) {
+	printf ("Received signal %d, exiting...\n", sig);
+	void* array[10];
+	size_t size;
+
+	// get void*'s for all entries on the stack
+	size = backtrace(array, 10);
+
+	// print out all the frames to stderr
+	backtrace_symbols_fd(array, size, STDERR_FILENO);
+
+	Sys_Quit ();
+	exit (0);
+}
+
 int main (int argc, char **argv)
 {
 	int		j;
 	double		time, oldtime, newtime;
 	quakeparms_t	parms;
+	struct stdin_input input;
+	input.callback = simulator_stdin_input;
 	extern	FILE	*vcrFile;
 	extern	int	recording;
+
+	if(isSimulator) {
+		tasquake_stdin_init(&input);
+		signal (SIGINT, test);
+	}
 
 //	static char cwd[1024];
 
@@ -313,6 +341,7 @@ int main (int argc, char **argv)
 		time = newtime - oldtime;
 
 		if(isSimulator && tas_playing.value == 0) {
+			tasquake_stdin_read(&input);
 			usleep(1); // Simulator sleeps between
 		}
 
@@ -338,6 +367,8 @@ int main (int argc, char **argv)
 		if (sys_linerefresh.value)
 			Sys_LineRefresh ();
 	}
+
+	tasquake_stdin_free(&input);
 }
 
 /*

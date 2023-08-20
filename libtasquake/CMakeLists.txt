@@ -1,5 +1,6 @@
 list(APPEND LIBTASQUAKE_SOURCES
   "src/boost_ipc.cpp"
+  "src/console_input.c"
   "src/game_funcs.cpp"
   "src/draw.cpp"
   "src/io.cpp"
