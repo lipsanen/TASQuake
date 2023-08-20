@@ -1,0 +1,295 @@
+================================================================
+Title                   : QdQstats v1.8
+
+Filename                : Progs.dat    - Game data file.
+                          QdQstats.txt - This file.
+
+Author                  : Originally by Anthony Bailey
+                          v1.3+ changes by Nolan Pflug
+                          v1.6 changes by Stefan Schwoon
+                          v1.7+ by Nolan again
+
+Email Address           : QdQ@PlanetQuake.com
+
+Description             : When Quake normally records a demo, it
+                          resets your starting stats to the usual values:
+                          100 health, 25 shells, axe and shotgun.
+
+                          For recording demos to be part of multi-level
+                          runs (such as Quake done Quick or a complete
+                          episode) one wants to start a demo with the stats 
+                          one had as one finished the last one (modulo a
+                          couple of limiting changes... you know how it
+                          works, I'm sure.)
+
+                          This patch uses a menu interface to allow a player
+                          to select any legal starting statistics and use
+                          them in a demo the record.
+
+                          It gives you a more precise finishing time
+                          than the normal "nearest second" Quake timer too.
+
+                          Another feature is the trigger stuff:
+
+                          Use impulse 211 to toggle visible triggers.
+                          It makes visible almost all types of triggers.
+
+                          Use impulse 212 to toggle trigger info.
+                          Trigger info is sort of a bad name, since it
+                          gives you info about all events, not just
+                          triggers.  It lists what all is [kill]targeted
+                          when a button is pushed, a trigger is touched,
+                          a monster is killed, etc...
+
+                          v1.5 of QdQstats includes a "coop friendly" patch.
+                          It removes certain things from the entities sent
+                          to all the clients, therefore reducing the
+                          enormous lag you'd sometimes get in crowded
+                          areas of coop games. To enable "coop friendly" mode,
+                          set the "coop" variable to "2" in the console.
+
+                          This was changed in v1.8 to allow a sliding scale of
+                          the amount of lag reduction, and is also usable in
+                          single player for packet overflow reduction. Use
+                          impulses 150-156 to see the various settings. It is
+                          saved in the console variable 'saved1', a value of 0
+                          through 6. You can change it mid level and all
+                          monsters killed after that reflect the new value.
+
+                          As of v1.6, QdQstats allows the recording of
+                          multilevel runs - you can make demos of whole
+                          episodes in one take. If you want to use this
+                          feature, please read the section at the end of
+                          this document.
+
+Installation            : Unzip, put the PROGS.DAT in a new games
+                          directory in your main Quake directory, and
+                          start Quake with the "-game" command-line option.
+                          It's an absolutely standard patch.
+
+Instructions            : Briefly, IMPULSEs 90-95 let you work the
+                          menu that controls the functioning of this patch.
+
+                          Any control: bring up the menu
+                                IMPULSE 90: selection left
+                                IMPULSE 91: selection right
+                                IMPULSE 92: decrease selection by 10
+                                IMPULSE 93: decrease selection by 1
+                                IMPULSE 94: increase selection by 1
+                                IMPULSE 95: increase selection by 10
+
+                          For some selections, increase/decrease instead
+                          work to toggle or activate options.
+
+                          Please see the full instructions at
+                          <http://www.planetquake.com/qdq/stats.html>
+                          for more details and explanations.
+
+                          Other commands:
+
+                                IMPULSE  98: Turn on velocity printing
+                                IMPULSE  99: Print player's origin
+                                IMPULSE 150: Turn off body removal
+                                IMPULSE 151: Dead bodies removed after 1 minute
+                                IMPULSE 152: Bodies removed after 5 seconds
+                                IMPULSE 153: Above plus no gibs
+                                IMPULSE 154: Bodies removed instantly
+                                IMPULSE 155: Above plus invisible nails
+                                IMPULSE 156: Above plus invis. scrag/hk fire
+                                IMPULSE 205: Genocide (kill all monsters)
+                                IMPULSE 209: Toggle the ogre-grenade counter
+                                IMPULSE 210: Toggle the grenade counter
+                                IMPULSE 211: Toggle visible triggers
+                                IMPULSE 212: Toggle trigger info
+                                IMPULSE 254: Permanent quad cheat
+
+Additional Credits to   : The rest of the QdQ team for their suggestions
+
+
+* Play Information *
+
+Single Player           : Yes
+Cooperative             : Yes
+Deathmatch              : No
+New Sounds              : No
+New Models              : No
+
+* Construction *
+
+Base                    : id Quake-C modules
+Utilities used          : Text editors, ProQCC, Scrambler!
+Known Bugs              : The recorded time on the start map isn't right
+Build Time              : oh, it had a long history before public
+                          release. I'm sure you don't really care.
+
+* Copyright information *
+
+This file, and all accompanying files (see list at top of page) may
+NOT be used for commercial purposes. I'd prefer you didn't go altering
+the source without asking as well. Thanks!
+
+* Where to Get This *
+
+The latest version of this patch can be obtained from speeddemosarchive.com or via the Quake done Quick page at PlanetQuake:
+<http://www.planetquake.com/qdq/>
+
+* Version information *
+v1.8 (05.12.05)
+     -Reduced edict usage by freeing ambient_* (needed for sm82 on nightmare).
+     -Expanded 'coop friendly' to a sliding scale of lag reduction. Can also be
+       used in single player for packet overflow reduction. Use impulses
+       150-156 or set the cvar 'saved1' manually.
+     -Fixed a few bugs in the trigger info, like a trigger_counter with no
+       targets. Also added info for some mappers' clever usage of info_notnull
+       as explosions or sound sources (see terra5) and traps killing triggers
+       (see terra3).
+     -Fixed missing kills in a few custom maps at sda by removing the offending
+       monsters. (chessp1, pb2, sm57_pulsar_se, sm103_zwiffle)
+     -Added impulse 98 for velocity printing.
+     -Added impulse 254 for permanent quad cheat.
+v1.7 (04.10.00)
+     -Fixed rare statue bug (in quake from the beginning)
+     -In coop, give frags for monster kills
+     -Ignore 'no intermission' flag on custom levels so you always get an
+       intermission
+     -Fixed problems related to keys/weaponsn/ammo/armor triggering stuff only
+       if you actually picked it up (ex: now you can do impulse 9 and still do
+       e1m6 because touching the keys will still trigger stuff, even though you
+       dont collect them)
+     -Allow impulse 205 in coop
+     -Misc quake bug fixes
+v1.6 (15.03.99)
+     -Added multilevel recording. If you play multiple levels in a row
+      QdQstats will give you a total time in addition to the time for
+      the individual level. A multilevel run stops when you begin a new
+      game, or die.
+     -Coop friendly is now only enabled when coop is 2. That way you can
+      decide whether you want disappearing monsters or not. LAN players
+      will probably want to use the normal setting whereas Internet players
+      will find the coop friendly setting more useful.
+     -Added all the new features from 1.5 and 1.6 to the other Stats patches:
+      SoAstats, DoEstats, Zerstats, and BBstats.
+     -Added trigger_monsterjump and trigger_hurt to the list of triggers
+      that can be made visible.
+v1.5 (29.10.98)
+     -Added coop friendly, when coop is on:
+        *dead monsters are removed once they are no longer solid.
+        *no explosion sprites when grenades/rockets blow up, just the
+        particle splash.
+        *you cant see your own nails, or the nails from spike shooters
+        other players, scrags or death knights, this was one of the
+        largest sources of lag.
+     -Removed multiple "playing on X skill" when there's more than
+     one player.
+     -Allow impulse 9 & 255 in coop.
+     -Changed the grenade counter a bit:
+        *before, when you tossed more than one grenade, it would rapidly
+        switch back and forth between the display of the other or the
+        other grenade.  Now, it will only print it for the grenade you
+        are closest too.
+        *you can turn it on/off after you've tossed a grenade and it'll
+        still start/quit right away.
+        *added a ogre-grenade counter [impulse 209]  It prints out a
+        counter for the ogre grenade you are closest too.  To avoid
+        getting counters all the time, it does not print any if you
+        can't see the closest grenade.
+        *if both the normal grenade counter and ogre grenade counter are
+        on, and both types of grenades are out, only the normal grenade
+        is printed.
+        *made the [ogre]grenade counter status independent of player.
+        That is, certain players can have one on, but the others have it off.
+     -added trigger_changelevel and trigger_push to the list of triggers
+     made visible by impulse 211.
+     -probably something else that I forgot.
+v1.4 (11.01.98)
+     -Removed TRG from the menu; added impulse 211 & 212 to replace, and to
+     allow you to just have visible triggers or trigger info, instead of just
+     none or both.
+     -Trigger info now prints 'friendly names' instead of classnames.
+     e.g. "Fiend" instead of "monster_demon1".
+     -Removed "Target: ", it was taking up space.
+     -All killtargets are now in the form "Kill {target, target...}, ...".
+     -Instead of printing the same thing mutiple times, it prints the number
+     of times is was [kill]targeted.  e.g.  "5 lights" instead of "light,
+     light, light, light, light".  It prints whatever had the fewest of it
+     [kill]targeted first, so "light" would come before "3 doors".
+     -"Trigger_<relay|once|multiple> with delay of x" is now "Delayed event
+     in x".  If there is more than one delayed event, the delays are printed
+     in brackets, with the smallest first.
+     -When you activate a trigger_multiple, or a button than can be pushed
+     more than once, it prints the delay until you can activate/push it
+     again.  It uses the form "Trigger/Button [Reset in x]: ".
+     -Fixed the qc bug with ftos() that returned strings with leading spaces.
+     I wrote my own function to print numbers to fix it.
+     -Added Scourge of Armagon's Genocide command (impulse 205)
+     -Added impulse 99 to print your current coordinates.  Very usefull
+     for Remaicing demos.
+     -Fixed another monster count bug.  There was an impossible to get
+     fiend on e4m3 when you play on skill 0.
+     -Fixed the id bug that played the normal door opening sound when
+     you unlock a door.  Go unlock a door and hear the unlocking sounds,
+     which you probably haven't heard before.
+v1.3 (19.11.97)
+     -Removed the grenade counter from the menu and put trigger stuff in
+     its place.  The GC is now toggleable through impulse 210.  The TRG
+     option will make triggers visible and tell you what they do.
+     -Fixed NOW so it updates your weaponmodel and the statusbar.
+     -Made the displayed time at the end much more accurate.
+     -Fixed other id bugs: the 4 scrags in e2m4, Shub not counting
+     for a kill, and certain monsters not teleporting in at low FPS.
+     -No longer forces skill 3.  It gives you a reminder about what
+     the skill is set at when you start a level, just in case you
+     forgot to switch.
+     -Fixed some bugs with the armor type and with the weapon selection.
+     -Put impulse 9 & 255 back in, in case you want to have some fun...
+v1.2 (30.07.97)
+     undid a small bug introduced by a Pro-QCC decompilation error.
+     In previous versions, firing a grenade caused the displayed ammo
+     to update wrongly (although "true" ammo was unaffected, so the game
+     played normally.)
+     I also took out id's fish bug... might as well get things right!
+v1.1 (22.07.97)
+     was a fix to make this mod compatible with versions of Quake other
+     than 1.06. QdQstats v1.0 will not display the stats menu if run on
+     some versions of Quake, including v1.07 and v1.08.
+
+================================================================
+
+* Recording multi-level runs *
+
+With the advent of QdQstats v1.6 you have the option of making
+multilevel runs. Whenever you exit a level, QdQstats gives you the
+exact time for that level. If you run two or more levels in a row,
+after the second level QdQstats will also give you a total time.
+The times for the start level is not counted.
+
+Please note: The total time is calculated by adding the exact times
+- not just whole seconds. So, if you notice that your time is, say,
+30.1 instead of 29.9, don't worry: You've only lost 0.2 seconds, not
+a whole second.
+
+Important: Quake will not play multilevel demos correctly without some
+editing. If you want to make multilevel runs, you will need the file
+compile.zip provided in this package. This program will turn a multi-
+level demo into a convenient .pak file (which is the format to use if
+you want to submit demos to SDA). Also, you will need DemTool:
+<http://www.planetquake.com/cdrom/qdq/demtool.zip>.
+
+Unzip compile.zip into a directory of your choice. You will get three
+files: compile.bat, mldem.exe and mlpak.exe. When you've made a demo
+(called e.g. foo.dem), copy it into this directory. Then type the
+following at the DOS prompt:
+
+        compile foo.dem pak0.pak
+
+You will get a file in pak format that contains one entry for each
+individual demo. Demos inside the pak are named according to the
+level they're on (e.g., start, e1m1, e1m2 etc.). Demos of levels
+that occur multiple times are numbered e.g., start, start2 etc.
+
+Substitute pak1.pak etc. for pak0.pak if appropriate. In general,
+you should make sure not to overwrite any existing .pak file!
+Also, do keep the original file - there's no knowing if compile.bat
+handles every possible case correctly! (in fact, we know that it does not)
+
+Good luck, and happy running!
