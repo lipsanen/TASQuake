@@ -1,0 +1,5 @@
+Dockerfile
+build/
+build_release/
+debug/
+debug_32bit/
