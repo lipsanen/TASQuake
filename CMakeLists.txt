@@ -84,6 +84,7 @@ FILE(GLOB_RECURSE SOURCES
 	 Source/tas/ipc_main.cpp
 	 Source/tas/ipc_prediction.cpp
 	 Source/tas/ipc2.cpp
+	 Source/tas/log.cpp
 	 Source/tas/optimizer_quake.cpp
 	 Source/tas/prediction.cpp
 	 Source/tas/real_prediction.cpp

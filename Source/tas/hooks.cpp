@@ -13,6 +13,7 @@
 #include "ipc_main.hpp"
 #include "ipc_prediction.hpp"
 #include "libtasquake/utils.hpp"
+#include "log.hpp"
 #include "optimizer_quake.hpp"
 #include "prediction.hpp"
 #include "real_prediction.hpp"
@@ -262,6 +263,8 @@ void TAS_Init()
 	Cvar_Register(&tas_ipc_timeout);
 	Cvar_Register(&tas_ipc_verbose);
 	Cvar_Register(&tas_timescale);
+	Cvar_Register(&TASQuake::tas_log);
+	Cvar_Register(&TASQuake::tas_log_filter);
 	Cvar_Register(&tas_predict);
 	Cvar_Register(&tas_predict_endoffset);
 	Cvar_Register(&tas_predict_grenade);
@@ -388,6 +391,7 @@ void _Host_Frame_After_FilterTime_Hook()
 	Simulate_Frame_Hook();
 	Script_Playback_Host_Frame_Hook();
 	TASQuake::IPC2_Frame_Hook();
+	TASQuake::Log_Frame_Hook();
 
 	char* queued = GetQueuedCommands();
 	if (queued)
