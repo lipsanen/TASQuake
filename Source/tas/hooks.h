@@ -26,6 +26,7 @@ extern "C"
 	void SCR_CenterPrint_Hook(void);
 	void PF_player_setorigin_hook(void);
 	void Draw_Lines_Hook(void);
+	void tas_rand_Hook(void);
 #ifdef __cplusplus
 	bool PF_player_setorigin_called();
 }

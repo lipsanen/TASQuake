@@ -1703,7 +1703,7 @@ void Frame_RNG_Seed(void)
 	{
 		count = rng_index - prev_index;
 		prev_index = rng_index;
-	}		
+	}
 	frame_seed = next;
 }
 
@@ -1727,6 +1727,7 @@ int Get_RNG_Index(void)
 
 int tas_rand(void) // RAND_MAX assumed to be 32767
 {
+	tas_rand_Hook();
 	++rng_index;
 	next = next * 1103515245 + 12345;
 	int out = (unsigned int)(next / 65536) % 32768;

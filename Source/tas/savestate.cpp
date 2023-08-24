@@ -867,6 +867,7 @@ void Cmd_TAS_LS(void)
 
 	TAS_Set_Seed(seed);
 	Cvar_SetValue(&skill, (float)current_skill);
+	rand(); // call one rand() to match the rng state for SV_SpawnServer
 
 	CL_Disconnect_f();
 	SV_SpawnServer(mapname);

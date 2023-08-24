@@ -282,6 +282,7 @@ void TAS_Init()
 
 void TAS_Set_Seed(unsigned int seed)
 {
+	tas_srand(seed);
 	seed_number = seed;
 	set_seed = true;
 }

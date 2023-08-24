@@ -340,7 +340,7 @@ int main (int argc, char **argv)
 		newtime = Sys_DoubleTime();
 		time = newtime - oldtime;
 
-		if(isSimulator && tas_playing.value == 0) {
+		if(isSimulator && (tas_playing.value == 0 || tas_gamestate == paused)) {
 			tasquake_stdin_read(&input);
 			usleep(1); // Simulator sleeps between
 		}

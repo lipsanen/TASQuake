@@ -100,7 +100,7 @@ FILE(GLOB_RECURSE SOURCES
 
 add_compile_definitions(GLQUAKE __linux__)
 add_compile_options(-m32 -ffp-contract=off -mfpmath=sse -Wno-write-strings -fno-omit-frame-pointer)
-add_link_options(-m32)
+add_link_options(-m32 -rdynamic)
 add_library(_TASQuake ${SOURCES})
 target_link_libraries(_TASQuake PUBLIC GL png jpeg SDL2 libtasquake)
 
