@@ -290,3 +290,4 @@ Makefile
 build/
 build_release/
 content/joequake/savestates
+content/joequake/cmdhist.dat
