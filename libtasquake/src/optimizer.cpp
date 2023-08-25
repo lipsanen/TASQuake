@@ -463,6 +463,11 @@ void OptimizerRun::CalculateEfficacy(OptimizerGoal goal, const RunConditions* co
 		m_dEfficacy = std::numeric_limits<double>::lowest();
 		return;
 	}
+	else if (!conditions->FulfillsConditions(this))
+	{
+		m_dEfficacy = std::numeric_limits<double>::lowest();
+		return;
+	}
 	else if (goal == OptimizerGoal::Time)
 	{
 		if (!m_bFinishedLevel)
@@ -481,13 +486,6 @@ void OptimizerRun::CalculateEfficacy(OptimizerGoal goal, const RunConditions* co
 		return;
 	}
 	else if (m_vecData.empty() || goal == OptimizerGoal::Undetermined)
-	{
-		m_dEfficacy = std::numeric_limits<double>::lowest();
-		return;
-	}
-
-
-	if (!conditions->FulfillsConditions(this))
 	{
 		m_dEfficacy = std::numeric_limits<double>::lowest();
 		return;
