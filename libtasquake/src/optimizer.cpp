@@ -409,6 +409,7 @@ void RunConditions::Init(const OptimizerRun* run, const OptimizerSettings* setti
 		m_uCenterPrints = run->m_uCenterPrints;
 		m_uKills = run->m_uKills;
 		m_uSecrets = run->m_uSecrets;
+		m_uItems = run->m_uItems;
 	}
 	else
 	{
@@ -440,6 +441,18 @@ bool RunConditions::FulfillsConditions(const OptimizerRun* run) const
 	float totalHP = run->m_fAP + run->m_fHP;
 	
 	if(run->m_uCenterPrints < m_uCenterPrints || run->m_uKills < m_uKills || run->m_uSecrets < m_uSecrets || totalHP < m_fTotalHP || run->m_bDied) {
+		return false;
+	}
+
+#define IT_KEY1				131072
+#define IT_KEY2				262144
+	if(m_uItems & IT_KEY1 && (run->m_uItems & IT_KEY1) == 0)
+	{
+		return false;
+	}
+
+	if(m_uItems & IT_KEY2 && (run->m_uItems & IT_KEY2) == 0)
+	{
 		return false;
 	}
 
@@ -598,6 +611,7 @@ void OptimizerRun::WriteToBuffer(TASQuakeIO::BufferWriteInterface& writer) const
 	writer.WriteBytes(&m_uCenterPrints, sizeof(m_uCenterPrints));
 	writer.WriteBytes(&m_uKills, sizeof(m_uKills));
 	writer.WriteBytes(&m_uSecrets, sizeof(m_uSecrets));
+	writer.WriteBytes(&m_uItems, sizeof(m_uItems));
 	writer.Write(&m_bDied);
 	writer.Write(&m_dTeleportTime);
 	writer.WritePODVec(m_vecData);
@@ -612,6 +626,7 @@ void OptimizerRun::ReadFromBuffer(TASQuakeIO::BufferReadInterface& reader)
 	reader.Read(&m_uCenterPrints, sizeof(m_uCenterPrints));
 	reader.Read(&m_uKills, sizeof(m_uKills));
 	reader.Read(&m_uSecrets, sizeof(m_uSecrets));
+	reader.Read(&m_uItems, sizeof(m_uItems));
 	reader.Read(&m_bDied);
 	reader.Read(&m_dTeleportTime);
 	reader.ReadPODVec(m_vecData);

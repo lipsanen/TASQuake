@@ -194,6 +194,7 @@ namespace TASQuake {
         PlaybackInfo playbackInfo;
         bool m_bFinishedLevel = false;
         bool m_bDied = false;
+        std::uint32_t m_uItems = 0;
         double m_dLevelTime = 0.0;
         double m_dTeleportTime = 1000.0;
         std::vector<FrameData> m_vecData;
@@ -220,6 +221,7 @@ namespace TASQuake {
         std::uint32_t m_uKills = 0;
         std::uint32_t m_uSecrets = 0;
         std::uint32_t m_uCenterPrints = 0;
+        std::uint32_t m_uItems = 0;
         float m_fTotalHP = 0;
 
         void Init(const OptimizerRun* run, const OptimizerSettings* settings);

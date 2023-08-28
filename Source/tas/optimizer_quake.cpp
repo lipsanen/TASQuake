@@ -631,6 +631,7 @@ static void Game_Opt_Add_FrameData(int current_frame) {
         data.m_fHP = sv_player->v.health;
         data.m_fAP = sv_player->v.armorvalue;
         data.m_bTeleported = PF_player_setorigin_called();
+        opt.m_currentRun.m_uItems = sv_player->v.items;
     }
 
     opt.m_currentRun.m_uKills = cl.stats[STAT_MONSTERS];
