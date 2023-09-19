@@ -237,6 +237,7 @@ void TAS_Init()
 	Cvar_Register(&tas_freecam_speed);
 	Cvar_Register(&tas_hud_frame);
 	Cvar_Register(&tas_hud_block);
+	Cvar_Register(&tas_hud_entity);
 	Cvar_Register(&tas_hud_optimizer);
 	Cvar_Register(&tas_hud_particles);
 	Cvar_Register(&tas_hud_pos);
@@ -257,6 +258,7 @@ void TAS_Init()
 	Cvar_Register(&tas_hud_time);
 	Cvar_Register(&tas_hud_movemessages);
 	Cvar_Register(&tas_hud_prediction_type);
+	Cvar_Register(&tas_hud_ceilclipped);
 	Cvar_Register(&tas_ipc);
 	Cvar_Register(&tas_ipc_feedback);
 	Cvar_Register(&tas_ipc_port);

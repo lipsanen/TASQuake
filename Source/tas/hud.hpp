@@ -47,5 +47,9 @@ extern cvar_t tas_hud_optimizer;
 extern cvar_t tas_hud_prediction_type;
 //desc: Displays current level time
 extern cvar_t tas_hud_time;
+//desc: Displays entity the player is currently looking at
+extern cvar_t tas_hud_entity;
+//desc: Displays ceilclipped entities
+extern cvar_t tas_hud_ceilclipped;
 
 void HUD_Draw_Hook();

@@ -32,6 +32,8 @@ cvar_t tas_hud_particles = { "tas_hud_particles", "0" };
 cvar_t tas_hud_optimizer = { "tas_hud_optimizer", "0" };
 cvar_t tas_hud_prediction_type = { "tas_hud_prediction_type", "0"};
 cvar_t tas_hud_time = {"tas_hud_time", "0"};
+cvar_t tas_hud_entity = {"tas_hud_entity", "0"};
+cvar_t tas_hud_ceilclipped = {"tas_hud_ceilclipped", "0"};
 
 void Draw(int& y, cvar_t* cvar, const char* format, ...)
 {
@@ -327,6 +329,83 @@ static void DrawPredictionType(int& y)
 	}
 }
 
+static void DrawEntity(int& y)
+{
+	if(!tas_hud_entity.value || sv_player == NULL)
+		return;
+
+	edict_t* ent = NULL;
+
+	if(tas_hud_entity.value == 1)
+	{
+		vec3_t origin;
+		vec3_t fwd;
+		vec3_t endp;
+		AngleVectors(r_refdef.viewangles, fwd, NULL, NULL);
+		VectorScale(fwd, 4096, fwd);
+		VectorCopy(r_refdef.vieworg, endp);
+		VectorAdd(endp, fwd, endp);
+
+		trace_t trace = SV_Move (r_refdef.vieworg, vec3_origin, vec3_origin, endp, MOVE_NORMAL, sv_player);
+		ent = trace.ent;
+	}
+	else 
+	{
+		int n = tas_hud_entity.value;
+
+		if (n > 0 && n < sv.max_edicts)
+			ent = EDICT_NUM(tas_hud_entity.value);
+	}
+
+	if(ent == NULL)
+	{
+		Draw(y, &tas_hud_entity, "entity: none");
+		return;
+	}
+
+	Draw(y, &tas_hud_entity, "trace pos: (%.3f, %.3f, %.3f)", r_refdef.vieworg[0], r_refdef.vieworg[1], r_refdef.vieworg[2]);
+	Draw(y, &tas_hud_entity, "entity: %d", NUM_FOR_EDICT(ent));
+	Draw(y, &tas_hud_entity, "movetype: %d", (int)ent->v.movetype);
+	Draw(y, &tas_hud_entity, "next think: %.3f", ent->v.nextthink - pr_global_struct->time);
+	Draw(y, &tas_hud_entity, "pos: (%.3f, %.3f, %.3f)", ent->v.origin[0], ent->v.origin[1], ent->v.origin[2]);
+	Draw(y, &tas_hud_entity, "vel: (%.3f, %.3f, %.3f)", ent->v.velocity[0], ent->v.velocity[1], ent->v.velocity[2]);
+}
+
+static void DrawCeilingClipped(int& y)
+{
+	if(!tas_hud_ceilclipped.value || sv_player == NULL)
+		return;
+
+	edict_t* ent = sv.edicts;
+	int count = 0;
+	for (int i = 0 ; i < sv.num_edicts ; i++, ent = NEXT_EDICT(ent))
+	{
+		if(i == 0 || ent->free)
+			continue;
+
+		if(ent->v.movetype != MOVETYPE_STEP)
+			continue;
+
+		// An entity is "ceil clipped" if moving it up by 1z would get it stuck
+		vec3_t plusz = {0.0f, 0.0f, 1.0f};
+		vec3_t end;
+		VectorAdd(ent->v.origin, plusz, end);
+		trace_t t1 = SV_Move (ent->v.origin, ent->v.mins, ent->v.maxs, end, MOVE_NORMAL, ent);
+
+		if(t1.startsolid == false && t1.fraction < 1.0f)
+		{
+			++count;
+			Draw(y, &tas_hud_ceilclipped, "ceilclipped: %d", i);
+		}
+	}
+
+	if(count == 0)
+	{
+		Draw(y, &tas_hud_ceilclipped, "ceilclipped: none");
+	}
+}
+
+
 void HUD_Draw_Hook()
 {
 	if (isSimulator || !sv.active)
@@ -370,4 +449,6 @@ void HUD_Draw_Hook()
 	DrawFrameState(y, info);
 	Draw_StrafeStuff(player_data);
 	Draw_StrafeInfo(y);
+	DrawEntity(y);
+	DrawCeilingClipped(y);
 }
