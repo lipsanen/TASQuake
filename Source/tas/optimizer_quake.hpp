@@ -11,6 +11,8 @@ extern cvar_t tas_optimizer_casper;
 extern cvar_t tas_optimizer_goal;
 extern cvar_t tas_optimizer_multigame;
 extern cvar_t tas_optimizer_secondarygoals;
+extern cvar_t tas_optimizer_entity;
+extern cvar_t tas_optimizer_targetpos;
 struct TASScript;
 
 namespace TASQuake {

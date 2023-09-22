@@ -9,11 +9,12 @@
 
 struct Savestate
 {
-	Savestate(int fr, int n) : frame(fr), number(n) {}
+	Savestate(int fr, int n, std::string&& map) : frame(fr), number(n), map(std::move(map)) {}
 	Savestate() {}
 
 	int frame;
 	int number;
+	std::string map;
 };
 
 static int save_number = 0;
@@ -55,7 +56,7 @@ static void Create_Savestate(int frame, bool force)
 
 	snprintf(BUFFER, ARRAYSIZE(BUFFER), "savestates/%s%d", tas_savestate_prefix.string, save_number);
 	SS(BUFFER);
-	savestateMap[frame] = Savestate(frame, save_number);
+	savestateMap[frame] = Savestate(frame, save_number, std::string(CL_MapName()));
 	++save_number;
 }
 
@@ -99,14 +100,24 @@ int Savestate_Load_State(int frame)
 
 static bool Should_Savestate(int frame, int target_frame)
 {
+	bool should;
 	if(frame < 10)
-		return false;
+		should = false;
 	else if(cl.movemessages == 0)
-		return true;
+		should = true;
 	else if(frame % frequency == 0 && target_frame - frame < 500 && tas_savestate_auto.value != 0)
-		return true;
+		should = true;
 	else
+		should = false;
+
+	if(!should)
 		return false;
+
+	// do more expensive map check
+	if(!savestateMap.empty() && strcmp(CL_MapName(), std::prev(savestateMap.end())->second.map.c_str()) == 0)
+		return false;
+	else
+		return true;
 }
 
 void Savestate_Frame_Hook(int frame, int target_frame)

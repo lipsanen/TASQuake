@@ -90,15 +90,15 @@ TEST_CASE("Better time is better")
     TASQuake::RunConditions conditions;
     run1.m_bFinishedLevel = true;
     run1.m_dLevelTime = 10.0;
-    run1.CalculateEfficacy(TASQuake::OptimizerGoal::Time, &conditions);
+    run1.CalculateEfficacy(TASQuake::OptimizerGoal::Time, &conditions, TASQuake::Vector());
     TASQuake::OptimizerRun run2;
     run2.m_bFinishedLevel = true;
     run2.m_dLevelTime = 9.0;
-    run2.CalculateEfficacy(TASQuake::OptimizerGoal::Time, &conditions);
+    run2.CalculateEfficacy(TASQuake::OptimizerGoal::Time, &conditions, TASQuake::Vector());
     TASQuake::OptimizerRun run3;
     run3.m_bFinishedLevel = false;
     run3.m_dLevelTime = 8.0;
-    run3.CalculateEfficacy(TASQuake::OptimizerGoal::Time, &conditions);
+    run3.CalculateEfficacy(TASQuake::OptimizerGoal::Time, &conditions, TASQuake::Vector());
 
     REQUIRE(run1.m_dEfficacy < run2.m_dEfficacy);
     REQUIRE(run3.m_dEfficacy < run1.m_dEfficacy);

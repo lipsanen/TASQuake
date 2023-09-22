@@ -27,6 +27,7 @@ extern "C"
 	void PF_player_setorigin_hook(void);
 	void Draw_Lines_Hook(void);
 	void tas_rand_Hook(void);
+	edict_t* EDICT_NUM_safe(int num);
 #ifdef __cplusplus
 	bool PF_player_setorigin_called();
 }

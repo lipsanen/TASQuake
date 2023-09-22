@@ -39,7 +39,7 @@ void Optimizer::_FinishIteration(OptimizerState& state)
 		m_runConditions.Init(&m_currentRun, &m_settings);
 	}
 
-	m_currentRun.CalculateEfficacy(m_settings.m_Goal, &m_runConditions);
+	m_currentRun.CalculateEfficacy(m_settings.m_Goal, &m_runConditions, m_settings.m_vecTargetPos);
 
 	if (m_currentRun.IsBetterThan(m_currentBest))
 	{
@@ -168,6 +168,8 @@ void OptimizerSettings::WriteToBuffer(TASQuakeIO::BufferWriteInterface& writer) 
 	writer.WriteBytes(&m_bUseNodes, sizeof(m_bUseNodes));
 	writer.WriteBytes(&m_bSecondaryGoals, sizeof(m_bSecondaryGoals));
 	writer.WriteBytes(&m_iMinTotalHP, sizeof(m_iMinTotalHP));
+	writer.WriteBytes(&m_uEntity, sizeof(m_uEntity));
+  writer.WriteBytes(&m_vecTargetPos, sizeof(m_vecTargetPos));
 	writer.WritePODVec(m_vecInputNodes);
 	writer.WritePODVec(m_vecAlgorithmData);
 	if (!m_vecAlgorithms.empty())
@@ -188,6 +190,8 @@ void OptimizerSettings::ReadFromBuffer(TASQuakeIO::BufferReadInterface& reader)
 	reader.Read(&m_bUseNodes, sizeof(m_bUseNodes));
 	reader.Read(&m_bSecondaryGoals, sizeof(m_bSecondaryGoals));
 	reader.Read(&m_iMinTotalHP, sizeof(m_iMinTotalHP));
+	reader.Read(&m_uEntity, sizeof(m_uEntity));
+  reader.Read(&m_vecTargetPos);
 	reader.ReadPODVec(m_vecInputNodes);
 	reader.ReadPODVec(m_vecAlgorithmData);
 }
@@ -469,7 +473,7 @@ void RunConditions::Reset()
 	m_fTotalHP = 1.0f;
 }
 
-void OptimizerRun::CalculateEfficacy(OptimizerGoal goal, const RunConditions* conditions)
+void OptimizerRun::CalculateEfficacy(OptimizerGoal goal, const RunConditions* conditions, Vector targetPos)
 {
 	if(m_bDied)
 	{
@@ -507,7 +511,11 @@ void OptimizerRun::CalculateEfficacy(OptimizerGoal goal, const RunConditions* co
 	size_t index = m_vecData.size() - 1;
 	Vector last = m_vecData[index].pos;
 
-	if (goal == OptimizerGoal::NegX)
+  if (goal == OptimizerGoal::Position)
+  {
+    m_dEfficacy = -last.Distance(targetPos);
+  }
+	else if (goal == OptimizerGoal::NegX)
 	{
 		m_dEfficacy = -last.x;
 	}
@@ -818,7 +826,7 @@ static std::int32_t FindSuitableBlock(std::function<bool(TASScript*, size_t)> pr
 void RNGShooter::Reset() {}
 
 bool RNGShooter::WantsToRun(TASScript* script) {
-  return false;
+  return true;
 }
 
 bool RNGShooter::WantsToContinue()
@@ -829,15 +837,23 @@ bool RNGShooter::WantsToContinue()
 void RNGShooter::ReportResult(double efficacy) {}
 
 void RNGShooter::Mutate(TASScript* script, Optimizer* opt) {
-  int shots = opt->RandomInt(1, 5);
+  int count = opt->RandomInt(1, opt->m_uLastFrame / 36 + 2);
   script->RemoveTogglesFromRange("attack", 0, opt->m_uLastFrame);
 
-  for(int i=0; i < shots; ++i)
+  int* integers = GenerateRandomIntegers(count, 0, opt->m_uLastFrame, 36);
+  if (integers == NULL)
   {
-    int index = opt->RandomInt(0, opt->m_uLastFrame);
-    script->AddToggle("attack", true, index);
-    script->AddToggle("attack", false, index+1);
+    return;
   }
+
+	script->RemoveTogglesFromRange("attack", 0, opt->m_uLastFrame);
+
+	for (int i = 0; i < count; ++i)
+	{
+		int frame = integers[i];
+    script->AddToggle("attack", true, frame);
+    script->AddToggle("attack", false,  frame+1);
+	}
 }
 
 void RNGBlockMover::Reset() {}
@@ -1420,6 +1436,8 @@ const char* TASQuake::OptimizerGoalStr(OptimizerGoal goal)
 		return "Kills";
 	case OptimizerGoal::Teleporter:
 		return "Teleporter";
+	case OptimizerGoal::Position:
+		return "Pos";
 	default:
 		return "Undetermined";
 	}

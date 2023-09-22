@@ -184,7 +184,7 @@ namespace TASQuake {
     };
 
     enum class OptimizerState { ContinueIteration, NewIteration, Stop };
-    enum class OptimizerGoal { Undetermined, PlusX, NegX, PlusY, NegY, Time, PlusZ, NegZ, Kills, Teleporter };
+    enum class OptimizerGoal { Undetermined, PlusX, NegX, PlusY, NegY, Time, PlusZ, NegZ, Kills, Teleporter, Position };
 
     const char* OptimizerGoalStr(OptimizerGoal goal);
     struct RunConditions;
@@ -205,7 +205,7 @@ namespace TASQuake {
         float m_fAP = 0;
 
         void ResetIteration();
-        void CalculateEfficacy(OptimizerGoal goal, const RunConditions* conditions);
+        void CalculateEfficacy(OptimizerGoal goal, const RunConditions* conditions, Vector targetPos);
         double RunEfficacy() const { return m_dEfficacy; };
         bool IsBetterThan(const OptimizerRun& run) const;
         void StrafeBounds(size_t blockIndex, float& min, float& max) const;
@@ -237,11 +237,13 @@ namespace TASQuake {
     struct OptimizerSettings {
         // Determine which algorithms should be used
         OptimizerGoal m_Goal = OptimizerGoal::Undetermined; // Automatically determined by first run
+        Vector m_vecTargetPos;
         std::uint32_t m_uResetToBestIterations = 3;
-        std::uint32_t m_uGiveUpAfterNoProgress = 999;
+        std::uint32_t m_uGiveUpAfterNoProgress = 99999;
         std::int32_t m_iEndOffset = 36; // Where to end the optimizer path as frames from the last frame
         std::int32_t m_iFrames = -1; // If positive, determines the number of frames
         std::int32_t m_iMinTotalHP = 1; // Minimum HP for run
+        std::uint32_t m_uEntity = 1;
         std::vector<AlgorithmEnum> m_vecAlgorithmData;
         std::vector<std::shared_ptr<OptimizerAlgorithm>> m_vecAlgorithms;
         std::vector<Vector> m_vecInputNodes; // We have some baseline version to compare against

@@ -531,23 +531,9 @@ void TASScript::AddScript(const TASScript* script, int frame) {
 	
 	for(size_t i=0; i < script->blocks.size(); ++i) {
 		FrameBlock block = script->blocks[i];
-
-		auto remove_convar_it = std::remove_if(block.convars.begin(), block.convars.end(), [=](const std::pair<std::string, float>& pair) {
-			auto it = stacked.convars.find(pair.first);
-			return it != stacked.convars.end() && it->second == pair.second;
-		});
-
-		auto remove_toggle_it = std::remove_if(block.toggles.begin(), block.toggles.end(), [=](const std::pair<std::string, bool>& pair) {
-			auto it = stacked.toggles.find(pair.first);
-			return it != stacked.toggles.end() && it->second == pair.second;
-		});
-
-		block.convars.erase(remove_convar_it);
-		block.toggles.erase(remove_toggle_it);
-
 		block.frame += frame;
 
-		if(!block.convars.empty() || !block.commands.empty() || !block.commands.empty())
+		if(!block.convars.empty() || !block.commands.empty() || !block.toggles.empty())
 		{
 			blocks.push_back(std::move(block));
 		}

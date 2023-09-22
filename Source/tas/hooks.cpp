@@ -213,10 +213,12 @@ void TAS_Init()
 	Cvar_Register(&tas_draw_entbbox);
 	Cvar_Register(&tas_optimizer_algs);
 	Cvar_Register(&tas_optimizer_casper);
+	Cvar_Register(&tas_optimizer_entity);
 	Cvar_Register(&tas_optimizer_goal);
 	Cvar_Register(&tas_optimizer_minthp);
 	Cvar_Register(&tas_optimizer_multigame);
 	Cvar_Register(&tas_optimizer_secondarygoals);
+	Cvar_Register(&tas_optimizer_targetpos);
 	Cvar_Register(&tas_optimizer);
 	Cvar_Register(&tas_playing);
 	Cvar_Register(&tas_pause_onload);
@@ -403,4 +405,12 @@ void _Host_Frame_After_FilterTime_Hook()
 	}
 
 	player_setorigin_prev_frame = false;
+}
+
+edict_t* EDICT_NUM_safe(int n)
+{
+	if (n < 0 || n >= sv.max_edicts)
+		return NULL;
+	else
+		return EDICT_NUM(n);
 }

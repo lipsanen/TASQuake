@@ -383,9 +383,6 @@ static void DrawCeilingClipped(int& y)
 		if(i == 0 || ent->free)
 			continue;
 
-		if(ent->v.movetype != MOVETYPE_STEP)
-			continue;
-
 		// An entity is "ceil clipped" if moving it up by 1z would get it stuck
 		vec3_t plusz = {0.0f, 0.0f, 1.0f};
 		vec3_t end;

@@ -18,8 +18,10 @@ cvar_t tas_optimizer_casper = {"tas_optimizer_casper", "0", 0, Optimizer_Var_Upd
 cvar_t tas_optimizer_goal = {"tas_optimizer_goal", "0", 0, Optimizer_Var_Updated};
 cvar_t tas_optimizer_multigame  = {"tas_optimizer_multigame", "0", 0, Optimizer_Var_Updated};
 cvar_t tas_optimizer_secondarygoals  = {"tas_optimizer_secondarygoals", "0", 0, Optimizer_Var_Updated};
+cvar_t tas_optimizer_entity  = {"tas_optimizer_entity", "1", 0, Optimizer_Var_Updated};
 cvar_t tas_predict_endoffset{"tas_predict_endoffset", "0.5", 0, Optimizer_Var_Updated};
 cvar_t tas_optimizer_minthp{"tas_optimizer_minthp", "1", 0, Optimizer_Var_Updated};
+cvar_t tas_optimizer_targetpos{"tas_optimizer_targetpos", "0 0 0", 0, Optimizer_Var_Updated};
 
 static bool m_bFirstIteration = false;
 static int startFrame = -1;
@@ -100,6 +102,8 @@ static TASQuake::OptimizerSettings GetSettings() {
     settings.m_iFrames = end - start;
     settings.m_bSecondaryGoals = tas_optimizer_secondarygoals.value != 0;
     settings.m_iMinTotalHP = tas_optimizer_minthp.value;
+    settings.m_uEntity = tas_optimizer_entity.value;
+    sscanf(tas_optimizer_targetpos.string, "%f %f %f", &settings.m_vecTargetPos[0], &settings.m_vecTargetPos[1], &settings.m_vecTargetPos[2]);
 
     if(tas_optimizer_multigame.value != 0 && tas_optimizer_casper.value != 0 && IPC_Prediction_HasLine()) {
         Casper_Init(&settings, start, end);
@@ -119,7 +123,7 @@ static TASQuake::OptimizerSettings GetSettings() {
         }
     }
 
-    if(strcmp(tas_optimizer_algs.string, "shot") == 0)
+    if(strstr(tas_optimizer_algs.string, "shot") != NULL)
     {
         settings.m_vecAlgorithmData.push_back(TASQuake::AlgorithmEnum::RNGShooter);
     }
@@ -450,6 +454,7 @@ void TASQuake::RunOptimizer(bool canPredict)
 static int32_t game_opt_start_frame = 0;
 static int32_t game_opt_end_frame = 0;
 static int32_t game_opt_identifier = 0;
+static uint32_t game_opt_entity = 1;
 
 
 void TASQuake::Receive_Optimizer_Run(const ipc::Message& msg) {
@@ -511,6 +516,7 @@ void TASQuake::GameOpt_InitOptimizer(int32_t start_frame, int32_t end_frame, int
 
     game_opt_start_frame = start_frame;
     game_opt_end_frame = end_frame;
+    game_opt_entity = _settings.m_uEntity;
     m_bFirstIteration = true;
     m_uOptIterations = 0;
 
@@ -603,9 +609,19 @@ static void Game_Opt_Add_FrameData(int current_frame) {
     data.m_frameData.m_dVelTheta = get_vel_theta_player();
 
     if(sv_player) {
-        data.m_frameData.pos.x = sv_player->v.origin[0];
-        data.m_frameData.pos.y = sv_player->v.origin[1];
-        data.m_frameData.pos.z = sv_player->v.origin[2];
+        if(game_opt_entity == 1) {
+            data.m_frameData.pos.x = sv_player->v.origin[0];
+            data.m_frameData.pos.y = sv_player->v.origin[1];
+            data.m_frameData.pos.z = sv_player->v.origin[2];
+        } else {
+            edict_t* ent = EDICT_NUM_safe(game_opt_entity);
+            if(ent != NULL) {
+                data.m_frameData.pos.x = ent->v.origin[0];
+                data.m_frameData.pos.y = ent->v.origin[1];
+                data.m_frameData.pos.z = ent->v.origin[2];
+            }
+        }
+
         data.m_bDied = (sv_player->v.health <= 0 && cls.signon == SIGNONS);
         data.m_fHP = sv_player->v.health;
         data.m_fAP = sv_player->v.armorvalue;

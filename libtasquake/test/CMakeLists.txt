@@ -5,6 +5,7 @@ list(APPEND LIBTASQUAKE_TEST_SOURCES
   "cliff_tests.cpp"
   "draw_serialization.cpp"
   "framedata_tests.cpp"
+  "mutate_tests.cpp"
   "rollingstone_test.cpp"
   "optimizer_test.cpp"
   "parse_tests.cpp"
