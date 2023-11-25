@@ -5,12 +5,13 @@
 #include "ipc_prediction.hpp"
 #include "ipc2.hpp"
 #include "optimizer_quake.hpp"
+#include "prediction.hpp"
 #include "savestate.hpp"
 #include "simulate.hpp"
 
 using namespace TASQuake;
 
-static qboolean Optimizer_Var_Updated(struct cvar_s *var, char *value);
+qboolean Optimizer_Var_Updated(struct cvar_s *var, char *value);
 
 cvar_t tas_optimizer = {"tas_optimizer", "1"};
 cvar_t tas_optimizer_algs = {"tas_optimizer_algs", "basic", 0, Optimizer_Var_Updated};
@@ -39,7 +40,7 @@ static bool multi_game_opt_running = false;
 static std::map<size_t, int32_t> m_uIterationCounts; // Stores the iteration counts from clients
 static int32_t multi_game_opt_num = 1;
 
-static qboolean Optimizer_Var_Updated(struct cvar_s *var, char *value) {
+qboolean Optimizer_Var_Updated(struct cvar_s *var, char *value) {
     last_updated = 0;
     if(multi_game_opt_running) {
         TASQuake::SV_StopMultiGameOpt();
@@ -102,7 +103,7 @@ static TASQuake::OptimizerSettings GetSettings() {
     settings.m_iFrames = end - start;
     settings.m_bSecondaryGoals = tas_optimizer_secondarygoals.value != 0;
     settings.m_iMinTotalHP = tas_optimizer_minthp.value;
-    settings.m_uEntity = tas_optimizer_entity.value;
+    settings.m_uEntity = tas_predict_entity.value;
     sscanf(tas_optimizer_targetpos.string, "%f %f %f", &settings.m_vecTargetPos[0], &settings.m_vecTargetPos[1], &settings.m_vecTargetPos[2]);
 
     if(tas_optimizer_multigame.value != 0 && tas_optimizer_casper.value != 0 && IPC_Prediction_HasLine()) {
@@ -607,19 +608,13 @@ static void Game_Opt_Add_FrameData(int current_frame) {
     data.m_dTime = sv.time;
     data.m_bIntermission = cl.intermission != 0;
     data.m_frameData.m_dVelTheta = get_vel_theta_player();
+    edict_t* ent = EDICT_NUM_safe(game_opt_entity);
 
     if(sv_player) {
-        if(game_opt_entity == 1) {
-            data.m_frameData.pos.x = sv_player->v.origin[0];
-            data.m_frameData.pos.y = sv_player->v.origin[1];
-            data.m_frameData.pos.z = sv_player->v.origin[2];
-        } else {
-            edict_t* ent = EDICT_NUM_safe(game_opt_entity);
-            if(ent != NULL) {
-                data.m_frameData.pos.x = ent->v.origin[0];
-                data.m_frameData.pos.y = ent->v.origin[1];
-                data.m_frameData.pos.z = ent->v.origin[2];
-            }
+        if(ent != NULL) {
+            data.m_frameData.pos.x = ent->v.origin[0];
+            data.m_frameData.pos.y = ent->v.origin[1];
+            data.m_frameData.pos.z = ent->v.origin[2];
         }
 
         data.m_bDied = (sv_player->v.health <= 0 && cls.signon == SIGNONS);

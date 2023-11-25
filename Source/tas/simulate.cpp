@@ -6,6 +6,7 @@
 #include "afterframes.hpp"
 #include "optimizer_quake.hpp"
 #include "prediction.hpp"
+#include "hooks.h"
 
 /*
 =============
@@ -651,7 +652,18 @@ SimulationInfo Get_Sim_Info()
 {
 	SimulationInfo info;
 	info.host_frametime = host_frametime;
-	info.ent = *sv_player;
+
+	edict_t* ent = EDICT_NUM_safe((int32_t)tas_predict_entity.value);
+
+	if(ent)
+	{
+		info.ent = *ent;
+	}
+	else
+	{
+		memset(&info.ent, 0, sizeof(edict_t));
+	}
+
 	info.time = sv.time;
 	info.jumpflag = sv_player->v.velocity[2];
 	info.smove = 0;
@@ -1037,7 +1049,11 @@ void Simulator::RunFrame()
 		ApplyFrameblock(info, block);
 	}
 
-	SimulateWithStrafePlusJump(info);
+	if(tas_predict_entity.value == 1.0f)
+	{
+		SimulateWithStrafePlusJump(info);
+	}
+
 	++frame;
 }
 

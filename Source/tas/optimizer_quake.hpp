@@ -15,6 +15,8 @@ extern cvar_t tas_optimizer_entity;
 extern cvar_t tas_optimizer_targetpos;
 struct TASScript;
 
+qboolean Optimizer_Var_Updated(struct cvar_s *var, char *value);
+
 namespace TASQuake {
     void RunOptimizer(bool canPredict);
     const char* OptimizerGoalStr();

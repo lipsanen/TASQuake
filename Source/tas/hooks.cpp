@@ -213,7 +213,6 @@ void TAS_Init()
 	Cvar_Register(&tas_draw_entbbox);
 	Cvar_Register(&tas_optimizer_algs);
 	Cvar_Register(&tas_optimizer_casper);
-	Cvar_Register(&tas_optimizer_entity);
 	Cvar_Register(&tas_optimizer_goal);
 	Cvar_Register(&tas_optimizer_minthp);
 	Cvar_Register(&tas_optimizer_multigame);
@@ -270,6 +269,7 @@ void TAS_Init()
 	Cvar_Register(&TASQuake::tas_log);
 	Cvar_Register(&TASQuake::tas_log_filter);
 	Cvar_Register(&tas_predict);
+	Cvar_Register(&tas_predict_entity);
 	Cvar_Register(&tas_predict_endoffset);
 	Cvar_Register(&tas_predict_grenade);
 	Cvar_Register(&tas_predict_per_frame);

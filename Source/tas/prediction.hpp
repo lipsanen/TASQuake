@@ -9,6 +9,7 @@ extern bool grenade_assigned;
 
 extern cvar_t tas_predict_endoffset;
 extern cvar_t tas_predict_maxlength;
+extern cvar_t tas_predict_entity;
 
 bool Calculate_Prediction_Line(bool canPredict);
 void Calculate_Grenade_Line(bool canPredict);

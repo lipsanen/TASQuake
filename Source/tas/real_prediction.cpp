@@ -18,12 +18,14 @@ cvar_t tas_predict_real = {"tas_predict_real", "0"};
 static double last_edited_time = 0;
 static bool ipc_request_finished = true;
 static int32_t ipc_prediction_id = 0;
+static int32_t ipc_prediction_entity = 1;
 
 void GamePrediction_Receive_IPC(ipc::Message& msg) {
     auto iface = TASQuakeIO::BufferReadInterface::Init((uint8_t*)msg.address + 1, msg.length - 1);
     iface.Read(&data.m_iStartFrame);
     iface.Read(&data.m_iEndFrame);
     iface.Read(&ipc_prediction_id);
+    iface.Read(&ipc_prediction_entity);
     data.m_vecFBdata.clear();
     data.m_vecPoints.clear();
 
@@ -58,7 +60,13 @@ void GamePrediction_Frame_Hook() {
             if(playback->current_frame >= data.m_iStartFrame)
             {
                 TASQuake::Vector v;
-                VectorCopy(sv_player->v.origin, v);
+                edict_t* ent = EDICT_NUM_safe(ipc_prediction_entity);
+
+                if(ent == NULL) {
+                    VectorCopy(vec3_origin, v);
+                } else {
+                    VectorCopy(ent->v.origin, v);
+                }
                 data.m_vecPoints.push_back(v);
                 const FrameBlock* block = playback->Get_Current_Block();
 

@@ -1,6 +1,7 @@
 #include "cpp_quakedef.hpp"
 #include "hooks.h"
 #include "draw.hpp"
+#include "optimizer_quake.hpp"
 #include "prediction.hpp"
 #include "simulate.hpp"
 
@@ -8,6 +9,7 @@ using namespace TASQuake;
 
 cvar_t tas_predict_per_frame{"tas_predict_per_frame", "0.01"};
 cvar_t tas_predict{"tas_predict", "1"};
+cvar_t tas_predict_entity{"tas_predict_entity", "1", 0, Optimizer_Var_Updated};
 cvar_t tas_predict_grenade { "tas_predict_grenade", "0" };
 cvar_t tas_predict_maxlength{"tas_predict_maxlength", "10"};
 const std::array<float, 4> color = { 0, 0, 1, 0.5 };
@@ -52,6 +54,8 @@ bool Calculate_Prediction_Line(bool canPredict)
 		return false;
 	}
 
+	// Can only predict the player entity like this
+
 	auto playback = GetPlaybackInfo();
 	static double last_updated = 0; 
 	double currentTime = Sys_DoubleTime();
@@ -95,7 +99,8 @@ bool Calculate_Prediction_Line(bool canPredict)
 			rects.push_back(rect);
 		}
 
-		sim.RunFrame();
+		sim.RunFrame(); // Only the player entity can be predicted like this
+
 	}
 
 	if (!path_assigned)

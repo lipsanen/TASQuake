@@ -30,12 +30,14 @@ static void Request() {
     writer.WriteBytes(&type, 1);
     auto info = GetPlaybackInfo();
 
+    int32_t index = (int32_t)tas_predict_entity.value;
     int32_t target_frame;
     int32_t current_frame;
     TASQuake::Get_Prediction_Frames(current_frame, target_frame);
     writer.WriteBytes(&current_frame, sizeof(int32_t));
     writer.WriteBytes(&target_frame, sizeof(int32_t));
     writer.WriteBytes(&last_request_id, sizeof(int32_t));
+    writer.WriteBytes(&index, sizeof(int32_t));
     info->current_script.Write_To_Memory(writer);
 
     TASQuake::SV_StopMultiGameOpt();
